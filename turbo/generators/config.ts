@@ -39,7 +39,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "packages/{{kebabCase name}}/src/index.ts",
+        path: "packages/{{kebabCase name}}/src/{{pascalCase name}}.tsx",
+        templateFile: "templates/component.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "packages/{{kebabCase name}}/src/index.tsx",
         templateFile: "templates/index.ts.hbs",
       },
       // Install package ke native app

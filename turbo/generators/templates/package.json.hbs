@@ -1,16 +1,22 @@
 {
   "name": "@masumdev/{{kebabCase name}}",
   "version": "0.1.0",
+  "description": "Generated package from turbo generator",
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -18,13 +24,13 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "@types/react": "latest",
-    "tsup": "latest",
-    "typescript": "latest"
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "expo": "*",
-    "react": "*",
-    "react-native": "*"
+    "react": ">=16",
+    "react-native": "*",
+    "expo": "*"
   }
 }

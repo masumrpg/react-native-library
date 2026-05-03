@@ -2,9 +2,6 @@
 
 A powerful and highly customizable QR code generation library for React Native and Expo applications, built with `react-native-svg`.
 
-[![npm version](https://img.shields.io/npm/v/@masumdev/react-native-qr-code-gen.svg)](https://www.npmjs.com/package/@masumdev/react-native-qr-code-gen)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 <div style="display: flex; gap: 8px;">
   <img src="https://img.shields.io/npm/v/@masumdev/react-native-qr-code-gen" alt="npm version" />
   <img src="https://img.shields.io/npm/dt/@masumdev/react-native-qr-code-gen" alt="npm downloads" />
@@ -52,10 +49,10 @@ import { QRCode } from '@masumdev/react-native-qr-code-gen';
 
 const MyComponent = () => {
   return (
-    <QRCode 
-      variant="BASIC" 
-      value="https://github.com/masumrpg" 
-      size={300} 
+    <QRCode
+      variant="BASIC"
+      value="https://github.com/masumrpg"
+      size={300}
     />
   );
 };
