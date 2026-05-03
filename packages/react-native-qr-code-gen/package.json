@@ -18,12 +18,18 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "typescript": "latest",
-    "tsup": "latest"
+    "@types/react": "latest",
+    "tsup": "latest",
+    "typescript": "latest"
   },
   "peerDependencies": {
     "expo": "*",
     "react": "*",
     "react-native": "*"
+  },
+  "dependencies": {
+    "@types/qrcode": "^1.5.6",
+    "qrcode": "^1.5.4",
+    "react-native-svg": "^15.15.4"
   }
 }

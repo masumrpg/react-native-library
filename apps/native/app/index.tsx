@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import {reactNativeQrCodeGen} from "@masum/react-native-qr-code-gen";
+import {} from "@masum/react-native-qr-code-gen";
 
 export default function Native() {
   return (
