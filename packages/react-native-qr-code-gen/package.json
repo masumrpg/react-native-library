@@ -1,35 +1,54 @@
 {
   "name": "@masum/react-native-qr-code-gen",
   "version": "0.1.0",
+  "description": "A modern, customizable QR code generator for React Native and Expo with SVG support and beautiful presets.",
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist"
   },
+  "keywords": [
+    "react-native",
+    "expo",
+    "qr-code",
+    "generator",
+    "svg",
+    "custom-qr",
+    "styled-qr"
+  ],
+  "author": "Ma'sum",
+  "license": "MIT",
   "devDependencies": {
-    "@types/react": "latest",
-    "tsup": "latest",
-    "typescript": "latest"
+    "@types/react": "^18.0.0",
+    "@types/qrcode": "^1.5.5",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "expo": "*",
-    "react": "*",
-    "react-native": "*"
+    "react": ">=16",
+    "react-native": "*",
+    "react-native-svg": ">=12"
   },
   "dependencies": {
-    "@types/qrcode": "^1.5.6",
-    "qrcode": "^1.5.4",
-    "react-native-svg": "^15.15.4"
+    "qrcode": "^1.5.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
