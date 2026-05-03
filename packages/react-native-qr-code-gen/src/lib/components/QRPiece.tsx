@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Circle, Rect, Path } from 'react-native-svg';
 import { PieceOptions } from '../types';
 
@@ -13,7 +13,7 @@ type QRPieceProps = {
   asMask?: boolean;
 };
 
-export const QRPiece = ({
+const QRPieceComponent = ({
   x,
   y,
   cell,
@@ -21,7 +21,7 @@ export const QRPiece = ({
   pieceOptions,
   defaultColor,
   keyPrefix,
-  asMask = false, // ← default: false (normal mode)
+  asMask = false,
 }: QRPieceProps) => {
   if (!cell) return null;
 
@@ -60,7 +60,7 @@ export const QRPiece = ({
   } ${posY - adjustedSize * 0.2} ${posX + adjustedSize} ${
     posY + adjustedSize * 0.5
   }
-      C ${posX + adjustedSize} ${posY} ${posX + adjustedSize / 2} ${
+      C ${posX} ${posY} ${posX + adjustedSize / 2} ${
     posY + adjustedSize * 0.5
   } ${posX + adjustedSize / 2} ${posY + adjustedSize}
       Z`
@@ -144,3 +144,5 @@ export const QRPiece = ({
       );
   }
 };
+
+export const QRPiece = memo(QRPieceComponent);

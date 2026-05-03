@@ -115,10 +115,10 @@ const QRCodeGeneratorSVG = (
     </>
   );
 
-  const renderPieces = (defaultColor: string, asMask?: boolean) =>
-    matrix.map((row, y) =>
+  const renderPieces = (defaultColor: string, asMask?: boolean) => {
+    return matrix.flatMap((row, y) =>
       row.map((cell, x) => {
-        if (isInEye(x, y)) return null;
+        if (!cell || isInEye(x, y)) return null;
         return (
           <QRPiece
             key={`piece-${x}-${y}`}
@@ -134,6 +134,7 @@ const QRCodeGeneratorSVG = (
         );
       })
     );
+  };
 
   // --- CASE 1: Gradient with maskLogo
   if (gradient?.maskLogo) {
