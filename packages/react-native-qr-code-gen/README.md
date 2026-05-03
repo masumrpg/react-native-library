@@ -84,6 +84,8 @@ import { QRCode } from '@masumdev/react-native-qr-code-gen';
 | gradient             | QRCodeGradientConfig     | -       | Gradient configuration. |
 | piece                | PieceOptions             | -       | Customizing QR dots. |
 | eye                  | EyeOptions               | -       | Customizing corner squares. |
+| isLoading            | boolean                  | false   | Force loading state. |
+| renderLoading        | () => ReactNode          | -       | Custom loading component. |
 
 #### QRCodeVariant
 `'BASIC'` | `'TRIANGLE'` | `'HEART'` | `'DOT'` | `'WITH_LOGO'` | `'RAIN'` | `'LINEAR_GRADIENT'` | `'RADIAL_GRADIENT'` | `'IMAGE_BACKGROUND'`

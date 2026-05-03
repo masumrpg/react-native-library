@@ -1,8 +1,20 @@
-import React from 'react'
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
 
 export default function Native() {
+  const [demoLoading, setDemoLoading] = useState(true);
+
+  const refreshLoading = () => {
+    setDemoLoading(true);
+    setTimeout(() => setDemoLoading(false), 3000);
+  };
+
+  useEffect(() => {
+    refreshLoading();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -41,6 +53,42 @@ export default function Native() {
           <View style={styles.bareContainer}>
             <Text style={styles.label}>Dot (Bare)</Text>
             <QRCode value="Dots" size={150} variant="DOT" />
+          </View>
+        </View>
+
+        {/* --- Loading States --- */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Loading & Fallbacks</Text>
+            <TouchableOpacity 
+              style={styles.refreshButton} 
+              onPress={refreshLoading}
+              disabled={demoLoading}
+            >
+              <Text style={styles.refreshButtonText}>
+                {demoLoading ? 'Loading...' : 'Simulate Loading'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.label}>Default Loading (Placeholder)</Text>
+            <QRCode value="loading" size={180} isLoading={demoLoading} />
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.label}>Custom Loading Renderer</Text>
+            <QRCode 
+              value="loading-custom" 
+              size={180} 
+              isLoading={demoLoading} 
+              renderLoading={() => (
+                <View style={[styles.loadingPlaceholder, { width: 180, height: 180 }]}>
+                  <ActivityIndicator size="large" color="#6200ee" />
+                  <Text style={{ marginTop: 10, fontSize: 12, color: '#666' }}>Generating...</Text>
+                </View>
+              )}
+            />
           </View>
         </View>
 
@@ -110,6 +158,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingLeft: 14,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  refreshButton: {
+    backgroundColor: '#6366f1',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  refreshButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   card: {
     backgroundColor: "#ffffff",
     padding: 25,
@@ -154,6 +219,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textTransform: "uppercase",
     letterSpacing: 1.2,
+  },
+  loadingPlaceholder: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderStyle: 'dashed',
   },
   footer: {
     marginTop: 20,

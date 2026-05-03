@@ -127,6 +127,8 @@ type QRCodeGeneratorProps = {
   version?: QRCodeVersion;
   maxVersion?: QRCodeVersion;
   errorCorrectionLevel?: QRCodeErrorCorrectionLevel;
+  isLoading?: boolean;
+  renderLoading?: () => React.ReactNode;
 };
 
 type Percentage = `${number}%`;

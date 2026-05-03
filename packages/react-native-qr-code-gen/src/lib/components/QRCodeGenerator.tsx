@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from 'react-native';
 import { Svg, Rect } from 'react-native-svg';
 import { QRCodeGeneratorProps } from '../types';
 import { useGenerateQrCode } from '../hooks';
@@ -24,6 +25,8 @@ const QRCodeGeneratorSVG = (
     version,
     maxVersion,
     errorCorrectionLevel,
+    isLoading = false,
+    renderLoading,
   }: QRCodeGeneratorProps,
   ref?: React.ForwardedRef<Svg> | null
 ) => {
@@ -35,8 +38,23 @@ const QRCodeGeneratorSVG = (
     errorCorrectionLevel,
   });
 
-  if (matrix.length === 0) {
-    return null;
+  if (isLoading || matrix.length === 0) {
+    if (renderLoading) {
+      return <>{renderLoading()}</>;
+    }
+    // Default placeholder to maintain layout stability
+    return (
+      <View
+        style={{
+          width: size,
+          height: size,
+          backgroundColor: backgroundColor === 'transparent' ? '#f5f5f5' : backgroundColor,
+          borderRadius: includeBackground ? 12 : 0,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      />
+    );
   }
 
   const cellSize = size / matrix.length;
