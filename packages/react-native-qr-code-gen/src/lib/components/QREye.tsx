@@ -1,3 +1,4 @@
+import React from 'react';
 import { G, Circle, Path, Defs, Mask, Rect } from 'react-native-svg';
 import {
   DotShapeProps,

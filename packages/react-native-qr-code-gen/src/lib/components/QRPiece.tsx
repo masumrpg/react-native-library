@@ -1,3 +1,4 @@
+import React from 'react';
 import { Circle, Rect, Path } from 'react-native-svg';
 import { PieceOptions } from '../types';
 

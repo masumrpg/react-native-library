@@ -1,3 +1,4 @@
+import React from 'react';
 import { Svg, Defs, Image as SVGImage, G, ClipPath } from 'react-native-svg';
 import { QRImageProps } from '../types';
 
