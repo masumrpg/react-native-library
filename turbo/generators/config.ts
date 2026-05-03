@@ -29,6 +29,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "packages/{{kebabCase name}}/tsconfig.build.json",
+        templateFile: "templates/tsconfig.build.json.hbs",
+      },
+      {
+        type: "add",
         path: "packages/{{kebabCase name}}/tsup.config.ts",
         templateFile: "templates/tsup.config.ts.hbs",
       },

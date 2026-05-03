@@ -4,8 +4,7 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
-    "jsx": "react-native",
-    "ignoreDeprecations": "6.0"
+    "jsx": "react-native"
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

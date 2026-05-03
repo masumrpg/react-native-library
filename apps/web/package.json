@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@repo/ui": "*",
     "next": "16.2.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -17,7 +16,6 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
-    "@types/minimatch": "^6.0.0",
     "@types/node": "^20.10.6",
     "@types/react": "~19.2.10",
     "@types/react-dom": "~19.2.0",
