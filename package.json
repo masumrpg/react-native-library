@@ -1,12 +1,16 @@
 {
+  "name": "react-native-library",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
+    "dev:native": "turbo dev --filter='@masum/*' --filter=native",
+    "gen:expo-package": "bunx turbo gen expo-package",
     "build": "turbo run build",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
   },
   "devDependencies": {
+    "@turbo/gen": "^2.9.8",
     "@types/minimatch": "^6.0.0",
     "prettier": "^3.1.1",
     "turbo": "^2.9.8"
@@ -14,7 +18,6 @@
   "engines": {
     "node": ">=18"
   },
-  "name": "with-react-native-web",
   "packageManager": "bun@1.3.11",
   "workspaces": [
     "apps/*",

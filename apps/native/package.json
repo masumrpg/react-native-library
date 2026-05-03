@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "dev": "expo start --web",
+    "dev": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -16,15 +16,13 @@
     "expo-constants": "~55.0.7",
     "expo-linking": "~55.0.7",
     "expo-router": "~55.0.3",
-    "expo-status-bar": "~55.0.4",
-    "expo-system-ui": "~55.0.9",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.2",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
-    "react-native-web": "^0.21.0"
-  },
+    "react-native-web": "^0.21.0",
+    "@masum/react-native-qr-code-gen": "workspace:*"},
   "devDependencies": {
     "@types/react": "~19.2.10",
     "typescript": "5.9.2"
