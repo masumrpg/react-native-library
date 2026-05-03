@@ -1,5 +1,5 @@
 {
-  "name": "@masum/react-native-qr-code-gen",
+  "name": "@masumdev/react-native-qr-code-gen",
   "version": "0.1.0",
   "description": "A modern, customizable QR code generator for React Native and Expo with SVG support and beautiful presets.",
   "main": "./dist/index.js",

@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
-import { QRCode, QR_CODE_CONFIGS } from "@masum/react-native-qr-code-gen";
+import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
 
 export default function Native() {
   return (

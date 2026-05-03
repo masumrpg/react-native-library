@@ -47,7 +47,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: "modify",
         path: "apps/native/package.json",
         pattern: /(\"dependencies\": \{[^}]*)(})/,
-        template: '$1,\n    "@masum/{{kebabCase name}}": "workspace:*"$2',
+        template: '$1,\n    "@masumdev/{{kebabCase name}}": "workspace:*"$2',
       },
     ],
   });
