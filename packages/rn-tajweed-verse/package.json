@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/rn-tajweed-verse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A highly customizable React Native and Expo component to parse and render Quranic verses with Tajweed color-coding, interactive tooltips, and themes.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
