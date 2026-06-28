@@ -11,6 +11,17 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import TajweedVerse, { TajweedThemes } from "@masumdev/rn-tajweed-verse";
+import {
+  ChevronLeft,
+  Sliders,
+  Type,
+  BookOpen,
+  Palette,
+  Eye,
+  Info,
+  Code,
+  Zap,
+} from "lucide-react-native";
 
 // Real Quran Tajweed samples from the database
 const quranSamples = [
@@ -50,7 +61,7 @@ const quranSamples = [
     id: 9,
     label: "Al-Baqarah 2",
     verse:
-      "ذَ[n[َٰ]لِكَ [h:11[ٱ]لْكِتَٰبُ لَا رَيْبَۛ فِيهِۛ هُ[u:12[دًى ل]ِّ لْمُتَّقِ[p[ِي]نَ",
+      "ذَ[n[َٰ]لِكَ [h:11[ٱ]لْكِتَٰبُ لَا رَيْبَۛ فِيهِۛ هُ[u:12[دًى ل]ِّ لْمُtَّقِ[p[ِي]نَ",
   },
 ];
 
@@ -165,21 +176,28 @@ export default function TajweedVerseScreen() {
       <View style={styles.headerBar}>
         <TouchableOpacity
           style={styles.backButton}
+          activeOpacity={0.7}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <ChevronLeft color="#334155" size={22} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tajweed Verse Renderer</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        style={styles.contentScroll}
+        contentContainerStyle={styles.container}
+      >
         <Text style={styles.subHeader}>
           Quranic text parsing, coloring, and interactions
         </Text>
 
-        {/* --- Interactive & Plain Mode Toggles --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Render Configurations</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Sliders color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Configurations</Text>
+          </View>
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.rowLabel}>Color-Coding (colored)</Text>
@@ -191,8 +209,8 @@ export default function TajweedVerseScreen() {
                 {
                   borderTopWidth: 1,
                   borderTopColor: "#f1f5f9",
-                  paddingTop: 10,
-                  marginTop: 10,
+                  paddingTop: 12,
+                  marginTop: 12,
                 },
               ]}
             >
@@ -204,17 +222,19 @@ export default function TajweedVerseScreen() {
           </View>
         </View>
 
-        {/* --- Arabic Font Selector --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quranic Arabic Fonts</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Type color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Quranic Arabic Fonts</Text>
+          </View>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.sampleSelector}
+            contentContainerStyle={styles.scrollList}
           >
             {(
               [
-                { key: "system", label: "System Default" },
+                { key: "system", label: "System" },
                 { key: "amiri", label: "Amiri" },
                 { key: "amiri-quran", label: "Amiri Quran" },
                 { key: "noto", label: "Noto Naskh" },
@@ -230,15 +250,15 @@ export default function TajweedVerseScreen() {
               <TouchableOpacity
                 key={font.key}
                 style={[
-                  styles.sampleButton,
-                  selectedFont === font.key && styles.sampleButtonActive,
+                  styles.selectorItem,
+                  selectedFont === font.key && styles.selectorItemActive,
                 ]}
                 onPress={() => setSelectedFont(font.key)}
               >
                 <Text
                   style={[
-                    styles.sampleButtonText,
-                    selectedFont === font.key && styles.sampleButtonTextActive,
+                    styles.selectorItemText,
+                    selectedFont === font.key && styles.selectorItemTextActive,
                   ]}
                 >
                   {font.label}
@@ -248,23 +268,25 @@ export default function TajweedVerseScreen() {
           </ScrollView>
         </View>
 
-        {/* --- Quran Database Samples --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quran Database Samples</Text>
+          <View style={styles.sectionTitleContainer}>
+            <BookOpen color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Quran Database Samples</Text>
+          </View>
           <Text style={styles.description}>
             Select an Ayah containing real database tags (e.g. [h:1[ٱ])
           </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.sampleSelector}
+            contentContainerStyle={styles.scrollList}
           >
             {quranSamples.map((sample) => (
               <TouchableOpacity
                 key={sample.label}
                 style={[
-                  styles.sampleButton,
-                  verseText === sample.verse && styles.sampleButtonActive,
+                  styles.selectorItem,
+                  verseText === sample.verse && styles.selectorItemActive,
                 ]}
                 onPress={() => {
                   setVerseText(sample.verse);
@@ -276,8 +298,8 @@ export default function TajweedVerseScreen() {
               >
                 <Text
                   style={[
-                    styles.sampleButtonText,
-                    verseText === sample.verse && styles.sampleButtonTextActive,
+                    styles.selectorItemText,
+                    verseText === sample.verse && styles.selectorItemTextActive,
                   ]}
                 >
                   {sample.label}
@@ -287,9 +309,11 @@ export default function TajweedVerseScreen() {
           </ScrollView>
         </View>
 
-        {/* --- Theme Presets Selection --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Theme Presets</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Palette color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Theme Presets</Text>
+          </View>
           <View style={styles.themeSelector}>
             {(["classic", "dark", "pastel", "accessible"] as const).map(
               (theme) => (
@@ -315,22 +339,28 @@ export default function TajweedVerseScreen() {
           </View>
         </View>
 
-        {/* --- Live Preview Screen --- */}
         <View
           style={[
             styles.section,
             selectedTheme === "dark" && styles.sectionDarkBg,
-            { borderRadius: 24, padding: 15 },
+            { borderRadius: 24, padding: 16 },
           ]}
         >
-          <Text
-            style={[
-              styles.sectionTitle,
-              selectedTheme === "dark" && { color: "#e2e8f0" },
-            ]}
-          >
-            Live Preview
-          </Text>
+          <View style={styles.sectionTitleContainer}>
+            <Eye
+              color={selectedTheme === "dark" ? "#e2e8f0" : "#6366f1"}
+              size={18}
+              style={{ marginRight: 8 }}
+            />
+            <Text
+              style={[
+                styles.sectionTitle,
+                selectedTheme === "dark" && { color: "#e2e8f0" },
+              ]}
+            >
+              Live Preview
+            </Text>
+          </View>
 
           <View
             style={[
@@ -351,21 +381,25 @@ export default function TajweedVerseScreen() {
           </View>
         </View>
 
-        {/* --- Interactive Rule Info Display --- */}
         {isInteractive && isColored && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{customInfoTitle}</Text>
+            <View style={styles.sectionTitleContainer}>
+              <Info color="#6366f1" size={18} style={{ marginRight: 8 }} />
+              <Text style={styles.sectionTitle}>{customInfoTitle}</Text>
+            </View>
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>{customInfoText}</Text>
             </View>
           </View>
         )}
 
-        {/* --- Custom Parser Rules --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Custom Rule Pattern Injection</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Code color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Custom Rule Injection</Text>
+          </View>
           <Text style={styles.description}>
-            Demonstrates custom rules (e.g. bold underline styling for specific
+            Demonstrates highlights (e.g. bold underline styling for specific
             words)
           </Text>
 
@@ -398,20 +432,23 @@ export default function TajweedVerseScreen() {
           </View>
         </View>
 
-        {/* --- Memoization Test --- */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Memoization Performance Check</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Zap color="#6366f1" size={18} style={{ marginRight: 8 }} />
+            <Text style={styles.sectionTitle}>Performance Memoization</Text>
+          </View>
           <View style={styles.card}>
             <Text style={styles.perfText}>
-              The TajweedVerse component is memoized using React.memo. When
-              other parts of the parent component update (like the counter
-              below), the verse is NOT re-parsed.
+              The TajweedVerse component is memoized using React.memo.
+              Re-renders on parent state changes (like the counter below) do not
+              trigger parser runs.
             </Text>
             <Text style={styles.counterText}>
-              Parent Render Check: {renderCount}
+              Parent Render Count: {renderCount}
             </Text>
             <TouchableOpacity
               style={styles.perfButton}
+              activeOpacity={0.7}
               onPress={() => setRenderCount((prev) => prev + 1)}
             >
               <Text style={styles.perfButtonText}>Trigger Re-render</Text>
@@ -430,11 +467,12 @@ export default function TajweedVerseScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#ffffff",
   },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#ffffff",
@@ -442,60 +480,67 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f1f5f9",
   },
   backButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    width: 40,
+    height: 40,
     backgroundColor: "#f1f5f9",
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  backButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#334155",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: "#0f172a",
   },
+  contentScroll: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   container: {
-    padding: 20,
+    padding: 24,
     alignItems: "center",
   },
   subHeader: {
     fontSize: 14,
     color: "#64748b",
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
   },
   section: {
     width: "100%",
-    marginBottom: 24,
+    marginBottom: 32,
   },
   sectionDarkBg: {
     backgroundColor: "#0f172a",
   },
+  sectionTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: "#334155",
-    marginBottom: 10,
-    paddingLeft: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: "#6366f1",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
   description: {
     fontSize: 12,
     color: "#94a3b8",
-    marginBottom: 12,
-    paddingLeft: 14,
+    marginBottom: 14,
   },
   card: {
     backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#f1f5f9",
+    shadowColor: "#0f172a",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.02,
+    shadowRadius: 10,
+    elevation: 1,
   },
   row: {
     flexDirection: "row",
@@ -507,36 +552,31 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#475569",
   },
-  sampleSelector: {
+  scrollList: {
     flexDirection: "row",
     paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
-  sampleButton: {
+  selectorItem: {
     backgroundColor: "#ffffff",
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    marginRight: 8,
+    marginRight: 10,
   },
-  sampleButtonActive: {
+  selectorItemActive: {
     backgroundColor: "#10b981",
     borderColor: "#10b981",
   },
-  sampleButtonText: {
+  selectorItemText: {
     fontSize: 12,
     fontWeight: "700",
     color: "#475569",
   },
-  sampleButtonTextActive: {
+  selectorItemTextActive: {
     color: "#ffffff",
-  },
-  selectorRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
   },
   themeSelector: {
     flexDirection: "row",
@@ -546,12 +586,12 @@ const styles = StyleSheet.create({
   themeButton: {
     flex: 1,
     backgroundColor: "#ffffff",
-    paddingVertical: 10,
+    paddingVertical: 12,
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    marginHorizontal: 3,
+    marginHorizontal: 4,
   },
   themeButtonActive: {
     backgroundColor: "#6366f1",
@@ -569,7 +609,7 @@ const styles = StyleSheet.create({
   previewCard: {
     backgroundColor: "#ffffff",
     padding: 24,
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     minHeight: 180,
@@ -578,33 +618,33 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: "#eff6ff",
-    padding: 16,
-    borderRadius: 16,
+    padding: 20,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "#dbeafe",
   },
   infoText: {
     fontSize: 13,
     color: "#1e40af",
-    lineHeight: 20,
+    lineHeight: 22,
   },
   perfText: {
     fontSize: 13,
-    color: "#475569",
-    lineHeight: 20,
-    marginBottom: 15,
+    color: "#64748b",
+    lineHeight: 22,
+    marginBottom: 16,
   },
   counterText: {
     fontSize: 14,
     fontWeight: "700",
     color: "#0f172a",
     textAlign: "center",
-    marginBottom: 12,
+    marginBottom: 14,
   },
   perfButton: {
     backgroundColor: "#6366f1",
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 14,
     alignItems: "center",
   },
   perfButtonText: {
@@ -613,8 +653,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   footer: {
+    width: "100%",
+    alignItems: "center",
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   footerText: {
     color: "#cbd5e1",

@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
+import { ChevronLeft, RefreshCw } from "lucide-react-native";
 
 export default function QRCodeScreen() {
   const router = useRouter();
@@ -29,19 +30,23 @@ export default function QRCodeScreen() {
       <View style={styles.headerBar}>
         <TouchableOpacity
           style={styles.backButton}
+          activeOpacity={0.7}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <ChevronLeft color="#334155" size={22} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>QR Code Generator</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        style={styles.contentScroll}
+        contentContainerStyle={styles.container}
+      >
         <Text style={styles.subHeader}>
           Modern & Custom QR Components with Presets
         </Text>
 
-        {/* --- Variant With Cards (No Shadow) --- */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Featured Variants</Text>
 
@@ -61,7 +66,6 @@ export default function QRCodeScreen() {
           </View>
         </View>
 
-        {/* --- Variant Without Cards (Bare) --- */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Bare Variants (No Card)</Text>
 
@@ -76,15 +80,19 @@ export default function QRCodeScreen() {
           </View>
         </View>
 
-        {/* --- Loading States --- */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Loading & Fallbacks</Text>
             <TouchableOpacity
-              style={styles.refreshButton}
+              style={[
+                styles.refreshButton,
+                demoLoading && styles.refreshButtonDisabled,
+              ]}
+              activeOpacity={0.7}
               onPress={refreshLoading}
               disabled={demoLoading}
             >
+              <RefreshCw color="white" size={14} style={{ marginRight: 6 }} />
               <Text style={styles.refreshButtonText}>
                 {demoLoading ? "Loading..." : "Simulate"}
               </Text>
@@ -110,7 +118,9 @@ export default function QRCodeScreen() {
                   ]}
                 >
                   <ActivityIndicator size="large" color="#6366f1" />
-                  <Text style={{ marginTop: 10, fontSize: 12, color: "#666" }}>
+                  <Text
+                    style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}
+                  >
                     Generating...
                   </Text>
                 </View>
@@ -119,11 +129,10 @@ export default function QRCodeScreen() {
           </View>
         </View>
 
-        {/* --- Preset Gallery Section --- */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Library Presets Gallery</Text>
           <Text style={styles.description}>
-            Automatically rendered from QR_CODE_CONFIGS
+            Automatically rendered from QR_CODE_CONFIGS config presets
           </Text>
 
           <View style={styles.grid}>
@@ -134,7 +143,9 @@ export default function QRCodeScreen() {
                   size={110}
                   variant={variantKey as keyof typeof QR_CODE_CONFIGS}
                 />
-                <Text style={styles.gridLabel}>{variantKey}</Text>
+                <Text style={styles.gridLabel}>
+                  {variantKey.replace(/_/g, " ")}
+                </Text>
               </View>
             ))}
           </View>
@@ -151,11 +162,12 @@ export default function QRCodeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#ffffff",
   },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#ffffff",
@@ -163,81 +175,93 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f1f5f9",
   },
   backButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    width: 40,
+    height: 40,
     backgroundColor: "#f1f5f9",
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  backButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#334155",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: "#0f172a",
   },
+  contentScroll: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   container: {
-    padding: 20,
+    padding: 24,
     alignItems: "center",
   },
   subHeader: {
     fontSize: 14,
     color: "#64748b",
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
   },
   section: {
     width: "100%",
-    marginBottom: 30,
+    marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: "#334155",
-    marginBottom: 10,
-    paddingLeft: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: "#6366f1",
+    marginBottom: 12,
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
   description: {
     fontSize: 12,
     color: "#94a3b8",
-    marginBottom: 15,
-    paddingLeft: 14,
+    marginBottom: 16,
   },
   sectionHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   refreshButton: {
     backgroundColor: "#6366f1",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  refreshButtonDisabled: {
+    opacity: 0.6,
   },
   refreshButtonText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   card: {
     backgroundColor: "#ffffff",
-    padding: 20,
-    borderRadius: 20,
+    padding: 24,
+    borderRadius: 24,
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: "#f1f5f9",
+    shadowColor: "#0f172a",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.02,
+    shadowRadius: 10,
+    elevation: 1,
   },
   bareContainer: {
     alignItems: "center",
-    marginBottom: 20,
-    padding: 10,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#f1f5f9",
   },
   grid: {
     flexDirection: "row",
@@ -247,40 +271,43 @@ const styles = StyleSheet.create({
   gridItem: {
     width: "48%",
     backgroundColor: "white",
-    padding: 12,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 20,
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: "#f1f5f9",
   },
   gridLabel: {
-    fontSize: 9,
-    fontWeight: "700",
+    fontSize: 10,
+    fontWeight: "800",
     color: "#64748b",
-    marginTop: 8,
+    marginTop: 10,
     textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   label: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "800",
     color: "#94a3b8",
-    marginBottom: 12,
+    marginBottom: 16,
     textTransform: "uppercase",
     letterSpacing: 1.2,
   },
   loadingPlaceholder: {
-    backgroundColor: "#f1f5f9",
-    borderRadius: 12,
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#cbd5e1",
     borderStyle: "dashed",
   },
   footer: {
+    width: "100%",
+    alignItems: "center",
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   footerText: {
     color: "#cbd5e1",
