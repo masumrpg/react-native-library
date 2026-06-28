@@ -1,7 +1,7 @@
-import { QRCodeErrorCorrectionLevel } from 'qrcode';
-import React from 'react';
-import { ImageProps } from 'react-native-svg';
-import { QR_CODE_CONFIGS } from '../constants';
+import { QRCodeErrorCorrectionLevel } from "qrcode";
+import React from "react";
+import { ImageProps } from "react-native-svg";
+import { QR_CODE_CONFIGS } from "../constants";
 
 type EyeCornerRadius = {
   tl?: number;
@@ -58,24 +58,24 @@ type BaseEyeOptions = {
 };
 
 type SquareEyeOptions = BaseEyeOptions & {
-  shape: 'square';
+  shape: "square";
   radius?: SquareRadius;
   size?: EyeSize;
 };
 
 type CircleEyeOptions = BaseEyeOptions & {
-  shape: 'circle';
+  shape: "circle";
   size?: EyeSize;
 };
 
 type OtherShapeEyeOptions = BaseEyeOptions & {
-  shape?: 'dot' | 'triangle' | 'heart';
+  shape?: "dot" | "triangle" | "heart";
 };
 
 type EyeOptions = CircleEyeOptions | OtherShapeEyeOptions | SquareEyeOptions;
 
 type PieceOptions = {
-  shape?: 'square' | 'dot' | 'rounded' | 'heart' | 'triangle' | 'rain';
+  shape?: "square" | "dot" | "rounded" | "heart" | "triangle" | "rain";
   color?: string;
   size?: number; // Size multiplier relative to cell size (1 = full size)
   opacity?: number;
@@ -94,7 +94,7 @@ type LogoOptions = {
 
 type QRCodeGradientConfig = Omit<
   QRGradientProps,
-  'width' | 'height' | 'children'
+  "width" | "height" | "children"
 > & {
   maskLogo?: boolean;
   direction?: GradientDirection;
@@ -140,17 +140,17 @@ type GradientColor = {
 };
 
 type GradientDirection =
-  | 'to-right'
-  | 'to-left'
-  | 'to-bottom'
-  | 'to-top'
-  | 'to-bottom-right'
-  | 'to-bottom-left'
-  | 'to-top-right'
-  | 'to-top-left';
+  | "to-right"
+  | "to-left"
+  | "to-bottom"
+  | "to-top"
+  | "to-bottom-right"
+  | "to-bottom-left"
+  | "to-top-right"
+  | "to-top-left";
 
 type LinearProps = {
-  type: 'linear';
+  type: "linear";
   direction?: GradientDirection;
   x1?: string;
   y1?: string;
@@ -160,7 +160,7 @@ type LinearProps = {
 };
 
 type RadialProps = {
-  type: 'radial';
+  type: "radial";
   cx?: string;
   cy?: string;
   r?: string;

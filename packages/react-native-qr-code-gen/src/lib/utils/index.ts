@@ -1,10 +1,10 @@
-import { EyeCornerRadius, EyeLayerRadius } from '../types';
+import { EyeCornerRadius, EyeLayerRadius } from "../types";
 
 const normalizeRadius = (r: EyeLayerRadius = 0): EyeCornerRadius => {
   if (r === null || r === undefined) {
     return { tl: 0, tr: 0, br: 0, bl: 0 };
   }
-  return typeof r === 'number'
+  return typeof r === "number"
     ? { tl: r, tr: r, br: r, bl: r }
     : {
         tl: r.tl || 0,
@@ -19,7 +19,7 @@ const roundedRectPath = (
   y: number,
   w: number,
   h: number,
-  r: EyeCornerRadius = {}
+  r: EyeCornerRadius = {},
 ) => {
   const { tl = 0, tr = 0, br = 0, bl = 0 } = r;
 

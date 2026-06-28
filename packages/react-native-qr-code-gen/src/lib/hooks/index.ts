@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import QRCode, { QRCodeErrorCorrectionLevel } from 'qrcode';
-import { LogoOptions } from '../types';
+import { useMemo } from "react";
+import QRCode, { QRCodeErrorCorrectionLevel } from "qrcode";
+import { LogoOptions } from "../types";
 
 type Props = {
   value: string;
@@ -20,7 +20,7 @@ export const useGenerateQrCode = ({
   const matrix = useMemo(() => {
     try {
       const level: QRCodeErrorCorrectionLevel =
-        errorCorrectionLevel ?? (logo ? 'H' : 'M');
+        errorCorrectionLevel ?? (logo ? "H" : "M");
 
       let qr;
 
@@ -54,7 +54,7 @@ export const useGenerateQrCode = ({
 
       return newMatrix;
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error("Error generating QR code:", error);
       return [];
     }
   }, [value, logo, version, maxVersion, errorCorrectionLevel]);

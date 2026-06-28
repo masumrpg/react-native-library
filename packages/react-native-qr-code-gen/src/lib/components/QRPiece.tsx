@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import { Circle, Rect, Path } from 'react-native-svg';
-import { PieceOptions } from '../types';
+import React, { memo } from "react";
+import { Circle, Rect, Path } from "react-native-svg";
+import { PieceOptions } from "../types";
 
 type QRPieceProps = {
   x: number;
@@ -25,10 +25,10 @@ const QRPieceComponent = ({
 }: QRPieceProps) => {
   if (!cell) return null;
 
-  const color = asMask ? 'white' : defaultColor;
+  const color = asMask ? "white" : defaultColor;
 
   const {
-    shape = 'square',
+    shape = "square",
     color: pieceColor = color,
     size: pieceSize = 1,
     opacity = 1,
@@ -50,25 +50,25 @@ const QRPieceComponent = ({
   const heartPath = `
       M ${posX + adjustedSize / 2} ${posY + adjustedSize}
       C ${posX + adjustedSize / 2} ${
-    posY + adjustedSize * 0.5
-  } ${posX} ${posY} ${posX} ${posY + adjustedSize * 0.5}
+        posY + adjustedSize * 0.5
+      } ${posX} ${posY} ${posX} ${posY + adjustedSize * 0.5}
       C ${posX} ${posY - adjustedSize * 0.2} ${posX + adjustedSize / 2} ${
-    posY - adjustedSize * 0.2
-  } ${posX + adjustedSize / 2} ${posY + adjustedSize * 0.3}
+        posY - adjustedSize * 0.2
+      } ${posX + adjustedSize / 2} ${posY + adjustedSize * 0.3}
       C ${posX + adjustedSize / 2} ${posY - adjustedSize * 0.2} ${
-    posX + adjustedSize
-  } ${posY - adjustedSize * 0.2} ${posX + adjustedSize} ${
-    posY + adjustedSize * 0.5
-  }
+        posX + adjustedSize
+      } ${posY - adjustedSize * 0.2} ${posX + adjustedSize} ${
+        posY + adjustedSize * 0.5
+      }
       C ${posX} ${posY} ${posX + adjustedSize / 2} ${
-    posY + adjustedSize * 0.5
-  } ${posX + adjustedSize / 2} ${posY + adjustedSize}
+        posY + adjustedSize * 0.5
+      } ${posX + adjustedSize / 2} ${posY + adjustedSize}
       Z`
     .trim()
-    .replace(/\s+/g, ' ');
+    .replace(/\s+/g, " ");
 
   switch (shape) {
-    case 'triangle':
+    case "triangle":
       return (
         <Path
           key={keyPrefix}
@@ -79,7 +79,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case 'heart':
+    case "heart":
       return (
         <Path
           key={keyPrefix}
@@ -88,7 +88,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case 'dot':
+    case "dot":
       return (
         <Circle
           key={keyPrefix}
@@ -99,7 +99,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case 'rounded':
+    case "rounded":
       return (
         <Rect
           key={keyPrefix}
@@ -113,7 +113,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case 'rain':
+    case "rain":
       return (
         <Rect
           key={keyPrefix}
@@ -127,7 +127,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case 'square':
+    case "square":
     default:
       return (
         <Rect

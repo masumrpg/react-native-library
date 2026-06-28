@@ -1,12 +1,7 @@
-import React from 'react';
-import { G, Circle, Path, Defs, Mask, Rect } from 'react-native-svg';
-import {
-  DotShapeProps,
-  EyeSize,
-  QREyeProps,
-  SquareRadius,
-} from '../types';
-import { normalizeRadius, roundedRectPath } from '../utils';
+import React from "react";
+import { G, Circle, Path, Defs, Mask, Rect } from "react-native-svg";
+import { DotShapeProps, EyeSize, QREyeProps, SquareRadius } from "../types";
+import { normalizeRadius, roundedRectPath } from "../utils";
 
 export const QREye = ({
   x,
@@ -18,10 +13,10 @@ export const QREye = ({
   keyPrefix,
   asMask = false,
 }: QREyeProps) => {
-  const color = asMask ? 'white' : defaultColor;
+  const color = asMask ? "white" : defaultColor;
 
   const {
-    shape = 'shape',
+    shape = "shape",
     color: eyeColor = color,
     innerColor: innerEyeColor = eyeColor,
     backgroundColor: eyeBg = defaultBackgroundColor,
@@ -29,7 +24,7 @@ export const QREye = ({
   } = eyeOptions;
 
   const squareSize: EyeSize | undefined =
-    shape === 'square' && 'size' in eyeOptions ? eyeOptions.size : {};
+    shape === "square" && "size" in eyeOptions ? eyeOptions.size : {};
   const {
     outer: squareSizeOuter, // 7
     center: squareSizeCenter, // 5
@@ -37,7 +32,7 @@ export const QREye = ({
   } = squareSize || {};
 
   const squareRadius: SquareRadius | undefined =
-    shape === 'square' && 'radius' in eyeOptions ? eyeOptions.radius : {};
+    shape === "square" && "radius" in eyeOptions ? eyeOptions.radius : {};
   const {
     radiusOuter = 0,
     radiusInner = 0,
@@ -45,7 +40,7 @@ export const QREye = ({
   } = squareRadius || {};
 
   const circleSize: EyeSize | undefined =
-    shape === 'circle' && 'size' in eyeOptions ? eyeOptions.size : {};
+    shape === "circle" && "size" in eyeOptions ? eyeOptions.size : {};
   const {
     outer: outerCircleSize,
     center: centerCircleSize,
@@ -73,11 +68,11 @@ export const QREye = ({
     asMask,
   };
 
-  if (shape === 'dot' || shape === 'triangle' || shape === 'heart') {
+  if (shape === "dot" || shape === "triangle" || shape === "heart") {
     return dotShape(shape, options);
   }
 
-  return shape === 'circle' ? (
+  return shape === "circle" ? (
     asMask ? (
       <G key={keyPrefix}>
         <Circle
@@ -108,13 +103,13 @@ export const QREye = ({
               cx={center.x}
               cy={center.y}
               r={cellSize * (outerCircleSize ? outerCircleSize + 2.5 : 3.5)}
-              fill={'white'}
+              fill={"white"}
             />
             <Circle
               cx={center.x}
               cy={center.y}
               r={cellSize * (centerCircleSize ? centerCircleSize + 1.5 : 2.5)}
-              fill={'black'}
+              fill={"black"}
             />
           </Mask>
         </Defs>
@@ -147,7 +142,7 @@ export const QREye = ({
             (cellSize * (7 - (squareSizeOuter ? squareSizeOuter + 6 : 7))) / 2,
           (squareSizeOuter ? squareSizeOuter + 6 : 7) * cellSize,
           (squareSizeOuter ? squareSizeOuter + 6 : 7) * cellSize,
-          rOuter
+          rOuter,
         )}
         fill={eyeColor}
       />
@@ -161,7 +156,7 @@ export const QREye = ({
               2,
           (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
           (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
-          rInner
+          rInner,
         )}
         fill={eyeBg}
       />
@@ -173,7 +168,7 @@ export const QREye = ({
             (cellSize * (7 - (squareSizeInner ? squareSizeInner + 2 : 3))) / 2,
           (squareSizeInner ? squareSizeInner + 2 : 3) * cellSize,
           (squareSizeInner ? squareSizeInner + 2 : 3) * cellSize,
-          rCenter
+          rCenter,
         )}
         fill={eyeColor}
       />
@@ -193,9 +188,9 @@ export const QREye = ({
                   2,
               (squareSizeOuter ? squareSizeOuter + 6 : 7) * cellSize,
               (squareSizeOuter ? squareSizeOuter + 6 : 7) * cellSize,
-              rOuter
+              rOuter,
             )}
-            fill={'white'}
+            fill={"white"}
           />
           <Path
             d={roundedRectPath(
@@ -209,9 +204,9 @@ export const QREye = ({
                   2,
               (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
               (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
-              rInner
+              rInner,
             )}
-            fill={'black'}
+            fill={"black"}
           />
         </Mask>
       </Defs>
@@ -229,7 +224,7 @@ export const QREye = ({
                 2,
             (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
             (squareSizeCenter ? squareSizeCenter + 4 : 5) * cellSize,
-            rInner
+            rInner,
           )}
           fill={eyeBg}
         />
@@ -243,7 +238,7 @@ export const QREye = ({
                 2,
             (squareSizeInner ? squareSizeInner + 2 : 3) * cellSize,
             (squareSizeInner ? squareSizeInner + 2 : 3) * cellSize,
-            rCenter
+            rCenter,
           )}
           fill={innerEyeColor}
         />
@@ -253,7 +248,7 @@ export const QREye = ({
 };
 
 const dotShape = (
-  variant: 'dot' | 'triangle' | 'heart',
+  variant: "dot" | "triangle" | "heart",
   {
     keyPrefix,
     x,
@@ -264,7 +259,7 @@ const dotShape = (
     eyeBg,
     eyeColor,
     asMask,
-  }: DotShapeProps
+  }: DotShapeProps,
 ) => {
   return (
     <G key={keyPrefix}>
@@ -294,41 +289,41 @@ const dotShape = (
           const heartPath = `
             M ${cx} ${cy + radius * 0.7}
             C ${cx} ${cy + radius * 0.3} ${cx - radius * 1.0} ${
-            cy - radius * 0.5
-          } ${cx - radius * 1.0} ${cy - radius * 0.2}
+              cy - radius * 0.5
+            } ${cx - radius * 1.0} ${cy - radius * 0.2}
             C ${cx - radius * 1.0} ${cy - radius * 1.2} ${cx} ${
-            cy - radius * 1.2
-          } ${cx} ${cy - radius * 0.7}
+              cy - radius * 1.2
+            } ${cx} ${cy - radius * 0.7}
             C ${cx} ${cy - radius * 1.2} ${cx + radius * 1.0} ${
-            cy - radius * 1.2
-          } ${cx + radius * 1.0} ${cy - radius * 0.2}
+              cy - radius * 1.2
+            } ${cx + radius * 1.0} ${cy - radius * 0.2}
             C ${cx + radius * 1.0} ${cy - radius * 0.5} ${cx} ${
-            cy + radius * 0.3
-          } ${cx} ${cy + radius * 0.7}
+              cy + radius * 0.3
+            } ${cx} ${cy + radius * 0.7}
             Z`
             .trim()
-            .replace(/\s+/g, ' ');
+            .replace(/\s+/g, " ");
 
           switch (variant) {
-            case 'heart':
+            case "heart":
               return (
                 <Path
                   key={`${keyPrefix}-heart-${row}-${col}`}
                   d={heartPath}
-                  fill={asMask ? 'white' : fill}
+                  fill={asMask ? "white" : fill}
                 />
               );
-            case 'triangle':
+            case "triangle":
               return (
                 <Path
                   key={`${keyPrefix}-triangle-${row}-${col}`}
                   d={`M ${cx} ${cy - radius}
                       L ${cx + radius} ${cy + radius}
                       L ${cx - radius} ${cy + radius} Z`}
-                  fill={asMask ? 'white' : fill}
+                  fill={asMask ? "white" : fill}
                 />
               );
-            case 'dot':
+            case "dot":
             default:
               return (
                 <Circle
@@ -336,11 +331,11 @@ const dotShape = (
                   cx={cx}
                   cy={cy}
                   r={radius}
-                  fill={asMask ? 'white' : fill}
+                  fill={asMask ? "white" : fill}
                 />
               );
           }
-        })
+        }),
       )}
     </G>
   );

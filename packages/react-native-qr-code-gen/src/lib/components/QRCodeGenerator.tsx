@@ -1,24 +1,24 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Svg, Rect } from 'react-native-svg';
-import { QRCodeGeneratorProps } from '../types';
-import { useGenerateQrCode } from '../hooks';
-import { QRLogo } from './QRLogo';
-import { QREye } from './QREye';
-import { QRPiece } from './QRPiece';
-import { QRGradient } from './QRGradient';
-import { QRBgStyle } from './QRBgStyle';
-import { QRImage } from './QRImage';
+import React from "react";
+import { View } from "react-native";
+import { Svg, Rect } from "react-native-svg";
+import { QRCodeGeneratorProps } from "../types";
+import { useGenerateQrCode } from "../hooks";
+import { QRLogo } from "./QRLogo";
+import { QREye } from "./QREye";
+import { QRPiece } from "./QRPiece";
+import { QRGradient } from "./QRGradient";
+import { QRBgStyle } from "./QRBgStyle";
+import { QRImage } from "./QRImage";
 
 const QRCodeGeneratorSVG = (
   {
     value,
     size = 256,
-    color = '#000',
+    color = "#000",
     gradient,
     imageClip,
     logo,
-    backgroundColor = 'transparent',
+    backgroundColor = "transparent",
     piece,
     eye,
     includeBackground = false,
@@ -28,7 +28,7 @@ const QRCodeGeneratorSVG = (
     isLoading = false,
     renderLoading,
   }: QRCodeGeneratorProps,
-  ref?: React.ForwardedRef<Svg> | null
+  ref?: React.ForwardedRef<Svg> | null,
 ) => {
   const matrix = useGenerateQrCode({
     value,
@@ -48,10 +48,11 @@ const QRCodeGeneratorSVG = (
         style={{
           width: size,
           height: size,
-          backgroundColor: backgroundColor === 'transparent' ? '#f5f5f5' : backgroundColor,
+          backgroundColor:
+            backgroundColor === "transparent" ? "#f5f5f5" : backgroundColor,
           borderRadius: includeBackground ? 12 : 0,
-          alignItems: 'center',
-          justifyContent: 'center'
+          alignItems: "center",
+          justifyContent: "center",
         }}
       />
     );
@@ -73,9 +74,9 @@ const QRCodeGeneratorSVG = (
         ref={ref}
         width={size}
         height={size}
-        style={{ backgroundColor: 'transparent' }}
+        style={{ backgroundColor: "transparent" }}
       >
-        <Rect width={size} height={size} fill={'transparent'} />
+        <Rect width={size} height={size} fill={"transparent"} />
         {children}
       </Svg>
     );
@@ -84,7 +85,7 @@ const QRCodeGeneratorSVG = (
       <QRBgStyle
         width={size}
         backgroundColor={
-          backgroundColor === 'transparent' ? 'white' : backgroundColor
+          backgroundColor === "transparent" ? "white" : backgroundColor
         }
       >
         {svg}
@@ -97,7 +98,7 @@ const QRCodeGeneratorSVG = (
   const renderEyes = (
     defaultColor: string,
     defaultBackgroundColor: string,
-    asMask?: boolean
+    asMask?: boolean,
   ) => (
     <>
       <QREye
@@ -150,7 +151,7 @@ const QRCodeGeneratorSVG = (
             {...(asMask ? { asMask } : {})}
           />
         );
-      })
+      }),
     );
   };
 
@@ -158,10 +159,10 @@ const QRCodeGeneratorSVG = (
   if (gradient?.maskLogo) {
     return renderSvgContent(
       <QRGradient width={size} height={size} {...gradient}>
-        {renderPieces('white', true)}
-        {renderEyes('white', 'black', true)}
+        {renderPieces("white", true)}
+        {renderEyes("white", "black", true)}
         {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
-      </QRGradient>
+      </QRGradient>,
     );
   }
 
@@ -170,11 +171,11 @@ const QRCodeGeneratorSVG = (
     return renderSvgContent(
       <>
         <QRGradient width={size} height={size} {...gradient}>
-          {renderPieces('white', true)}
-          {renderEyes('white', 'black', true)}
+          {renderPieces("white", true)}
+          {renderEyes("white", "black", true)}
         </QRGradient>
         {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
-      </>
+      </>,
     );
   }
 
@@ -191,9 +192,9 @@ const QRCodeGeneratorSVG = (
           </>
         }
       >
-        {renderPieces('white', true)}
-        {renderEyes('white', 'black', true)}
-      </QRImage>
+        {renderPieces("white", true)}
+        {renderEyes("white", "black", true)}
+      </QRImage>,
     );
   }
 
@@ -203,10 +204,10 @@ const QRCodeGeneratorSVG = (
       {renderPieces(color)}
       {renderEyes(color, backgroundColor)}
       {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
-    </>
+    </>,
   );
 };
 
 const QRCodeGenerator = React.forwardRef(QRCodeGeneratorSVG);
-QRCodeGenerator.displayName = 'QRCodeGenerator';
+QRCodeGenerator.displayName = "QRCodeGenerator";
 export { QRCodeGenerator };

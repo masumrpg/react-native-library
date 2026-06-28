@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React from "react";
+import { StyleSheet, View } from "react-native";
 
 type Props = {
   children: React.ReactNode;
@@ -7,7 +7,11 @@ type Props = {
   backgroundColor: string;
 };
 
-const QRBgStyle = ({ children, width, backgroundColor }: Props): React.JSX.Element => {
+const QRBgStyle = ({
+  children,
+  width,
+  backgroundColor,
+}: Props): React.JSX.Element => {
   return (
     <View
       style={[
@@ -24,10 +28,10 @@ export { QRBgStyle };
 
 const styles = StyleSheet.create({
   card: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 8,
