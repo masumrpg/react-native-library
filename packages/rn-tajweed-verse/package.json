@@ -1,0 +1,39 @@
+{
+  "name": "@masumdev/rn-tajweed-verse",
+  "version": "0.1.0",
+  "description": "Generated package from turbo generator",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "react-native-parsed-text": "^0.0.22"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-native": "*",
+    "expo": "*"
+  }
+}
