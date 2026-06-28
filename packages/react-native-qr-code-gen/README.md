@@ -29,13 +29,17 @@ A powerful and highly customizable QR code generation library for React Native a
 ```bash
 npm install @masumdev/react-native-qr-code-gen react-native-svg
 ```
-*Or using yarn/bun:*
+
+_Or using yarn/bun:_
+
 ```bash
 bun add @masumdev/react-native-qr-code-gen react-native-svg
 ```
 
 ### 2. Expo Users
+
 Make sure to install the compatible SVG library:
+
 ```bash
 npx expo install react-native-svg
 ```
@@ -45,15 +49,11 @@ npx expo install react-native-svg
 ### Basic Usage
 
 ```tsx
-import { QRCode } from '@masumdev/react-native-qr-code-gen';
+import { QRCode } from "@masumdev/react-native-qr-code-gen";
 
 const MyComponent = () => {
   return (
-    <QRCode
-      variant="BASIC"
-      value="https://github.com/masumrpg"
-      size={300}
-    />
+    <QRCode variant="BASIC" value="https://github.com/masumrpg" size={300} />
   );
 };
 ```
@@ -73,21 +73,22 @@ import { QRCode } from '@masumdev/react-native-qr-code-gen';
 
 ### QRCodeProps
 
-| Prop                 | Type                     | Default | Description                  |
-| -------------------- | ------------------------ | ------- | ---------------------------- |
-| value                | string                   | -       | The content to be encoded. |
-| variant              | QRCodeVariant            | 'BASIC' | Predefined templates. |
-| size                 | number                   | 256     | Size in pixels. |
-| color                | string                   | '#000'  | Main color. |
-| backgroundColor      | string                   | 'transparent' | Background color. |
-| logo                 | LogoOptions              | -       | Center logo configuration. |
-| gradient             | QRCodeGradientConfig     | -       | Gradient configuration. |
-| piece                | PieceOptions             | -       | Customizing QR dots. |
-| eye                  | EyeOptions               | -       | Customizing corner squares. |
-| isLoading            | boolean                  | false   | Force loading state. |
-| renderLoading        | () => ReactNode          | -       | Custom loading component. |
+| Prop            | Type                 | Default       | Description                 |
+| --------------- | -------------------- | ------------- | --------------------------- |
+| value           | string               | -             | The content to be encoded.  |
+| variant         | QRCodeVariant        | 'BASIC'       | Predefined templates.       |
+| size            | number               | 256           | Size in pixels.             |
+| color           | string               | '#000'        | Main color.                 |
+| backgroundColor | string               | 'transparent' | Background color.           |
+| logo            | LogoOptions          | -             | Center logo configuration.  |
+| gradient        | QRCodeGradientConfig | -             | Gradient configuration.     |
+| piece           | PieceOptions         | -             | Customizing QR dots.        |
+| eye             | EyeOptions           | -             | Customizing corner squares. |
+| isLoading       | boolean              | false         | Force loading state.        |
+| renderLoading   | () => ReactNode      | -             | Custom loading component.   |
 
 #### QRCodeVariant
+
 `'BASIC'` | `'TRIANGLE'` | `'HEART'` | `'DOT'` | `'WITH_LOGO'` | `'RAIN'` | `'LINEAR_GRADIENT'` | `'RADIAL_GRADIENT'` | `'IMAGE_BACKGROUND'`
 
 ---

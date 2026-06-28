@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Svg,
   Defs,
@@ -8,40 +8,40 @@ import {
   Rect,
   Mask,
   G,
-} from 'react-native-svg';
-import { GradientDirection, QRGradientProps } from '../types';
+} from "react-native-svg";
+import { GradientDirection, QRGradientProps } from "../types";
 
 const getLinearCoords = (
   direction: GradientDirection | undefined,
   width: number,
-  height: number
+  height: number,
 ) => {
   switch (direction) {
-    case 'to-right':
-      return { x1: '0', y1: '0', x2: String(width), y2: '0' };
-    case 'to-left':
-      return { x1: String(width), y1: '0', x2: '0', y2: '0' };
-    case 'to-bottom':
-      return { x1: '0', y1: '0', x2: '0', y2: String(height) };
-    case 'to-top':
-      return { x1: '0', y1: String(height), x2: '0', y2: '0' };
-    case 'to-bottom-right':
-      return { x1: '0', y1: '0', x2: String(width), y2: String(height) };
-    case 'to-bottom-left':
-      return { x1: String(width), y1: '0', x2: '0', y2: String(height) };
-    case 'to-top-right':
-      return { x1: '0', y1: String(height), x2: String(width), y2: '0' };
-    case 'to-top-left':
-      return { x1: String(width), y1: String(height), x2: '0', y2: '0' };
+    case "to-right":
+      return { x1: "0", y1: "0", x2: String(width), y2: "0" };
+    case "to-left":
+      return { x1: String(width), y1: "0", x2: "0", y2: "0" };
+    case "to-bottom":
+      return { x1: "0", y1: "0", x2: "0", y2: String(height) };
+    case "to-top":
+      return { x1: "0", y1: String(height), x2: "0", y2: "0" };
+    case "to-bottom-right":
+      return { x1: "0", y1: "0", x2: String(width), y2: String(height) };
+    case "to-bottom-left":
+      return { x1: String(width), y1: "0", x2: "0", y2: String(height) };
+    case "to-top-right":
+      return { x1: "0", y1: String(height), x2: String(width), y2: "0" };
+    case "to-top-left":
+      return { x1: String(width), y1: String(height), x2: "0", y2: "0" };
     default:
-      return { x1: '0', y1: '0', x2: String(width), y2: '0' };
+      return { x1: "0", y1: "0", x2: String(width), y2: "0" };
   }
 };
 
 export const QRGradient = ({
   width = 300,
   height = 300,
-  id = 'qrGradient',
+  id = "qrGradient",
   children,
   onGradientIdGenerated,
   ...gradientProps
@@ -60,15 +60,15 @@ export const QRGradient = ({
     <Svg
       width={width}
       height={height}
-      style={{ backgroundColor: 'transparent' }}
+      style={{ backgroundColor: "transparent" }}
     >
       <Defs>
-        {gradientProps.type === 'linear' ? (
+        {gradientProps.type === "linear" ? (
           (() => {
             const coords = getLinearCoords(
               gradientProps.direction,
               width,
-              height
+              height,
             );
             return (
               <LinearGradient

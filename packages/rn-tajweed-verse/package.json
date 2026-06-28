@@ -1,0 +1,54 @@
+{
+  "name": "@masumdev/rn-tajweed-verse",
+  "version": "0.1.1",
+  "description": "A highly customizable React Native and Expo component to parse and render Quranic verses with Tajweed color-coding, interactive tooltips, and themes.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "quran",
+    "tajweed",
+    "tajwid",
+    "arabic",
+    "parser",
+    "text-color"
+  ],
+  "author": "Ma'sum",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "react-native-parsed-text": "^0.0.22"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-native": "*",
+    "expo": "*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

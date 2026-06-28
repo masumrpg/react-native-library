@@ -1,9 +1,9 @@
-import React from 'react';
-import { Svg, Defs, Image as SVGImage, G, ClipPath } from 'react-native-svg';
-import { QRImageProps } from '../types';
+import React from "react";
+import { Svg, Defs, Image as SVGImage, G, ClipPath } from "react-native-svg";
+import { QRImageProps } from "../types";
 
 const QRImage = ({ children, size, source, baseClip }: QRImageProps) => {
-  const clipId = 'imageClip';
+  const clipId = "imageClip";
   return (
     <Svg width={size} height={size}>
       {baseClip}

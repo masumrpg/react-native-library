@@ -4,7 +4,10 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@masumdev/react-native-qr-code-gen": ["../../packages/react-native-qr-code-gen/src"]
+      "@masumdev/react-native-qr-code-gen": [
+        "../../packages/react-native-qr-code-gen/src"
+      ],
+      "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"]
     }
   }
 }

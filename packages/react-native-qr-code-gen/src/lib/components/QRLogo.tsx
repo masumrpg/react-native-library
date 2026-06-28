@@ -1,7 +1,7 @@
-import React from 'react';
-import { G, Rect, Image } from 'react-native-svg';
-import { Image as RNImage } from 'react-native'; // Import Image resolver
-import { LogoOptions } from '../types';
+import React from "react";
+import { G, Rect, Image } from "react-native-svg";
+import { Image as RNImage } from "react-native"; // Import Image resolver
+import { LogoOptions } from "../types";
 
 type QRLogoProps = {
   logo: LogoOptions;
@@ -15,16 +15,16 @@ export const QRLogo = ({ logo, size, matrix }: QRLogoProps) => {
   const {
     source,
     size: logoSizePercentage = 0.2,
-    backgroundColor: logoBgColor = '#FFFFFF',
+    backgroundColor: logoBgColor = "#FFFFFF",
     borderRadius = 0,
-    borderColor = 'transparent',
+    borderColor = "transparent",
     borderWidth = 0,
     padding = 0,
   } = logo;
 
   // Resolve asset source if needed
   const resolvedSource =
-    typeof source === 'number'
+    typeof source === "number"
       ? RNImage.resolveAssetSource(source).uri
       : source;
 
