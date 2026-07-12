@@ -109,6 +109,7 @@ Current public components:
 - `Checkbox`
 - `Collapsible`
 - `Combobox`
+- `ContextMenu`
 
 When adding a component:
 
@@ -492,6 +493,24 @@ Use `Combobox` to display floating autocomplete selection dropdowns. It renders 
     </ComboboxList>
   </ComboboxContent>
 </Combobox>
+```
+
+### ContextMenu
+
+Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile. It uses the `measureInWindow` layout boundary system to pop up exactly adjacent to the trigger.
+
+```tsx
+<ContextMenu>
+  <ContextMenuTrigger>
+    <Card><Text>Long press me</Text></Card>
+  </ContextMenuTrigger>
+  <ContextMenuContent>
+    <ContextMenuLabel>Actions</ContextMenuLabel>
+    <ContextMenuItem onPress={handleEdit}>Edit</ContextMenuItem>
+    <ContextMenuSeparator />
+    <ContextMenuItem variant="destructive" onPress={handleDelete}>Delete</ContextMenuItem>
+  </ContextMenuContent>
+</ContextMenu>
 ```
 
 ## Logging Rules

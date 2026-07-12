@@ -122,4 +122,25 @@ export type {
   ComboboxItemProps,
   ComboboxEmptyProps,
 } from './Combobox';
+export {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuLabel,
+  ContextMenuCheckboxItem,
+  ContextMenuShortcut,
+  useContextMenu,
+} from './ContextMenu';
+export type {
+  ContextMenuProps,
+  ContextMenuTriggerProps,
+  ContextMenuContentProps,
+  ContextMenuItemProps,
+  ContextMenuSeparatorProps,
+  ContextMenuLabelProps,
+  ContextMenuCheckboxItemProps,
+  ContextMenuShortcutProps,
+} from './ContextMenu';
 export type { RenderIcon, ThemeColorName } from './types';
