@@ -106,6 +106,7 @@ Current public components:
 - `ButtonGroup`
 - `Calendar`
 - `Carousel`
+- `Checkbox`
 
 When adding a component:
 
@@ -446,6 +447,17 @@ Use `Carousel` to display a horizontal slideshow of cards with premium, high-per
   <CarouselPrevious />
   <CarouselNext />
 </Carousel>
+```
+
+### Checkbox
+
+Use `Checkbox` to toggle boolean states. It uses standard Pressable states, fully accessible accessibility properties, and integrates premium flat design semantics.
+
+```tsx
+<Checkbox
+  checked={isChecked}
+  onCheckedChange={setIsChecked}
+/>
 ```
 
 ## Logging Rules

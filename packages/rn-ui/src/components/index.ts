@@ -92,4 +92,6 @@ export type {
   CarouselItemProps,
   CarouselButtonProps,
 } from './Carousel';
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
 export type { RenderIcon, ThemeColorName } from './types';
