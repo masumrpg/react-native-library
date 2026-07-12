@@ -107,6 +107,7 @@ Current public components:
 - `Calendar`
 - `Carousel`
 - `Checkbox`
+- `Collapsible`
 
 When adding a component:
 
@@ -458,6 +459,21 @@ Use `Checkbox` to toggle boolean states. It uses standard Pressable states, full
   checked={isChecked}
   onCheckedChange={setIsChecked}
 />
+```
+
+### Collapsible
+
+Use `Collapsible` to hide or reveal sections of content. It features a high-performance height expansion animation using React Native's Layout and Animated systems.
+
+```tsx
+<Collapsible>
+  <CollapsibleTrigger>
+    <Text>Toggle Details</Text>
+  </CollapsibleTrigger>
+  <CollapsibleContent>
+    <Text>Revealed details content goes here...</Text>
+  </CollapsibleContent>
+</Collapsible>
 ```
 
 ## Logging Rules

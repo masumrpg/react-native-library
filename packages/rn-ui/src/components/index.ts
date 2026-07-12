@@ -94,4 +94,15 @@ export type {
 } from './Carousel';
 export { Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
+export {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  useCollapsible,
+} from './Collapsible';
+export type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from './Collapsible';
 export type { RenderIcon, ThemeColorName } from './types';
