@@ -92,6 +92,7 @@ Current public components:
 - `Box`
 - `Text`
 - `Accordion`
+- `Alert`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -193,6 +194,34 @@ Accordion animation rules:
 - Do not import `react-native-reanimated` in `rn-ui`.
 - Reanimated support must stay pluggable through `animationComponents`.
 - Keep `animated={false}` available for users who want no animation.
+
+### Alert
+
+Use `Alert` for inline feedback and status messages.
+
+```tsx
+<Alert tone="info" title="Information">
+  This message uses semantic tokens.
+</Alert>
+```
+
+With generic icon and action:
+
+```tsx
+<Alert
+  tone="success"
+  variant="outline"
+  icon={({ color, size }) => <Icon name="check" color={color} size={size} />}
+  action={{
+    label: 'View details',
+    onPress: openDetails,
+  }}
+>
+  Your changes were saved.
+</Alert>
+```
+
+Dismissible alerts should remove themselves when `dismissible` is true. `icon`, `action.icon`, and `closeIcon` must stay pluggable. Dismiss animation should use React Native `Animated` by default and remain disableable through `animated={false}`. If an Alert action needs an animated open/close icon, keep that animation app-owned through `action.icon`.
 
 ### Button
 

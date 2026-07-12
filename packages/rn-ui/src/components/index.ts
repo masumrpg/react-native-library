@@ -8,6 +8,8 @@ export type {
   AccordionItem,
   AccordionProps,
 } from './Accordion';
+export { Alert } from './Alert';
+export type { AlertAction, AlertProps, AlertTone, AlertVariant } from './Alert';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';

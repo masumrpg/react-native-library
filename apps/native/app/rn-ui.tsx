@@ -1,11 +1,12 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { Animated, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
   ArrowLeft,
   Check,
   ChevronRight,
+  CircleAlert,
   Heart,
   HelpCircle,
   Moon,
@@ -14,9 +15,11 @@ import {
   Settings,
   Smartphone,
   Sun,
+  X,
 } from "lucide-react-native";
 import {
   Accordion,
+  Alert,
   Badge,
   Box,
   Button,
@@ -47,6 +50,7 @@ const themeOptions: Array<{
 
 export default function RnUiScreen() {
   const router = useRouter();
+  const [showAlertDetails, setShowAlertDetails] = React.useState(false);
   const {
     colors,
     colorScheme,
@@ -225,6 +229,63 @@ export default function RnUiScreen() {
           </Card>
         </Section>
 
+        <Section title="Alert">
+          <Box gap="md">
+            <Alert
+              tone="info"
+              title="Information"
+              icon={icon(CircleAlert)}
+              action={{
+                label: showAlertDetails ? "Hide details" : "View details",
+                icon: ({ color, size }) => (
+                  <AnimatedToggleIcon
+                    color={color}
+                    size={size}
+                    expanded={showAlertDetails}
+                    direction="down"
+                  />
+                ),
+                onPress: () => setShowAlertDetails((value) => !value),
+              }}
+            >
+              <Box gap="sm">
+                <Text color="textMuted">
+                  Alert uses semantic tones, flat borders, and pluggable icons.
+                </Text>
+                <AnimatedDetail visible={showAlertDetails}>
+                  <Box
+                    bg="infoSoft"
+                    radius="lg"
+                    p="md"
+                    style={styles.alertDetailsBox}
+                  >
+                    <Text variant="bodySmall" color="textMuted">
+                      Details can be controlled from app state through the
+                      action callback. The Alert component stays generic.
+                    </Text>
+                  </Box>
+                </AnimatedDetail>
+              </Box>
+            </Alert>
+
+            <Alert
+              tone="success"
+              variant="outline"
+              title="Success"
+              icon={icon(Check)}
+              closeIcon={icon(X)}
+              dismissible
+              onClose={() => undefined}
+            >
+              Use actions and close controls only when the app needs them.
+            </Alert>
+
+            <Alert tone="danger" variant="solid" title="Danger">
+              Solid alerts are available for stronger feedback states.
+            </Alert>
+          </Box>
+        </Section>
+
         <Section title="Accordion">
           <Accordion
             defaultOpenIds={["theme"]}
@@ -324,6 +385,94 @@ function Section({
   );
 }
 
+function AnimatedDetail({
+  visible,
+  children,
+}: {
+  visible: boolean;
+  children: React.ComponentProps<typeof Box>["children"];
+}) {
+  const progress = React.useRef(new Animated.Value(visible ? 1 : 0)).current;
+  const [contentHeight, setContentHeight] = React.useState(0);
+  const [shouldRender, setShouldRender] = React.useState(visible);
+
+  React.useEffect(() => {
+    if (visible) {
+      setShouldRender(true);
+    }
+
+    Animated.timing(progress, {
+      toValue: visible ? 1 : 0,
+      duration: 180,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished && !visible) {
+        setShouldRender(false);
+      }
+    });
+  }, [progress, visible]);
+
+  const height = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, contentHeight],
+  });
+
+  if (!shouldRender && !visible) {
+    return null;
+  }
+
+  return (
+    <Animated.View style={{ height, opacity: progress, overflow: "hidden" }}>
+      <View
+        style={{ position: "absolute", left: 0, right: 0 }}
+        onLayout={(event) => setContentHeight(event.nativeEvent.layout.height)}
+      >
+        {children}
+      </View>
+    </Animated.View>
+  );
+}
+
+function AnimatedToggleIcon({
+  expanded,
+  color,
+  size,
+  direction = "down",
+}: {
+  expanded: boolean;
+  color: string;
+  size: number;
+  direction?: "down" | "up" | "left";
+}) {
+  const progress = React.useRef(new Animated.Value(expanded ? 1 : 0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(progress, {
+      toValue: expanded ? 1 : 0,
+      duration: 180,
+      useNativeDriver: true,
+    }).start();
+  }, [expanded, progress]);
+
+  const outputRange =
+    direction === "up"
+      ? ["0deg", "-90deg"]
+      : direction === "left"
+        ? ["0deg", "180deg"]
+        : ["0deg", "90deg"];
+
+  const rotate = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange,
+  });
+
+  return (
+    <Animated.View style={{ transform: [{ rotate }] }}>
+      <ChevronRight color={color} size={size} />
+    </Animated.View>
+  );
+}
+
 function useStyles() {
   return useThemeStyles((theme) => ({
     safeArea: {
@@ -346,6 +495,10 @@ function useStyles() {
     sampleTile: {
       width: 48,
       height: 48,
+    },
+    alertDetailsBox: {
+      borderLeftWidth: 3,
+      borderLeftColor: theme.colors.info,
     },
   }));
 }

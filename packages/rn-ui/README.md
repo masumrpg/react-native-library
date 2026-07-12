@@ -271,6 +271,7 @@ Current core components:
 - `Box`
 - `Text`
 - `Accordion`
+- `Alert`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -374,12 +375,80 @@ function ReanimatedAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
 />
 ```
 
+### Alert
+
+Use `Alert` for inline feedback. It supports semantic tones, flat variants, generic icons, optional action, and optional close control.
+
+```tsx
+import { Alert } from '@masumdev/rn-ui';
+
+<Alert tone="info" title="Information">
+  This message uses theme tokens and adapts to light or dark mode.
+</Alert>
+```
+
+With icon and action:
+
+```tsx
+<Alert
+  tone="success"
+  variant="outline"
+  icon={({ color, size }) => <Icon name="check" color={color} size={size} />}
+  action={{
+    label: 'View details',
+    onPress: openDetails,
+  }}
+>
+  Your changes were saved.
+</Alert>
+```
+
+Dismissible alert:
+
+```tsx
+<Alert
+  tone="warning"
+  title="Unsaved changes"
+  dismissible
+  closeIcon={({ color, size }) => <Icon name="x" color={color} size={size} />}
+>
+  This alert removes itself when the close button is pressed.
+</Alert>
+```
+
+`icon`, `action.icon`, and `closeIcon` are all pluggable through `RenderIcon`.
+
+Dismiss animations use React Native `Animated` by default. Use `animated={false}` to disable or `animationDuration` to tune timing.
+
+```tsx
+<Alert dismissible animationDuration={220}>
+  Animated dismissible alert.
+</Alert>
+```
+
+Action icons can be fully overridden, including custom open/close animation owned by the app:
+
+```tsx
+<Alert
+  action={{
+    label: expanded ? 'Hide details' : 'View details',
+    icon: ({ color, size }) => (
+      <AnimatedChevron expanded={expanded} color={color} size={size} />
+    ),
+    onPress: () => setExpanded((value) => !value),
+  }}
+>
+  Alert content.
+</Alert>
+```
+
 ## Folder Structure
 
 ```txt
 src/
   components/
     Accordion.tsx
+    Alert.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
