@@ -6,7 +6,7 @@ Welcome to the React Native package development workspace. This project is struc
 
 ## 🏗️ Monorepo Architecture
 
-This workspace contains two main libraries (packages) and two application playgrounds:
+This workspace contains React Native libraries and application playgrounds:
 
 ### Libraries (`packages/`)
 
@@ -21,6 +21,15 @@ This workspace contains two main libraries (packages) and two application playgr
     - **Style Inheritance Fix**: Automatically resolves the React Native nested text bug where custom font family values fail to inherit down on Android/iOS.
 - **[`@masumdev/react-native-qr-code-gen`](file:///home/ma-sum/Projects/Node/Mobile/Library/react-native-library/packages/react-native-qr-code-gen)**
   - **Description**: A modern, customizable QR code generator for React Native and Expo utilizing SVG with custom color gradients, logos, and custom eye shapes.
+- **[`@masumdev/rn-ui`](file:///home/ma-sum/Projects/Node/Mobile/Library/react-native-library/packages/rn-ui)**
+  - **Description**: A flat, token-driven React Native UI kit with composable core components, light/dark/system theme support, pluggable persistence, and pluggable font tokens.
+  - **Key Features**:
+    - **Flat Design Defaults**: No shadow/elevation by default, stronger border tokens, modern rounded corners, and semantic surfaces.
+    - **Theme Tokens**: Typed `colors`, `fonts`, `typography`, `spacing`, `radii`, `shadows`, and component sizing tokens.
+    - **Light/Dark/System Mode**: Uses React Native color scheme detection for `system` mode.
+    - **Pluggable Persistence**: Accepts a `getItem` / `setItem` storage adapter, so apps can use SecureStore, AsyncStorage, MMKV, SQLite, or custom storage.
+    - **Pluggable Fonts**: Apps load fonts with Expo Font, local TTF files, or React Native font linking, then pass registered names via the `fonts` token.
+    - **Core Components**: `Box`, `Text`, `Button`, `IconButton`, `Badge`, `Card`, and `Divider`.
 - **`typescript-config`**
   - **Description**: Shared TypeScript compiler configs used across packages.
 
@@ -28,6 +37,7 @@ This workspace contains two main libraries (packages) and two application playgr
 
 - **[`native`](file:///home/ma-sum/Projects/Node/Mobile/Library/react-native-library/apps/native)**: An **Expo** app with **Expo Router** stack navigation that serves as an interactive playground.
   - **Home / Dashboard**: An elegant card-based menu to navigate between screen packages.
+  - **RN UI Screen (`/rn-ui`)**: Demonstrates all `@masumdev/rn-ui` core components, flat design tokens, light/dark/system controls, and reusable typography.
   - **QR Code Screen (`/qr-code`)**: Showcases QR code generator layouts.
   - **Tajweed Verse Screen (`/tajweed-verse`)**: Demonstrates the `TajweedVerse` component with live configurations:
     - **Quran Database Samples**: Select from 7 real Quran database verses (e.g. Al-Fatihah, Al-Baqarah) to test parsing behavior.
@@ -36,6 +46,15 @@ This workspace contains two main libraries (packages) and two application playgr
 - **[`web`](file:///home/ma-sum/Projects/Node/Mobile/Library/react-native-library/apps/web)**: A **Next.js** web application configured with **react-native-web**.
 
 ---
+
+## 📚 Documentation Rule
+
+When changing a library API, theme token, default visual style, persistence behavior, dependency expectation, or playground integration, update the relevant package `README.md` in the same change.
+
+- `packages/rn-ui/README.md` for UI kit components, theme, fonts, persistence, logging, and usage examples.
+- `packages/rn-tajweed-verse/README.md` for Tajweed rendering behavior and Arabic font handling.
+- `packages/react-native-qr-code-gen/README.md` for QR code APIs and presets.
+- Root `README.md` for monorepo-level package lists, playground screens, and shared workflow rules.
 
 ## 🚀 Getting Started
 

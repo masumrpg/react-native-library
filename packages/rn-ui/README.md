@@ -1,6 +1,6 @@
 # @masumdev/rn-ui
 
-Reusable React Native UI kit with typed theme tokens, light/dark mode, and composable core components.
+Reusable React Native UI kit with typed theme tokens, flat light/dark mode, pluggable persistence, pluggable fonts, and composable core components.
 
 ## Install
 
@@ -35,6 +35,8 @@ export default function App() {
 - `light`
 - `dark`
 - `system`
+
+`system` follows the device color scheme through React Native `useColorScheme()`.
 
 ## Usage
 
@@ -76,8 +78,8 @@ import { ThemeProvider } from '@masumdev/rn-ui';
 const themes = {
   light: {
     colors: {
-      primary: '#2563EB',
-      primarySoft: '#DBEAFE',
+      primary: '#4F46E5',
+      primarySoft: '#EEF2FF',
       onPrimary: '#FFFFFF',
       accent: '#F97316',
     },
@@ -104,8 +106,9 @@ const themes = {
     colors: {
       background: '#08111F',
       surface: '#0F1B2D',
-      primary: '#38BDF8',
-      onPrimary: '#082F49',
+      primary: '#818CF8',
+      primarySoft: '#312E81',
+      onPrimary: '#111827',
     },
   },
 };
@@ -193,15 +196,19 @@ const themes = {
 
 ## Persisting Theme Choice
 
-The core package does not depend on AsyncStorage, SQLite, Expo SecureStore, or Zustand. Pass a small adapter from your app.
+The core package does not depend on AsyncStorage, SQLite, Expo SecureStore, MMKV, or Zustand. Pass a small adapter from your app.
+
+`ThemeProvider` waits for storage hydration by default, so the app can avoid rendering light mode before the saved dark mode is loaded.
+
+### Expo SecureStore
 
 ```tsx
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { ThemeProvider } from '@masumdev/rn-ui';
 
 const storage = {
-  getItem: AsyncStorage.getItem,
-  setItem: AsyncStorage.setItem,
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
 };
 
 export function App() {
@@ -212,6 +219,50 @@ export function App() {
   );
 }
 ```
+
+### AsyncStorage
+
+```tsx
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeProvider } from '@masumdev/rn-ui';
+
+const storage = {
+  getItem: (key: string) => AsyncStorage.getItem(key),
+  setItem: (key: string, value: string) => AsyncStorage.setItem(key, value),
+};
+
+export function App() {
+  return (
+    <ThemeProvider storage={storage} defaultColorScheme="system">
+      <RootNavigator />
+    </ThemeProvider>
+  );
+}
+```
+
+Expo Go support depends on whether the chosen storage native module is available in the runtime. In the native playground, SecureStore is used because it works cleanly with the Expo workflow.
+
+## Logging
+
+The library does not force logging. Apps can decide how noisy persistence logs should be.
+
+Recommended app pattern:
+
+```tsx
+const ENABLE_THEME_DEBUG_LOGS = false;
+
+const debugTheme = (...args: unknown[]) => {
+  if (__DEV__ && ENABLE_THEME_DEBUG_LOGS) {
+    console.debug('[rn-ui]', ...args);
+  }
+};
+
+const errorTheme = (...args: unknown[]) => {
+  console.error('[rn-ui]', ...args);
+};
+```
+
+Use debug logs for successful hydrate/save messages and error logs for failed storage operations.
 
 ## Components
 
@@ -269,7 +320,10 @@ src/
 
 ## Design Notes
 
+- The default visual style is flat: no shadow/elevation by default, stronger borders, semantic surfaces, and consistent rounded corners.
+- Default primary color uses a modern indigo palette: `#4F46E5` in light mode and `#818CF8` in dark mode.
 - Use semantic colors such as `background`, `surface`, `text`, `primary`, `danger`, and `border` instead of hardcoded hex values.
-- Use `spacing`, `radii`, and `typography` tokens from `useTheme()` or `useThemeStyles()`.
+- Use `spacing`, `radii`, `fonts`, and `typography` tokens from `useTheme()` or `useThemeStyles()`.
 - Keep app-specific storage, fonts, icons, and haptics outside the UI core.
 - Add new components through `components/` and export them from `components/index.ts`.
+- When changing package APIs, tokens, default visuals, persistence behavior, or app integration examples, update this README in the same change.
