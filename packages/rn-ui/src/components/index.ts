@@ -105,4 +105,21 @@ export type {
   CollapsibleTriggerProps,
   CollapsibleContentProps,
 } from './Collapsible';
+export {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+  useCombobox,
+} from './Combobox';
+export type {
+  ComboboxProps,
+  ComboboxInputProps,
+  ComboboxContentProps,
+  ComboboxListProps,
+  ComboboxItemProps,
+  ComboboxEmptyProps,
+} from './Combobox';
 export type { RenderIcon, ThemeColorName } from './types';

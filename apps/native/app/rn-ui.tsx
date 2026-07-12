@@ -53,6 +53,11 @@ import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
   Card,
   Divider,
   IconButton,
@@ -90,6 +95,7 @@ export default function RnUiScreen() {
   const [rangeEnd, setRangeEnd] = React.useState<string | null>("2026-07-11");
   const [checkOne, setCheckOne] = React.useState(false);
   const [checkTwo, setCheckTwo] = React.useState(true);
+  const [framework, setFramework] = React.useState("");
 
   const handleRangePress = (day: { dateString: string }) => {
     const { dateString } = day;
@@ -967,6 +973,29 @@ export default function RnUiScreen() {
                   </Box>
                 </CollapsibleContent>
               </Collapsible>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Combobox">
+          <Card outlined>
+            <Box gap="lg">
+              <Text color="textMuted">
+                A fully floating autocomplete input selection dropdown. Tap the input to type and filter options, and tap an option to select it.
+              </Text>
+
+              <Combobox value={framework} onValueChange={setFramework}>
+                <ComboboxInput placeholder="Select a framework..." />
+                <ComboboxContent>
+                  <ComboboxList>
+                    <ComboboxItem value="next" label="Next.js" />
+                    <ComboboxItem value="svelte" label="SvelteKit" />
+                    <ComboboxItem value="nuxt" label="Nuxt.js" />
+                    <ComboboxItem value="remix" label="Remix" />
+                    <ComboboxItem value="astro" label="Astro" />
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
             </Box>
           </Card>
         </Section>

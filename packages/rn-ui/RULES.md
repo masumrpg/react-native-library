@@ -108,6 +108,7 @@ Current public components:
 - `Carousel`
 - `Checkbox`
 - `Collapsible`
+- `Combobox`
 
 When adding a component:
 
@@ -474,6 +475,23 @@ Use `Collapsible` to hide or reveal sections of content. It features a high-perf
     <Text>Revealed details content goes here...</Text>
   </CollapsibleContent>
 </Collapsible>
+```
+
+### Combobox
+
+Use `Combobox` to display floating autocomplete selection dropdowns. It renders an absolutely positioned floating popup card exactly underneath the input box using React Native's `Modal` and layout measurement system.
+
+```tsx
+<Combobox value={val} onValueChange={setVal}>
+  <ComboboxInput placeholder="Select framework..." />
+  <ComboboxContent>
+    <ComboboxList>
+      <ComboboxItem value="next" label="Next.js" />
+      <ComboboxItem value="svelte" label="SvelteKit" />
+      <ComboboxItem value="nuxt" label="Nuxt.js" />
+    </ComboboxList>
+  </ComboboxContent>
+</Combobox>
 ```
 
 ## Logging Rules
