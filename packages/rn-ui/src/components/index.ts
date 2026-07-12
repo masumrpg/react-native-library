@@ -78,4 +78,18 @@ export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonSize, IconButtonVariant } from './IconButton';
 export { Text } from './Text';
 export type { TextProps } from './Text';
+export {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  useCarousel,
+} from './Carousel';
+export type {
+  CarouselProps,
+  CarouselContentProps,
+  CarouselItemProps,
+  CarouselButtonProps,
+} from './Carousel';
 export type { RenderIcon, ThemeColorName } from './types';

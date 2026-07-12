@@ -105,6 +105,7 @@ Current public components:
 - `Bubble`
 - `ButtonGroup`
 - `Calendar`
+- `Carousel`
 
 When adding a component:
 
@@ -426,6 +427,25 @@ Use `Calendar` to display calendars and handle single day or range selections. I
     '2026-07-14': { selected: true, endingDay: true },
   }}
 />
+```
+
+### Carousel
+
+Use `Carousel` to display a horizontal slideshow of cards with premium, high-performance deck scaling and opacity transitions. It is built natively for React Native using the `Animated` scroll offsets for 60fps/120fps performance.
+
+```tsx
+<Carousel>
+  <CarouselContent>
+    <CarouselItem>
+      <Card><Text>Slide 1</Text></Card>
+    </CarouselItem>
+    <CarouselItem>
+      <Card><Text>Slide 2</Text></Card>
+    </CarouselItem>
+  </CarouselContent>
+  <CarouselPrevious />
+  <CarouselNext />
+</Carousel>
 ```
 
 ## Logging Rules
