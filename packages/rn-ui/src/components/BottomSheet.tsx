@@ -1,0 +1,145 @@
+import React from 'react';
+import GorhomBottomSheet, {
+  BottomSheetBackdrop as GorhomBottomSheetBackdrop,
+  BottomSheetFlatList,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetScrollView,
+  BottomSheetSectionList,
+  BottomSheetTextInput,
+  BottomSheetView,
+  useBottomSheet,
+  useBottomSheetModal,
+  type BottomSheetBackdropProps,
+  type BottomSheetModalProps,
+  type BottomSheetProps as GorhomBottomSheetProps,
+} from '@gorhom/bottom-sheet';
+import type { StyleProp, ViewStyle } from 'react-native';
+import type { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+
+import { useTheme } from '../theme';
+
+type GorhomBackdropComponentProps = React.ComponentProps<typeof GorhomBottomSheetBackdrop>;
+
+export interface BottomSheetProps extends GorhomBottomSheetProps {
+  withBackdrop?: boolean;
+  backdropOpacity?: number;
+  backdropAppearsOnIndex?: number;
+  backdropDisappearsOnIndex?: number;
+  backdropPressBehavior?: GorhomBackdropComponentProps['pressBehavior'];
+  backdropStyle?: StyleProp<ViewStyle>;
+}
+
+export const BottomSheet = React.forwardRef<
+  BottomSheetMethods,
+  BottomSheetProps
+>(function BottomSheet(
+  {
+    withBackdrop = true,
+    backdropOpacity = 0.48,
+    backdropAppearsOnIndex = 0,
+    backdropDisappearsOnIndex = -1,
+    backdropPressBehavior = 'close',
+    backdropStyle,
+    backdropComponent,
+    backgroundStyle,
+    handleStyle,
+    handleIndicatorStyle,
+    style,
+    children,
+    ...props
+  },
+  ref,
+) {
+  const { colors, radii, spacing } = useTheme();
+
+  const themedBackdrop = React.useCallback(
+    (backdropProps: BottomSheetBackdropProps) => (
+      <GorhomBottomSheetBackdrop
+        {...backdropProps}
+        appearsOnIndex={backdropAppearsOnIndex}
+        disappearsOnIndex={backdropDisappearsOnIndex}
+        opacity={backdropOpacity}
+        pressBehavior={backdropPressBehavior}
+        style={[
+          {
+            backgroundColor: colors.overlay,
+          },
+          backdropProps.style,
+          backdropStyle,
+        ]}
+      />
+    ),
+    [
+      backdropAppearsOnIndex,
+      backdropDisappearsOnIndex,
+      backdropOpacity,
+      backdropPressBehavior,
+      backdropStyle,
+      colors.overlay,
+    ],
+  );
+
+  return (
+    <GorhomBottomSheet
+      ref={ref}
+      backdropComponent={backdropComponent ?? (withBackdrop ? themedBackdrop : undefined)}
+      backgroundStyle={[
+        {
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: radii.xxl,
+          borderTopRightRadius: radii.xxl,
+          borderWidth: 1.25,
+          borderColor: colors.border,
+        },
+        backgroundStyle,
+      ]}
+      handleStyle={[
+        {
+          paddingTop: spacing.md,
+          paddingBottom: spacing.sm,
+        },
+        handleStyle,
+      ]}
+      handleIndicatorStyle={[
+        {
+          width: 40,
+          height: 4,
+          borderRadius: radii.full,
+          backgroundColor: colors.border,
+        },
+        handleIndicatorStyle,
+      ]}
+      style={[
+        {
+          shadowOpacity: 0,
+          shadowRadius: 0,
+          elevation: 0,
+        },
+        style,
+      ]}
+      {...props}
+    >
+      {children}
+    </GorhomBottomSheet>
+  );
+});
+
+export {
+  BottomSheetFlatList,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetScrollView,
+  BottomSheetSectionList,
+  BottomSheetTextInput,
+  BottomSheetView,
+  useBottomSheet,
+  useBottomSheetModal,
+};
+
+export type {
+  BottomSheetBackdropProps,
+  BottomSheetMethods,
+  BottomSheetModalProps,
+  GorhomBottomSheetProps,
+};

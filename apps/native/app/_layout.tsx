@@ -1,6 +1,7 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   Outfit_400Regular,
   Outfit_500Medium,
@@ -124,16 +125,18 @@ const AppLayout = () => {
   }
 
   return (
-    <ThemeProvider
-      colorScheme={colorScheme}
-      defaultColorScheme="system"
-      themes={appThemes}
-      storage={themeStorage}
-      storageKey={THEME_STORAGE_KEY}
-      onColorSchemeChange={handleColorSchemeChange}
-    >
-      <Stack screenOptions={{ headerShown: false }} />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider
+        colorScheme={colorScheme}
+        defaultColorScheme="system"
+        themes={appThemes}
+        storage={themeStorage}
+        storageKey={THEME_STORAGE_KEY}
+        onColorSchemeChange={handleColorSchemeChange}
+      >
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 };
 

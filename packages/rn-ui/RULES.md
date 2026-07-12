@@ -45,6 +45,7 @@ Rules:
 - Export public package APIs from `src/index.ts`.
 - Do not import from app paths such as `apps/native` or sample paths.
 - Do not add package-level dependencies for optional app concerns unless the component cannot work without them.
+- Optional third-party integrations such as `BottomSheet` must stay as peer dependencies and must document required app installs.
 
 ## Code Style
 
@@ -93,6 +94,7 @@ Current public components:
 
 - `Box`
 - `Text`
+- `BottomSheet`
 - `Accordion`
 - `Alert`
 - `AlertDialog`
@@ -173,6 +175,32 @@ Use `Text` for token-based typography.
 <Text variant="h1">Heading</Text>
 <Text color="textMuted">Secondary copy</Text>
 ```
+
+### BottomSheet
+
+Use `BottomSheet` as a thin theme-aware wrapper around `@gorhom/bottom-sheet`.
+
+```tsx
+<BottomSheet
+  ref={bottomSheetRef}
+  index={-1}
+  snapPoints={['35%', '70%']}
+  enablePanDownToClose
+>
+  <BottomSheetView>
+    <Text variant="title">Theme-aware sheet</Text>
+  </BottomSheetView>
+</BottomSheet>
+```
+
+BottomSheet rules:
+
+- Keep `@gorhom/bottom-sheet`, `react-native-reanimated`, `react-native-gesture-handler`, and `react-native-worklets` as peer dependencies.
+- Keep app setup app-owned. Apps must install Gorhom dependencies, wrap their root with `GestureHandlerRootView`, and configure the Worklets Babel plugin when Reanimated requires it.
+- Keep wrapper defaults token-based: `colors.surface`, `colors.border`, `colors.overlay`, `radii.xxl`, and package spacing tokens.
+- Keep defaults flat with zero shadow/elevation.
+- Keep Gorhom escape hatches available through normal Gorhom props.
+- Re-export common Gorhom primitives only for convenience; do not hide the underlying Gorhom model.
 
 ### Accordion
 

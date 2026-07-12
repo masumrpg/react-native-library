@@ -68,6 +68,25 @@ export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';
 export type { BoxProps } from './Box';
+export {
+  BottomSheet,
+  BottomSheetFlatList,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetScrollView,
+  BottomSheetSectionList,
+  BottomSheetTextInput,
+  BottomSheetView,
+  useBottomSheet,
+  useBottomSheetModal,
+} from './BottomSheet';
+export type {
+  BottomSheetBackdropProps,
+  BottomSheetMethods,
+  BottomSheetModalProps,
+  BottomSheetProps,
+  GorhomBottomSheetProps,
+} from './BottomSheet';
 export { Button } from './Button';
 export type { ButtonProps, ButtonShape, ButtonSize, ButtonTone, ButtonVariant } from './Button';
 export { Card } from './Card';

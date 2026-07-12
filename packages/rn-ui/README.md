@@ -14,6 +14,16 @@ Peer dependencies:
 bun add react react-native
 ```
 
+Optional component peer dependencies:
+
+```sh
+# Calendar
+bun add react-native-calendars
+
+# BottomSheet
+bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler react-native-worklets
+```
+
 ## Setup
 
 Wrap your app once with `ThemeProvider`.
@@ -270,6 +280,7 @@ Current core components:
 
 - `Box`
 - `Text`
+- `BottomSheet`
 - `Accordion`
 - `Alert`
 - `AlertDialog`
@@ -386,6 +397,87 @@ function ReanimatedAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
   }}
 />
 ```
+
+### BottomSheet
+
+Use `BottomSheet` for a theme-aware wrapper around `@gorhom/bottom-sheet`. The app must install Gorhom and its runtime peers.
+
+```sh
+bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler react-native-worklets
+```
+
+Wrap the app root with `GestureHandlerRootView` at app level:
+
+```tsx
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+<GestureHandlerRootView style={{ flex: 1 }}>
+  <ThemeProvider>
+    <App />
+  </ThemeProvider>
+</GestureHandlerRootView>
+```
+
+If the app uses Reanimated 4, add the Worklets Babel plugin in the app config:
+
+```js
+module.exports = function (api) {
+  api.cache(true);
+
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: ['react-native-reanimated/plugin'],
+  };
+};
+```
+
+Use the themed wrapper:
+
+```tsx
+import {
+  BottomSheet,
+  BottomSheetView,
+  Button,
+  Text,
+  type BottomSheetMethods,
+} from '@masumdev/rn-ui';
+
+const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
+const snapPoints = React.useMemo(() => ['35%', '70%'], []);
+
+<Button onPress={() => bottomSheetRef.current?.snapToIndex(0)}>
+  Open Sheet
+</Button>
+
+<BottomSheet
+  ref={bottomSheetRef}
+  index={-1}
+  snapPoints={snapPoints}
+  enablePanDownToClose
+>
+  <BottomSheetView>
+    <Text variant="title">Theme-aware sheet</Text>
+  </BottomSheetView>
+</BottomSheet>
+```
+
+The wrapper maps theme tokens to Gorhom props:
+
+- `backgroundStyle` uses `colors.surface`, `colors.border`, and `radii.xxl`
+- `handleIndicatorStyle` uses `colors.border`
+- `style` keeps shadow/elevation at zero
+- `backdropComponent` defaults to a themed `BottomSheetBackdrop`
+
+Useful wrapper props:
+
+- `withBackdrop`
+- `backdropOpacity`
+- `backdropAppearsOnIndex`
+- `backdropDisappearsOnIndex`
+- `backdropPressBehavior`
+- `backdropStyle`
+
+Gorhom primitives are re-exported for convenience: `BottomSheetView`, `BottomSheetScrollView`, `BottomSheetFlatList`, `BottomSheetSectionList`, `BottomSheetTextInput`, `BottomSheetModal`, `BottomSheetModalProvider`, `useBottomSheet`, and `useBottomSheetModal`.
 
 ### Alert
 
@@ -756,6 +848,7 @@ src/
     AspectRatio.tsx
     Attachment.tsx
     Avatar.tsx
+    BottomSheet.tsx
     Bubble.tsx
     ButtonGroup.tsx
     Calendar.tsx

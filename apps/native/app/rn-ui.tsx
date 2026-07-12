@@ -35,6 +35,8 @@ import {
   AvatarGroupCount,
   Badge,
   Box,
+  BottomSheet,
+  BottomSheetView,
   Bubble,
   BubbleContent,
   BubbleGroup,
@@ -72,6 +74,7 @@ import {
   Text,
   useTheme,
   useThemeStyles,
+  type BottomSheetMethods,
   type ColorSchemePreference,
   type RenderIcon,
 } from "@masumdev/rn-ui";
@@ -105,6 +108,8 @@ export default function RnUiScreen() {
   const [checkTwo, setCheckTwo] = React.useState(true);
   const [framework, setFramework] = React.useState("");
   const [showBookmark, setShowBookmark] = React.useState(true);
+  const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
+  const bottomSheetSnapPoints = React.useMemo(() => ["35%", "70%"], []);
 
   const handleRangePress = (day: { dateString: string }) => {
     const { dateString } = day;
@@ -1053,6 +1058,23 @@ export default function RnUiScreen() {
             </Box>
           </Card>
         </Section>
+
+        <Section title="Bottom Sheet">
+          <Card>
+            <Box gap="md">
+              <Text color="textMuted">
+                Gorhom bottom sheet wrapper that follows rn-ui theme tokens,
+                dark/light mode, flat border styling, and themed backdrop.
+              </Text>
+              <Button
+                leftIcon={icon(ChevronRight)}
+                onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+              >
+                Open Themed Bottom Sheet
+              </Button>
+            </Box>
+          </Card>
+        </Section>
       </ScrollView>
 
       <AlertDialog
@@ -1068,6 +1090,46 @@ export default function RnUiScreen() {
         onCancel={() => setAlertDialogVisible(false)}
         onConfirm={() => setAlertDialogVisible(false)}
       />
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={bottomSheetSnapPoints}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={styles.bottomSheetContent}>
+          <Box gap="md">
+            <Box row center gap="md">
+              <Box center bg="primarySoft" radius="lg" style={styles.sampleTile}>
+                <Palette color={colors.primary} size={22} />
+              </Box>
+              <Box flex={1}>
+                <Text variant="title">Theme-aware sheet</Text>
+                <Text variant="bodySmall" color="textMuted">
+                  Background, handle, border, and backdrop are mapped from
+                  rn-ui tokens.
+                </Text>
+              </Box>
+            </Box>
+
+            <Divider />
+
+            <Box row gap="sm">
+              <Badge tone="primary">Flat</Badge>
+              <Badge tone="success">Dark ready</Badge>
+              <Badge tone="info">Gorhom</Badge>
+            </Box>
+
+            <Button
+              variant="outline"
+              tone="secondary"
+              onPress={() => bottomSheetRef.current?.close()}
+            >
+              Close
+            </Button>
+          </Box>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
@@ -1203,6 +1265,11 @@ function useStyles() {
     alertDetailsBox: {
       borderLeftWidth: 3,
       borderLeftColor: theme.colors.info,
+    },
+    bottomSheetContent: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.xxl,
+      minHeight: 320,
     },
   }));
 }
