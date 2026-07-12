@@ -104,6 +104,7 @@ Current public components:
 - `Avatar`
 - `Bubble`
 - `ButtonGroup`
+- `Calendar`
 
 When adding a component:
 
@@ -411,6 +412,20 @@ Use `ButtonGroup` to group buttons, inputs, or prefix/suffix text blocks horizon
   <ButtonGroupSeparator />
   <Button variant="outline">Action B</Button>
 </ButtonGroup>
+```
+
+### Calendar
+
+Use `Calendar` to display calendars and handle single day or range selections. It wraps `react-native-calendars` with custom day cells conforming to shadcn specifications.
+
+```tsx
+<Calendar
+  markedDates={{
+    '2026-07-12': { selected: true, startingDay: true },
+    '2026-07-13': { selected: true, color: 'muted' },
+    '2026-07-14': { selected: true, endingDay: true },
+  }}
+/>
 ```
 
 ## Logging Rules

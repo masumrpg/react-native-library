@@ -42,6 +42,7 @@ import {
   ButtonGroup,
   ButtonGroupSeparator,
   ButtonGroupText,
+  Calendar,
   Card,
   Divider,
   IconButton,
@@ -74,6 +75,45 @@ export default function RnUiScreen() {
   const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("monthly");
   const [containerWidth, setContainerWidth] = React.useState(0);
   const slideAnim = React.useRef(new Animated.Value(1)).current;
+  const [selectedDate, setSelectedDate] = React.useState("2026-07-15");
+  const [rangeStart, setRangeStart] = React.useState<string | null>("2026-07-08");
+  const [rangeEnd, setRangeEnd] = React.useState<string | null>("2026-07-11");
+
+  const handleRangePress = (day: { dateString: string }) => {
+    const { dateString } = day;
+    if (!rangeStart || (rangeStart && rangeEnd)) {
+      setRangeStart(dateString);
+      setRangeEnd(null);
+    } else {
+      if (new Date(dateString) < new Date(rangeStart)) {
+        setRangeStart(dateString);
+      } else {
+        setRangeEnd(dateString);
+      }
+    }
+  };
+
+  const getRangeMarkedDates = (start: string | null, end: string | null) => {
+    const marked: Record<string, any> = {};
+    if (start) {
+      marked[start] = { selected: true, startingDay: true };
+    }
+    if (end && start) {
+      marked[end] = { selected: true, endingDay: true };
+
+      // Generate date strings between start and end
+      let current = new Date(start);
+      const endDate = new Date(end);
+      current.setDate(current.getDate() + 1);
+
+      while (current < endDate) {
+        const dateString = current.toISOString().split("T")[0];
+        marked[dateString] = { selected: true, isMiddle: true };
+        current.setDate(current.getDate() + 1);
+      }
+    }
+    return marked;
+  };
   const {
     colors,
     colorScheme,
@@ -770,6 +810,44 @@ export default function RnUiScreen() {
                     Option Three
                   </Button>
                 </ButtonGroup>
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Calendar">
+          <Card outlined>
+            <Box gap="lg">
+              <Text color="textMuted">
+                Date selector calendar utilizing wix react-native-calendars styled with our themed custom day cells.
+              </Text>
+
+              {/* Single selection calendar */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Single Selection & Today</Text>
+                <Calendar
+                  current="2026-07-12"
+                  markedDates={{
+                    [selectedDate]: { selected: true },
+                  }}
+                  onDayPress={(day: any) => setSelectedDate(day.dateString)}
+                />
+                <Text variant="bodySmall" color="textMuted" style={{ marginTop: 4 }}>
+                  Selected Date: <Text variant="bodySmall" color="primary" style={{ fontWeight: "600" }}>{selectedDate}</Text>
+                </Text>
+              </Box>
+
+              {/* Range selection calendar */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Range Selection (Period Marking)</Text>
+                <Calendar
+                  current="2026-07-12"
+                  markedDates={getRangeMarkedDates(rangeStart, rangeEnd)}
+                  onDayPress={handleRangePress}
+                />
+                <Text variant="bodySmall" color="textMuted" style={{ marginTop: 4 }}>
+                  Selected Range: <Text variant="bodySmall" color="primary" style={{ fontWeight: "600" }}>{rangeStart || "None"}</Text> to <Text variant="bodySmall" color="primary" style={{ fontWeight: "600" }}>{rangeEnd || "None"}</Text>
+                </Text>
               </Box>
             </Box>
           </Card>

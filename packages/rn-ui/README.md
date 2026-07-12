@@ -283,6 +283,7 @@ Current core components:
 - `Avatar`
 - `Bubble`
 - `ButtonGroup`
+- `Calendar`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -623,6 +624,22 @@ import {
 </ButtonGroup>
 ```
 
+### Calendar
+
+Use `Calendar` to render date pickers and handle single date or range select.
+
+```tsx
+import { Calendar } from '@masumdev/rn-ui';
+
+<Calendar
+  markedDates={{
+    '2026-07-12': { selected: true, startingDay: true },
+    '2026-07-13': { selected: true, color: 'muted' },
+    '2026-07-14': { selected: true, endingDay: true },
+  }}
+/>
+```
+
 ## Folder Structure
 
 ```txt
@@ -636,6 +653,7 @@ src/
     Avatar.tsx
     Bubble.tsx
     ButtonGroup.tsx
+    Calendar.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

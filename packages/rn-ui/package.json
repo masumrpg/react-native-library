@@ -36,12 +36,14 @@
   "license": "MIT",
   "devDependencies": {
     "@types/react": "^18.0.0",
+    "react-native-calendars": "^1.1314.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "react": ">=16",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-calendars": "*"
   },
   "publishConfig": {
     "access": "public"

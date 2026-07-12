@@ -58,6 +58,12 @@ export type {
   ButtonGroupSeparatorProps,
   ButtonGroupOrientation,
 } from './ButtonGroup';
+export { Calendar } from './Calendar';
+export type {
+  CalendarProps,
+  CalendarDayData,
+  CalendarDayMarking,
+} from './Calendar';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';
