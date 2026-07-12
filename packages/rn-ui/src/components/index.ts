@@ -1,3 +1,13 @@
+export { Accordion } from './Accordion';
+export type {
+  AccordionAnimatedContentProps,
+  AccordionAnimatedIndicatorProps,
+  AccordionAnimationComponents,
+  AccordionIndicator,
+  AccordionIndicatorProps,
+  AccordionItem,
+  AccordionProps,
+} from './Accordion';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';

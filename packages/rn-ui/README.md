@@ -270,6 +270,7 @@ Current core components:
 
 - `Box`
 - `Text`
+- `Accordion`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -291,11 +292,94 @@ import { Ionicons } from '@expo/vector-icons';
 </Button>
 ```
 
+### Accordion
+
+Use `Accordion` for expandable flat bordered sections. It supports controlled and uncontrolled state.
+
+```tsx
+import { Accordion, Text } from '@masumdev/rn-ui';
+
+<Accordion
+  defaultOpenIds={['theme']}
+  items={[
+    {
+      id: 'theme',
+      title: 'Theme tokens',
+      subtitle: 'Colors, fonts, spacing, and radius',
+      content: 'Accordion follows the same flat token-driven style.',
+    },
+    {
+      id: 'icons',
+      title: 'Generic icons',
+      content: <Text color="textMuted">Icons can be render functions.</Text>,
+    },
+  ]}
+/>
+```
+
+Controlled:
+
+```tsx
+const [openIds, setOpenIds] = React.useState(['theme']);
+
+<Accordion
+  openIds={openIds}
+  onOpenChange={setOpenIds}
+  allowMultiple
+  items={items}
+/>
+```
+
+Animation:
+
+- Default animation uses React Native `Animated`.
+- No extra dependency is required.
+- Content animates height and opacity.
+- Indicator animates rotation.
+- Pass `animated={false}` to disable animation.
+- Pass `animationDuration` to tune timing.
+
+```tsx
+<Accordion
+  animationDuration={220}
+  defaultOpenIds={['theme']}
+  items={items}
+/>
+```
+
+Reanimated or custom animation can be plugged in without making `rn-ui` depend on Reanimated:
+
+```tsx
+import type {
+  AccordionAnimatedContentProps,
+  AccordionAnimatedIndicatorProps,
+} from '@masumdev/rn-ui';
+
+function ReanimatedAccordionContent(props: AccordionAnimatedContentProps) {
+  // App-owned Reanimated implementation.
+  return <YourAnimatedContent {...props} />;
+}
+
+function ReanimatedAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
+  // App-owned Reanimated implementation.
+  return <YourAnimatedIndicator {...props} />;
+}
+
+<Accordion
+  items={items}
+  animationComponents={{
+    Content: ReanimatedAccordionContent,
+    Indicator: ReanimatedAccordionIndicator,
+  }}
+/>
+```
+
 ## Folder Structure
 
 ```txt
 src/
   components/
+    Accordion.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

@@ -91,6 +91,7 @@ Current public components:
 
 - `Box`
 - `Text`
+- `Accordion`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -108,6 +109,7 @@ When adding a component:
 - Keep icon support generic with `RenderIcon` or render props.
 - Add usage docs to `README.md`.
 - Add the component to the component list in this file.
+- Add a sample for the component in `apps/native/app/rn-ui.tsx`.
 - Run package build and app typecheck before finishing.
 
 ## Component Usage
@@ -155,6 +157,42 @@ Use `Text` for token-based typography.
 <Text variant="h1">Heading</Text>
 <Text color="textMuted">Secondary copy</Text>
 ```
+
+### Accordion
+
+Use `Accordion` for expandable flat bordered sections.
+
+```tsx
+<Accordion
+  defaultOpenIds={['theme']}
+  items={[
+    {
+      id: 'theme',
+      title: 'Theme tokens',
+      subtitle: 'Colors, fonts, spacing, and radius',
+      content: 'Accordion follows the same token-driven flat style.',
+    },
+  ]}
+/>
+```
+
+Use controlled state when the app needs to own open/closed state.
+
+```tsx
+<Accordion
+  openIds={openIds}
+  onOpenChange={setOpenIds}
+  allowMultiple
+  items={items}
+/>
+```
+
+Accordion animation rules:
+
+- Default animation must use React Native `Animated`.
+- Do not import `react-native-reanimated` in `rn-ui`.
+- Reanimated support must stay pluggable through `animationComponents`.
+- Keep `animated={false}` available for users who want no animation.
 
 ### Button
 
@@ -265,3 +303,4 @@ node node_modules/.bun/typescript@5.9.2/node_modules/typescript/lib/tsc.js -p ap
 
 - Confirm `README.md` is updated for user-facing changes.
 - Confirm `RULES.md` is updated for structure or convention changes.
+- Confirm `apps/native/app/rn-ui.tsx` includes a sample for every public component.
