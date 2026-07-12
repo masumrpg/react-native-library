@@ -327,3 +327,7 @@ src/
 - Keep app-specific storage, fonts, icons, and haptics outside the UI core.
 - Add new components through `components/` and export them from `components/index.ts`.
 - When changing package APIs, tokens, default visuals, persistence behavior, or app integration examples, update this README in the same change.
+
+## Development Rules
+
+See [`RULES.md`](./RULES.md) for file structure rules, code style rules, component conventions, usage patterns, logging rules, and verification checklist.
