@@ -280,6 +280,9 @@ Current core components:
 - `Divider`
 - `AspectRatio`
 - `Attachment`
+- `Avatar`
+- `Bubble`
+- `ButtonGroup`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -536,6 +539,90 @@ import { Attachment } from '@masumdev/rn-ui';
 />
 ```
 
+### Avatar
+
+Use `Avatar` to display user profile images. Supports sizes (`sm`, `default`, `lg`), custom fallback placeholders, activity badges, and overlapping avatar groups.
+
+```tsx
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+  AvatarGroup,
+  AvatarGroupCount,
+} from '@masumdev/rn-ui';
+
+// Individual Avatar with Badge
+<Avatar size="lg">
+  <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+  <AvatarFallback>JD</AvatarFallback>
+  <AvatarBadge bg="#10B981" /> {/* green online indicator */}
+</Avatar>
+
+// Avatar Group
+<AvatarGroup size="default">
+  <Avatar>
+    <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+    <AvatarFallback>JD</AvatarFallback>
+  </Avatar>
+  <Avatar>
+    <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' }} />
+    <AvatarFallback>AM</AvatarFallback>
+  </Avatar>
+  <AvatarGroupCount count={5} />
+</AvatarGroup>
+```
+
+### Bubble
+
+Use `BubbleGroup`, `Bubble`, `BubbleContent`, and `BubbleReactions` to display conversation bubbles (chat messages) with support for variants, alignments, and overlay reaction tags.
+
+```tsx
+import {
+  BubbleGroup,
+  Bubble,
+  BubbleContent,
+  BubbleReactions,
+  Text,
+} from '@masumdev/rn-ui';
+
+<BubbleGroup>
+  {/* Incoming message */}
+  <Bubble align="start" variant="secondary">
+    <BubbleContent>Hello! How can I help you today?</BubbleContent>
+  </Bubble>
+
+  {/* Outgoing message with reactions */}
+  <Bubble align="end" variant="default">
+    <BubbleContent>I'd like to customize the colors of my theme.</BubbleContent>
+    <BubbleReactions side="bottom" align="end">
+      <Text style={{ fontSize: 11 }}>👍 1</Text>
+    </BubbleReactions>
+  </Bubble>
+</BubbleGroup>
+```
+
+### ButtonGroup
+
+Use `ButtonGroup` to group buttons, static text containers, and separators horizontally or vertically with unified borders and border radii.
+
+```tsx
+import {
+  ButtonGroup,
+  ButtonGroupText,
+  ButtonGroupSeparator,
+  Button,
+} from '@masumdev/rn-ui';
+
+<ButtonGroup orientation="horizontal">
+  <ButtonGroupText>Prefix</ButtonGroupText>
+  <Button variant="outline">Action A</Button>
+  <ButtonGroupSeparator />
+  <Button variant="outline">Action B</Button>
+</ButtonGroup>
+```
+
 ## Folder Structure
 
 ```txt
@@ -546,6 +633,9 @@ src/
     AlertDialog.tsx
     AspectRatio.tsx
     Attachment.tsx
+    Avatar.tsx
+    Bubble.tsx
+    ButtonGroup.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

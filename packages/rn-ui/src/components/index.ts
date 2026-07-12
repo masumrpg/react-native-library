@@ -16,6 +16,48 @@ export { AspectRatio } from './AspectRatio';
 export type { AspectRatioProps } from './AspectRatio';
 export { Attachment } from './Attachment';
 export type { AttachmentProps, AttachmentLayout } from './Attachment';
+export {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+  AvatarGroup,
+  AvatarGroupCount,
+} from './Avatar';
+export type {
+  AvatarProps,
+  AvatarImageProps,
+  AvatarFallbackProps,
+  AvatarBadgeProps,
+  AvatarGroupProps,
+  AvatarGroupCountProps,
+  AvatarSize,
+} from './Avatar';
+export {
+  BubbleGroup,
+  Bubble,
+  BubbleContent,
+  BubbleReactions,
+} from './Bubble';
+export type {
+  BubbleGroupProps,
+  BubbleProps,
+  BubbleContentProps,
+  BubbleReactionsProps,
+  BubbleVariant,
+  BubbleAlign,
+} from './Bubble';
+export {
+  ButtonGroup,
+  ButtonGroupText,
+  ButtonGroupSeparator,
+} from './ButtonGroup';
+export type {
+  ButtonGroupProps,
+  ButtonGroupTextProps,
+  ButtonGroupSeparatorProps,
+  ButtonGroupOrientation,
+} from './ButtonGroup';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';

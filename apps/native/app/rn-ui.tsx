@@ -26,9 +26,22 @@ import {
   AlertDialog,
   AspectRatio,
   Attachment,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+  AvatarGroup,
+  AvatarGroupCount,
   Badge,
   Box,
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+  BubbleReactions,
   Button,
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
   Card,
   Divider,
   IconButton,
@@ -58,14 +71,37 @@ export default function RnUiScreen() {
   const router = useRouter();
   const [showAlertDetails, setShowAlertDetails] = React.useState(false);
   const [alertDialogVisible, setAlertDialogVisible] = React.useState(false);
+  const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("monthly");
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  const slideAnim = React.useRef(new Animated.Value(1)).current;
   const {
     colors,
     colorScheme,
     resolvedColorScheme,
     setColorScheme,
     toggleColorScheme,
+    radii,
   } = useTheme();
   const styles = useStyles();
+
+  React.useEffect(() => {
+    const toValue = activeSegment === "weekly" ? 0 : activeSegment === "monthly" ? 1 : 2;
+    Animated.spring(slideAnim, {
+      toValue,
+      useNativeDriver: true,
+      tension: 60,
+      friction: 9,
+    }).start();
+  }, [activeSegment, slideAnim]);
+
+  const padding = 3;
+  const borderWidth = 2.5; // Double of 1.25 border width
+  const innerWidth = containerWidth - (padding * 2) - borderWidth;
+  const activeBlockWidth = innerWidth / 3;
+  const translateX = slideAnim.interpolate({
+    inputRange: [0, 1, 2],
+    outputRange: [0, activeBlockWidth, activeBlockWidth * 2],
+  });
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -479,6 +515,261 @@ export default function RnUiScreen() {
                     closeIcon={icon(X)}
                   />
                 </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Avatar">
+          <Card outlined>
+            <Box gap="lg">
+              <Text color="textMuted">
+                User profile images supporting custom sizes (sm, default, lg), fallbacks, status badges, and overlapping groups.
+              </Text>
+
+              {/* Sizes and Badges */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Sizes and Badges</Text>
+                <Box row gap="md" center style={styles.wrap}>
+                  {/* Large size with green online badge */}
+                  <Avatar size="lg">
+                    <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" }} />
+                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarBadge bg={colors.success} />
+                  </Avatar>
+
+                  {/* Default size with default primary badge */}
+                  <Avatar size="default">
+                    <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" }} />
+                    <AvatarFallback>AM</AvatarFallback>
+                    <AvatarBadge />
+                  </Avatar>
+
+                  {/* Small size with badge */}
+                  <Avatar size="sm">
+                    <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=100&q=80" }} />
+                    <AvatarFallback>WL</AvatarFallback>
+                    <AvatarBadge bg={colors.warning} />
+                  </Avatar>
+
+                  {/* Fallback initials demonstration */}
+                  <Avatar size="default">
+                    <AvatarImage source={{ uri: "https://invalid-url/broken.jpg" }} />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                </Box>
+              </Box>
+
+              <Divider />
+
+              {/* Avatar Groups */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Avatar Groups</Text>
+                <Box gap="md">
+                  <AvatarGroup size="lg">
+                    <Avatar>
+                      <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" }} />
+                      <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                    <Avatar>
+                      <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" }} />
+                      <AvatarFallback>AM</AvatarFallback>
+                    </Avatar>
+                    <Avatar>
+                      <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=100&q=80" }} />
+                      <AvatarFallback>WL</AvatarFallback>
+                    </Avatar>
+                    <AvatarGroupCount count={3} />
+                  </AvatarGroup>
+
+                  <AvatarGroup size="default">
+                    <Avatar>
+                      <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" }} />
+                      <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                    <Avatar>
+                      <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" }} />
+                      <AvatarFallback>AM</AvatarFallback>
+                    </Avatar>
+                    <AvatarGroupCount count={5} />
+                  </AvatarGroup>
+                </Box>
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Chat Bubbles">
+          <Card outlined>
+            <Box gap="lg">
+              <Text color="textMuted">
+                Message layout components supporting start/end alignment, multiple tone variants, and reaction overlay tags.
+              </Text>
+
+              <BubbleGroup>
+                {/* Incoming message */}
+                <Box row gap="sm" style={{ alignSelf: "flex-start", alignItems: "flex-end" }}>
+                  <Avatar size="sm">
+                    <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80" }} />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <Bubble align="start" variant="secondary">
+                    <BubbleContent>
+                      Hai! Apakah kamu bisa bantu saya memahami cara kustomisasi tema warna di pustaka ini?
+                    </BubbleContent>
+                  </Bubble>
+                </Box>
+
+                {/* Outgoing message */}
+                <Bubble align="end" variant="default">
+                  <BubbleContent>
+                    Tentu! Kamu cukup buat objek tema baru dan oper ke ThemeProvider. Contoh lengkapnya ada di dokumentasi README.
+                  </BubbleContent>
+                  <BubbleReactions side="bottom" align="end">
+                    <Text style={{ fontSize: 11 }}>👍 2</Text>
+                  </BubbleReactions>
+                </Bubble>
+
+                {/* Outgoing follow-up */}
+                <Bubble align="end" variant="tinted">
+                  <BubbleContent>
+                    Apakah penjelasan ini cukup membantu? 😊
+                  </BubbleContent>
+                  <BubbleReactions side="bottom" align="end">
+                    <Text style={{ fontSize: 11 }}>❤️ 1</Text>
+                  </BubbleReactions>
+                </Bubble>
+
+                {/* Incoming message with warning/destructive alert */}
+                <Box row gap="sm" style={{ alignSelf: "flex-start", alignItems: "flex-end", marginTop: 8 }}>
+                  <Avatar size="sm">
+                    <AvatarImage source={{ uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80" }} />
+                    <AvatarFallback>JD</AvatarFallback>
+                  </Avatar>
+                  <Bubble align="start" variant="destructive">
+                    <BubbleContent>
+                      Wah, kelihatannya ada yang salah di setup saya. Warnanya tidak mau ganti.
+                    </BubbleContent>
+                    <BubbleReactions side="bottom" align="start">
+                      <Text style={{ fontSize: 11 }}>😢 1</Text>
+                    </BubbleReactions>
+                  </Bubble>
+                </Box>
+
+                {/* Outgoing message with outline variant */}
+                <Bubble align="end" variant="outline">
+                  <BubbleContent>
+                    Coba pastikan berkas konfigurasi tsconfig sudah benar dan build ulang projectnya.
+                  </BubbleContent>
+                </Bubble>
+              </BubbleGroup>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Button Groups">
+          <Card outlined>
+            <Box gap="lg">
+              <Text color="textMuted">
+                Layout containers to group multiple buttons, inputs, or static text boxes with unified border-radii.
+              </Text>
+
+              {/* Horizontal Button Group */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Horizontal Orientation</Text>
+                <ButtonGroup orientation="horizontal">
+                  <ButtonGroupText>USD</ButtonGroupText>
+                  <Button variant="outline" tone="secondary" style={{ flex: 1 }}>
+                    Deposit
+                  </Button>
+                  <ButtonGroupSeparator />
+                  <Button variant="outline" tone="secondary" style={{ flex: 1 }}>
+                    Withdraw
+                  </Button>
+                </ButtonGroup>
+              </Box>
+
+              {/* Segmented Actions with sliding background animation */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Segmented Actions (Animated)</Text>
+                <ButtonGroup
+                  orientation="horizontal"
+                  style={{
+                    backgroundColor: colors.backgroundMuted,
+                    borderRadius: radii.lg,
+                    borderWidth: 1.25,
+                    borderColor: colors.border,
+                    position: "relative",
+                    overflow: "hidden",
+                    padding: padding,
+                  }}
+                  onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+                >
+                  {containerWidth > 0 && (
+                    <Animated.View
+                      style={[
+                        {
+                          position: "absolute",
+                          top: padding,
+                          bottom: padding,
+                          left: padding,
+                          width: activeBlockWidth,
+                          backgroundColor: colors.primary,
+                          borderRadius: radii.md,
+                        },
+                        {
+                          transform: [{ translateX }],
+                        },
+                      ]}
+                    />
+                  )}
+                  <Button
+                    variant="ghost"
+                    style={{ flex: 1 }}
+                    textStyle={{
+                      color: activeSegment === "weekly" ? colors.onPrimary : colors.textMuted,
+                    }}
+                    onPress={() => setActiveSegment("weekly")}
+                  >
+                    Weekly
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    style={{ flex: 1 }}
+                    textStyle={{
+                      color: activeSegment === "monthly" ? colors.onPrimary : colors.textMuted,
+                    }}
+                    onPress={() => setActiveSegment("monthly")}
+                  >
+                    Monthly
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    style={{ flex: 1 }}
+                    textStyle={{
+                      color: activeSegment === "yearly" ? colors.onPrimary : colors.textMuted,
+                    }}
+                    onPress={() => setActiveSegment("yearly")}
+                  >
+                    Yearly
+                  </Button>
+                </ButtonGroup>
+              </Box>
+
+              {/* Vertical Button Group */}
+              <Box gap="sm">
+                <Text variant="labelSmall" color="textSubtle">Vertical Orientation</Text>
+                <ButtonGroup orientation="vertical">
+                  <Button variant="outline" tone="secondary" fullWidth>
+                    Option One
+                  </Button>
+                  <Button variant="outline" tone="secondary" fullWidth>
+                    Option Two
+                  </Button>
+                  <Button variant="outline" tone="secondary" fullWidth>
+                    Option Three
+                  </Button>
+                </ButtonGroup>
               </Box>
             </Box>
           </Card>

@@ -101,6 +101,9 @@ Current public components:
 - `Divider`
 - `AspectRatio`
 - `Attachment`
+- `Avatar`
+- `Bubble`
+- `ButtonGroup`
 
 When adding a component:
 
@@ -352,6 +355,62 @@ Use `Attachment` to show uploaded or uploading files. Supports `card` and `row` 
   loading
   onRemove={() => console.log('Remove')}
 />
+```
+
+### Avatar
+
+Use `Avatar` to display user profile images with support for sizes, fallbacks, badges, and overlapping groups.
+
+```tsx
+<Avatar size="lg">
+  <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+  <AvatarFallback>JD</AvatarFallback>
+  <AvatarBadge bg={colors.success} />
+</Avatar>
+
+<AvatarGroup size="default">
+  <Avatar>
+    <AvatarImage source={{ uri: 'url1' }} />
+    <AvatarFallback>A1</AvatarFallback>
+  </Avatar>
+  <Avatar>
+    <AvatarImage source={{ uri: 'url2' }} />
+    <AvatarFallback>A2</AvatarFallback>
+  </Avatar>
+  <AvatarGroupCount count={3} />
+</AvatarGroup>
+```
+
+### Bubble
+
+Use `Bubble` components to render chat messages. Supports alignments (`start`, `end`), variants (`default`, `secondary`, `muted`, `tinted`, `outline`, `ghost`, `destructive`), and reaction badge overlays.
+
+```tsx
+<BubbleGroup>
+  <Bubble align="start" variant="secondary">
+    <BubbleContent>Hi there! How can I help you today?</BubbleContent>
+  </Bubble>
+
+  <Bubble align="end" variant="default">
+    <BubbleContent>I need help setting up the theme provider.</BubbleContent>
+    <BubbleReactions side="bottom" align="end">
+      <Text style={{ fontSize: 12 }}>👍 2</Text>
+    </BubbleReactions>
+  </Bubble>
+</BubbleGroup>
+```
+
+### ButtonGroup
+
+Use `ButtonGroup` to group buttons, inputs, or prefix/suffix text blocks horizontally or vertically.
+
+```tsx
+<ButtonGroup orientation="horizontal">
+  <ButtonGroupText>Prefix</ButtonGroupText>
+  <Button variant="outline">Action A</Button>
+  <ButtonGroupSeparator />
+  <Button variant="outline">Action B</Button>
+</ButtonGroup>
 ```
 
 ## Logging Rules
