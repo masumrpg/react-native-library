@@ -100,6 +100,7 @@ Current public components:
 - `Card`
 - `Divider`
 - `AspectRatio`
+- `Attachment`
 
 When adding a component:
 
@@ -329,6 +330,28 @@ Use `AspectRatio` to maintain aspect ratios of media and other layouts. Children
 <AspectRatio ratio={16 / 9} radius="md">
   <Image source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }} style={{ resizeMode: 'cover' }} />
 </AspectRatio>
+```
+
+### Attachment
+
+Use `Attachment` to show uploaded or uploading files. Supports `card` and `row` layouts.
+
+```tsx
+<Attachment
+  layout="card"
+  name="workspace.png"
+  description="PNG • 820 KB"
+  thumbnail="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"
+  onRemove={() => console.log('Remove')}
+/>
+
+<Attachment
+  layout="row"
+  name="sales-dashboard.pdf"
+  description="Uploading • 64%"
+  loading
+  onRemove={() => console.log('Remove')}
+/>
 ```
 
 ## Logging Rules

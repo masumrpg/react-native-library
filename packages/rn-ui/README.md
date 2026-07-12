@@ -279,6 +279,7 @@ Current core components:
 - `Card`
 - `Divider`
 - `AspectRatio`
+- `Attachment`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -509,6 +510,32 @@ import { Image } from 'react-native';
 </AspectRatio>
 ```
 
+### Attachment
+
+Use `Attachment` to represent file/image uploads or documents. Supports grid-like `card` previews and full-width list `row` views with status indicators.
+
+```tsx
+import { Attachment } from '@masumdev/rn-ui';
+
+// Card layout (Image preview)
+<Attachment
+  layout="card"
+  name="workspace.png"
+  description="PNG • 820 KB"
+  thumbnail="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"
+  onRemove={() => console.log('Remove')}
+/>
+
+// Row layout (Document preview)
+<Attachment
+  layout="row"
+  name="sales-dashboard.pdf"
+  description="Uploading • 64%"
+  loading
+  onRemove={() => console.log('Remove')}
+/>
+```
+
 ## Folder Structure
 
 ```txt
@@ -518,6 +545,7 @@ src/
     Alert.tsx
     AlertDialog.tsx
     AspectRatio.tsx
+    Attachment.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
