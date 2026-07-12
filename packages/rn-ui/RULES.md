@@ -93,6 +93,7 @@ Current public components:
 - `Text`
 - `Accordion`
 - `Alert`
+- `AlertDialog`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -222,6 +223,36 @@ With generic icon and action:
 ```
 
 Dismissible alerts should remove themselves when `dismissible` is true. `icon`, `action.icon`, and `closeIcon` must stay pluggable. Dismiss animation should use React Native `Animated` by default and remain disableable through `animated={false}`. If an Alert action needs an animated open/close icon, keep that animation app-owned through `action.icon`.
+
+### AlertDialog
+
+Use `AlertDialog` for modal confirmation and blocking feedback.
+
+```tsx
+<AlertDialog
+  visible={visible}
+  tone="danger"
+  title="Delete item?"
+  description="This action cannot be undone."
+  confirmText="Delete"
+  cancelText="Cancel"
+  onConfirm={deleteItem}
+  onCancel={() => setVisible(false)}
+  onClose={() => setVisible(false)}
+/>
+```
+
+AlertDialog rules:
+
+- Use React Native `Modal` by default.
+- Use React Native `Animated` for default entry/exit animation.
+- Keep `animated={false}` available.
+- Keep `icon` and `closeIcon` pluggable.
+- Wire `onRequestClose` for Android back button.
+- Keep backdrop dismiss controlled by `dismissOnBackdropPress`.
+- Enable Android `statusBarTranslucent`, `navigationBarTranslucent`, and `hardwareAccelerated` by default so the overlay covers system UI areas more consistently.
+- Treat Android navigation bar color as app-owned system UI. Do not import `expo-navigation-bar` in core; document app-level integration instead.
+- Do not import portal, navigation, Reanimated, or bottom-sheet dependencies in core.
 
 ### Button
 

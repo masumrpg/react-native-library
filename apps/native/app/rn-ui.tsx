@@ -15,11 +15,13 @@ import {
   Settings,
   Smartphone,
   Sun,
+  Trash,
   X,
 } from "lucide-react-native";
 import {
   Accordion,
   Alert,
+  AlertDialog,
   Badge,
   Box,
   Button,
@@ -51,6 +53,7 @@ const themeOptions: Array<{
 export default function RnUiScreen() {
   const router = useRouter();
   const [showAlertDetails, setShowAlertDetails] = React.useState(false);
+  const [alertDialogVisible, setAlertDialogVisible] = React.useState(false);
   const {
     colors,
     colorScheme,
@@ -286,6 +289,24 @@ export default function RnUiScreen() {
           </Box>
         </Section>
 
+        <Section title="Alert Dialog">
+          <Card>
+            <Box gap="md">
+              <Text color="textMuted">
+                Modal confirmation dialog with flat border styling, animated
+                entry, backdrop dismiss, and pluggable icons.
+              </Text>
+              <Button
+                variant="danger"
+                leftIcon={icon(Trash)}
+                onPress={() => setAlertDialogVisible(true)}
+              >
+                Open Delete Dialog
+              </Button>
+            </Box>
+          </Card>
+        </Section>
+
         <Section title="Accordion">
           <Accordion
             defaultOpenIds={["theme"]}
@@ -364,6 +385,20 @@ export default function RnUiScreen() {
           </Card>
         </Section>
       </ScrollView>
+
+      <AlertDialog
+        visible={alertDialogVisible}
+        tone="danger"
+        title="Delete component sample?"
+        description="This is a sample destructive confirmation. The dialog uses RN Modal and Animated by default."
+        icon={icon(Trash)}
+        closeIcon={icon(X)}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onClose={() => setAlertDialogVisible(false)}
+        onCancel={() => setAlertDialogVisible(false)}
+        onConfirm={() => setAlertDialogVisible(false)}
+      />
     </SafeAreaView>
   );
 }

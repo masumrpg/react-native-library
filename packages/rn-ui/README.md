@@ -272,6 +272,7 @@ Current core components:
 - `Text`
 - `Accordion`
 - `Alert`
+- `AlertDialog`
 - `Button`
 - `IconButton`
 - `Badge`
@@ -442,6 +443,55 @@ Action icons can be fully overridden, including custom open/close animation owne
 </Alert>
 ```
 
+### AlertDialog
+
+Use `AlertDialog` for modal confirmation and blocking feedback. It uses React Native `Modal` and React Native `Animated` by default.
+
+```tsx
+const [visible, setVisible] = React.useState(false);
+
+<Button onPress={() => setVisible(true)}>Delete</Button>
+
+<AlertDialog
+  visible={visible}
+  tone="danger"
+  title="Delete item?"
+  description="This action cannot be undone."
+  confirmText="Delete"
+  cancelText="Cancel"
+  onConfirm={deleteItem}
+  onCancel={() => setVisible(false)}
+  onClose={() => setVisible(false)}
+/>
+```
+
+With pluggable icons:
+
+```tsx
+<AlertDialog
+  visible={visible}
+  icon={({ color, size }) => <Trash color={color} size={size} />}
+  closeIcon={({ color, size }) => <X color={color} size={size} />}
+  onClose={() => setVisible(false)}
+/>
+```
+
+Useful props:
+
+- `dismissOnBackdropPress`
+- `confirmLoading`
+- `confirmDisabled`
+- `cancelDisabled`
+- `animated`
+- `animationDuration`
+- `modalProps`
+
+Android notes:
+
+- `AlertDialog` enables `statusBarTranslucent`, `navigationBarTranslucent`, and `hardwareAccelerated` by default so the backdrop can cover modern Android system UI areas more consistently.
+- If an app uses custom edge-to-edge or navigation bar handling, override native modal behavior through `modalProps`.
+- Android navigation bar behavior is controlled by system UI, not by the modal backdrop view. If the app needs to hide or style the navigation bar while a dialog is open, handle it at app level with the system UI solution already used by that app. `rn-ui` does not depend on Expo navigation-bar APIs.
+
 ## Folder Structure
 
 ```txt
@@ -449,6 +499,7 @@ src/
   components/
     Accordion.tsx
     Alert.tsx
+    AlertDialog.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

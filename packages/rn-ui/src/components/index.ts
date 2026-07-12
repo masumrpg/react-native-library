@@ -10,6 +10,8 @@ export type {
 } from './Accordion';
 export { Alert } from './Alert';
 export type { AlertAction, AlertProps, AlertTone, AlertVariant } from './Alert';
+export { AlertDialog } from './AlertDialog';
+export type { AlertDialogProps, AlertDialogTone } from './AlertDialog';
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from './Badge';
 export { Box } from './Box';
