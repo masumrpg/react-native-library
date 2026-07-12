@@ -54,6 +54,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         pattern: /(\"dependencies\": \{[^}]*)(})/,
         template: '$1,\n    "@masumdev/{{kebabCase name}}": "workspace:*"$2',
       },
+      {
+        type: "modify",
+        path: "apps/native/tsconfig.json",
+        pattern: /(\"paths\": \{[^}]*)(})/,
+        template: '$1,\n      "@masumdev/{{kebabCase name}}": ["../../packages/{{kebabCase name}}/src"]$2',
+      },
     ],
   });
 }
