@@ -301,7 +301,7 @@ export function Calendar({
         style,
       ]}
     >
-      {/* Custom Premium Header supporting Birthday Navigation */}
+      {/* Custom header with month and year navigation. */}
       <View
         style={{
           flexDirection: 'row',

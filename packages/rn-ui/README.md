@@ -284,6 +284,11 @@ Current core components:
 - `Bubble`
 - `ButtonGroup`
 - `Calendar`
+- `Carousel`
+- `Checkbox`
+- `Collapsible`
+- `Combobox`
+- `ContextMenu`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -527,7 +532,7 @@ import { Attachment } from '@masumdev/rn-ui';
   name="workspace.png"
   description="PNG • 820 KB"
   thumbnail="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"
-  onRemove={() => console.log('Remove')}
+  onRemove={removeFile}
 />
 
 // Row layout (Document preview)
@@ -535,10 +540,13 @@ import { Attachment } from '@masumdev/rn-ui';
   layout="row"
   name="sales-dashboard.pdf"
   description="Uploading • 64%"
+  descriptionTone="info"
   loading
-  onRemove={() => console.log('Remove')}
+  onRemove={removeFile}
 />
 ```
+
+`descriptionTone` accepts `default`, `info`, `success`, `warning`, and `danger`. Use it instead of deriving visual state from description copy. `thumbnail`, `fileIcon`, and `closeIcon` are pluggable through `RenderIcon`.
 
 ### Avatar
 
@@ -558,7 +566,7 @@ import {
 <Avatar size="lg">
   <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
   <AvatarFallback>JD</AvatarFallback>
-  <AvatarBadge bg="#10B981" /> {/* green online indicator */}
+  <AvatarBadge bg={colors.success} />
 </Avatar>
 
 // Avatar Group
@@ -640,6 +648,103 @@ import { Calendar } from '@masumdev/rn-ui';
 />
 ```
 
+### Carousel
+
+Use `Carousel` for horizontally scrollable card decks. Pagination is on by default and next/previous icons are pluggable.
+
+```tsx
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from '@masumdev/rn-ui';
+
+<Carousel itemWidth={280}>
+  <CarouselContent>
+    <CarouselItem>
+      <Card><Text>Slide one</Text></Card>
+    </CarouselItem>
+    <CarouselItem>
+      <Card><Text>Slide two</Text></Card>
+    </CarouselItem>
+  </CarouselContent>
+  <CarouselPrevious icon={({ color, size }) => <ChevronLeft color={color} size={size} />} />
+  <CarouselNext icon={({ color, size }) => <ChevronRight color={color} size={size} />} />
+</Carousel>
+```
+
+### Checkbox
+
+Use `Checkbox` for controlled boolean state. The check icon is pluggable.
+
+```tsx
+<Checkbox
+  checked={checked}
+  onCheckedChange={setChecked}
+  icon={({ color, size }) => <Check color={color} size={size} />}
+/>
+```
+
+### Collapsible
+
+Use `Collapsible` for composable expandable content.
+
+```tsx
+<Collapsible defaultOpen>
+  <CollapsibleTrigger>
+    <Text variant="label">Toggle details</Text>
+  </CollapsibleTrigger>
+  <CollapsibleContent>
+    <Text color="textMuted">Hidden content.</Text>
+  </CollapsibleContent>
+</Collapsible>
+```
+
+### Combobox
+
+Use `Combobox` for searchable selection. It uses React Native `Modal` by default, stays flat by default, and exposes `modalProps`, `overlayStyle`, `chevronIcon`, and `checkIcon` for app-level customization.
+
+```tsx
+<Combobox value={value} onValueChange={setValue}>
+  <ComboboxInput
+    placeholder="Select framework"
+    chevronIcon={({ color, size }) => <ChevronsUpDown color={color} size={size} />}
+  />
+  <ComboboxContent>
+    <ComboboxList>
+      <ComboboxItem value="expo" label="Expo">Expo</ComboboxItem>
+      <ComboboxItem value="react-native" label="React Native">React Native</ComboboxItem>
+      <ComboboxEmpty>No results.</ComboboxEmpty>
+    </ComboboxList>
+  </ComboboxContent>
+</Combobox>
+```
+
+### ContextMenu
+
+Use `ContextMenu` for long-press menus. It uses React Native `Modal` by default and keeps system UI behavior app-overridable through `modalProps`.
+
+```tsx
+<ContextMenu>
+  <ContextMenuTrigger>
+    <Button variant="outline">Long press</Button>
+  </ContextMenuTrigger>
+  <ContextMenuContent>
+    <ContextMenuLabel>Actions</ContextMenuLabel>
+    <ContextMenuItem onPress={editItem}>Edit</ContextMenuItem>
+    <ContextMenuCheckboxItem checked={pinned} onCheckedChange={setPinned}>
+      Pinned
+    </ContextMenuCheckboxItem>
+    <ContextMenuSeparator />
+    <ContextMenuItem variant="destructive" onPress={deleteItem}>
+      Delete
+    </ContextMenuItem>
+  </ContextMenuContent>
+</ContextMenu>
+```
+
 ## Folder Structure
 
 ```txt
@@ -654,6 +759,11 @@ src/
     Bubble.tsx
     ButtonGroup.tsx
     Calendar.tsx
+    Carousel.tsx
+    Checkbox.tsx
+    Collapsible.tsx
+    Combobox.tsx
+    ContextMenu.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

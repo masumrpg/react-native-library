@@ -15,7 +15,7 @@ export type { AlertDialogProps, AlertDialogTone } from './AlertDialog';
 export { AspectRatio } from './AspectRatio';
 export type { AspectRatioProps } from './AspectRatio';
 export { Attachment } from './Attachment';
-export type { AttachmentProps, AttachmentLayout } from './Attachment';
+export type { AttachmentProps, AttachmentLayout, AttachmentDescriptionTone } from './Attachment';
 export {
   Avatar,
   AvatarImage,

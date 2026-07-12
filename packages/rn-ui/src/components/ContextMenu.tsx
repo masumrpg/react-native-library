@@ -7,13 +7,15 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  type ModalProps,
   type StyleProp,
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
 
-import { useTheme } from '../theme';
+import { useTheme, type ThemeColors } from '../theme';
 import { Text } from './Text';
+import { renderIcon, type RenderIcon } from './types';
 
 export interface ContextMenuProps {
   children?: React.ReactNode;
@@ -24,7 +26,7 @@ export interface ContextMenuContextProps {
   setOpen: (open: boolean) => void;
   triggerLayout: { pageX: number; pageY: number; width: number; height: number };
   setTriggerLayout: (layout: any) => void;
-  colors: any;
+  colors: ThemeColors;
 }
 
 const ContextMenuContext = React.createContext<ContextMenuContextProps | null>(null);
@@ -102,15 +104,20 @@ export function ContextMenuTrigger({
 export interface ContextMenuContentProps {
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  overlayStyle?: StyleProp<ViewStyle>;
+  modalProps?: Omit<ModalProps, 'visible' | 'transparent' | 'animationType' | 'onRequestClose'>;
   width?: number;
 }
 
 export function ContextMenuContent({
   children,
   style,
+  overlayStyle,
+  modalProps,
   width = 180,
 }: ContextMenuContentProps) {
   const { open, setOpen, triggerLayout, colors } = useContextMenu();
+  const { radii, spacing } = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -146,34 +153,31 @@ export function ContextMenuContent({
       transparent
       visible={open}
       animationType="none"
+      statusBarTranslucent
+      navigationBarTranslucent
+      hardwareAccelerated
       onRequestClose={() => setOpen(false)}
+      {...modalProps}
     >
-      {/* Tap-away overlay backdrop */}
       <Pressable
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, overlayStyle]}
         onPress={() => setOpen(false)}
       />
 
-      {/* Floating Card Popup */}
       <Animated.View
         style={[
           {
             position: 'absolute',
-            left: Math.max(8, triggerLayout.pageX), // Avoid clipping at left edge
+            left: Math.max(spacing.sm, triggerLayout.pageX),
             width,
             backgroundColor: colors.surface,
-            borderWidth: 1,
+            borderWidth: 1.25,
             borderColor: colors.border,
-            borderRadius: 8,
-            padding: 4,
+            borderRadius: radii.lg,
+            padding: spacing.xs,
             maxHeight: dropdownMaxHeight,
             opacity: fadeAnim,
             transform: [{ translateY }],
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 3,
-            elevation: 3,
             overflow: 'hidden',
           },
           positionStyle,
@@ -202,6 +206,7 @@ export function ContextMenuItem({
   style,
 }: ContextMenuItemProps) {
   const { setOpen, colors } = useContextMenu();
+  const { radii, spacing, typography } = useTheme();
 
   const handlePress = () => {
     if (!disabled) {
@@ -225,12 +230,12 @@ export function ContextMenuItem({
         {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          borderRadius: 6,
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.md,
+          borderRadius: radii.md,
           backgroundColor: pressed
             ? isDestructive
-              ? colors.dangerSoft || '#fee2e2'
+              ? colors.dangerSoft
               : colors.surfaceMuted
             : colors.transparent,
           opacity: disabled ? 0.5 : 1,
@@ -240,7 +245,7 @@ export function ContextMenuItem({
       ]}
     >
       {typeof children === 'string' ? (
-        <Text style={{ fontSize: 14, color: textColor }}>{children}</Text>
+        <Text style={{ ...typography.bodySmall, color: textColor }}>{children}</Text>
       ) : (
         children
       )}
@@ -254,13 +259,14 @@ export interface ContextMenuSeparatorProps {
 
 export function ContextMenuSeparator({ style }: ContextMenuSeparatorProps) {
   const { colors } = useContextMenu();
+  const { spacing } = useTheme();
   return (
     <View
       style={[
         {
           height: 1,
           backgroundColor: colors.border,
-          marginVertical: 4,
+          marginVertical: spacing.xs,
         },
         style,
       ]}
@@ -275,10 +281,11 @@ export interface ContextMenuLabelProps {
 
 export function ContextMenuLabel({ children, style }: ContextMenuLabelProps) {
   const { colors } = useContextMenu();
+  const { spacing, typography } = useTheme();
   return (
-    <View style={[{ paddingVertical: 6, paddingHorizontal: 10 }, style]}>
+    <View style={[{ paddingVertical: spacing.xs + 2, paddingHorizontal: spacing.md }, style]}>
       {typeof children === 'string' ? (
-        <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textMuted }}>
+        <Text style={{ ...typography.labelSmall, color: colors.textMuted }}>
           {children}
         </Text>
       ) : (
@@ -294,6 +301,7 @@ export interface ContextMenuCheckboxItemProps {
   children?: React.ReactNode;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  checkIcon?: RenderIcon;
 }
 
 // Chevron checkmark for checkbox items
@@ -319,8 +327,10 @@ export function ContextMenuCheckboxItem({
   children,
   disabled = false,
   style,
+  checkIcon,
 }: ContextMenuCheckboxItemProps) {
   const { setOpen, colors } = useContextMenu();
+  const { radii, spacing, typography } = useTheme();
 
   const handlePress = () => {
     if (!disabled) {
@@ -339,9 +349,9 @@ export function ContextMenuCheckboxItem({
         {
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 10,
-          borderRadius: 6,
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.md,
+          borderRadius: radii.md,
           backgroundColor: pressed ? colors.surfaceMuted : colors.transparent,
           opacity: disabled ? 0.5 : 1,
           justifyContent: 'space-between',
@@ -349,8 +359,8 @@ export function ContextMenuCheckboxItem({
         style,
       ]}
     >
-      <Text style={{ fontSize: 14, color: textColor, flex: 1 }}>{children}</Text>
-      {checked && <CheckIcon color={colors.primary} />}
+      <Text style={{ ...typography.bodySmall, color: textColor, flex: 1 }}>{children}</Text>
+      {checked && (checkIcon ? renderIcon(checkIcon, colors.primary, 14) : <CheckIcon color={colors.primary} />)}
     </Pressable>
   );
 }
@@ -362,13 +372,14 @@ export interface ContextMenuShortcutProps {
 
 export function ContextMenuShortcut({ children, style }: ContextMenuShortcutProps) {
   const { colors } = useContextMenu();
+  const { spacing, typography } = useTheme();
   return (
     <Text
       style={[
         {
-          fontSize: 12,
+          ...typography.caption,
           color: colors.textMuted,
-          marginLeft: 8,
+          marginLeft: spacing.sm,
         },
         style,
       ]}

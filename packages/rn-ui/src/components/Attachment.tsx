@@ -12,10 +12,11 @@ import {
 
 import { useTheme } from '../theme';
 import { Text } from './Text';
-import { renderIcon, type RenderIcon } from './types';
+import { renderIcon, type RenderIcon, type ThemeColorName } from './types';
 import { AspectRatio } from './AspectRatio';
 
 export type AttachmentLayout = 'card' | 'row';
+export type AttachmentDescriptionTone = 'default' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface AttachmentProps {
   /**
@@ -38,6 +39,14 @@ export interface AttachmentProps {
    * Can be a URI string (rendered as Image), a ReactNode, or a RenderIcon function.
    */
   thumbnail?: string | RenderIcon;
+  /**
+   * Pluggable fallback file icon when no thumbnail is provided.
+   */
+  fileIcon?: RenderIcon;
+  /**
+   * Tone for the description text. Use this instead of deriving visual state from copy.
+   */
+  descriptionTone?: AttachmentDescriptionTone;
   /**
    * If true, shows a loading spinner in the thumbnail slot.
    */
@@ -77,6 +86,8 @@ export function Attachment({
   loading = false,
   onRemove,
   closeIcon,
+  fileIcon,
+  descriptionTone = 'default',
   onPress,
   style,
   nameStyle,
@@ -85,9 +96,14 @@ export function Attachment({
 }: AttachmentProps) {
   const { colors, radii, spacing } = useTheme();
 
-  // Smart styling helper: If description contains 'Uploading', use info (blue) tone.
-  const isUploading = description?.toLowerCase().includes('uploading');
-  const descColor = isUploading ? colors.info : colors.textMuted;
+  const descriptionColorByTone: Record<AttachmentDescriptionTone, ThemeColorName> = {
+    default: 'textMuted',
+    info: 'info',
+    success: 'success',
+    warning: 'warning',
+    danger: 'danger',
+  };
+  const descColor = colors[descriptionColorByTone[descriptionTone]];
 
   // Render close/remove button
   const renderRemoveButton = (size: number) => {
@@ -149,10 +165,17 @@ export function Attachment({
     // Default file icon fallback
     return (
       <View style={[styles.thumbnailPlaceholder, { backgroundColor: colors.backgroundMuted, width: containerSize, height: containerSize, borderRadius: radii.md }]}>
-        {/* Render a simple CSS/Text representation of a document sheet */}
-        <Text variant="label" style={{ color: colors.textMuted, fontSize: containerSize * 0.4 }}>
-          📄
-        </Text>
+        {fileIcon ? renderIcon(fileIcon, colors.textMuted, containerSize * 0.5) : (
+          <View
+            style={{
+              width: containerSize * 0.42,
+              height: containerSize * 0.52,
+              borderWidth: 1.5,
+              borderColor: colors.textMuted,
+              borderRadius: radii.xs,
+            }}
+          />
+        )}
       </View>
     );
   };

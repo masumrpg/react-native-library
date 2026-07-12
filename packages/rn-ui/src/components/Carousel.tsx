@@ -9,12 +9,14 @@ import {
 } from 'react-native';
 
 import { useTheme } from '../theme';
+import { renderIcon, type RenderIcon } from './types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface CarouselProps {
   itemWidth?: number;
   onIndexChange?: (index: number) => void;
+  showPagination?: boolean;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
@@ -46,11 +48,12 @@ export function useCarousel() {
 export function Carousel({
   itemWidth,
   onIndexChange,
+  showPagination = true,
   style,
   children,
   ...props
 }: CarouselProps) {
-  const { colors, radii } = useTheme();
+  const { colors, spacing } = useTheme();
 
   const [containerWidth, setContainerWidth] = React.useState(SCREEN_WIDTH);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -112,15 +115,14 @@ export function Carousel({
       >
         {children}
 
-        {/* Premium Interactive Pagination Dots */}
-        {totalItems > 1 && (
+        {showPagination && totalItems > 1 && (
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: 14,
-              gap: 6,
+              marginTop: spacing.md,
+              gap: spacing.xs,
             }}
           >
             {Array.from({ length: totalItems }).map((_, i) => {
@@ -131,7 +133,7 @@ export function Carousel({
                   style={{
                     width: isActive ? 16 : 6,
                     height: 6,
-                    borderRadius: 3,
+                    borderRadius: 999,
                     backgroundColor: isActive ? colors.primary : colors.border,
                   }}
                 />
@@ -246,7 +248,6 @@ export function CarouselItem({
 }: CarouselItemProps) {
   const { scrollX, itemWidth } = useCarousel();
 
-  // Premium iOS-style Card Deck Scaling Interpolation
   const scale = scrollX.interpolate({
     inputRange: [
       (index - 1) * itemWidth,
@@ -257,7 +258,6 @@ export function CarouselItem({
     extrapolate: 'clamp',
   });
 
-  // Premium Opacity Transition Interpolation
   const opacity = scrollX.interpolate({
     inputRange: [
       (index - 1) * itemWidth,
@@ -322,10 +322,11 @@ function ChevronRightIcon({ color }: { color: string }) {
 
 export interface CarouselButtonProps {
   style?: StyleProp<ViewStyle>;
+  icon?: RenderIcon;
 }
 
-export function CarouselPrevious({ style }: CarouselButtonProps) {
-  const { colors, radii } = useTheme();
+export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
+  const { colors, radii, spacing } = useTheme();
   const { scrollPrev, canScrollPrev } = useCarousel();
 
   if (!canScrollPrev) return null;
@@ -336,9 +337,9 @@ export function CarouselPrevious({ style }: CarouselButtonProps) {
       style={({ pressed }) => [
         {
           position: 'absolute',
-          left: 8,
+          left: spacing.sm,
           top: '50%',
-          marginTop: -32, // Offset pagination dots
+          marginTop: -32,
           width: 36,
           height: 36,
           borderRadius: radii.full,
@@ -349,22 +350,17 @@ export function CarouselPrevious({ style }: CarouselButtonProps) {
           alignItems: 'center',
           zIndex: 10,
           opacity: pressed ? 0.78 : 1,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 1.5,
-          elevation: 2,
         },
         style,
       ]}
     >
-      <ChevronLeftIcon color={colors.text} />
+      {icon ? renderIcon(icon, colors.text, 18) : <ChevronLeftIcon color={colors.text} />}
     </Pressable>
   );
 }
 
-export function CarouselNext({ style }: CarouselButtonProps) {
-  const { colors, radii } = useTheme();
+export function CarouselNext({ style, icon }: CarouselButtonProps) {
+  const { colors, radii, spacing } = useTheme();
   const { scrollNext, canScrollNext } = useCarousel();
 
   if (!canScrollNext) return null;
@@ -375,9 +371,9 @@ export function CarouselNext({ style }: CarouselButtonProps) {
       style={({ pressed }) => [
         {
           position: 'absolute',
-          right: 8,
+          right: spacing.sm,
           top: '50%',
-          marginTop: -32, // Offset pagination dots
+          marginTop: -32,
           width: 36,
           height: 36,
           borderRadius: radii.full,
@@ -388,16 +384,11 @@ export function CarouselNext({ style }: CarouselButtonProps) {
           alignItems: 'center',
           zIndex: 10,
           opacity: pressed ? 0.78 : 1,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 1.5,
-          elevation: 2,
         },
         style,
       ]}
     >
-      <ChevronRightIcon color={colors.text} />
+      {icon ? renderIcon(icon, colors.text, 18) : <ChevronRightIcon color={colors.text} />}
     </Pressable>
   );
 }

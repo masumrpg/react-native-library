@@ -57,8 +57,10 @@ Rules:
 - Avoid hardcoded colors in components. Use `theme.colors`.
 - Avoid hardcoded spacing/radius values in components. Use `theme.spacing` and `theme.radii`.
 - Avoid shadows/elevation by default. The default visual language is flat.
+- Floating components such as comboboxes and context menus must stay flat by default. Use borders and surfaces, not shadow/elevation.
 - Do not tie components to Ionicons, Expo, Reanimated, Haptics, navigation, or storage by default.
 - If a component needs optional behavior, expose a prop or render function instead of importing an app-specific library.
+- Do not derive component status from display copy. Use explicit props such as tone, variant, state, or status props.
 - Keep comments short and only where they clarify non-obvious logic.
 
 ## Theme Rules
@@ -120,6 +122,7 @@ When adding a component:
 - Keep defaults flat and border-based.
 - Accept `style` overrides where reasonable.
 - Keep icon support generic with `RenderIcon` or render props.
+- Keep modal/system UI behavior overrideable through props. Android navigation bar styling remains app-owned.
 - Add usage docs to `README.md`.
 - Add the component to the component list in this file.
 - Add a sample for the component in `apps/native/app/rn-ui.tsx`.
@@ -351,17 +354,24 @@ Use `Attachment` to show uploaded or uploading files. Supports `card` and `row` 
   name="workspace.png"
   description="PNG • 820 KB"
   thumbnail="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"
-  onRemove={() => console.log('Remove')}
+  onRemove={removeFile}
 />
 
 <Attachment
   layout="row"
   name="sales-dashboard.pdf"
   description="Uploading • 64%"
+  descriptionTone="info"
   loading
-  onRemove={() => console.log('Remove')}
+  onRemove={removeFile}
 />
 ```
+
+Attachment rules:
+
+- Use `descriptionTone` for visual status.
+- Do not infer upload/error state from the description string.
+- Keep `thumbnail`, `fileIcon`, and `closeIcon` pluggable.
 
 ### Avatar
 
@@ -400,7 +410,7 @@ Use `Bubble` components to render chat messages. Supports alignments (`start`, `
   <Bubble align="end" variant="default">
     <BubbleContent>I need help setting up the theme provider.</BubbleContent>
     <BubbleReactions side="bottom" align="end">
-      <Text style={{ fontSize: 12 }}>👍 2</Text>
+      <Text variant="caption">+2</Text>
     </BubbleReactions>
   </Bubble>
 </BubbleGroup>
@@ -421,7 +431,7 @@ Use `ButtonGroup` to group buttons, inputs, or prefix/suffix text blocks horizon
 
 ### Calendar
 
-Use `Calendar` to display calendars and handle single day or range selections. It wraps `react-native-calendars` with custom day cells conforming to shadcn specifications.
+Use `Calendar` to display calendars and handle single day or range selections. It wraps `react-native-calendars` with custom day cells that follow the package theme tokens.
 
 ```tsx
 <Calendar
@@ -435,7 +445,7 @@ Use `Calendar` to display calendars and handle single day or range selections. I
 
 ### Carousel
 
-Use `Carousel` to display a horizontal slideshow of cards with premium, high-performance deck scaling and opacity transitions. It is built natively for React Native using the `Animated` scroll offsets for 60fps/120fps performance.
+Use `Carousel` to display a horizontal slideshow of cards with React Native `Animated` scroll offsets.
 
 ```tsx
 <Carousel>
@@ -447,25 +457,32 @@ Use `Carousel` to display a horizontal slideshow of cards with premium, high-per
       <Card><Text>Slide 2</Text></Card>
     </CarouselItem>
   </CarouselContent>
-  <CarouselPrevious />
-  <CarouselNext />
+  <CarouselPrevious icon={leftIcon} />
+  <CarouselNext icon={rightIcon} />
 </Carousel>
 ```
 
+Carousel rules:
+
+- Keep pagination disableable through `showPagination`.
+- Keep previous/next icons pluggable.
+- Do not add shadow/elevation to carousel controls by default.
+
 ### Checkbox
 
-Use `Checkbox` to toggle boolean states. It uses standard Pressable states, fully accessible accessibility properties, and integrates premium flat design semantics.
+Use `Checkbox` to toggle boolean states. It uses standard Pressable states and flat token-based styling.
 
 ```tsx
 <Checkbox
   checked={isChecked}
   onCheckedChange={setIsChecked}
+  icon={checkIcon}
 />
 ```
 
 ### Collapsible
 
-Use `Collapsible` to hide or reveal sections of content. It features a high-performance height expansion animation using React Native's Layout and Animated systems.
+Use `Collapsible` to hide or reveal sections of content. It uses React Native `Animated` by default.
 
 ```tsx
 <Collapsible>
@@ -480,12 +497,12 @@ Use `Collapsible` to hide or reveal sections of content. It features a high-perf
 
 ### Combobox
 
-Use `Combobox` to display floating autocomplete selection dropdowns. It renders an absolutely positioned floating popup card exactly underneath the input box using React Native's `Modal` and layout measurement system.
+Use `Combobox` to display floating autocomplete selection dropdowns. It renders an absolutely positioned flat popup through React Native `Modal` and layout measurement.
 
 ```tsx
 <Combobox value={val} onValueChange={setVal}>
-  <ComboboxInput placeholder="Select framework..." />
-  <ComboboxContent>
+  <ComboboxInput placeholder="Select framework..." chevronIcon={chevronIcon} />
+  <ComboboxContent modalProps={modalProps} overlayStyle={overlayStyle}>
     <ComboboxList>
       <ComboboxItem value="next" label="Next.js" />
       <ComboboxItem value="svelte" label="SvelteKit" />
@@ -495,16 +512,23 @@ Use `Combobox` to display floating autocomplete selection dropdowns. It renders 
 </Combobox>
 ```
 
+Combobox rules:
+
+- Keep `chevronIcon` and selected-item `checkIcon` pluggable.
+- Keep popup modal behavior overrideable with `modalProps`.
+- Keep backdrop styling overrideable with `overlayStyle`.
+- Do not add shadow/elevation by default.
+
 ### ContextMenu
 
-Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile. It uses the `measureInWindow` layout boundary system to pop up exactly adjacent to the trigger.
+Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile. It uses layout measurement and React Native `Modal`.
 
 ```tsx
 <ContextMenu>
   <ContextMenuTrigger>
     <Card><Text>Long press me</Text></Card>
   </ContextMenuTrigger>
-  <ContextMenuContent>
+  <ContextMenuContent modalProps={modalProps} overlayStyle={overlayStyle}>
     <ContextMenuLabel>Actions</ContextMenuLabel>
     <ContextMenuItem onPress={handleEdit}>Edit</ContextMenuItem>
     <ContextMenuSeparator />
@@ -512,6 +536,13 @@ Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile
   </ContextMenuContent>
 </ContextMenu>
 ```
+
+ContextMenu rules:
+
+- Keep popup modal behavior overrideable with `modalProps`.
+- Keep backdrop styling overrideable with `overlayStyle`.
+- Keep checkbox item icons pluggable through `checkIcon`.
+- Do not add shadow/elevation by default.
 
 ## Logging Rules
 
