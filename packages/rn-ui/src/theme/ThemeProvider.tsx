@@ -103,6 +103,7 @@ export function ThemeProvider({
     () => ({
       theme,
       colors: theme.colors,
+      fonts: theme.fonts,
       typography: theme.typography,
       spacing: theme.spacing,
       radii: theme.radii,

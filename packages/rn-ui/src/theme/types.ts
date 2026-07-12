@@ -78,6 +78,14 @@ export interface ThemeTypography {
   caption: TypographyVariant;
 }
 
+export interface ThemeFonts {
+  regular?: string;
+  medium?: string;
+  semibold?: string;
+  bold?: string;
+  mono?: string;
+}
+
 export interface ThemeSpacing {
   none: number;
   xxs: number;
@@ -132,6 +140,7 @@ export interface Theme {
   mode: ThemeMode;
   dark: boolean;
   colors: ThemeColors;
+  fonts: ThemeFonts;
   typography: ThemeTypography;
   spacing: ThemeSpacing;
   radii: ThemeRadii;
@@ -161,6 +170,7 @@ export interface ThemeProviderProps {
 export interface ThemeContextValue {
   theme: Theme;
   colors: ThemeColors;
+  fonts: ThemeFonts;
   typography: ThemeTypography;
   spacing: ThemeSpacing;
   radii: ThemeRadii;

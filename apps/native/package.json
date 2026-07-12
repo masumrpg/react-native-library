@@ -11,6 +11,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@expo-google-fonts/outfit": "^0.4.3",
     "@masumdev/react-native-qr-code-gen": "workspace:*",
     "@masumdev/rn-tajweed-verse": "workspace:*",
     "@masumdev/rn-ui": "workspace:*",

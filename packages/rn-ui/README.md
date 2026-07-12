@@ -81,12 +81,18 @@ const themes = {
       onPrimary: '#FFFFFF',
       accent: '#F97316',
     },
+    fonts: {
+      regular: 'OutfitRegular',
+      medium: 'OutfitMedium',
+      semibold: 'OutfitSemiBold',
+      bold: 'OutfitBold',
+    },
     typography: {
       body: {
-        fontFamily: 'OutfitRegular',
+        fontSize: 16,
       },
       label: {
-        fontFamily: 'OutfitSemiBold',
+        letterSpacing: 0.2,
       },
     },
     radii: {
@@ -111,6 +117,78 @@ export function App() {
     </ThemeProvider>
   );
 }
+```
+
+## Fonts
+
+Fonts are pluggable. `rn-ui` does not load font files by itself, so it works with Expo Font, local TTF files, React Native CLI font linking, or any other font-loading setup.
+
+Load the font in your app, then pass the registered font names through the `fonts` token.
+
+```tsx
+import { useFonts } from 'expo-font';
+import { ThemeProvider } from '@masumdev/rn-ui';
+
+const themes = {
+  light: {
+    fonts: {
+      regular: 'OutfitRegular',
+      medium: 'OutfitMedium',
+      semibold: 'OutfitSemiBold',
+      bold: 'OutfitBold',
+      mono: 'SpaceMono',
+    },
+  },
+  dark: {
+    fonts: {
+      regular: 'OutfitRegular',
+      medium: 'OutfitMedium',
+      semibold: 'OutfitSemiBold',
+      bold: 'OutfitBold',
+      mono: 'SpaceMono',
+    },
+  },
+};
+
+export function App() {
+  const [loaded] = useFonts({
+    OutfitRegular: require('./assets/fonts/Outfit-Regular.ttf'),
+    OutfitMedium: require('./assets/fonts/Outfit-Medium.ttf'),
+    OutfitSemiBold: require('./assets/fonts/Outfit-SemiBold.ttf'),
+    OutfitBold: require('./assets/fonts/Outfit-Bold.ttf'),
+  });
+
+  if (!loaded) return null;
+
+  return (
+    <ThemeProvider themes={themes}>
+      <RootNavigator />
+    </ThemeProvider>
+  );
+}
+```
+
+Default mapping:
+
+- `display`, `h1`, `h2` use `fonts.bold`
+- `h3`, `title`, `subtitle` use `fonts.semibold`
+- `label`, `labelSmall` use `fonts.semibold` or `fonts.medium`
+- `body`, `bodySmall`, `caption` use `fonts.regular`
+
+You can still override one typography variant directly:
+
+```tsx
+const themes = {
+  light: {
+    typography: {
+      h1: {
+        fontFamily: 'CustomDisplayBold',
+        fontSize: 34,
+        lineHeight: 42,
+      },
+    },
+  },
+};
 ```
 
 ## Persisting Theme Choice

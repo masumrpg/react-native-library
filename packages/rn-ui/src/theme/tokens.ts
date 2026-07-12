@@ -2,11 +2,20 @@ import type {
   Theme,
   ThemeColors,
   ThemeComponents,
+  ThemeFonts,
   ThemeRadii,
   ThemeShadows,
   ThemeSpacing,
   ThemeTypography,
 } from './types';
+
+export const fonts: ThemeFonts = {
+  regular: undefined,
+  medium: undefined,
+  semibold: undefined,
+  bold: undefined,
+  mono: undefined,
+};
 
 export const spacing: ThemeSpacing = {
   none: 0,
@@ -180,6 +189,7 @@ export const lightTheme: Theme = {
   mode: 'light',
   dark: false,
   colors: lightColors,
+  fonts,
   typography,
   spacing,
   radii,
@@ -191,6 +201,7 @@ export const darkTheme: Theme = {
   mode: 'dark',
   dark: true,
   colors: darkColors,
+  fonts,
   typography,
   spacing,
   radii,
