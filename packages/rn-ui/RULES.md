@@ -114,6 +114,7 @@ Current public components:
 - `Collapsible`
 - `Combobox`
 - `ContextMenu`
+- `DropdownMenu`
 
 When adding a component:
 
@@ -567,6 +568,38 @@ Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile
 
 ContextMenu rules:
 
+- Keep popup modal behavior overrideable with `modalProps`.
+- Keep backdrop styling overrideable with `overlayStyle`.
+- Keep checkbox item icons pluggable through `checkIcon`.
+- Do not add shadow/elevation by default.
+
+### DropdownMenu
+
+Use `DropdownMenu` for tap-triggered action menus.
+
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger style={triggerStyle}>
+    <Text variant="label">Open menu</Text>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="start" modalProps={modalProps} overlayStyle={overlayStyle}>
+    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    <DropdownMenuItem onPress={handleRefresh}>Refresh</DropdownMenuItem>
+    <DropdownMenuCheckboxItem checked={compact} onCheckedChange={setCompact}>
+      Compact mode
+    </DropdownMenuCheckboxItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem variant="destructive" onPress={handleDelete}>Delete</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+DropdownMenu rules:
+
+- Keep trigger behavior press/tap based. Use `ContextMenu` for long press.
+- Do not nest another `Pressable` or `Button` directly inside `DropdownMenuTrigger`.
+- Keep `open`, `defaultOpen`, and `onOpenChange` support.
+- Use Reanimated for the default entry animation while keeping styling token-based.
 - Keep popup modal behavior overrideable with `modalProps`.
 - Keep backdrop styling overrideable with `overlayStyle`.
 - Keep checkbox item icons pluggable through `checkIcon`.

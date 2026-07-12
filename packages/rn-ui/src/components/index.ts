@@ -93,6 +93,29 @@ export { Card } from './Card';
 export type { CardProps } from './Card';
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuCheckboxItem,
+  DropdownMenuShortcut,
+  useDropdownMenu,
+} from './DropdownMenu';
+export type {
+  DropdownMenuAlign,
+  DropdownMenuProps,
+  DropdownMenuTriggerProps,
+  DropdownMenuContentProps,
+  DropdownMenuItemProps,
+  DropdownMenuItemVariant,
+  DropdownMenuSeparatorProps,
+  DropdownMenuLabelProps,
+  DropdownMenuCheckboxItemProps,
+  DropdownMenuShortcutProps,
+} from './DropdownMenu';
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonSize, IconButtonVariant } from './IconButton';
 export { Text } from './Text';

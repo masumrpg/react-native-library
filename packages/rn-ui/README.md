@@ -300,6 +300,7 @@ Current core components:
 - `Collapsible`
 - `Combobox`
 - `ContextMenu`
+- `DropdownMenu`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -837,6 +838,42 @@ Use `ContextMenu` for long-press menus. It uses React Native `Modal` by default 
 </ContextMenu>
 ```
 
+### DropdownMenu
+
+Use `DropdownMenu` for tap-triggered action menus. It uses React Native `Modal`, Reanimated entry animation, flat bordered styling, alignment control, checkbox items, shortcuts, and app-overridable modal/backdrop props.
+
+```tsx
+<DropdownMenu>
+  <DropdownMenuTrigger style={triggerStyle}>
+    <Text variant="label">Open menu</Text>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="start">
+    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    <DropdownMenuItem onPress={refreshList}>
+      Refresh
+      <DropdownMenuShortcut>R</DropdownMenuShortcut>
+    </DropdownMenuItem>
+    <DropdownMenuCheckboxItem checked={compact} onCheckedChange={setCompact}>
+      Compact mode
+    </DropdownMenuCheckboxItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem variant="destructive" onPress={deleteItem}>
+      Delete
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+```
+
+Useful props:
+
+- `open`, `defaultOpen`, and `onOpenChange`
+- `align="start" | "end"`
+- `width`, `maxHeight`, and `sideOffset`
+- `modalProps` and `overlayStyle`
+- `checkIcon` on `DropdownMenuCheckboxItem`
+
+Avoid nesting another `Pressable` or `Button` directly inside `DropdownMenuTrigger`; style the trigger itself or render non-pressable visual children inside it.
+
 ## Folder Structure
 
 ```txt
@@ -857,6 +894,7 @@ src/
     Collapsible.tsx
     Combobox.tsx
     ContextMenu.tsx
+    DropdownMenu.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
