@@ -99,6 +99,7 @@ Current public components:
 - `Badge`
 - `Card`
 - `Divider`
+- `AspectRatio`
 
 When adding a component:
 
@@ -318,6 +319,16 @@ Use `Divider` for token-based separators.
 ```tsx
 <Divider />
 <Divider vertical />
+```
+
+### AspectRatio
+
+Use `AspectRatio` to maintain aspect ratios of media and other layouts. Children will stretch to fill the container automatically.
+
+```tsx
+<AspectRatio ratio={16 / 9} radius="md">
+  <Image source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }} style={{ resizeMode: 'cover' }} />
+</AspectRatio>
 ```
 
 ## Logging Rules

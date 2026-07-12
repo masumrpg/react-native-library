@@ -278,6 +278,7 @@ Current core components:
 - `Badge`
 - `Card`
 - `Divider`
+- `AspectRatio`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -492,6 +493,22 @@ Android notes:
 - If an app uses custom edge-to-edge or navigation bar handling, override native modal behavior through `modalProps`.
 - Android navigation bar behavior is controlled by system UI, not by the modal backdrop view. If the app needs to hide or style the navigation bar while a dialog is open, handle it at app level with the system UI solution already used by that app. `rn-ui` does not depend on Expo navigation-bar APIs.
 
+### AspectRatio
+
+Use `AspectRatio` to display layout/media with a specific proportion. The child element automatically stretches to fill the container.
+
+```tsx
+import { AspectRatio } from '@masumdev/rn-ui';
+import { Image } from 'react-native';
+
+<AspectRatio ratio={16 / 9} radius="md">
+  <Image
+    source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }}
+    style={{ resizeMode: 'cover' }}
+  />
+</AspectRatio>
+```
+
 ## Folder Structure
 
 ```txt
@@ -500,6 +517,7 @@ src/
     Accordion.tsx
     Alert.tsx
     AlertDialog.tsx
+    AspectRatio.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
