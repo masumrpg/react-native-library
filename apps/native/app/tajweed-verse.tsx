@@ -1,29 +1,37 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
-} from "react-native";
+import { Alert, ScrollView, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import TajweedVerse, { TajweedThemes } from "@masumdev/rn-tajweed-verse";
 import {
-  ChevronLeft,
-  Sliders,
-  Type,
   BookOpen,
-  Palette,
+  ChevronLeft,
+  Code,
   Eye,
   Info,
-  Code,
+  Palette,
+  Sliders,
+  Type,
   Zap,
 } from "lucide-react-native";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Divider,
+  IconButton,
+  Text,
+  useTheme,
+  useThemeStyles,
+  type RenderIcon,
+} from "@masumdev/rn-ui";
 
-// Real Quran Tajweed samples from the database
+const icon =
+  (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
+  ({ color, size }) =>
+    <Icon color={color} size={size} />;
+
 const quranSamples = [
   {
     id: 1,
@@ -65,35 +73,45 @@ const quranSamples = [
   },
 ];
 
+const fonts = [
+  { key: "system", label: "System" },
+  { key: "amiri", label: "Amiri" },
+  { key: "amiri-quran", label: "Amiri Quran" },
+  { key: "noto", label: "Noto Naskh" },
+  { key: "scheherazade", label: "Scheherazade" },
+  { key: "mirza", label: "Mirza" },
+  { key: "harmattan", label: "Harmattan" },
+  { key: "katibeh", label: "Katibeh" },
+  { key: "handjet", label: "Handjet" },
+  { key: "reem-fun", label: "Reem Kufi Fun" },
+  { key: "reem-ink", label: "Reem Kufi Ink" },
+] as const;
+
+type FontKey = (typeof fonts)[number]["key"];
+type TajweedThemeKey = "classic" | "dark" | "pastel" | "accessible";
+
+const tajweedThemeOptions: TajweedThemeKey[] = [
+  "classic",
+  "dark",
+  "pastel",
+  "accessible",
+];
+
 export default function TajweedVerseScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [isColored, setIsColored] = useState(true);
   const [isInteractive, setIsInteractive] = useState(true);
-  const [selectedFont, setSelectedFont] = useState<
-    | "system"
-    | "amiri"
-    | "amiri-quran"
-    | "noto"
-    | "scheherazade"
-    | "mirza"
-    | "harmattan"
-    | "katibeh"
-    | "handjet"
-    | "reem-fun"
-    | "reem-ink"
-  >("amiri");
-  const [selectedTheme, setSelectedTheme] = useState<
-    "classic" | "dark" | "pastel" | "accessible"
-  >("classic");
-  const [verseText, setVerseText] = useState<string>(quranSamples[0].verse);
-  const [customInfoText, setCustomInfoText] = useState<string>(
+  const [selectedFont, setSelectedFont] = useState<FontKey>("amiri");
+  const [selectedTheme, setSelectedTheme] = useState<TajweedThemeKey>("classic");
+  const [verseText, setVerseText] = useState(quranSamples[0].verse);
+  const [customInfoText, setCustomInfoText] = useState(
     "Tap a colored word to see the Tajweed rule explanation here!",
   );
-  const [customInfoTitle, setCustomInfoTitle] =
-    useState<string>("Interactive Guide");
+  const [customInfoTitle, setCustomInfoTitle] = useState("Interactive Guide");
   const [renderCount, setRenderCount] = useState(0);
 
-  // Merged config depending on selected theme
   const getThemeConfig = () => {
     let fontFamily: string | undefined;
     let lineHeight = 54;
@@ -137,29 +155,31 @@ export default function TajweedVerseScreen() {
       ...(fontFamily ? { fontFamily } : {}),
     };
 
-    switch (selectedTheme) {
-      case "dark":
-        return {
-          style: { ...baseStyle, color: "#e2e8f0" },
-          tajweed: TajweedThemes.dark,
-        };
-      case "pastel":
-        return {
-          style: { ...baseStyle, color: "#1e293b" },
-          tajweed: TajweedThemes.pastel,
-        };
-      case "accessible":
-        return {
-          style: { ...baseStyle, color: "#000000" },
-          tajweed: TajweedThemes.accessible,
-        };
-      case "classic":
-      default:
-        return {
-          style: { ...baseStyle, color: "black" },
-          tajweed: TajweedThemes.classic,
-        };
+    if (selectedTheme === "dark") {
+      return {
+        style: { ...baseStyle, color: "#E2E8F0" },
+        tajweed: TajweedThemes.dark,
+      };
     }
+
+    if (selectedTheme === "pastel") {
+      return {
+        style: { ...baseStyle, color: "#1E293B" },
+        tajweed: TajweedThemes.pastel,
+      };
+    }
+
+    if (selectedTheme === "accessible") {
+      return {
+        style: { ...baseStyle, color: "#000000" },
+        tajweed: TajweedThemes.accessible,
+      };
+    }
+
+    return {
+      style: { ...baseStyle, color: "#000000" },
+      tajweed: TajweedThemes.classic,
+    };
   };
 
   const handleCustomRulePress = (
@@ -172,203 +192,93 @@ export default function TajweedVerseScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.headerBar}>
-        <TouchableOpacity
-          style={styles.backButton}
-          activeOpacity={0.7}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <Box row center gap="md" style={styles.headerBar}>
+        <IconButton
+          icon={icon(ChevronLeft)}
+          variant="outline"
           onPress={() => router.back()}
-        >
-          <ChevronLeft color="#334155" size={22} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tajweed Verse Renderer</Text>
-        <View style={{ width: 40 }} />
-      </View>
+        />
+        <Text variant="subtitle" align="center" style={styles.headerTitle}>
+          Tajweed Verse Renderer
+        </Text>
+        <View style={styles.headerSpacer} />
+      </Box>
 
       <ScrollView
         style={styles.contentScroll}
         contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.subHeader}>
-          Quranic text parsing, coloring, and interactions
+        <Text color="textMuted" align="center">
+          Quranic text parsing, coloring, and interactive rule previews.
         </Text>
 
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <Sliders color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Configurations</Text>
-          </View>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>Color-Coding (colored)</Text>
-              <Switch value={isColored} onValueChange={setIsColored} />
-            </View>
-            <View
-              style={[
-                styles.row,
-                {
-                  borderTopWidth: 1,
-                  borderTopColor: "#f1f5f9",
-                  paddingTop: 12,
-                  marginTop: 12,
-                },
-              ]}
-            >
-              <Text style={styles.rowLabel}>
-                Interactive Guides (interactive)
-              </Text>
-              <Switch value={isInteractive} onValueChange={setIsInteractive} />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <Type color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Quranic Arabic Fonts</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollList}
-          >
-            {(
-              [
-                { key: "system", label: "System" },
-                { key: "amiri", label: "Amiri" },
-                { key: "amiri-quran", label: "Amiri Quran" },
-                { key: "noto", label: "Noto Naskh" },
-                { key: "scheherazade", label: "Scheherazade" },
-                { key: "mirza", label: "Mirza" },
-                { key: "harmattan", label: "Harmattan" },
-                { key: "katibeh", label: "Katibeh" },
-                { key: "handjet", label: "Handjet" },
-                { key: "reem-fun", label: "Reem Kufi Fun" },
-                { key: "reem-ink", label: "Reem Kufi Ink" },
-              ] as const
-            ).map((font) => (
-              <TouchableOpacity
-                key={font.key}
-                style={[
-                  styles.selectorItem,
-                  selectedFont === font.key && styles.selectorItemActive,
-                ]}
-                onPress={() => setSelectedFont(font.key)}
-              >
-                <Text
-                  style={[
-                    styles.selectorItemText,
-                    selectedFont === font.key && styles.selectorItemTextActive,
-                  ]}
-                >
-                  {font.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <BookOpen color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Quran Database Samples</Text>
-          </View>
-          <Text style={styles.description}>
-            Select an Ayah containing real database tags (e.g. [h:1[ٱ])
-          </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollList}
-          >
-            {quranSamples.map((sample) => (
-              <TouchableOpacity
-                key={sample.label}
-                style={[
-                  styles.selectorItem,
-                  verseText === sample.verse && styles.selectorItemActive,
-                ]}
-                onPress={() => {
-                  setVerseText(sample.verse);
-                  setCustomInfoTitle("Interactive Guide");
-                  setCustomInfoText(
-                    "Tap a colored word to see the Tajweed rule explanation here!",
-                  );
-                }}
-              >
-                <Text
-                  style={[
-                    styles.selectorItemText,
-                    verseText === sample.verse && styles.selectorItemTextActive,
-                  ]}
-                >
-                  {sample.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <Palette color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Theme Presets</Text>
-          </View>
-          <View style={styles.themeSelector}>
-            {(["classic", "dark", "pastel", "accessible"] as const).map(
-              (theme) => (
-                <TouchableOpacity
-                  key={theme}
-                  style={[
-                    styles.themeButton,
-                    selectedTheme === theme && styles.themeButtonActive,
-                  ]}
-                  onPress={() => setSelectedTheme(theme)}
-                >
-                  <Text
-                    style={[
-                      styles.themeButtonText,
-                      selectedTheme === theme && styles.themeButtonTextActive,
-                    ]}
-                  >
-                    {theme}
-                  </Text>
-                </TouchableOpacity>
-              ),
-            )}
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.section,
-            selectedTheme === "dark" && styles.sectionDarkBg,
-            { borderRadius: 24, padding: 16 },
-          ]}
-        >
-          <View style={styles.sectionTitleContainer}>
-            <Eye
-              color={selectedTheme === "dark" ? "#e2e8f0" : "#6366f1"}
-              size={18}
-              style={{ marginRight: 8 }}
+        <Section title="Configurations" icon={icon(Sliders)}>
+          <Card>
+            <SettingRow
+              label="Color-Coding"
+              value={isColored}
+              onValueChange={setIsColored}
             />
-            <Text
-              style={[
-                styles.sectionTitle,
-                selectedTheme === "dark" && { color: "#e2e8f0" },
-              ]}
-            >
-              Live Preview
-            </Text>
-          </View>
+            <Divider style={styles.settingDivider} />
+            <SettingRow
+              label="Interactive Guides"
+              value={isInteractive}
+              onValueChange={setIsInteractive}
+            />
+          </Card>
+        </Section>
 
-          <View
+        <Section title="Quranic Arabic Fonts" icon={icon(Type)}>
+          <HorizontalSelector
+            items={fonts}
+            selected={selectedFont}
+            onSelect={setSelectedFont}
+          />
+        </Section>
+
+        <Section title="Quran Database Samples" icon={icon(BookOpen)}>
+          <Text variant="bodySmall" color="textMuted">
+            Select an Ayah containing real database tags such as `[h:1[ٱ]`.
+          </Text>
+          <HorizontalSelector
+            items={quranSamples.map((sample) => ({
+              key: sample.verse,
+              label: sample.label,
+            }))}
+            selected={verseText}
+            onSelect={(next) => {
+              setVerseText(next);
+              setCustomInfoTitle("Interactive Guide");
+              setCustomInfoText(
+                "Tap a colored word to see the Tajweed rule explanation here!",
+              );
+            }}
+          />
+        </Section>
+
+        <Section title="Theme Presets" icon={icon(Palette)}>
+          <Box row gap="sm" style={styles.wrap}>
+            {tajweedThemeOptions.map((theme) => (
+              <Button
+                key={theme}
+                size="sm"
+                variant={selectedTheme === theme ? "filled" : "outline"}
+                tone={theme === "dark" ? "secondary" : "primary"}
+                onPress={() => setSelectedTheme(theme)}
+              >
+                {theme}
+              </Button>
+            ))}
+          </Box>
+        </Section>
+
+        <Section title="Live Preview" icon={icon(Eye)}>
+          <Card
             style={[
               styles.previewCard,
-              selectedTheme === "dark" && {
-                backgroundColor: "#1e293b",
-                borderColor: "#334155",
-              },
+              selectedTheme === "dark" && styles.previewCardDark,
             ]}
           >
             <TajweedVerse
@@ -378,44 +288,40 @@ export default function TajweedVerseScreen() {
               config={getThemeConfig()}
               onRulePress={handleCustomRulePress}
             />
-          </View>
-        </View>
+          </Card>
+        </Section>
 
         {isInteractive && isColored && (
-          <View style={styles.section}>
-            <View style={styles.sectionTitleContainer}>
-              <Info color="#6366f1" size={18} style={{ marginRight: 8 }} />
-              <Text style={styles.sectionTitle}>{customInfoTitle}</Text>
-            </View>
-            <View style={styles.infoCard}>
-              <Text style={styles.infoText}>{customInfoText}</Text>
-            </View>
-          </View>
+          <Section title={customInfoTitle} icon={icon(Info)}>
+            <Card style={styles.infoCard}>
+              <Text variant="bodySmall" color="info">
+                {customInfoText}
+              </Text>
+            </Card>
+          </Section>
         )}
 
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <Code color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Custom Rule Injection</Text>
-          </View>
-          <Text style={styles.description}>
-            Demonstrates highlights (e.g. bold underline styling for specific
-            words)
+        <Section title="Custom Rule Injection" icon={icon(Code)}>
+          <Text variant="bodySmall" color="textMuted">
+            Demonstrates custom highlights for specific words.
           </Text>
-
-          <View style={styles.previewCard}>
+          <Card style={styles.previewCard}>
             <TajweedVerse
               verse="This is a [custom[special word] inside the Arabic script [q[خَلَقَ] with custom rules."
-              colored={true}
-              interactive={true}
+              colored
+              interactive
               config={{
-                style: { fontSize: 18, color: "#334155", lineHeight: 30 },
+                style: {
+                  fontSize: 18,
+                  color: colors.text,
+                  lineHeight: 30,
+                },
               }}
               customRules={[
                 {
                   pattern: /\[custom\[([^\]]+)\]/,
                   style: {
-                    color: "#6366f1",
+                    color: colors.primary,
                     fontWeight: "bold",
                     textDecorationLine: "underline",
                   },
@@ -429,237 +335,177 @@ export default function TajweedVerseScreen() {
                 },
               ]}
             />
-          </View>
-        </View>
+          </Card>
+        </Section>
 
-        <View style={styles.section}>
-          <View style={styles.sectionTitleContainer}>
-            <Zap color="#6366f1" size={18} style={{ marginRight: 8 }} />
-            <Text style={styles.sectionTitle}>Performance Memoization</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.perfText}>
-              The TajweedVerse component is memoized using React.memo.
-              Re-renders on parent state changes (like the counter below) do not
-              trigger parser runs.
-            </Text>
-            <Text style={styles.counterText}>
-              Parent Render Count: {renderCount}
-            </Text>
-            <TouchableOpacity
-              style={styles.perfButton}
-              activeOpacity={0.7}
-              onPress={() => setRenderCount((prev) => prev + 1)}
-            >
-              <Text style={styles.perfButtonText}>Trigger Re-render</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Section title="Performance Memoization" icon={icon(Zap)}>
+          <Card>
+            <Box gap="md">
+              <Text variant="bodySmall" color="textMuted">
+                The TajweedVerse component is memoized using React.memo.
+                Re-renders on parent state changes do not trigger parser runs.
+              </Text>
+              <Badge tone="secondary" variant="outline">
+                {`Parent Render Count: ${renderCount}`}
+              </Badge>
+              <Button onPress={() => setRenderCount((prev) => prev + 1)}>
+                Trigger Re-render
+              </Button>
+            </Box>
+          </Card>
+        </Section>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Made with ❤️ by Ma'sum</Text>
-        </View>
+        <Box center style={styles.footer}>
+          <Text variant="caption" color="textSubtle">
+            Made by Ma'sum
+          </Text>
+        </Box>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-  },
-  headerBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#f1f5f9",
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0f172a",
-  },
-  contentScroll: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  container: {
-    padding: 24,
-    alignItems: "center",
-  },
-  subHeader: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  section: {
-    width: "100%",
-    marginBottom: 32,
-  },
-  sectionDarkBg: {
-    backgroundColor: "#0f172a",
-  },
-  sectionTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#334155",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  description: {
-    fontSize: 12,
-    color: "#94a3b8",
-    marginBottom: 14,
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    padding: 20,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-    shadowColor: "#0f172a",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    elevation: 1,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  rowLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#475569",
-  },
-  scrollList: {
-    flexDirection: "row",
-    paddingVertical: 8,
-    paddingHorizontal: 2,
-  },
-  selectorItem: {
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    marginRight: 10,
-  },
-  selectorItemActive: {
-    backgroundColor: "#10b981",
-    borderColor: "#10b981",
-  },
-  selectorItemText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#475569",
-  },
-  selectorItemTextActive: {
-    color: "#ffffff",
-  },
-  themeSelector: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  themeButton: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    marginHorizontal: 4,
-  },
-  themeButtonActive: {
-    backgroundColor: "#6366f1",
-    borderColor: "#6366f1",
-  },
-  themeButtonText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#64748b",
-    textTransform: "capitalize",
-  },
-  themeButtonTextActive: {
-    color: "#ffffff",
-  },
-  previewCard: {
-    backgroundColor: "#ffffff",
-    padding: 24,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    minHeight: 180,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  infoCard: {
-    backgroundColor: "#eff6ff",
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#dbeafe",
-  },
-  infoText: {
-    fontSize: 13,
-    color: "#1e40af",
-    lineHeight: 22,
-  },
-  perfText: {
-    fontSize: 13,
-    color: "#64748b",
-    lineHeight: 22,
-    marginBottom: 16,
-  },
-  counterText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#0f172a",
-    textAlign: "center",
-    marginBottom: 14,
-  },
-  perfButton: {
-    backgroundColor: "#6366f1",
-    paddingVertical: 12,
-    borderRadius: 14,
-    alignItems: "center",
-  },
-  perfButtonText: {
-    color: "#ffffff",
-    fontWeight: "700",
-    fontSize: 13,
-  },
-  footer: {
-    width: "100%",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  footerText: {
-    color: "#cbd5e1",
-    fontSize: 12,
-  },
-});
+function Section({
+  title,
+  icon: sectionIcon,
+  children,
+}: {
+  title: string;
+  icon: RenderIcon;
+  children: React.ComponentProps<typeof Box>["children"];
+}) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+
+  return (
+    <Box gap="md" style={styles.section}>
+      <Box row center gap="sm">
+        {typeof sectionIcon === "function"
+          ? sectionIcon({ color: colors.primary, size: 18 })
+          : sectionIcon}
+        <Text variant="labelSmall" color="textSubtle" style={styles.uppercase}>
+          {title}
+        </Text>
+      </Box>
+      {children}
+    </Box>
+  );
+}
+
+function SettingRow({
+  label,
+  value,
+  onValueChange,
+}: {
+  label: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+}) {
+  return (
+    <Box row center gap="md">
+      <Text variant="bodySmall" color="textMuted" style={{ flex: 1 }}>
+        {label}
+      </Text>
+      <Switch value={value} onValueChange={onValueChange} />
+    </Box>
+  );
+}
+
+function HorizontalSelector<T extends string>({
+  items,
+  selected,
+  onSelect,
+}: {
+  items: readonly { key: T; label: string }[];
+  selected: T;
+  onSelect: (value: T) => void;
+}) {
+  const styles = useStyles();
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.scrollList}
+    >
+      {items.map((item) => (
+        <Button
+          key={item.key}
+          size="sm"
+          variant={selected === item.key ? "filled" : "outline"}
+          tone="success"
+          style={styles.selectorButton}
+          onPress={() => onSelect(item.key)}
+        >
+          {item.label}
+        </Button>
+      ))}
+    </ScrollView>
+  );
+}
+
+function useStyles() {
+  return useThemeStyles((theme) => ({
+    safeArea: {
+      flex: 1,
+    },
+    headerBar: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerTitle: {
+      flex: 1,
+    },
+    headerSpacer: {
+      width: theme.components.iconButton.size.md,
+    },
+    contentScroll: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    container: {
+      padding: theme.spacing.xl,
+      gap: theme.spacing.xl,
+    },
+    section: {
+      width: "100%",
+    },
+    uppercase: {
+      textTransform: "uppercase",
+      letterSpacing: 1,
+    },
+    settingDivider: {
+      marginVertical: theme.spacing.md,
+    },
+    scrollList: {
+      paddingVertical: theme.spacing.xs,
+      gap: theme.spacing.sm,
+    },
+    selectorButton: {
+      marginRight: theme.spacing.sm,
+    },
+    wrap: {
+      flexWrap: "wrap",
+    },
+    previewCard: {
+      minHeight: 180,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    previewCardDark: {
+      backgroundColor: "#0F172A",
+      borderColor: "#334155",
+    },
+    infoCard: {
+      backgroundColor: theme.colors.infoSoft,
+      borderColor: theme.colors.info,
+    },
+    footer: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.lg,
+    },
+  }));
+}

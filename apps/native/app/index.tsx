@@ -1,221 +1,184 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { QrCode, BookOpen, ChevronRight } from "lucide-react-native";
+import { BookOpen, ChevronRight, Moon, Palette, QrCode, Sun } from "lucide-react-native";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Text,
+  useTheme,
+  useThemeStyles,
+  type RenderIcon,
+} from "@masumdev/rn-ui";
+
+const icon =
+  (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
+  ({ color, size }) =>
+    <Icon color={color} size={size} />;
+
+const showcases = [
+  {
+    route: "/qr-code",
+    badge: "QR-CODE-GEN",
+    title: "QR Code Generator",
+    description:
+      "A modern, customizable QR code generator supporting custom shapes, gradients, and loading states.",
+    tone: "primary" as const,
+    icon: QrCode,
+  },
+  {
+    route: "/tajweed-verse",
+    badge: "RN-TAJWEED-VERSE",
+    title: "Tajweed Verse Renderer",
+    description:
+      "Parse Quranic script with Tajweed markup, interactive rule tooltips, theme presets, and custom rules.",
+    tone: "success" as const,
+    icon: BookOpen,
+  },
+  {
+    route: "/rn-ui",
+    badge: "RN-UI",
+    title: "Themeable UI Kit",
+    description:
+      "Preview reusable Box, Text, Button, IconButton, Badge, Card, and Divider with flat light/dark themes.",
+    tone: "accent" as const,
+    icon: Palette,
+  },
+];
 
 export default function Native() {
   const router = useRouter();
+  const { colors, isDark, setColorScheme } = useTheme();
+  const styles = useStyles();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.welcomeText}>MasumDev Mobile</Text>
-          <Text style={styles.titleText}>Component Libraries</Text>
-          <Text style={styles.subtitleText}>
-            Interact with our premium custom React Native & Expo packages.
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Explore Showcase Screens</Text>
-
-          <TouchableOpacity
-            style={styles.menuCard}
-            activeOpacity={0.7}
-            onPress={() => router.push("/qr-code")}
-          >
-            <View style={styles.cardHeader}>
-              <View
-                style={[styles.iconContainer, { backgroundColor: "#e0e7ff" }]}
-              >
-                <QrCode color="#4f46e5" size={24} />
-              </View>
-              <View style={styles.cardHeaderTexts}>
-                <View style={styles.badgeContainer}>
-                  <Text style={[styles.badgeText, { color: "#4f46e5" }]}>
-                    QR-CODE-GEN
-                  </Text>
-                </View>
-                <Text style={styles.cardTitle}>QR Code Generator</Text>
-              </View>
-            </View>
-            <Text style={styles.cardDesc}>
-              A modern, customizable QR code generator supporting custom shapes
-              (HEART, TRIANGLE, DOT), linear gradients, and logo integration.
-            </Text>
-            <View style={styles.cardFooter}>
-              <Text style={styles.arrowText}>Explore Screen</Text>
-              <ChevronRight color="#4f46e5" size={18} />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.menuCard}
-            activeOpacity={0.7}
-            onPress={() => router.push("/tajweed-verse")}
-          >
-            <View style={styles.cardHeader}>
-              <View
-                style={[styles.iconContainer, { backgroundColor: "#ecfdf5" }]}
-              >
-                <BookOpen color="#059669" size={24} />
-              </View>
-              <View style={styles.cardHeaderTexts}>
-                <View style={styles.badgeContainer}>
-                  <Text style={[styles.badgeText, { color: "#059669" }]}>
-                    RN-TAJWEED-VERSE
-                  </Text>
-                </View>
-                <Text style={styles.cardTitle}>Tajweed Verse Renderer</Text>
-              </View>
-            </View>
-            <Text style={styles.cardDesc}>
-              Parse Quranic script with Tajweed markup. Features interactive
-              rule tooltips, multiple color themes, custom rules, and plain
-              reading mode.
-            </Text>
-            <View style={styles.cardFooter}>
-              <Text style={[styles.arrowText, { color: "#059669" }]}>
-                Explore Screen
+        <Box gap="lg" style={styles.headerContainer}>
+          <Box row center gap="md">
+            <Box flex={1} gap="sm">
+              <Text variant="labelSmall" color="primary" style={styles.eyebrow}>
+                MasumDev Mobile
               </Text>
-              <ChevronRight color="#059669" size={18} />
-            </View>
-          </TouchableOpacity>
-        </View>
+              <Text variant="h1">Component Libraries</Text>
+            </Box>
+            <Button
+              size="sm"
+              variant="outline"
+              tone={isDark ? "warning" : "secondary"}
+              leftIcon={icon(isDark ? Sun : Moon)}
+              onPress={() => setColorScheme(isDark ? "light" : "dark")}
+            >
+              {isDark ? "Light" : "Dark"}
+            </Button>
+          </Box>
+          <Text color="textMuted">
+            Interact with custom React Native packages using one flat,
+            token-driven visual system.
+          </Text>
+        </Box>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Made with ❤️ by Ma'sum</Text>
-        </View>
+        <Box gap="md">
+          <Text variant="labelSmall" color="textSubtle" style={styles.sectionLabel}>
+            Explore Showcase Screens
+          </Text>
+
+          {showcases.map((item) => {
+            const Icon = item.icon;
+            const toneColor =
+              item.tone === "success"
+                ? colors.success
+                : item.tone === "accent"
+                  ? colors.accent
+                  : colors.primary;
+            const softColor =
+              item.tone === "success"
+                ? colors.successSoft
+                : item.tone === "accent"
+                  ? colors.accentSoft
+                  : colors.primarySoft;
+
+            return (
+              <Card key={item.route} padded={false}>
+                <Box p="lg" gap="md">
+                  <Box row center gap="md">
+                    <Box
+                      center
+                      radius="lg"
+                      style={[styles.iconContainer, { backgroundColor: softColor }]}
+                    >
+                      <Icon color={toneColor} size={24} />
+                    </Box>
+                    <Box flex={1}>
+                      <Badge tone={item.tone} size="sm">
+                        {item.badge}
+                      </Badge>
+                      <Text variant="title" style={styles.cardTitle}>
+                        {item.title}
+                      </Text>
+                    </Box>
+                  </Box>
+
+                  <Text color="textMuted">{item.description}</Text>
+
+                  <Button
+                    variant="outline"
+                    tone={item.tone}
+                    rightIcon={icon(ChevronRight)}
+                    onPress={() => router.push(item.route as never)}
+                  >
+                    Explore Screen
+                  </Button>
+                </Box>
+              </Card>
+            );
+          })}
+        </Box>
+
+        <Box center style={styles.footer}>
+          <Text variant="caption" color="textSubtle">
+            Made by Ma'sum
+          </Text>
+        </Box>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  container: {
-    padding: 24,
-  },
-  headerContainer: {
-    width: "100%",
-    alignItems: "flex-start",
-    marginTop: 20,
-    marginBottom: 36,
-  },
-  welcomeText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#6366f1",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginBottom: 4,
-  },
-  titleText: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: "#0f172a",
-    lineHeight: 38,
-    marginBottom: 8,
-  },
-  subtitleText: {
-    fontSize: 15,
-    color: "#64748b",
-    lineHeight: 22,
-  },
-  section: {
-    width: "100%",
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#334155",
-    marginBottom: 16,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  menuCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-    shadowColor: "#0f172a",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  cardHeaderTexts: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  badgeContainer: {
-    alignSelf: "flex-start",
-    marginBottom: 4,
-  },
-  badgeText: {
-    fontSize: 9,
-    fontWeight: "800",
-    letterSpacing: 1.1,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0f172a",
-  },
-  cardDesc: {
-    fontSize: 14,
-    color: "#64748b",
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  cardFooter: {
-    borderTopWidth: 1,
-    borderTopColor: "#f1f5f9",
-    paddingTop: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  arrowText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#4f46e5",
-  },
-  footer: {
-    width: "100%",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  footerText: {
-    color: "#cbd5e1",
-    fontSize: 12,
-  },
-});
+function useStyles() {
+  return useThemeStyles((theme) => ({
+    safeArea: {
+      flex: 1,
+    },
+    container: {
+      padding: theme.spacing.xl,
+      gap: theme.spacing.xl,
+    },
+    headerContainer: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
+    },
+    eyebrow: {
+      textTransform: "uppercase",
+      letterSpacing: 1,
+    },
+    sectionLabel: {
+      textTransform: "uppercase",
+      letterSpacing: 1,
+    },
+    iconContainer: {
+      width: 48,
+      height: 48,
+    },
+    cardTitle: {
+      marginTop: theme.spacing.xs,
+    },
+    footer: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.lg,
+    },
+  }));
+}

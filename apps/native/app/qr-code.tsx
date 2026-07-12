@@ -1,19 +1,40 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
 import { ChevronLeft, RefreshCw } from "lucide-react-native";
+import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
+import {
+  Box,
+  Button,
+  Card,
+  IconButton,
+  Text,
+  useTheme,
+  useThemeStyles,
+  type RenderIcon,
+} from "@masumdev/rn-ui";
+
+const icon =
+  (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
+  ({ color, size }) =>
+    <Icon color={color} size={size} />;
+
+const featuredVariants = [
+  { label: "Basic Variant", value: "https://google.com", variant: "BASIC" },
+  { label: "Heart Variant", value: "Love QR", variant: "HEART" },
+  { label: "Linear Gradient", value: "Gradients", variant: "LINEAR_GRADIENT" },
+] as const;
+
+const bareVariants = [
+  { label: "Triangle", value: "Triangle", variant: "TRIANGLE" },
+  { label: "Dot", value: "Dots", variant: "DOT" },
+] as const;
 
 export default function QRCodeScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [demoLoading, setDemoLoading] = useState(true);
 
   const refreshLoading = () => {
@@ -26,291 +47,247 @@ export default function QRCodeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.headerBar}>
-        <TouchableOpacity
-          style={styles.backButton}
-          activeOpacity={0.7}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <Box row center gap="md" style={styles.headerBar}>
+        <IconButton
+          icon={icon(ChevronLeft)}
+          variant="outline"
           onPress={() => router.back()}
-        >
-          <ChevronLeft color="#334155" size={22} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>QR Code Generator</Text>
-        <View style={{ width: 40 }} />
-      </View>
+        />
+        <Text variant="subtitle" align="center" style={styles.headerTitle}>
+          QR Code Generator
+        </Text>
+        <View style={styles.headerSpacer} />
+      </Box>
 
       <ScrollView
         style={styles.contentScroll}
         contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.subHeader}>
-          Modern & Custom QR Components with Presets
+        <Text color="textMuted" align="center">
+          Modern custom QR components with presets, states, and gallery preview.
         </Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Featured Variants</Text>
+        <Section title="Featured Variants">
+          {featuredVariants.map((item) => (
+            <PreviewCard key={item.variant} label={item.label}>
+              <QRCode
+                value={item.value}
+                size={180}
+                variant={item.variant as keyof typeof QR_CODE_CONFIGS}
+              />
+            </PreviewCard>
+          ))}
+        </Section>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Basic Variant</Text>
-            <QRCode value="https://google.com" size={180} variant="BASIC" />
-          </View>
+        <Section title="Bare Variants">
+          <Box row gap="md" style={styles.wrap}>
+            {bareVariants.map((item) => (
+              <Card key={item.variant} style={styles.bareCard}>
+                <Text variant="labelSmall" color="textSubtle" style={styles.uppercase}>
+                  {item.label}
+                </Text>
+                <QRCode
+                  value={item.value}
+                  size={140}
+                  variant={item.variant as keyof typeof QR_CODE_CONFIGS}
+                />
+              </Card>
+            ))}
+          </Box>
+        </Section>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Heart Variant</Text>
-            <QRCode value="Love QR" size={180} variant="HEART" />
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.label}>Linear Gradient</Text>
-            <QRCode value="Gradients" size={180} variant="LINEAR_GRADIENT" />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bare Variants (No Card)</Text>
-
-          <View style={styles.bareContainer}>
-            <Text style={styles.label}>Triangle (Bare)</Text>
-            <QRCode value="Triangle" size={150} variant="TRIANGLE" />
-          </View>
-
-          <View style={styles.bareContainer}>
-            <Text style={styles.label}>Dot (Bare)</Text>
-            <QRCode value="Dots" size={150} variant="DOT" />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>Loading & Fallbacks</Text>
-            <TouchableOpacity
-              style={[
-                styles.refreshButton,
-                demoLoading && styles.refreshButtonDisabled,
-              ]}
-              activeOpacity={0.7}
-              onPress={refreshLoading}
+        <Section
+          title="Loading & Fallbacks"
+          action={
+            <Button
+              size="sm"
+              leftIcon={icon(RefreshCw)}
               disabled={demoLoading}
+              onPress={refreshLoading}
             >
-              <RefreshCw color="white" size={14} style={{ marginRight: 6 }} />
-              <Text style={styles.refreshButtonText}>
-                {demoLoading ? "Loading..." : "Simulate"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.label}>Default Loading</Text>
+              {demoLoading ? "Loading" : "Simulate"}
+            </Button>
+          }
+        >
+          <PreviewCard label="Default Loading">
             <QRCode value="loading" size={180} isLoading={demoLoading} />
-          </View>
+          </PreviewCard>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Custom Loading Renderer</Text>
+          <PreviewCard label="Custom Loading Renderer">
             <QRCode
               value="loading-custom"
               size={180}
               isLoading={demoLoading}
               renderLoading={() => (
-                <View
-                  style={[
-                    styles.loadingPlaceholder,
-                    { width: 180, height: 180 },
-                  ]}
-                >
-                  <ActivityIndicator size="large" color="#6366f1" />
-                  <Text
-                    style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}
-                  >
+                <Box center style={styles.loadingPlaceholder}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text variant="caption" color="textMuted" style={styles.loadingText}>
                     Generating...
                   </Text>
-                </View>
+                </Box>
               )}
             />
-          </View>
-        </View>
+          </PreviewCard>
+        </Section>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Library Presets Gallery</Text>
-          <Text style={styles.description}>
-            Automatically rendered from QR_CODE_CONFIGS config presets
+        <Section title="Library Presets Gallery">
+          <Text variant="bodySmall" color="textMuted">
+            Automatically rendered from `QR_CODE_CONFIGS` presets.
           </Text>
 
-          <View style={styles.grid}>
+          <Box row style={styles.grid}>
             {Object.keys(QR_CODE_CONFIGS).map((variantKey) => (
-              <View key={variantKey} style={styles.gridItem}>
+              <Card key={variantKey} style={styles.gridItem}>
                 <QRCode
                   value={variantKey}
                   size={110}
                   variant={variantKey as keyof typeof QR_CODE_CONFIGS}
                 />
-                <Text style={styles.gridLabel}>
+                <Text
+                  variant="labelSmall"
+                  color="textMuted"
+                  align="center"
+                  style={styles.gridLabel}
+                >
                   {variantKey.replace(/_/g, " ")}
                 </Text>
-              </View>
+              </Card>
             ))}
-          </View>
-        </View>
+          </Box>
+        </Section>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Made with ❤️ by Ma'sum</Text>
-        </View>
+        <Box center style={styles.footer}>
+          <Text variant="caption" color="textSubtle">
+            Made by Ma'sum
+          </Text>
+        </Box>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-  },
-  headerBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#ffffff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#f1f5f9",
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0f172a",
-  },
-  contentScroll: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  container: {
-    padding: 24,
-    alignItems: "center",
-  },
-  subHeader: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  section: {
-    width: "100%",
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#334155",
-    marginBottom: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  description: {
-    fontSize: 12,
-    color: "#94a3b8",
-    marginBottom: 16,
-  },
-  sectionHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  refreshButton: {
-    backgroundColor: "#6366f1",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  refreshButtonDisabled: {
-    opacity: 0.6,
-  },
-  refreshButtonText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    padding: 24,
-    borderRadius: 24,
-    alignItems: "center",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-    shadowColor: "#0f172a",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    elevation: 1,
-  },
-  bareContainer: {
-    alignItems: "center",
-    marginBottom: 24,
-    padding: 16,
-    backgroundColor: "#ffffff",
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  gridItem: {
-    width: "48%",
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 20,
-    alignItems: "center",
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#f1f5f9",
-  },
-  gridLabel: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#64748b",
-    marginTop: 10,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  label: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: "#94a3b8",
-    marginBottom: 16,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-  },
-  loadingPlaceholder: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderStyle: "dashed",
-  },
-  footer: {
-    width: "100%",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  footerText: {
-    color: "#cbd5e1",
-    fontSize: 12,
-  },
-});
+function Section({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: React.ComponentProps<typeof Box>["children"];
+  children: React.ComponentProps<typeof Box>["children"];
+}) {
+  const styles = useStyles();
+
+  return (
+    <Box gap="md" style={styles.section}>
+      <Box row center gap="md">
+        <Text variant="labelSmall" color="textSubtle" style={styles.uppercase}>
+          {title}
+        </Text>
+        <Box flex={1} />
+        {action}
+      </Box>
+      {children}
+    </Box>
+  );
+}
+
+function PreviewCard({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ComponentProps<typeof Box>["children"];
+}) {
+  const styles = useStyles();
+
+  return (
+    <Card style={styles.previewCard}>
+      <Text variant="labelSmall" color="textSubtle" style={styles.uppercase}>
+        {label}
+      </Text>
+      {children}
+    </Card>
+  );
+}
+
+function useStyles() {
+  return useThemeStyles((theme) => ({
+    safeArea: {
+      flex: 1,
+    },
+    headerBar: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      backgroundColor: theme.colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerTitle: {
+      flex: 1,
+    },
+    headerSpacer: {
+      width: theme.components.iconButton.size.md,
+    },
+    contentScroll: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    container: {
+      padding: theme.spacing.xl,
+      gap: theme.spacing.xl,
+      alignItems: "stretch",
+    },
+    section: {
+      width: "100%",
+    },
+    uppercase: {
+      textTransform: "uppercase",
+      letterSpacing: 1,
+    },
+    previewCard: {
+      alignItems: "center",
+      gap: theme.spacing.lg,
+    },
+    wrap: {
+      flexWrap: "wrap",
+    },
+    bareCard: {
+      flexGrow: 1,
+      minWidth: 140,
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
+    loadingPlaceholder: {
+      width: 180,
+      height: 180,
+      borderRadius: theme.radii.xl,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderStyle: "dashed",
+      backgroundColor: theme.colors.backgroundMuted,
+    },
+    loadingText: {
+      marginTop: theme.spacing.sm,
+    },
+    grid: {
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      gap: theme.spacing.md,
+    },
+    gridItem: {
+      width: "47%",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
+    gridLabel: {
+      textTransform: "uppercase",
+      letterSpacing: 0.6,
+    },
+    footer: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.lg,
+    },
+  }));
+}

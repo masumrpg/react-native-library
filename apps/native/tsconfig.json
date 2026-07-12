@@ -7,7 +7,8 @@
       "@masumdev/react-native-qr-code-gen": [
         "../../packages/react-native-qr-code-gen/src"
       ],
-      "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"]
+      "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"],
+      "@masumdev/rn-ui": ["../../packages/rn-ui/src"]
     }
   }
 }

@@ -1,8 +1,38 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import {
+  ThemeProvider,
+  type ColorSchemePreference,
+  type ThemeStorage,
+} from "@masumdev/rn-ui";
+import * as SecureStore from "expo-secure-store";
+
+const THEME_STORAGE_KEY = "rn-ui-color-scheme";
+const themeStorage: ThemeStorage = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+};
+
+const isColorSchemePreference = (
+  value: string | null,
+): value is ColorSchemePreference =>
+  value === "light" || value === "dark" || value === "system";
+
+const debugTheme = (...args: unknown[]) => {
+  if (__DEV__) {
+    console.debug("[rn-ui]", ...args);
+  }
+};
+
+const errorTheme = (...args: unknown[]) => {
+  console.error("[rn-ui]", ...args);
+};
 
 const AppLayout = () => {
+  const [colorScheme, setColorSchemeState] =
+    React.useState<ColorSchemePreference>("system");
+  const [themeLoaded, setThemeLoaded] = React.useState(false);
   const [loaded, error] = useFonts({
     "Amiri-Regular": require("../assets/fonts/Amiri-Regular.ttf"),
     "Amiri-Bold": require("../assets/fonts/Amiri-Bold.ttf"),
@@ -19,11 +49,65 @@ const AppLayout = () => {
     "ReemKufiInk-Regular": require("../assets/fonts/ReemKufiInk-Regular.ttf"),
   });
 
-  if (!loaded && !error) {
+  React.useEffect(() => {
+    let mounted = true;
+
+    SecureStore.getItemAsync(THEME_STORAGE_KEY)
+      .then((saved) => {
+        if (!mounted) return;
+
+        const next = isColorSchemePreference(saved) ? saved : "system";
+        setColorSchemeState(next);
+
+        debugTheme("hydrated color scheme:", next);
+      })
+      .catch((storageError) => {
+        errorTheme("failed to hydrate color scheme:", storageError);
+
+        if (mounted) {
+          setColorSchemeState("system");
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setThemeLoaded(true);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const handleColorSchemeChange = React.useCallback(
+    (next: ColorSchemePreference) => {
+      setColorSchemeState(next);
+      SecureStore.setItemAsync(THEME_STORAGE_KEY, next)
+        .then(() => {
+          debugTheme("saved color scheme:", next);
+        })
+        .catch((storageError) => {
+          errorTheme("failed to save color scheme:", storageError);
+        });
+    },
+    [],
+  );
+
+  if ((!loaded && !error) || !themeLoaded) {
     return null;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <ThemeProvider
+      colorScheme={colorScheme}
+      defaultColorScheme="system"
+      storage={themeStorage}
+      storageKey={THEME_STORAGE_KEY}
+      onColorSchemeChange={handleColorSchemeChange}
+    >
+      <Stack screenOptions={{ headerShown: false }} />
+    </ThemeProvider>
+  );
 };
 
 export default AppLayout;
