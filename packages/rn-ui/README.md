@@ -301,6 +301,7 @@ Current core components:
 - `Combobox`
 - `ContextMenu`
 - `DropdownMenu`
+- `Empty`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -874,6 +875,45 @@ Useful props:
 
 Avoid nesting another `Pressable` or `Button` directly inside `DropdownMenuTrigger`; style the trigger itself or render non-pressable visual children inside it.
 
+### Empty
+
+Use `Empty` for empty states such as no projects, no data, or no search results. It is composable and mirrors the web pattern with React Native primitives.
+
+```tsx
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <FileText color={colors.text} size={16} />
+    </EmptyMedia>
+    <EmptyTitle>No Projects Yet</EmptyTitle>
+    <EmptyDescription>
+      You haven't created any projects yet. Get started by creating your first project.
+    </EmptyDescription>
+  </EmptyHeader>
+
+  <EmptyContent>
+    <Box row center gap="sm">
+      <Button size="sm">Create Project</Button>
+      <Button size="sm" variant="outline" tone="secondary">
+        Import Project
+      </Button>
+    </Box>
+    <Button size="sm" variant="ghost" tone="secondary">
+      Learn More
+    </Button>
+  </EmptyContent>
+</Empty>
+```
+
+Parts:
+
+- `Empty`
+- `EmptyHeader`
+- `EmptyMedia`
+- `EmptyTitle`
+- `EmptyDescription`
+- `EmptyContent`
+
 ## Folder Structure
 
 ```txt
@@ -895,6 +935,7 @@ src/
     Combobox.tsx
     ContextMenu.tsx
     DropdownMenu.tsx
+    Empty.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

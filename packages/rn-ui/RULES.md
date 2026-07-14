@@ -115,6 +115,7 @@ Current public components:
 - `Combobox`
 - `ContextMenu`
 - `DropdownMenu`
+- `Empty`
 
 When adding a component:
 
@@ -604,6 +605,34 @@ DropdownMenu rules:
 - Keep backdrop styling overrideable with `overlayStyle`.
 - Keep checkbox item icons pluggable through `checkIcon`.
 - Do not add shadow/elevation by default.
+
+### Empty
+
+Use `Empty` for empty states.
+
+```tsx
+<Empty>
+  <EmptyHeader>
+    <EmptyMedia variant="icon">
+      <Icon color={colors.text} size={16} />
+    </EmptyMedia>
+    <EmptyTitle>No Projects Yet</EmptyTitle>
+    <EmptyDescription>
+      You haven't created any projects yet.
+    </EmptyDescription>
+  </EmptyHeader>
+  <EmptyContent>
+    <Button size="sm">Create Project</Button>
+  </EmptyContent>
+</Empty>
+```
+
+Empty rules:
+
+- Keep the API composable: `Empty`, `EmptyHeader`, `EmptyMedia`, `EmptyTitle`, `EmptyDescription`, and `EmptyContent`.
+- Keep media/icon rendering app-owned through children.
+- Keep default layout centered, token-based, and flat.
+- Use `bordered` only when the caller wants a dashed bordered empty surface.
 
 ## Logging Rules
 

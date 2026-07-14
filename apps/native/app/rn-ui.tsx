@@ -76,6 +76,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuCheckboxItem,
   DropdownMenuShortcut,
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
   Card,
   Divider,
   IconButton,
@@ -1135,6 +1141,41 @@ export default function RnUiScreen() {
             </Box>
           </Card>
         </Section>
+
+        <Section title="Empty">
+          <Card>
+            <Empty style={styles.emptySample}>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <FileText color={colors.text} size={16} />
+                </EmptyMedia>
+                <EmptyTitle>No Projects Yet</EmptyTitle>
+                <EmptyDescription>
+                  You haven't created any projects yet. Get started by creating
+                  your first project.
+                </EmptyDescription>
+              </EmptyHeader>
+
+              <EmptyContent>
+                <Box row center gap="sm" style={styles.wrap}>
+                  <Button size="sm">Create Project</Button>
+                  <Button size="sm" variant="outline" tone="secondary">
+                    Import Project
+                  </Button>
+                </Box>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  tone="secondary"
+                  rightIcon={icon(ChevronRight)}
+                >
+                  Learn More
+                </Button>
+              </EmptyContent>
+            </Empty>
+          </Card>
+        </Section>
       </ScrollView>
 
       <AlertDialog
@@ -1343,6 +1384,9 @@ function useStyles() {
       flexDirection: "row",
       gap: theme.spacing.sm,
       alignSelf: "flex-start",
+    },
+    emptySample: {
+      minHeight: 280,
     },
   }));
 }

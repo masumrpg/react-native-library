@@ -94,6 +94,23 @@ export type { CardProps } from './Card';
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 export {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from './Empty';
+export type {
+  EmptyProps,
+  EmptyHeaderProps,
+  EmptyMediaProps,
+  EmptyMediaVariant,
+  EmptyTitleProps,
+  EmptyDescriptionProps,
+  EmptyContentProps,
+} from './Empty';
+export {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
