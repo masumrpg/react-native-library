@@ -5,6 +5,7 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
+  type ViewProps,
 } from 'react-native';
 
 import { useTheme } from '../theme';
@@ -12,9 +13,10 @@ import { Text } from './Text';
 
 export type ButtonGroupOrientation = 'horizontal' | 'vertical';
 
-export interface ButtonGroupProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface ButtonGroupProps extends ViewProps {
   orientation?: ButtonGroupOrientation;
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 const isAbsolute = (style: any): boolean => {
@@ -99,6 +101,7 @@ export function ButtonGroup({
 export interface ButtonGroupTextProps extends React.ComponentPropsWithoutRef<typeof View> {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  children?: React.ReactNode;
 }
 
 export function ButtonGroupText({ style, textStyle, children, ...props }: ButtonGroupTextProps) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Animated, Image, ScrollView, View } from "react-native";
+import { Animated, Image, ScrollView, View, LayoutChangeEvent } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -784,7 +784,7 @@ export default function RnUiScreen() {
                     overflow: "hidden",
                     padding: padding,
                   }}
-                  onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+                  onLayout={(e: LayoutChangeEvent) => setContainerWidth(e.nativeEvent.layout.width)}
                 >
                   {containerWidth > 0 && (
                     <Animated.View

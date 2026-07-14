@@ -40,6 +40,7 @@ function useBubbleContext() {
 
 export interface BubbleGroupProps extends React.ComponentPropsWithoutRef<typeof View> {
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 export function BubbleGroup({ style, children, ...props }: BubbleGroupProps) {
@@ -62,6 +63,7 @@ export interface BubbleProps extends React.ComponentPropsWithoutRef<typeof View>
   variant?: BubbleVariant;
   align?: BubbleAlign;
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 export function Bubble({
@@ -129,22 +131,30 @@ export function BubbleContent({
       }
     : containerStyle;
 
-  const Comp = onPress ? Pressable : View;
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          finalContainerStyle,
+          { opacity: pressed ? 0.8 : 1 },
+          style,
+        ]}
+        {...props}
+      >
+        {typeof children === 'string' ? (
+          <Text style={[{ color: colorsMap.text, fontSize: 14, lineHeight: 20 }, textStyle]}>
+            {children}
+          </Text>
+        ) : (
+          children
+        )}
+      </Pressable>
+    );
+  }
 
   return (
-    <Comp
-      onPress={onPress}
-      style={
-        onPress
-          ? ({ pressed }: any) => [
-              finalContainerStyle,
-              { opacity: pressed ? 0.8 : 1 },
-              style,
-            ]
-          : [finalContainerStyle, style]
-      }
-      {...props}
-    >
+    <View style={[finalContainerStyle, style]} {...props}>
       {typeof children === 'string' ? (
         <Text style={[{ color: colorsMap.text, fontSize: 14, lineHeight: 20 }, textStyle]}>
           {children}
@@ -152,7 +162,7 @@ export function BubbleContent({
       ) : (
         children
       )}
-    </Comp>
+    </View>
   );
 }
 
@@ -160,6 +170,7 @@ export interface BubbleReactionsProps extends React.ComponentPropsWithoutRef<typ
   side?: 'top' | 'bottom';
   align?: 'start' | 'end';
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 export function BubbleReactions({

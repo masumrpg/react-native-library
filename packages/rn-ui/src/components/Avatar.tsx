@@ -39,6 +39,7 @@ const GroupContext = createContext<{ inGroup: boolean; size: AvatarSize } | null
 export interface AvatarProps extends React.ComponentPropsWithoutRef<typeof View> {
   size?: AvatarSize;
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 export function Avatar({ size = 'default', style, children, ...props }: AvatarProps) {
@@ -136,6 +137,7 @@ export function AvatarImage({ source, style, onLoad, onError, ...props }: Avatar
 export interface AvatarFallbackProps extends React.ComponentPropsWithoutRef<typeof View> {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  children?: React.ReactNode;
 }
 
 export function AvatarFallback({ style, textStyle, children, ...props }: AvatarFallbackProps) {
@@ -203,6 +205,7 @@ export function AvatarBadge({ style, bg, ...props }: AvatarBadgeProps) {
 export interface AvatarGroupProps extends React.ComponentPropsWithoutRef<typeof View> {
   size?: AvatarSize;
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 }
 
 export function AvatarGroup({ size = 'default', style, children, ...props }: AvatarGroupProps) {
