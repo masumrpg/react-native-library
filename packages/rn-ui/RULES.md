@@ -116,6 +116,7 @@ Current public components:
 - `ContextMenu`
 - `DropdownMenu`
 - `Empty`
+- `HoverCard`
 
 When adding a component:
 
@@ -616,13 +617,13 @@ Use `Empty` for empty states.
     <EmptyMedia variant="icon">
       <Icon color={colors.text} size={16} />
     </EmptyMedia>
-    <EmptyTitle>No Projects Yet</EmptyTitle>
+    <EmptyTitle>Expo React Native</EmptyTitle>
     <EmptyDescription>
-      You haven't created any projects yet.
+      Expo React Native by Ma'sum, 2026.
     </EmptyDescription>
   </EmptyHeader>
   <EmptyContent>
-    <Button size="sm">Create Project</Button>
+    <Button size="sm">Explore 2026</Button>
   </EmptyContent>
 </Empty>
 ```
@@ -633,6 +634,30 @@ Empty rules:
 - Keep media/icon rendering app-owned through children.
 - Keep default layout centered, token-based, and flat.
 - Use `bordered` only when the caller wants a dashed bordered empty surface.
+
+### HoverCard
+
+Use `HoverCard` for richer contextual previews. On mobile, the default trigger is long press.
+
+```tsx
+<HoverCard openDelay={10} closeDelay={100}>
+  <HoverCardTrigger style={triggerStyle}>
+    <Text variant="label">Expo React Native</Text>
+  </HoverCardTrigger>
+  <HoverCardContent>
+    <Text variant="label">Expo React Native by Ma'sum, 2026</Text>
+  </HoverCardContent>
+</HoverCard>
+```
+
+HoverCard rules:
+
+- Keep the API composable: `HoverCard`, `HoverCardTrigger`, and `HoverCardContent`.
+- Default trigger mode should be `longPress`; support `press` and controlled `manual` mode.
+- Do not nest another `Pressable` or `Button` directly inside `HoverCardTrigger`.
+- Use Reanimated for default entry animation while keeping styling token-based.
+- Keep popup modal behavior overrideable with `modalProps`.
+- Do not add shadow/elevation by default.
 
 ## Logging Rules
 

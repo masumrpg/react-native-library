@@ -84,6 +84,9 @@ import {
   EmptyContent,
   Card,
   Divider,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   IconButton,
   Text,
   useTheme,
@@ -1149,18 +1152,18 @@ export default function RnUiScreen() {
                 <EmptyMedia variant="icon">
                   <FileText color={colors.text} size={16} />
                 </EmptyMedia>
-                <EmptyTitle>No Projects Yet</EmptyTitle>
+                <EmptyTitle>Expo React Native</EmptyTitle>
                 <EmptyDescription>
-                  You haven't created any projects yet. Get started by creating
-                  your first project.
+                  Expo React Native by Ma'sum. Crafted for consistent mobile UI
+                  in 2026.
                 </EmptyDescription>
               </EmptyHeader>
 
               <EmptyContent>
                 <Box row center gap="sm" style={styles.wrap}>
-                  <Button size="sm">Create Project</Button>
+                  <Button size="sm">Explore 2026</Button>
                   <Button size="sm" variant="outline" tone="secondary">
-                    Import Project
+                    by Ma'sum
                   </Button>
                 </Box>
 
@@ -1170,10 +1173,39 @@ export default function RnUiScreen() {
                   tone="secondary"
                   rightIcon={icon(ChevronRight)}
                 >
-                  Learn More
+                  Expo React Native
                 </Button>
               </EmptyContent>
             </Empty>
+          </Card>
+        </Section>
+
+        <Section title="Hover Card">
+          <Card>
+            <Box gap="md">
+              <Text color="textMuted">
+                Long-press preview for Expo React Native by Ma'sum in 2026.
+              </Text>
+
+              <HoverCard openDelay={10} closeDelay={100}>
+                <HoverCardTrigger style={styles.hoverCardTrigger}>
+                  <Text variant="label" color="primary">
+                    Expo React Native
+                  </Text>
+                </HoverCardTrigger>
+                <HoverCardContent>
+                  <Box gap="xs">
+                    <Text variant="label">Expo React Native</Text>
+                    <Text variant="bodySmall" color="textMuted">
+                      Expo React Native by Ma'sum.
+                    </Text>
+                    <Text variant="caption" color="textSubtle">
+                      Highlight 2026
+                    </Text>
+                  </Box>
+                </HoverCardContent>
+              </HoverCard>
+            </Box>
           </Card>
         </Section>
       </ScrollView>
@@ -1387,6 +1419,17 @@ function useStyles() {
     },
     emptySample: {
       minHeight: 280,
+    },
+    hoverCardTrigger: {
+      minHeight: theme.components.button.height.md,
+      paddingHorizontal: theme.components.button.paddingX.md,
+      borderRadius: theme.radii.lg,
+      borderWidth: 1.25,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "flex-start",
     },
   }));
 }

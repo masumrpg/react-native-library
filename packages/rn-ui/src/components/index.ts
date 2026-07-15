@@ -135,6 +135,19 @@ export type {
 } from './DropdownMenu';
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonSize, IconButtonVariant } from './IconButton';
+export {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+  useHoverCard,
+} from './HoverCard';
+export type {
+  HoverCardAlign,
+  HoverCardContentProps,
+  HoverCardProps,
+  HoverCardTriggerMode,
+  HoverCardTriggerProps,
+} from './HoverCard';
 export { Text } from './Text';
 export type { TextProps } from './Text';
 export {

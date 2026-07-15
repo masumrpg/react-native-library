@@ -302,6 +302,7 @@ Current core components:
 - `ContextMenu`
 - `DropdownMenu`
 - `Empty`
+- `HoverCard`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -885,21 +886,21 @@ Use `Empty` for empty states such as no projects, no data, or no search results.
     <EmptyMedia variant="icon">
       <FileText color={colors.text} size={16} />
     </EmptyMedia>
-    <EmptyTitle>No Projects Yet</EmptyTitle>
+    <EmptyTitle>Expo React Native</EmptyTitle>
     <EmptyDescription>
-      You haven't created any projects yet. Get started by creating your first project.
+      Expo React Native by Ma'sum. Crafted for consistent mobile UI in 2026.
     </EmptyDescription>
   </EmptyHeader>
 
   <EmptyContent>
     <Box row center gap="sm">
-      <Button size="sm">Create Project</Button>
+      <Button size="sm">Explore 2026</Button>
       <Button size="sm" variant="outline" tone="secondary">
-        Import Project
+        by Ma'sum
       </Button>
     </Box>
     <Button size="sm" variant="ghost" tone="secondary">
-      Learn More
+      Expo React Native
     </Button>
   </EmptyContent>
 </Empty>
@@ -913,6 +914,37 @@ Parts:
 - `EmptyTitle`
 - `EmptyDescription`
 - `EmptyContent`
+
+### HoverCard
+
+Use `HoverCard` for richer contextual previews. On mobile, the default trigger is `longPress`.
+
+```tsx
+<HoverCard openDelay={10} closeDelay={100}>
+  <HoverCardTrigger style={triggerStyle}>
+    <Text variant="label" color="primary">Expo React Native</Text>
+  </HoverCardTrigger>
+  <HoverCardContent>
+    <Box gap="xs">
+      <Text variant="label">Expo React Native</Text>
+      <Text variant="bodySmall" color="textMuted">
+        Expo React Native by Ma'sum.
+      </Text>
+      <Text variant="caption" color="textSubtle">
+        Highlight 2026
+      </Text>
+    </Box>
+  </HoverCardContent>
+</HoverCard>
+```
+
+Useful props:
+
+- `open`, `defaultOpen`, and `onOpenChange`
+- `openDelay` and `closeDelay`
+- `triggerMode="longPress" | "press" | "manual"`
+- `align="start" | "center" | "end"`
+- `width`, `maxHeight`, `sideOffset`, `modalProps`, and `overlayStyle`
 
 ## Folder Structure
 
@@ -936,6 +968,7 @@ src/
     ContextMenu.tsx
     DropdownMenu.tsx
     Empty.tsx
+    HoverCard.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
