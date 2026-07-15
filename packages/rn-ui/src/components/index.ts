@@ -184,6 +184,33 @@ export type {
   InputOTPSlotProps,
   InputOTPSlotState,
 } from './InputOTP';
+export {
+  Item,
+  ItemMedia,
+  ItemContent,
+  ItemActions,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+  ItemDescription,
+  ItemHeader,
+  ItemFooter,
+} from './Item';
+export type {
+  ItemActionsProps,
+  ItemContentProps,
+  ItemDescriptionProps,
+  ItemFooterProps,
+  ItemGroupProps,
+  ItemHeaderProps,
+  ItemMediaProps,
+  ItemMediaVariant,
+  ItemProps,
+  ItemSeparatorProps,
+  ItemSize,
+  ItemTitleProps,
+  ItemVariant,
+} from './Item';
 export { KeyboardAvoiding } from './KeyboardAvoiding';
 export type { KeyboardAvoidingProps } from './KeyboardAvoiding';
 export { Text } from './Text';

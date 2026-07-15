@@ -120,6 +120,7 @@ Current public components:
 - `Input`
 - `InputGroup`
 - `InputOTP`
+- `Item`
 - `KeyboardAvoiding`
 
 When adding a component:
@@ -767,6 +768,38 @@ InputOTP rules:
 - Keep separator overrideable through children.
 - Expose `textInputProps` for native keyboard/autofill overrides.
 - Keep invalid, disabled, focused, and fake caret states reflected through context.
+
+### Item
+
+Use `Item` primitives for reusable list rows and grouped content.
+
+```tsx
+<ItemGroup>
+  <Item variant="outline">
+    <ItemMedia variant="icon">
+      <Icon color={colors.primary} size={20} />
+    </ItemMedia>
+    <ItemContent>
+      <ItemTitle>Expo React Native</ItemTitle>
+      <ItemDescription>
+        Reusable item row by Ma'sum for consistent 2026 mobile lists.
+      </ItemDescription>
+    </ItemContent>
+    <ItemActions>
+      <Badge tone="success" variant="soft">Active</Badge>
+    </ItemActions>
+  </Item>
+</ItemGroup>
+```
+
+Item rules:
+
+- Keep the API composable: `ItemGroup`, `Item`, `ItemMedia`, `ItemContent`, `ItemTitle`, `ItemDescription`, `ItemActions`, `ItemHeader`, `ItemFooter`, and `ItemSeparator`.
+- Keep icons and images app-owned through children.
+- Use `Pressable` for `Item` so rows can become interactive without a separate component.
+- Keep default, outline, and muted variants flat and token-based.
+- Do not add shadow/elevation by default.
+- Use `ItemHeader` and `ItemFooter` for full-width metadata rows.
 
 ### KeyboardAvoiding
 
