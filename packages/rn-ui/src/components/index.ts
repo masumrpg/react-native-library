@@ -150,6 +150,25 @@ export type {
 } from './HoverCard';
 export { Input } from './Input';
 export type { InputProps, InputSize, InputType } from './Input';
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupInput,
+  InputGroupTextarea,
+} from './InputGroup';
+export type {
+  InputGroupAddonAlign,
+  InputGroupAddonProps,
+  InputGroupButtonProps,
+  InputGroupButtonSize,
+  InputGroupInputProps,
+  InputGroupOrientation,
+  InputGroupProps,
+  InputGroupTextProps,
+  InputGroupTextareaProps,
+} from './InputGroup';
 export { KeyboardAvoiding } from './KeyboardAvoiding';
 export type { KeyboardAvoidingProps } from './KeyboardAvoiding';
 export { Text } from './Text';

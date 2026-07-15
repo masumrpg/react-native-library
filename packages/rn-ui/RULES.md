@@ -118,6 +118,7 @@ Current public components:
 - `Empty`
 - `HoverCard`
 - `Input`
+- `InputGroup`
 - `KeyboardAvoiding`
 
 When adding a component:
@@ -688,7 +689,56 @@ Input rules:
 - Support `type`, `size`, `invalid`, `disabled`, and `fullWidth`.
 - Use React Native `TextInputProps`; do not mirror browser-only input APIs unless they map cleanly to native.
 - Keep borders flat and token-based with no shadow/elevation by default.
-- Keep icons and labels outside the base input unless a future `InputGroup` component is added.
+- Keep icons and labels outside the base input; use `InputGroup` for add-ons and actions.
+
+### InputGroup
+
+Use `InputGroup` when an input needs inline addons, result counts, small actions, or a multiline grouped field.
+
+```tsx
+<InputGroup>
+  <InputGroupAddon>
+    <Icon color={colors.textMuted} size={16} />
+  </InputGroupAddon>
+  <InputGroupInput placeholder="Search..." />
+  <InputGroupAddon align="inline-end">
+    <InputGroupText>12 results</InputGroupText>
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup>
+  <InputGroupInput placeholder="Enter password" secureTextEntry />
+  <InputGroupAddon align="inline-end">
+    <Icon color={colors.textMuted} size={16} />
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup orientation="block">
+  <InputGroupAddon align="block-start">
+    <InputGroupText>Expo React Native by Ma'sum</InputGroupText>
+  </InputGroupAddon>
+  <InputGroupTextarea placeholder="Highlight 2026" />
+  <InputGroupAddon align="block-end">
+    <InputGroupButton size="xs">Send</InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup orientation="block">
+  <InputGroupInput placeholder="Enter amount" />
+  <InputGroupAddon align="block-end">
+    <InputGroupText>USD</InputGroupText>
+  </InputGroupAddon>
+</InputGroup>
+```
+
+InputGroup rules:
+
+- Keep the API composable: `InputGroup`, `InputGroupAddon`, `InputGroupButton`, `InputGroupText`, `InputGroupInput`, and `InputGroupTextarea`.
+- Reuse `Input` and `Button`; do not fork separate field/button styling.
+- Use explicit `orientation="inline" | "block"` because React Native cannot infer layout through CSS selectors.
+- Keep icons app-owned through children.
+- Group focus, invalid, and disabled visuals should be reflected on the outer border.
+- Keep defaults flat and token-based with no shadow/elevation.
 
 ### KeyboardAvoiding
 

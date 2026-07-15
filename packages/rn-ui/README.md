@@ -978,6 +978,62 @@ Useful props:
 - `invalid`, `disabled`, and `fullWidth`
 - All standard React Native `TextInputProps`
 
+### InputGroup
+
+Use `InputGroup` when an input needs inline addons, result counts, small actions, or a multiline grouped field.
+
+```tsx
+<InputGroup>
+  <InputGroupAddon>
+    <Search color={colors.textMuted} size={16} />
+  </InputGroupAddon>
+  <InputGroupInput placeholder="Search..." />
+  <InputGroupAddon align="inline-end">
+    <InputGroupText>12 results</InputGroupText>
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup>
+  <InputGroupInput placeholder="Enter password" secureTextEntry />
+  <InputGroupAddon align="inline-end">
+    <EyeOff color={colors.textMuted} size={16} />
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup orientation="block">
+  <InputGroupAddon align="block-start">
+    <InputGroupText>Expo React Native by Ma'sum</InputGroupText>
+  </InputGroupAddon>
+  <InputGroupTextarea placeholder="Highlight 2026" />
+  <InputGroupAddon align="block-end">
+    <InputGroupButton size="xs">Send</InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+
+<InputGroup orientation="block">
+  <InputGroupInput placeholder="Enter amount" />
+  <InputGroupAddon align="block-end">
+    <InputGroupText>USD</InputGroupText>
+  </InputGroupAddon>
+</InputGroup>
+```
+
+Parts:
+
+- `InputGroup`
+- `InputGroupAddon`
+- `InputGroupButton`
+- `InputGroupText`
+- `InputGroupInput`
+- `InputGroupTextarea`
+
+Useful props:
+
+- `orientation="inline" | "block"`
+- `InputGroupAddon align="inline-start" | "inline-end" | "block-start" | "block-end"`
+- `InputGroupButton size="xs" | "sm" | "icon-xs" | "icon-sm"`
+- `invalid` and `disabled` can be set on the group or input control
+
 ### KeyboardAvoiding
 
 Use `KeyboardAvoiding` for form screens that need keyboard-safe layout. It wraps React Native `KeyboardAvoidingView` and can optionally include a themed `ScrollView`.
@@ -1039,6 +1095,7 @@ src/
     Empty.tsx
     HoverCard.tsx
     Input.tsx
+    InputGroup.tsx
     KeyboardAvoiding.tsx
     Badge.tsx
     Box.tsx
