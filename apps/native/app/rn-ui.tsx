@@ -1,5 +1,5 @@
 import React from "react";
-import { Animated, Image, ScrollView, View, LayoutChangeEvent } from "react-native";
+import { Animated, Image, View, LayoutChangeEvent } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -88,6 +88,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
   IconButton,
+  Input,
+  KeyboardAvoiding,
   Text,
   useTheme,
   useThemeStyles,
@@ -124,6 +126,7 @@ export default function RnUiScreen() {
   const [checkOne, setCheckOne] = React.useState(false);
   const [checkTwo, setCheckTwo] = React.useState(true);
   const [framework, setFramework] = React.useState("");
+  const [sampleInput, setSampleInput] = React.useState("Expo React Native by Ma'sum");
   const [showBookmark, setShowBookmark] = React.useState(true);
   const [compactMenu, setCompactMenu] = React.useState(false);
   const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
@@ -195,9 +198,11 @@ export default function RnUiScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <ScrollView
+      <KeyboardAvoiding
+        scroll
+        bg="background"
         contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+        scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
         <Box row center gap="md" style={styles.topBar}>
           <IconButton
@@ -1208,7 +1213,70 @@ export default function RnUiScreen() {
             </Box>
           </Card>
         </Section>
-      </ScrollView>
+
+        <Section title="Input">
+          <Card>
+            <Box gap="md">
+              <Box gap="xs">
+                <Text variant="label">Expo React Native</Text>
+                <Input
+                  value={sampleInput}
+                  onChangeText={setSampleInput}
+                  placeholder="Expo React Native by Ma'sum"
+                />
+              </Box>
+
+              <Box gap="xs">
+                <Text variant="label">Highlight 2026</Text>
+                <Input
+                  type="email"
+                  placeholder="expo-react-native@masum.dev"
+                />
+              </Box>
+
+              <Box gap="xs">
+                <Text variant="label" color="danger">
+                  Invalid state
+                </Text>
+                <Input
+                  invalid
+                  value="Expo React Native by Ma'sum, 2026"
+                  onChangeText={() => undefined}
+                />
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Keyboard Avoiding">
+          <Card>
+            <KeyboardAvoiding
+              fullHeight={false}
+              scroll
+              bg="surface"
+              gap="md"
+              scrollViewProps={{ scrollEnabled: false }}
+            >
+              <Box row center gap="md">
+                <Box center bg="primarySoft" radius="lg" style={styles.sampleTile}>
+                  <Smartphone color={colors.primary} size={22} />
+                </Box>
+                <Box flex={1}>
+                  <Text variant="title">Expo React Native</Text>
+                  <Text variant="bodySmall" color="textMuted">
+                    Keyboard avoiding by Ma'sum for 2026 form screens.
+                  </Text>
+                </Box>
+              </Box>
+
+              <Input
+                placeholder="Expo React Native by Ma'sum"
+                returnKeyType="done"
+              />
+            </KeyboardAvoiding>
+          </Card>
+        </Section>
+      </KeyboardAvoiding>
 
       <AlertDialog
         visible={alertDialogVisible}

@@ -117,6 +117,8 @@ Current public components:
 - `DropdownMenu`
 - `Empty`
 - `HoverCard`
+- `Input`
+- `KeyboardAvoiding`
 
 When adding a component:
 
@@ -658,6 +660,62 @@ HoverCard rules:
 - Use Reanimated for default entry animation while keeping styling token-based.
 - Keep popup modal behavior overrideable with `modalProps`.
 - Do not add shadow/elevation by default.
+
+### Input
+
+Use `Input` for token-based text fields. It wraps React Native `TextInput`.
+
+```tsx
+<Input
+  value="Expo React Native by Ma'sum"
+  placeholder="Expo React Native by Ma'sum"
+/>
+
+<Input
+  type="email"
+  placeholder="expo-react-native@masum.dev"
+/>
+
+<Input
+  invalid
+  value="Expo React Native by Ma'sum, 2026"
+/>
+```
+
+Input rules:
+
+- Keep the base component focused on a single text field.
+- Support `type`, `size`, `invalid`, `disabled`, and `fullWidth`.
+- Use React Native `TextInputProps`; do not mirror browser-only input APIs unless they map cleanly to native.
+- Keep borders flat and token-based with no shadow/elevation by default.
+- Keep icons and labels outside the base input unless a future `InputGroup` component is added.
+
+### KeyboardAvoiding
+
+Use `KeyboardAvoiding` for form screens that need keyboard-safe layout.
+
+```tsx
+<KeyboardAvoiding scroll p="lg" gap="md">
+  <Text variant="title">Expo React Native</Text>
+  <Input placeholder="Expo React Native by Ma'sum" />
+  <Button>Highlight 2026</Button>
+</KeyboardAvoiding>
+
+<KeyboardAvoiding enabled={false}>
+  <Input placeholder="Managed by the app keyboard layer" />
+</KeyboardAvoiding>
+```
+
+KeyboardAvoiding rules:
+
+- Wrap React Native `KeyboardAvoidingView`; do not add a required third-party keyboard dependency.
+- Keep the avoiding behavior disableable with `enabled={false}` so apps can use their own keyboard library.
+- Keep scrolling optional through `scroll`.
+- Keep safe-area ownership in the app; do not import `react-native-safe-area-context` in the core component.
+- Document that Android Expo apps should set `android.softwareKeyboardLayoutMode` to `resize` when they expect the screen to move above the keyboard.
+- Expose `keyboardVerticalOffset`, `behavior`, `enabled`, and `scrollViewProps`.
+- Use token-based `bg`, padding, and gap props.
+- Add samples near form/input examples and keep defaults flat.
 
 ## Logging Rules
 

@@ -148,6 +148,10 @@ export type {
   HoverCardTriggerMode,
   HoverCardTriggerProps,
 } from './HoverCard';
+export { Input } from './Input';
+export type { InputProps, InputSize, InputType } from './Input';
+export { KeyboardAvoiding } from './KeyboardAvoiding';
+export type { KeyboardAvoidingProps } from './KeyboardAvoiding';
 export { Text } from './Text';
 export type { TextProps } from './Text';
 export {

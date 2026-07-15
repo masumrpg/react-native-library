@@ -946,6 +946,75 @@ Useful props:
 - `align="start" | "center" | "end"`
 - `width`, `maxHeight`, `sideOffset`, `modalProps`, and `overlayStyle`
 
+### Input
+
+Use `Input` for token-based text fields. It wraps React Native `TextInput`, supports light/dark mode, and keeps the default style flat with a clear border.
+
+```tsx
+const [value, setValue] = React.useState("Expo React Native by Ma'sum");
+
+<Input
+  value={value}
+  onChangeText={setValue}
+  placeholder="Expo React Native by Ma'sum"
+/>
+
+<Input
+  type="email"
+  placeholder="expo-react-native@masum.dev"
+/>
+
+<Input
+  invalid
+  value="Expo React Native by Ma'sum, 2026"
+  onChangeText={() => undefined}
+/>
+```
+
+Useful props:
+
+- `type="text" | "email" | "number" | "password" | "tel" | "url"`
+- `size="sm" | "md" | "lg"`
+- `invalid`, `disabled`, and `fullWidth`
+- All standard React Native `TextInputProps`
+
+### KeyboardAvoiding
+
+Use `KeyboardAvoiding` for form screens that need keyboard-safe layout. It wraps React Native `KeyboardAvoidingView` and can optionally include a themed `ScrollView`.
+
+```tsx
+<KeyboardAvoiding scroll p="lg" gap="md">
+  <Text variant="title">Expo React Native</Text>
+  <Input placeholder="Expo React Native by Ma'sum" />
+  <Button>Highlight 2026</Button>
+</KeyboardAvoiding>
+
+<KeyboardAvoiding enabled={false}>
+  <Input placeholder="Managed by the app keyboard layer" />
+</KeyboardAvoiding>
+```
+
+For Android Expo apps, set the app window to resize so the keyboard can move content predictably:
+
+```json
+{
+  "expo": {
+    "android": {
+      "softwareKeyboardLayoutMode": "resize"
+    }
+  }
+}
+```
+
+Useful props:
+
+- `scroll` to render a keyboard-friendly `ScrollView`
+- `bg`, `p`, `px`, `py`, and `gap` for token-based layout
+- `fullHeight` to control whether the wrapper uses `flex: 1`
+- `enabled={false}` to disable keyboard avoiding when the app uses another keyboard library
+- `keyboardVerticalOffset`, `behavior`, and `enabled` from React Native `KeyboardAvoidingView`
+- `scrollViewProps` for `keyboardShouldPersistTaps`, `contentInsetAdjustmentBehavior`, and other `ScrollView` options
+
 ## Folder Structure
 
 ```txt
@@ -969,6 +1038,8 @@ src/
     DropdownMenu.tsx
     Empty.tsx
     HoverCard.tsx
+    Input.tsx
+    KeyboardAvoiding.tsx
     Badge.tsx
     Box.tsx
     Button.tsx
