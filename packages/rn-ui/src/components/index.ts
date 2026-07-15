@@ -169,6 +169,21 @@ export type {
   InputGroupTextProps,
   InputGroupTextareaProps,
 } from './InputGroup';
+export {
+  InputOTP,
+  InputOTPContext,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from './InputOTP';
+export type {
+  InputOTPContextValue,
+  InputOTPGroupProps,
+  InputOTPProps,
+  InputOTPSeparatorProps,
+  InputOTPSlotProps,
+  InputOTPSlotState,
+} from './InputOTP';
 export { KeyboardAvoiding } from './KeyboardAvoiding';
 export type { KeyboardAvoidingProps } from './KeyboardAvoiding';
 export { Text } from './Text';

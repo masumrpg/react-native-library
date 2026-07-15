@@ -1034,6 +1034,48 @@ Useful props:
 - `InputGroupButton size="xs" | "sm" | "icon-xs" | "icon-sm"`
 - `invalid` and `disabled` can be set on the group or input control
 
+### InputOTP
+
+Use `InputOTP` for one-time passcode fields. The root owns the hidden native `TextInput`; slots render the visual code boxes.
+
+```tsx
+const [otp, setOtp] = React.useState("");
+
+<InputOTP value={otp} onChangeText={setOtp} maxLength={6}>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+    <InputOTPSlot index={2} />
+    <InputOTPSeparator />
+    <InputOTPSlot index={3} />
+    <InputOTPSlot index={4} />
+    <InputOTPSlot index={5} />
+  </InputOTPGroup>
+</InputOTP>
+
+<InputOTP maxLength={4} invalid>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+    <InputOTPSlot index={2} />
+    <InputOTPSlot index={3} />
+  </InputOTPGroup>
+</InputOTP>
+```
+
+Parts:
+
+- `InputOTP`
+- `InputOTPGroup`
+- `InputOTPSlot`
+- `InputOTPSeparator`
+
+Useful props:
+
+- `value`, `defaultValue`, and `onChangeText`
+- `maxLength`, `disabled`, `invalid`, and `autoFocus`
+- `textInputProps` for native `TextInput` overrides
+
 ### KeyboardAvoiding
 
 Use `KeyboardAvoiding` for form screens that need keyboard-safe layout. It wraps React Native `KeyboardAvoidingView` and can optionally include a themed `ScrollView`.
@@ -1096,6 +1138,7 @@ src/
     HoverCard.tsx
     Input.tsx
     InputGroup.tsx
+    InputOTP.tsx
     KeyboardAvoiding.tsx
     Badge.tsx
     Box.tsx

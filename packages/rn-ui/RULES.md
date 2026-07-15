@@ -119,6 +119,7 @@ Current public components:
 - `HoverCard`
 - `Input`
 - `InputGroup`
+- `InputOTP`
 - `KeyboardAvoiding`
 
 When adding a component:
@@ -739,6 +740,33 @@ InputGroup rules:
 - Keep icons app-owned through children.
 - Group focus, invalid, and disabled visuals should be reflected on the outer border.
 - Keep defaults flat and token-based with no shadow/elevation.
+
+### InputOTP
+
+Use `InputOTP` for one-time passcode fields.
+
+```tsx
+<InputOTP value={otp} onChangeText={setOtp} maxLength={6}>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+    <InputOTPSlot index={2} />
+    <InputOTPSeparator />
+    <InputOTPSlot index={3} />
+    <InputOTPSlot index={4} />
+    <InputOTPSlot index={5} />
+  </InputOTPGroup>
+</InputOTP>
+```
+
+InputOTP rules:
+
+- Keep the API composable: `InputOTP`, `InputOTPGroup`, `InputOTPSlot`, and `InputOTPSeparator`.
+- Use one hidden native `TextInput` in the root; slots are visual only.
+- Keep slot styling token-based and flat with no shadow/elevation.
+- Keep separator overrideable through children.
+- Expose `textInputProps` for native keyboard/autofill overrides.
+- Keep invalid, disabled, focused, and fake caret states reflected through context.
 
 ### KeyboardAvoiding
 
