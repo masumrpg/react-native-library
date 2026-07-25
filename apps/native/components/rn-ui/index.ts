@@ -36,3 +36,4 @@ export { TextareaSelectCommandSection } from './sections/TextareaSelectCommandSe
 export { PopoverPaginationBreadcrumbSection } from './sections/PopoverPaginationBreadcrumbSection';
 export { TableDataListSection } from './sections/TableDataListSection';
 export { TimelineMetricCardSection } from './sections/TimelineMetricCardSection';
+export { FloatingActionButtonSection } from './sections/FloatingActionButtonSection';

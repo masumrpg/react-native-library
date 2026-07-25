@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Animated,
   Dimensions,
   Modal,
   Pressable,
@@ -13,6 +12,11 @@ import {
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme, type ThemeColors } from "../theme";
 import { Text } from "./Text";
@@ -258,21 +262,11 @@ export function ComboboxContent({
 }: ComboboxContentProps) {
   const { open, setOpen, triggerLayout, colors } = useCombobox();
   const { components, radii } = useTheme();
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const progress = useSharedValue(open ? 1 : 0);
 
   React.useEffect(() => {
-    if (open) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 150,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      fadeAnim.setValue(0);
-    }
-  }, [open]);
-
-  if (!open) return null;
+    progress.value = withTiming(open ? 1 : 0, { duration: 150 });
+  }, [open, progress]);
 
   const { height: SCREEN_HEIGHT } = Dimensions.get("window");
   const spaceBelow =
@@ -284,11 +278,12 @@ export function ComboboxContent({
     ? { bottom: SCREEN_HEIGHT - triggerLayout.pageY + 6 }
     : { top: triggerLayout.pageY + triggerLayout.height + 6 };
 
-  // Gently slide out from trigger input box
-  const translateY = fadeAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: renderAbove ? [8, 0] : [-8, 0],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ translateY: (renderAbove ? 8 : -8) * (1 - progress.value) }],
+  }));
+
+  if (!open) return null;
 
   return (
     <Modal
@@ -317,10 +312,9 @@ export function ComboboxContent({
             borderColor: colors.border,
             borderRadius: radii.lg,
             maxHeight: dropdownMaxHeight,
-            opacity: fadeAnim,
-            transform: [{ translateY }],
             overflow: "hidden",
           },
+          animatedStyle,
           positionStyle,
           style,
         ]}

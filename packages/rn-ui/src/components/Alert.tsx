@@ -1,12 +1,17 @@
 import React from "react";
 import {
-  Animated,
   Pressable,
   View,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { renderIcon, type RenderIcon } from "./types";
@@ -112,7 +117,7 @@ export function Alert({
 }: AlertProps) {
   const { colors, components, radii, spacing } = useTheme();
   const [visible, setVisible] = React.useState(true);
-  const progress = React.useRef(new Animated.Value(1)).current;
+  const progress = useSharedValue(1);
   const toneColors = getToneColors(tone, colors);
   const isSolid = variant === "solid";
   const backgroundColor =
@@ -125,21 +130,22 @@ export function Alert({
   const bodyColor = isSolid ? toneColors.on : colors.textMuted;
   const borderColor = variant === "outline" ? toneColors.base : toneColors.base;
 
-  if (!visible) {
-    return null;
-  }
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scale: 0.98 + progress.value * 0.02 }],
+  }));
 
   const handleClose = () => {
     if (dismissible && animated) {
-      Animated.timing(progress, {
-        toValue: 0,
-        duration: animationDuration,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) {
-          setVisible(false);
-        }
-      });
+      progress.value = withTiming(
+        0,
+        { duration: animationDuration },
+        (finished) => {
+          if (finished) {
+            runOnJS(setVisible)(false);
+          }
+        },
+      );
     } else if (dismissible) {
       setVisible(false);
     }
@@ -224,24 +230,12 @@ export function Alert({
     </View>
   );
 
+  if (!visible) {
+    return null;
+  }
+
   if (animated) {
-    return (
-      <Animated.View
-        style={{
-          opacity: progress,
-          transform: [
-            {
-              scale: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.98, 1],
-              }),
-            },
-          ],
-        }}
-      >
-        {container}
-      </Animated.View>
-    );
+    return <Animated.View style={animatedStyle}>{container}</Animated.View>;
   }
 
   return container;

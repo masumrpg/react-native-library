@@ -342,6 +342,12 @@ export type {
   FormLabelProps,
   FormMessageProps,
 } from "./FormField";
+export { FloatingActionButton } from "./FloatingActionButton";
+export type {
+  FloatingActionButtonPlacement,
+  FloatingActionButtonProps,
+  FloatingActionButtonSize,
+} from "./FloatingActionButton";
 export {
   Toast,
   ToastAction,

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Animated,
   Pressable,
   Text,
   TextInput,
@@ -11,6 +10,14 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 
@@ -251,39 +258,37 @@ export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
 
 function InputOTPCaret() {
   const { colors } = useTheme();
-  const opacity = React.useRef(new Animated.Value(1)).current;
+  const opacity = useSharedValue(1);
 
   React.useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]),
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0, { duration: 500 }),
+        withTiming(1, { duration: 500 }),
+      ),
+      -1,
+      true,
     );
-
-    animation.start();
-    return () => animation.stop();
+    return () => cancelAnimation(opacity);
   }, [opacity]);
+
+  const caretStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
     <Animated.View
       pointerEvents="none"
-      style={{
-        position: "absolute",
-        width: 1.25,
-        height: 18,
-        borderRadius: 1,
-        backgroundColor: colors.text,
-        opacity,
-      }}
+      style={[
+        {
+          position: "absolute",
+          width: 1.25,
+          height: 18,
+          borderRadius: 1,
+          backgroundColor: colors.text,
+        },
+        caretStyle,
+      ]}
     />
   );
 }

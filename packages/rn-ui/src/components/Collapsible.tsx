@@ -1,11 +1,10 @@
 import React from "react";
-import {
-  Animated,
-  Pressable,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
+import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 export interface CollapsibleProps {
   open?: boolean;
@@ -95,23 +94,21 @@ export function CollapsibleContent({
 }: CollapsibleContentProps) {
   const { open } = useCollapsible();
   const [measuredHeight, setMeasuredHeight] = React.useState(0);
-  const heightAnim = React.useRef(new Animated.Value(open ? 1 : 0)).current;
+  const heightAnim = useSharedValue(open ? measuredHeight : 0);
 
   // Track if we have completed our first height layout measurement
   const hasMeasured = measuredHeight > 0;
 
   React.useEffect(() => {
     if (hasMeasured) {
-      Animated.timing(heightAnim, {
-        toValue: open ? measuredHeight : 0,
+      heightAnim.value = withTiming(open ? measuredHeight : 0, {
         duration: 220,
-        useNativeDriver: false, // Height animation must use JS engine
-      }).start();
+      });
     } else {
       // Set initial value immediately without animating during initial layout
-      heightAnim.setValue(open ? measuredHeight : 0);
+      heightAnim.value = open ? measuredHeight : 0;
     }
-  }, [open, measuredHeight, hasMeasured]);
+  }, [open, measuredHeight, hasMeasured, heightAnim]);
 
   const handleLayout = (e: any) => {
     const { height } = e.nativeEvent.layout;
@@ -120,10 +117,14 @@ export function CollapsibleContent({
     }
   };
 
-  const opacity = heightAnim.interpolate({
-    inputRange: [0, Math.max(1, measuredHeight)],
-    outputRange: [0, 1],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: hasMeasured ? heightAnim.value : open ? undefined : 0,
+    opacity: hasMeasured
+      ? Math.min(1, heightAnim.value / Math.max(1, measuredHeight))
+      : open
+        ? 1
+        : 0,
+  }));
 
   return (
     <Animated.View
@@ -131,11 +132,8 @@ export function CollapsibleContent({
       style={[
         {
           overflow: "hidden",
-          // Prior to first layout measurement, let it render naturally if defaultOpen is true
-          // to prevent height desync issues during loading state
-          height: hasMeasured ? heightAnim : open ? undefined : 0,
-          opacity: hasMeasured ? opacity : open ? 1 : 0,
         },
+        animatedStyle,
         style,
       ]}
       {...props}

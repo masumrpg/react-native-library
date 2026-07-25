@@ -1,12 +1,20 @@
 import React from "react";
 import {
-  Animated,
   Dimensions,
   Pressable,
   View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  type SharedValue,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { renderIcon, type RenderIcon } from "./types";
@@ -22,7 +30,7 @@ export interface CarouselProps {
 }
 
 export interface CarouselContextProps {
-  scrollX: Animated.Value;
+  scrollX: SharedValue<number>;
   itemWidth: number;
   activeIndex: number;
   totalItems: number;
@@ -59,7 +67,7 @@ export function Carousel({
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [totalItems, setTotalItems] = React.useState(0);
 
-  const scrollX = React.useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
   const scrollViewRef = React.useRef<any>(null);
 
   const resolvedItemWidth = itemWidth || containerWidth * 0.78;
@@ -91,6 +99,10 @@ export function Carousel({
       setContainerWidth(width);
     }
   };
+
+  React.useEffect(() => {
+    onIndexChange?.(activeIndex);
+  }, [activeIndex, onIndexChange]);
 
   return (
     <CarouselContext.Provider
@@ -170,24 +182,27 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
     setTotalItems(total);
   }, [total, setTotalItems]);
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    {
-      useNativeDriver: true,
-      listener: (e: any) => {
-        const offsetX = e.nativeEvent.contentOffset.x;
-        const index = Math.round(offsetX / itemWidth);
-        if (index >= 0 && index < total) {
-          setActiveIndex((prev) => {
-            if (prev !== index) {
-              return index;
-            }
-            return prev;
-          });
+  const updateActiveIndex = React.useCallback(
+    (index: number) => {
+      setActiveIndex((prev) => {
+        if (prev !== index) {
+          return index;
         }
-      },
+        return prev;
+      });
     },
+    [setActiveIndex],
   );
+
+  const handleScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+      const index = Math.round(event.contentOffset.x / itemWidth);
+      if (index >= 0 && index < total) {
+        runOnJS(updateActiveIndex)(index);
+      }
+    },
+  });
 
   const handleLayout = (e: any) => {
     const { width } = e.nativeEvent.layout;
@@ -247,24 +262,31 @@ export function CarouselItem({
 }: CarouselItemProps) {
   const { scrollX, itemWidth } = useCarousel();
 
-  const scale = scrollX.interpolate({
-    inputRange: [
+  const animatedStyle = useAnimatedStyle(() => {
+    const inputRange = [
       (index - 1) * itemWidth,
       index * itemWidth,
       (index + 1) * itemWidth,
-    ],
-    outputRange: [0.9, 1, 0.9],
-    extrapolate: "clamp",
-  });
+    ];
 
-  const opacity = scrollX.interpolate({
-    inputRange: [
-      (index - 1) * itemWidth,
-      index * itemWidth,
-      (index + 1) * itemWidth,
-    ],
-    outputRange: [0.55, 1, 0.55],
-    extrapolate: "clamp",
+    return {
+      opacity: interpolate(
+        scrollX.value,
+        inputRange,
+        [0.55, 1, 0.55],
+        Extrapolation.CLAMP,
+      ),
+      transform: [
+        {
+          scale: interpolate(
+            scrollX.value,
+            inputRange,
+            [0.9, 1, 0.9],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+    };
   });
 
   return (
@@ -272,11 +294,10 @@ export function CarouselItem({
       style={[
         {
           width: itemWidth,
-          opacity,
-          transform: [{ scale }],
           justifyContent: "center",
           alignItems: "center",
         },
+        animatedStyle,
         style,
       ]}
       {...props}

@@ -122,6 +122,11 @@ const components: ThemeComponents = {
   metricCard: {
     iconSize: 20,
   },
+  floatingActionButton: {
+    size: { sm: 44, md: 52, lg: 60 },
+    iconSize: { sm: 18, md: 22, lg: 24 },
+    paddingX: { sm: 14, md: 18, lg: 22 },
+  },
 };
 
 const lightColors: ThemeColors = {

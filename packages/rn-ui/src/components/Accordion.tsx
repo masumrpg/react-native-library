@@ -1,12 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Animated,
   Pressable,
   Text as RNText,
   View,
@@ -14,6 +7,12 @@ import {
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { renderIcon, type RenderIcon } from "./types";
@@ -109,7 +108,7 @@ function DefaultAccordionContent({
   duration,
   style,
 }: AccordionAnimatedContentProps) {
-  const progress = useRef(new Animated.Value(expanded ? 1 : 0)).current;
+  const progress = useSharedValue(expanded ? 1 : 0);
   const [contentHeight, setContentHeight] = useState(0);
   const [shouldRender, setShouldRender] = useState(expanded);
 
@@ -118,28 +117,24 @@ function DefaultAccordionContent({
       setShouldRender(true);
     }
 
-    Animated.timing(progress, {
-      toValue: expanded ? 1 : 0,
-      duration,
-      useNativeDriver: false,
-    }).start(({ finished }) => {
+    progress.value = withTiming(expanded ? 1 : 0, { duration }, (finished) => {
       if (finished && !expanded) {
-        setShouldRender(false);
+        runOnJS(setShouldRender)(false);
       }
     });
   }, [duration, expanded, progress]);
 
-  const height = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, contentHeight],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: progress.value * contentHeight,
+    opacity: progress.value,
+  }));
 
   if (!shouldRender && !expanded) {
     return null;
   }
 
   return (
-    <Animated.View style={{ height, opacity: progress, overflow: "hidden" }}>
+    <Animated.View style={[{ overflow: "hidden" }, animatedStyle]}>
       <View
         style={[style, { position: "absolute", left: 0, right: 0 }]}
         onLayout={(event) => {
@@ -158,25 +153,18 @@ function DefaultAccordionIndicator({
   duration,
   style,
 }: AccordionAnimatedIndicatorProps) {
-  const progress = useRef(new Animated.Value(expanded ? 1 : 0)).current;
+  const progress = useSharedValue(expanded ? 1 : 0);
 
   useEffect(() => {
-    Animated.timing(progress, {
-      toValue: expanded ? 1 : 0,
-      duration,
-      useNativeDriver: true,
-    }).start();
+    progress.value = withTiming(expanded ? 1 : 0, { duration });
   }, [duration, expanded, progress]);
 
-  const rotate = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "180deg"],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${progress.value * 180}deg` }],
+  }));
 
   return (
-    <Animated.View style={[style, { transform: [{ rotate }] }]}>
-      {children}
-    </Animated.View>
+    <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
   );
 }
 

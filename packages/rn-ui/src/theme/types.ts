@@ -163,6 +163,11 @@ export interface ThemeComponents {
   metricCard: {
     iconSize: number;
   };
+  floatingActionButton: {
+    size: Record<"sm" | "md" | "lg", number>;
+    iconSize: Record<"sm" | "md" | "lg", number>;
+    paddingX: Record<"sm" | "md" | "lg", number>;
+  };
 }
 
 export interface Theme {

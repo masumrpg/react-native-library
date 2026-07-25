@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Animated,
   PanResponder,
   Platform,
   Pressable,
@@ -13,6 +12,13 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { Button } from "./Button";
@@ -302,20 +308,22 @@ export function Toast({
   ...props
 }: ToastProps) {
   const { colors, components, radii, spacing } = useTheme();
-  const progress = React.useRef(new Animated.Value(0)).current;
-  const translateX = React.useRef(new Animated.Value(0)).current;
+  const progress = useSharedValue(0);
+  const translateX = useSharedValue(0);
   const tone = getToastTone(toast.tone, colors);
 
   React.useEffect(() => {
-    Animated.timing(progress, {
-      toValue: toast.open ? 1 : 0,
-      duration: 180,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished && !toast.open) {
-        onCloseComplete?.();
-      }
-    });
+    progress.value = withTiming(
+      toast.open ? 1 : 0,
+      { duration: 180 },
+      (finished) => {
+        if (finished && !toast.open) {
+          if (onCloseComplete) {
+            runOnJS(onCloseComplete)();
+          }
+        }
+      },
+    );
   }, [onCloseComplete, progress, toast.open]);
 
   const panResponder = React.useMemo(
@@ -328,42 +336,44 @@ export function Toast({
           swipeToDismiss &&
           Math.abs(gesture.dx) > 8 &&
           Math.abs(gesture.dx) > Math.abs(gesture.dy),
-        onPanResponderMove: Animated.event([null, { dx: translateX }], {
-          useNativeDriver: false,
-        }),
+        onPanResponderMove: (_event, gesture) => {
+          translateX.value = gesture.dx;
+        },
         onPanResponderRelease: (_event, gesture) => {
           if (Math.abs(gesture.dx) > 72) {
-            Animated.timing(translateX, {
-              toValue: gesture.dx > 0 ? 420 : -420,
-              duration: 160,
-              useNativeDriver: true,
-            }).start(() => onDismiss?.());
+            translateX.value = withTiming(
+              gesture.dx > 0 ? 420 : -420,
+              { duration: 160 },
+              (finished) => {
+                if (finished && onDismiss) {
+                  runOnJS(onDismiss)();
+                }
+              },
+            );
             return;
           }
 
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 180,
-            friction: 16,
-          }).start();
+          translateX.value = withSpring(0, {
+            damping: 16,
+            stiffness: 180,
+          });
         },
       }),
     [onDismiss, swipeToDismiss, translateX],
   );
 
-  const translateY = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [placement === "top" ? -14 : 14, 0],
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      { translateY: (placement === "top" ? -14 : 14) * (1 - progress.value) },
+      { translateX: translateX.value },
+    ],
+  }));
 
   return (
     <Animated.View
       pointerEvents="box-none"
-      style={{
-        opacity: progress,
-        transform: [{ translateY }, { translateX }],
-      }}
+      style={animatedStyle}
       {...(swipeToDismiss ? panResponder.panHandlers : {})}
     >
       <View

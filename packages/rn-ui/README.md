@@ -11,7 +11,7 @@ bun add @masumdev/rn-ui
 Peer dependencies:
 
 ```sh
-bun add react react-native
+bun add react react-native react-native-reanimated react-native-worklets
 ```
 
 Optional component peer dependencies:
@@ -21,7 +21,7 @@ Optional component peer dependencies:
 bun add react-native-calendars
 
 # BottomSheet
-bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler react-native-worklets
+bun add @gorhom/bottom-sheet react-native-gesture-handler
 ```
 
 ## Setup
@@ -303,6 +303,33 @@ Current core components:
 - `DropdownMenu`
 - `Empty`
 - `HoverCard`
+- `Input`
+- `InputGroup`
+- `InputOTP`
+- `Item`
+- `KeyboardAvoiding`
+- `Label`
+- `FormField`
+- `Switch`
+- `RadioGroup`
+- `Slider`
+- `Progress`
+- `Skeleton`
+- `Tabs`
+- `Stepper`
+- `Sheet`
+- `Toast`
+- `Textarea`
+- `Select`
+- `Command`
+- `Popover`
+- `Pagination`
+- `Breadcrumb`
+- `Table`
+- `DataList`
+- `Timeline`
+- `MetricCard`
+- `FloatingActionButton`
 
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
@@ -359,8 +386,8 @@ const [openIds, setOpenIds] = React.useState(["theme"]);
 
 Animation:
 
-- Default animation uses React Native `Animated`.
-- No extra dependency is required.
+- Default animation uses Reanimated.
+- Uses the package Reanimated peer dependency.
 - Content animates height and opacity.
 - Indicator animates rotation.
 - Pass `animated={false}` to disable animation.
@@ -370,7 +397,7 @@ Animation:
 <Accordion animationDuration={220} defaultOpenIds={["theme"]} items={items} />
 ```
 
-Reanimated or custom animation can be plugged in without making `rn-ui` depend on Reanimated:
+Custom animation can be plugged in through `animationComponents`:
 
 ```tsx
 import type {
@@ -378,21 +405,19 @@ import type {
   AccordionAnimatedIndicatorProps,
 } from "@masumdev/rn-ui";
 
-function ReanimatedAccordionContent(props: AccordionAnimatedContentProps) {
-  // App-owned Reanimated implementation.
+function CustomAccordionContent(props: AccordionAnimatedContentProps) {
   return <YourAnimatedContent {...props} />;
 }
 
-function ReanimatedAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
-  // App-owned Reanimated implementation.
+function CustomAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
   return <YourAnimatedIndicator {...props} />;
 }
 
 <Accordion
   items={items}
   animationComponents={{
-    Content: ReanimatedAccordionContent,
-    Indicator: ReanimatedAccordionIndicator,
+    Content: CustomAccordionContent,
+    Indicator: CustomAccordionIndicator,
   }}
 />;
 ```
@@ -437,7 +462,7 @@ Use `IconButton` for icon-only actions. Use `tone` for semantic token colors, or
 Use `BottomSheet` for a theme-aware wrapper around `@gorhom/bottom-sheet`. The app must install Gorhom and its runtime peers.
 
 ```sh
-bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler react-native-worklets
+bun add @gorhom/bottom-sheet react-native-gesture-handler
 ```
 
 Wrap the app root with `GestureHandlerRootView` at app level:
@@ -556,7 +581,7 @@ Dismissible alert:
 
 `icon`, `action.icon`, and `closeIcon` are all pluggable through `RenderIcon`.
 
-Dismiss animations use React Native `Animated` by default. Use `animated={false}` to disable or `animationDuration` to tune timing.
+Dismiss animations use Reanimated by default. Use `animated={false}` to disable or `animationDuration` to tune timing.
 
 ```tsx
 <Alert dismissible animationDuration={220}>
@@ -582,7 +607,7 @@ Action icons can be fully overridden, including custom open/close animation owne
 
 ### AlertDialog
 
-Use `AlertDialog` for modal confirmation and blocking feedback. It uses React Native `Modal` and React Native `Animated` by default.
+Use `AlertDialog` for modal confirmation and blocking feedback. It uses React Native `Modal` and Reanimated by default.
 
 ```tsx
 const [visible, setVisible] = React.useState(false);
@@ -1383,6 +1408,12 @@ Use these primitives for multiline fields, mobile selection, command sheets, anc
 </Timeline>
 
 <MetricCard label="Expo React Native" value="2026" />
+
+<FloatingActionButton
+  icon={({ color, size }) => <Plus color={color} size={size} />}
+  label="Create"
+  tone="primary"
+/>
 ```
 
 Parts and APIs:
@@ -1397,6 +1428,7 @@ Parts and APIs:
 - `DataList`, `DataListItem`, `DataListLabel`, and `DataListValue`
 - `Timeline`, `TimelineItem`, `TimelineTitle`, and `TimelineDescription`
 - `MetricCard`
+- `FloatingActionButton`
 
 ### KeyboardAvoiding
 
@@ -1459,6 +1491,7 @@ src/
     DataList.tsx
     DropdownMenu.tsx
     Empty.tsx
+    FloatingActionButton.tsx
     HoverCard.tsx
     Input.tsx
     InputGroup.tsx

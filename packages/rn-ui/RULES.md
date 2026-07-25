@@ -61,7 +61,8 @@ Rules:
 - Avoid hardcoded border widths in components. Use `theme.components.borderWidth`.
 - Avoid shadows/elevation by default. The default visual language is flat.
 - Floating components such as comboboxes and context menus must stay flat by default. Use borders and surfaces, not shadow/elevation.
-- Do not tie components to Ionicons, Expo, Reanimated, Haptics, navigation, or storage by default.
+- Do not tie components to Ionicons, Expo, Haptics, navigation, or storage by default.
+- Reanimated is allowed in `rn-ui` as the default animation engine because it is a documented peer dependency.
 - If a component needs optional behavior, expose a prop or render function instead of importing an app-specific library.
 - Do not derive component status from display copy. Use explicit props such as tone, variant, state, or status props.
 - Keep comments short and only where they clarify non-obvious logic.
@@ -146,6 +147,7 @@ Current public components:
 - `DataList`
 - `Timeline`
 - `MetricCard`
+- `FloatingActionButton`
 
 When adding a component:
 
@@ -268,9 +270,8 @@ Use controlled state when the app needs to own open/closed state.
 
 Accordion animation rules:
 
-- Default animation must use React Native `Animated`.
-- Do not import `react-native-reanimated` in `rn-ui`.
-- Reanimated support must stay pluggable through `animationComponents`.
+- Default animation should use `react-native-reanimated`.
+- Keep `animationComponents` available for apps that need custom accordion motion.
 - Keep `animated={false}` available for users who want no animation.
 
 ### Alert
@@ -299,7 +300,7 @@ With generic icon and action:
 </Alert>
 ```
 
-Dismissible alerts should remove themselves when `dismissible` is true. `icon`, `action.icon`, and `closeIcon` must stay pluggable. Dismiss animation should use React Native `Animated` by default and remain disableable through `animated={false}`. If an Alert action needs an animated open/close icon, keep that animation app-owned through `action.icon`.
+Dismissible alerts should remove themselves when `dismissible` is true. `icon`, `action.icon`, and `closeIcon` must stay pluggable. Dismiss animation should use Reanimated by default and remain disableable through `animated={false}`. If an Alert action needs an animated open/close icon, keep that animation app-owned through `action.icon`.
 
 ### AlertDialog
 
@@ -322,14 +323,14 @@ Use `AlertDialog` for modal confirmation and blocking feedback.
 AlertDialog rules:
 
 - Use React Native `Modal` by default.
-- Use React Native `Animated` for default entry/exit animation.
+- Use Reanimated for default entry/exit animation.
 - Keep `animated={false}` available.
 - Keep `icon` and `closeIcon` pluggable.
 - Wire `onRequestClose` for Android back button.
 - Keep backdrop dismiss controlled by `dismissOnBackdropPress`.
 - Enable Android `statusBarTranslucent`, `navigationBarTranslucent`, and `hardwareAccelerated` by default so the overlay covers system UI areas more consistently.
 - Treat Android navigation bar color as app-owned system UI. Do not import `expo-navigation-bar` in core; document app-level integration instead.
-- Do not import portal, navigation, Reanimated, or bottom-sheet dependencies in core.
+- Do not import portal, navigation, or bottom-sheet dependencies in core.
 
 ### Button
 
@@ -522,7 +523,7 @@ Use `Calendar` to display calendars and handle single day or range selections. I
 
 ### Carousel
 
-Use `Carousel` to display a horizontal slideshow of cards with React Native `Animated` scroll offsets.
+Use `Carousel` to display a horizontal slideshow of cards with Reanimated scroll offsets.
 
 ```tsx
 <Carousel>
@@ -559,7 +560,7 @@ Use `Checkbox` to toggle boolean states. It uses standard Pressable states and f
 
 ### Collapsible
 
-Use `Collapsible` to hide or reveal sections of content. It uses React Native `Animated` by default.
+Use `Collapsible` to hide or reveal sections of content. It uses Reanimated by default.
 
 ```tsx
 <Collapsible>
@@ -875,7 +876,7 @@ Toast rules:
 
 - Keep the API split between `ToastProvider`, `useToast`, and composable view parts.
 - Keep provider placement app-owned; apps must wrap their root where overlay stacking makes sense.
-- Use React Native `Animated` by default and keep Reanimated optional through future render overrides.
+- Use Reanimated by default for animated state changes.
 - Keep icons app-owned through `RenderIcon`.
 - Support `placement`, `offset`, `duration`, `maxToasts`, `swipeToDismiss`, `viewportStyle`, and `renderToast`.
 - Default top placement must account for Android `StatusBar.currentHeight`; default bottom placement must leave extra room for Android navigation controls. Apps can override with `offset` or `viewportStyle`.
@@ -944,6 +945,7 @@ Data and overlay rules:
 - `DataList` is preferred over `Table` for mobile label-value data.
 - `Timeline` should be simple and token-based.
 - `MetricCard` should accept app-owned icons through `RenderIcon`.
+- `FloatingActionButton` should use Reanimated for visible/press animation, keep icons pluggable, stay flat/token-based, and allow app-owned placement through `style` or `placement="none"`.
 - Keep every default flat and border/token-based.
 
 ### KeyboardAvoiding

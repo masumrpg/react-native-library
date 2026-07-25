@@ -1,11 +1,10 @@
 import React from "react";
-import {
-  Animated,
-  Pressable,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
+import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { renderIcon, type RenderIcon } from "./types";
@@ -46,17 +45,14 @@ export function Checkbox({
   ...props
 }: CheckboxProps) {
   const { colors, components } = useTheme();
-
-  const checkedAnim = React.useRef(new Animated.Value(checked ? 1 : 0)).current;
+  const progress = useSharedValue(checked ? 1 : 0);
 
   React.useEffect(() => {
-    Animated.spring(checkedAnim, {
-      toValue: checked ? 1 : 0,
-      useNativeDriver: true,
-      tension: 180,
-      friction: 12,
-    }).start();
-  }, [checked]);
+    progress.value = withSpring(checked ? 1 : 0, {
+      damping: 14,
+      stiffness: 220,
+    });
+  }, [checked, progress]);
 
   const handlePress = () => {
     if (!disabled && onCheckedChange) {
@@ -70,11 +66,10 @@ export function Checkbox({
       ? colors.primary
       : colors.border;
 
-  // Pop-in scale transition from 0.65 to 1.0
-  const overlayScale = checkedAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.65, 1],
-  });
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ scale: 0.65 + progress.value * 0.35 }],
+  }));
 
   return (
     <Pressable
@@ -100,18 +95,19 @@ export function Checkbox({
       {...props}
     >
       <Animated.View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: invalid ? colors.danger : colors.primary,
-          justifyContent: "center",
-          alignItems: "center",
-          opacity: checkedAnim,
-          transform: [{ scale: overlayScale }],
-        }}
+        style={[
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: invalid ? colors.danger : colors.primary,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+          overlayStyle,
+        ]}
       >
         {icon ? (
           renderIcon(icon, colors.onPrimary, 12)

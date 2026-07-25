@@ -1,11 +1,15 @@
 import React from "react";
 import {
-  Animated,
   View,
   type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 
@@ -27,19 +31,19 @@ export function Progress({
 }: ProgressProps) {
   const { colors, radii } = useTheme();
   const progress = Math.max(0, Math.min(1, max <= 0 ? 0 : value / max));
-  const width = React.useRef(new Animated.Value(progress)).current;
+  const width = useSharedValue(progress);
 
   React.useEffect(() => {
     if (!animated) {
-      width.setValue(progress);
+      width.value = progress;
       return;
     }
-    Animated.timing(width, {
-      toValue: progress,
-      duration: 180,
-      useNativeDriver: false,
-    }).start();
+    width.value = withTiming(progress, { duration: 180 });
   }, [animated, progress, width]);
+
+  const indicatorAnimatedStyle = useAnimatedStyle(() => ({
+    width: `${width.value * 100}%`,
+  }));
 
   return (
     <View
@@ -61,13 +65,10 @@ export function Progress({
         style={[
           {
             height: "100%",
-            width: width.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0%", "100%"],
-            }),
             borderRadius: radii.full,
             backgroundColor: colors.primary,
           },
+          indicatorAnimatedStyle,
           indicatorStyle,
         ]}
       />

@@ -1,11 +1,18 @@
 import React from "react";
 import {
-  Animated,
   View,
   type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 
@@ -22,30 +29,32 @@ export function Skeleton({
   ...props
 }: SkeletonProps) {
   const { colors, radii } = useTheme();
-  const opacity = React.useRef(new Animated.Value(0.55)).current;
+  const opacity = useSharedValue(animated ? 0.55 : 1);
 
   React.useEffect(() => {
-    if (!animated) return;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.55,
-          duration: 700,
-          useNativeDriver: true,
-        }),
-      ]),
+    if (!animated) {
+      cancelAnimation(opacity);
+      opacity.value = 1;
+      return;
+    }
+
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 700 }),
+        withTiming(0.55, { duration: 700 }),
+      ),
+      -1,
+      true,
     );
-    loop.start();
-    return () => loop.stop();
+    return () => cancelAnimation(opacity);
   }, [animated, opacity]);
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
   return (
-    <Animated.View style={{ opacity }}>
+    <Animated.View style={animatedStyle}>
       <View
         style={[
           {

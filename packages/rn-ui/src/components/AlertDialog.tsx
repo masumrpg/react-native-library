@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Animated,
   Modal,
   Pressable,
   View,
@@ -9,6 +8,12 @@ import {
   type TextStyle,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { renderIcon, type RenderIcon } from "./types";
@@ -110,7 +115,7 @@ export function AlertDialog({
 }: AlertDialogProps) {
   const { colors, components, radii, spacing } = useTheme();
   const [mounted, setMounted] = useState(visible);
-  const progress = useRef(new Animated.Value(visible ? 1 : 0)).current;
+  const progress = useSharedValue(visible ? 1 : 0);
   const toneColor = getToneColor(tone, colors);
 
   useEffect(() => {
@@ -125,16 +130,24 @@ export function AlertDialog({
       return;
     }
 
-    Animated.timing(progress, {
-      toValue: visible ? 1 : 0,
-      duration: animationDuration,
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (finished && !visible) {
-        setMounted(false);
-      }
-    });
+    progress.value = withTiming(
+      visible ? 1 : 0,
+      { duration: animationDuration },
+      (finished) => {
+        if (finished && !visible) {
+          runOnJS(setMounted)(false);
+        }
+      },
+    );
   }, [animated, animationDuration, progress, visible]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      { scale: 0.96 + progress.value * 0.04 },
+      { translateY: 12 * (1 - progress.value) },
+    ],
+  }));
 
   if (!mounted) {
     return null;
@@ -249,8 +262,8 @@ export function AlertDialog({
 
           {onConfirm ? (
             <Button
-              variant={tone === "danger" ? "danger" : "filled"}
-              tone={tone === "danger" ? "primary" : tone}
+              variant="filled"
+              tone={tone}
               size="sm"
               loading={confirmLoading}
               disabled={confirmDisabled}
@@ -301,25 +314,13 @@ export function AlertDialog({
 
         {animated ? (
           <Animated.View
-            style={{
-              width: "100%",
-              maxWidth: 420,
-              opacity: progress,
-              transform: [
-                {
-                  scale: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.96, 1],
-                  }),
-                },
-                {
-                  translateY: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [12, 0],
-                  }),
-                },
-              ],
-            }}
+            style={[
+              {
+                width: "100%",
+                maxWidth: 420,
+              },
+              animatedStyle,
+            ]}
           >
             {dialog}
           </Animated.View>

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Animated,
   Pressable,
   ScrollView,
   View,
@@ -8,6 +7,11 @@ import {
   type ViewStyle,
 } from "react-native";
 import { Calendar as WixCalendar } from "react-native-calendars";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { Text } from "./Text";
@@ -228,37 +232,32 @@ export function Calendar({
   const [overlayHeight, setOverlayHeight] = React.useState(260);
   const [calendarKey, setCalendarKey] = React.useState(0);
 
-  // Animated values for sliding overlays
-  const monthAnim = React.useRef(new Animated.Value(0)).current;
-  const yearAnim = React.useRef(new Animated.Value(0)).current;
+  const monthProgress = useSharedValue(showMonthSelector ? 1 : 0);
+  const yearProgress = useSharedValue(showYearSelector ? 1 : 0);
 
   React.useEffect(() => {
-    Animated.spring(monthAnim, {
-      toValue: showMonthSelector ? 1 : 0,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start();
-  }, [showMonthSelector, monthAnim]);
+    monthProgress.value = withSpring(showMonthSelector ? 1 : 0, {
+      damping: 16,
+      stiffness: 180,
+    });
+  }, [monthProgress, showMonthSelector]);
 
   React.useEffect(() => {
-    Animated.spring(yearAnim, {
-      toValue: showYearSelector ? 1 : 0,
-      useNativeDriver: true,
-      tension: 65,
-      friction: 10,
-    }).start();
-  }, [showYearSelector, yearAnim]);
+    yearProgress.value = withSpring(showYearSelector ? 1 : 0, {
+      damping: 16,
+      stiffness: 180,
+    });
+  }, [showYearSelector, yearProgress]);
 
-  const monthTranslateY = monthAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-600, 0],
-  });
+  const monthOverlayStyle = useAnimatedStyle(() => ({
+    opacity: monthProgress.value,
+    transform: [{ translateY: -600 * (1 - monthProgress.value) }],
+  }));
 
-  const yearTranslateY = yearAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-600, 0],
-  });
+  const yearOverlayStyle = useAnimatedStyle(() => ({
+    opacity: yearProgress.value,
+    transform: [{ translateY: -600 * (1 - yearProgress.value) }],
+  }));
 
   // Sync visible date when controlled 'current' prop changes
   React.useEffect(() => {
@@ -447,19 +446,20 @@ export function Calendar({
       {/* Animated Month Fast Selector Overlay */}
       <Animated.View
         pointerEvents={showMonthSelector ? "auto" : "none"}
-        style={{
-          position: "absolute",
-          top: 52,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: colors.surface,
-          zIndex: 30,
-          padding: 16,
-          justifyContent: "center",
-          opacity: monthAnim,
-          transform: [{ translateY: monthTranslateY }],
-        }}
+        style={[
+          {
+            position: "absolute",
+            top: 52,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: colors.surface,
+            zIndex: 30,
+            padding: 16,
+            justifyContent: "center",
+          },
+          monthOverlayStyle,
+        ]}
       >
         <View
           style={{
@@ -515,20 +515,21 @@ export function Calendar({
             setOverlayHeight(height);
           }
         }}
-        style={{
-          position: "absolute",
-          top: 52,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: colors.surface,
-          zIndex: 30,
-          padding: 8,
-          opacity: yearAnim,
-          transform: [{ translateY: yearTranslateY }],
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        style={[
+          {
+            position: "absolute",
+            top: 52,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: colors.surface,
+            zIndex: 30,
+            padding: 8,
+            justifyContent: "center",
+            alignItems: "center",
+          },
+          yearOverlayStyle,
+        ]}
       >
         <ScrollView
           horizontal

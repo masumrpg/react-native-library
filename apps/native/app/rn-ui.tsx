@@ -60,6 +60,7 @@ import {
   ContextMenuSection,
   DropdownMenuSection,
   EmptySection,
+  FloatingActionButtonSection,
   FormSection,
   HoverCardSection,
   IconButtonsSection,
@@ -384,6 +385,8 @@ export default function RnUiScreen() {
         <TableDataListSection ctx={ctx} />
 
         <TimelineMetricCardSection ctx={ctx} />
+
+        <FloatingActionButtonSection ctx={ctx} />
       </KeyboardAvoiding>
 
       <Command
