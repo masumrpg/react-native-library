@@ -1,17 +1,16 @@
-import React, { createContext, useContext } from 'react';
+import React from "react";
 import {
-  StyleSheet,
   View,
   type StyleProp,
   type TextStyle,
-  type ViewStyle,
   type ViewProps,
-} from 'react-native';
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
-export type ButtonGroupOrientation = 'horizontal' | 'vertical';
+export type ButtonGroupOrientation = "horizontal" | "vertical";
 
 export interface ButtonGroupProps extends ViewProps {
   orientation?: ButtonGroupOrientation;
@@ -22,28 +21,27 @@ export interface ButtonGroupProps extends ViewProps {
 const isAbsolute = (style: any): boolean => {
   if (!style) return false;
   if (Array.isArray(style)) {
-    return style.some(s => s && s.position === 'absolute');
+    return style.some((s) => s && s.position === "absolute");
   }
-  return style.position === 'absolute';
+  return style.position === "absolute";
 };
 
 export function ButtonGroup({
-  orientation = 'horizontal',
+  orientation = "horizontal",
   style,
   children,
   ...props
 }: ButtonGroupProps) {
-  const { radii } = useTheme();
-  const isHorizontal = orientation === 'horizontal';
+  const isHorizontal = orientation === "horizontal";
 
   const groupStyle: ViewStyle = {
-    flexDirection: isHorizontal ? 'row' : 'column',
-    alignItems: 'stretch',
-    width: '100%',
+    flexDirection: isHorizontal ? "row" : "column",
+    alignItems: "stretch",
+    width: "100%",
   };
 
   const validChildren = React.Children.toArray(children).filter(Boolean);
-  const layoutChildren = validChildren.filter(child => {
+  const layoutChildren = validChildren.filter((child) => {
     if (!React.isValidElement(child)) return false;
     return !isAbsolute(child.props.style);
   });
@@ -98,19 +96,26 @@ export function ButtonGroup({
   );
 }
 
-export interface ButtonGroupTextProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface ButtonGroupTextProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   children?: React.ReactNode;
 }
 
-export function ButtonGroupText({ style, textStyle, children, ...props }: ButtonGroupTextProps) {
+export function ButtonGroupText({
+  style,
+  textStyle,
+  children,
+  ...props
+}: ButtonGroupTextProps) {
   const { colors, radii, spacing } = useTheme();
 
   const textContainerStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.backgroundMuted,
     borderColor: colors.border,
     borderWidth: 1.25,
@@ -120,8 +125,13 @@ export function ButtonGroupText({ style, textStyle, children, ...props }: Button
 
   return (
     <View style={[textContainerStyle, style]} {...props}>
-      {typeof children === 'string' ? (
-        <Text style={[{ color: colors.text, fontSize: 14, fontWeight: '500' }, textStyle]}>
+      {typeof children === "string" ? (
+        <Text
+          style={[
+            { color: colors.text, fontSize: 14, fontWeight: "500" },
+            textStyle,
+          ]}
+        >
           {children}
         </Text>
       ) : (
@@ -131,29 +141,31 @@ export function ButtonGroupText({ style, textStyle, children, ...props }: Button
   );
 }
 
-export interface ButtonGroupSeparatorProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface ButtonGroupSeparatorProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   orientation?: ButtonGroupOrientation;
   style?: StyleProp<ViewStyle>;
 }
 
 export function ButtonGroupSeparator({
-  orientation = 'vertical',
+  orientation = "vertical",
   style,
   ...props
 }: ButtonGroupSeparatorProps) {
   const { colors } = useTheme();
-  const isVertical = orientation === 'vertical';
+  const isVertical = orientation === "vertical";
 
   const separatorStyle: ViewStyle = isVertical
     ? {
         width: 1.25,
         backgroundColor: colors.border,
-        alignSelf: 'stretch',
+        alignSelf: "stretch",
       }
     : {
         height: 1.25,
         backgroundColor: colors.border,
-        alignSelf: 'stretch',
+        alignSelf: "stretch",
       };
 
   return <View style={[separatorStyle, style]} {...props} />;

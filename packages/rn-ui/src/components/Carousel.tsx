@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Dimensions,
@@ -6,12 +6,12 @@ import {
   View,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme } from "../theme";
+import { renderIcon, type RenderIcon } from "./types";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export interface CarouselProps {
   itemWidth?: number;
@@ -40,7 +40,7 @@ const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 export function useCarousel() {
   const context = React.useContext(CarouselContext);
   if (!context) {
-    throw new Error('useCarousel must be used within a <Carousel />');
+    throw new Error("useCarousel must be used within a <Carousel />");
   }
   return context;
 }
@@ -66,13 +66,19 @@ export function Carousel({
 
   const scrollPrev = React.useCallback(() => {
     const nextIndex = Math.max(0, activeIndex - 1);
-    scrollViewRef.current?.scrollTo({ x: nextIndex * resolvedItemWidth, animated: true });
+    scrollViewRef.current?.scrollTo({
+      x: nextIndex * resolvedItemWidth,
+      animated: true,
+    });
     setActiveIndex(nextIndex);
   }, [activeIndex, resolvedItemWidth]);
 
   const scrollNext = React.useCallback(() => {
     const nextIndex = Math.min(totalItems - 1, activeIndex + 1);
-    scrollViewRef.current?.scrollTo({ x: nextIndex * resolvedItemWidth, animated: true });
+    scrollViewRef.current?.scrollTo({
+      x: nextIndex * resolvedItemWidth,
+      animated: true,
+    });
     setActiveIndex(nextIndex);
   }, [activeIndex, totalItems, resolvedItemWidth]);
 
@@ -106,8 +112,8 @@ export function Carousel({
         onLayout={handleLayout}
         style={[
           {
-            width: '100%',
-            position: 'relative',
+            width: "100%",
+            position: "relative",
           },
           style,
         ]}
@@ -118,9 +124,9 @@ export function Carousel({
         {showPagination && totalItems > 1 && (
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
               marginTop: spacing.md,
               gap: spacing.xs,
             }}
@@ -152,15 +158,8 @@ export interface CarouselContentProps {
 }
 
 export function CarouselContent({ style, children }: CarouselContentProps) {
-  const {
-    scrollX,
-    itemWidth,
-    scrollViewRef,
-    activeIndex,
-    totalItems,
-    setTotalItems,
-    setActiveIndex,
-  } = useCarousel();
+  const { scrollX, itemWidth, scrollViewRef, setTotalItems, setActiveIndex } =
+    useCarousel();
 
   const [containerWidth, setContainerWidth] = React.useState(SCREEN_WIDTH);
 
@@ -187,7 +186,7 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
           });
         }
       },
-    }
+    },
   );
 
   const handleLayout = (e: any) => {
@@ -210,7 +209,7 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
   });
 
   return (
-    <View onLayout={handleLayout} style={{ width: '100%', overflow: 'hidden' }}>
+    <View onLayout={handleLayout} style={{ width: "100%", overflow: "hidden" }}>
       <Animated.ScrollView
         ref={scrollViewRef}
         horizontal
@@ -255,7 +254,7 @@ export function CarouselItem({
       (index + 1) * itemWidth,
     ],
     outputRange: [0.9, 1, 0.9],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   const opacity = scrollX.interpolate({
@@ -265,7 +264,7 @@ export function CarouselItem({
       (index + 1) * itemWidth,
     ],
     outputRange: [0.55, 1, 0.55],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   return (
@@ -275,8 +274,8 @@ export function CarouselItem({
           width: itemWidth,
           opacity,
           transform: [{ scale }],
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
         },
         style,
       ]}
@@ -297,7 +296,7 @@ function ChevronLeftIcon({ color }: { color: string }) {
         borderLeftWidth: 2,
         borderBottomWidth: 2,
         borderColor: color,
-        transform: [{ rotate: '45deg' }],
+        transform: [{ rotate: "45deg" }],
         marginLeft: 2,
       }}
     />
@@ -313,7 +312,7 @@ function ChevronRightIcon({ color }: { color: string }) {
         borderRightWidth: 2,
         borderTopWidth: 2,
         borderColor: color,
-        transform: [{ rotate: '45deg' }],
+        transform: [{ rotate: "45deg" }],
         marginRight: 2,
       }}
     />
@@ -336,9 +335,9 @@ export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
       onPress={scrollPrev}
       style={({ pressed }) => [
         {
-          position: 'absolute',
+          position: "absolute",
           left: spacing.sm,
-          top: '50%',
+          top: "50%",
           marginTop: -32,
           width: 36,
           height: 36,
@@ -346,15 +345,19 @@ export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
           backgroundColor: colors.surface,
           borderWidth: 1.25,
           borderColor: colors.border,
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
           zIndex: 10,
           opacity: pressed ? 0.78 : 1,
         },
         style,
       ]}
     >
-      {icon ? renderIcon(icon, colors.text, 18) : <ChevronLeftIcon color={colors.text} />}
+      {icon ? (
+        renderIcon(icon, colors.text, 18)
+      ) : (
+        <ChevronLeftIcon color={colors.text} />
+      )}
     </Pressable>
   );
 }
@@ -370,9 +373,9 @@ export function CarouselNext({ style, icon }: CarouselButtonProps) {
       onPress={scrollNext}
       style={({ pressed }) => [
         {
-          position: 'absolute',
+          position: "absolute",
           right: spacing.sm,
-          top: '50%',
+          top: "50%",
           marginTop: -32,
           width: 36,
           height: 36,
@@ -380,15 +383,19 @@ export function CarouselNext({ style, icon }: CarouselButtonProps) {
           backgroundColor: colors.surface,
           borderWidth: 1.25,
           borderColor: colors.border,
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
           zIndex: 10,
           opacity: pressed ? 0.78 : 1,
         },
         style,
       ]}
     >
-      {icon ? renderIcon(icon, colors.text, 18) : <ChevronRightIcon color={colors.text} />}
+      {icon ? (
+        renderIcon(icon, colors.text, 18)
+      ) : (
+        <ChevronRightIcon color={colors.text} />
+      )}
     </Pressable>
   );
 }

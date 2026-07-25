@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Dimensions,
@@ -10,13 +10,13 @@ import {
   View,
   type ModalProps,
   type StyleProp,
-  type ViewStyle,
   type TextStyle,
-} from 'react-native';
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme, type ThemeColors } from '../theme';
-import { Text } from './Text';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme, type ThemeColors } from "../theme";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon } from "./types";
 
 export interface ComboboxProps {
   value?: string;
@@ -34,7 +34,12 @@ export interface ComboboxContextProps {
   inputValue: string;
   setInputValue: (val: string) => void;
   triggerRef: React.RefObject<any>;
-  triggerLayout: { pageX: number; pageY: number; width: number; height: number };
+  triggerLayout: {
+    pageX: number;
+    pageY: number;
+    width: number;
+    height: number;
+  };
   measureTrigger: () => void;
   colors: ThemeColors;
 }
@@ -44,7 +49,7 @@ const ComboboxContext = React.createContext<ComboboxContextProps | null>(null);
 export function useCombobox() {
   const context = React.useContext(ComboboxContext);
   if (!context) {
-    throw new Error('useCombobox must be used within a <Combobox />');
+    throw new Error("useCombobox must be used within a <Combobox />");
   }
   return context;
 }
@@ -58,9 +63,9 @@ export function Combobox({
 }: ComboboxProps) {
   const { colors } = useTheme();
 
-  const [uncontrolledValue, setUncontrolledValue] = React.useState('');
+  const [uncontrolledValue, setUncontrolledValue] = React.useState("");
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState('');
+  const [inputValue, setInputValue] = React.useState("");
   const [triggerLayout, setTriggerLayout] = React.useState({
     pageX: 0,
     pageY: 0,
@@ -70,7 +75,8 @@ export function Combobox({
 
   const triggerRef = React.useRef<any>(null);
 
-  const value = controlledValue !== undefined ? controlledValue : uncontrolledValue;
+  const value =
+    controlledValue !== undefined ? controlledValue : uncontrolledValue;
   const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen;
 
   const setOpen = React.useCallback(
@@ -82,7 +88,7 @@ export function Combobox({
         onOpenChange(nextOpen);
       }
     },
-    [controlledOpen, onOpenChange]
+    [controlledOpen, onOpenChange],
   );
 
   const handleValueChange = React.useCallback(
@@ -94,15 +100,17 @@ export function Combobox({
         onValueChange(nextVal);
       }
     },
-    [controlledValue, onValueChange]
+    [controlledValue, onValueChange],
   );
 
   const measureTrigger = React.useCallback(() => {
-    triggerRef.current?.measureInWindow((x: number, y: number, width: number, height: number) => {
-      if (width > 0 && height > 0) {
-        setTriggerLayout({ pageX: x, pageY: y, width, height });
-      }
-    });
+    triggerRef.current?.measureInWindow(
+      (x: number, y: number, width: number, height: number) => {
+        if (width > 0 && height > 0) {
+          setTriggerLayout({ pageX: x, pageY: y, width, height });
+        }
+      },
+    );
   }, []);
 
   return (
@@ -120,7 +128,7 @@ export function Combobox({
         colors,
       }}
     >
-      <View style={{ width: '100%' }}>{children}</View>
+      <View style={{ width: "100%" }}>{children}</View>
     </ComboboxContext.Provider>
   );
 }
@@ -135,7 +143,7 @@ function ChevronDownIcon({ color }: { color: string }) {
         borderRightWidth: 1.5,
         borderBottomWidth: 1.5,
         borderColor: color,
-        transform: [{ rotate: '45deg' }],
+        transform: [{ rotate: "45deg" }],
         marginTop: -3,
         marginRight: 4,
       }}
@@ -152,7 +160,7 @@ export interface ComboboxInputProps {
 }
 
 export function ComboboxInput({
-  placeholder = 'Select option...',
+  placeholder = "Select option...",
   style,
   inputStyle,
   disabled = false,
@@ -190,15 +198,15 @@ export function ComboboxInput({
       disabled={disabled}
       style={[
         {
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           height: 40,
           borderWidth: 1.25,
           borderColor: colors.border,
           borderRadius: radii.lg,
           backgroundColor: colors.input,
           paddingHorizontal: spacing.md,
-          width: '100%',
+          width: "100%",
           opacity: disabled ? 0.5 : 1,
         },
         style,
@@ -211,19 +219,23 @@ export function ComboboxInput({
         value={inputValue}
         onChangeText={setInputValue}
         onFocus={handleFocus}
-        pointerEvents={disabled ? 'none' : 'auto'}
+        pointerEvents={disabled ? "none" : "auto"}
         style={[
           {
             flex: 1,
             ...typography.bodySmall,
             color: colors.text,
             padding: 0,
-            height: '100%',
+            height: "100%",
           },
           inputStyle,
         ]}
       />
-      {chevronIcon ? renderIcon(chevronIcon, colors.textMuted, 16) : <ChevronDownIcon color={colors.textMuted} />}
+      {chevronIcon ? (
+        renderIcon(chevronIcon, colors.textMuted, 16)
+      ) : (
+        <ChevronDownIcon color={colors.textMuted} />
+      )}
     </Pressable>
   );
 }
@@ -232,7 +244,10 @@ export interface ComboboxContentProps {
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   overlayStyle?: StyleProp<ViewStyle>;
-  modalProps?: Omit<ModalProps, 'visible' | 'transparent' | 'animationType' | 'onRequestClose'>;
+  modalProps?: Omit<
+    ModalProps,
+    "visible" | "transparent" | "animationType" | "onRequestClose"
+  >;
 }
 
 export function ComboboxContent({
@@ -242,7 +257,7 @@ export function ComboboxContent({
   modalProps,
 }: ComboboxContentProps) {
   const { open, setOpen, triggerLayout, colors } = useCombobox();
-  const { radii, spacing } = useTheme();
+  const { radii } = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -259,8 +274,9 @@ export function ComboboxContent({
 
   if (!open) return null;
 
-  const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-  const spaceBelow = SCREEN_HEIGHT - (triggerLayout.pageY + triggerLayout.height);
+  const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+  const spaceBelow =
+    SCREEN_HEIGHT - (triggerLayout.pageY + triggerLayout.height);
   const dropdownMaxHeight = 220;
   const renderAbove = spaceBelow < dropdownMaxHeight + 40;
 
@@ -293,7 +309,7 @@ export function ComboboxContent({
       <Animated.View
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             left: triggerLayout.pageX,
             width: triggerLayout.width,
             backgroundColor: colors.surface,
@@ -303,7 +319,7 @@ export function ComboboxContent({
             maxHeight: dropdownMaxHeight,
             opacity: fadeAnim,
             transform: [{ translateY }],
-            overflow: 'hidden',
+            overflow: "hidden",
           },
           positionStyle,
           style,
@@ -351,7 +367,7 @@ function CheckIcon({ color }: { color: string }) {
         borderLeftWidth: 1.75,
         borderBottomWidth: 1.75,
         borderColor: color,
-        transform: [{ rotate: '-45deg' }],
+        transform: [{ rotate: "-45deg" }],
         marginRight: 6,
       }}
     />
@@ -376,10 +392,7 @@ export function ComboboxItem({
   const { radii, spacing, typography } = useTheme();
 
   // Automatic filter matching
-  if (
-    inputValue &&
-    !label.toLowerCase().includes(inputValue.toLowerCase())
-  ) {
+  if (inputValue && !label.toLowerCase().includes(inputValue.toLowerCase())) {
     return null;
   }
 
@@ -396,17 +409,17 @@ export function ComboboxItem({
       onPress={handlePress}
       style={({ pressed }) => [
         {
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           paddingVertical: spacing.sm + 1,
           paddingHorizontal: spacing.md,
           borderRadius: radii.md,
           backgroundColor: isSelected
             ? colors.surfaceMuted
             : pressed
-            ? colors.surfaceMuted
-            : colors.transparent,
-          justifyContent: 'space-between',
+              ? colors.surfaceMuted
+              : colors.transparent,
+          justifyContent: "space-between",
         },
         style,
       ]}
@@ -415,12 +428,17 @@ export function ComboboxItem({
         style={{
           ...typography.bodySmall,
           color: colors.text,
-          fontWeight: isSelected ? '500' : '400',
+          fontWeight: isSelected ? "500" : "400",
         }}
       >
         {children || label}
       </Text>
-      {isSelected && (checkIcon ? renderIcon(checkIcon, colors.primary, 14) : <CheckIcon color={colors.primary} />)}
+      {isSelected &&
+        (checkIcon ? (
+          renderIcon(checkIcon, colors.primary, 14)
+        ) : (
+          <CheckIcon color={colors.primary} />
+        ))}
     </Pressable>
   );
 }
@@ -431,15 +449,17 @@ export interface ComboboxEmptyProps {
 }
 
 export function ComboboxEmpty({
-  children = 'No results found.',
+  children = "No results found.",
   style,
 }: ComboboxEmptyProps) {
   const { colors } = useCombobox();
   const { spacing, typography } = useTheme();
 
   return (
-    <View style={[{ padding: spacing.md, alignItems: 'center' }, style]}>
-      <Text style={{ ...typography.caption, color: colors.textMuted }}>{children}</Text>
+    <View style={[{ padding: spacing.md, alignItems: "center" }, style]}>
+      <Text style={{ ...typography.caption, color: colors.textMuted }}>
+        {children}
+      </Text>
     </View>
   );
 }

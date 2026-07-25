@@ -1,12 +1,11 @@
-import React, { createContext, useContext } from 'react';
+import React,{ createContext,useContext } from 'react';
 import {
-  Pressable,
-  StyleSheet,
-  View,
-  type PressableProps,
-  type StyleProp,
-  type TextStyle,
-  type ViewStyle,
+Pressable,
+View,
+type PressableProps,
+type StyleProp,
+type TextStyle,
+type ViewStyle
 } from 'react-native';
 
 import { useTheme } from '../theme';

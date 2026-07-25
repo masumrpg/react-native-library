@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
+import { Modal,Pressable,type PressableProps,type StyleProp,type ViewStyle } from 'react-native';
 
 import { useTheme } from '../theme';
 

@@ -1,222 +1,88 @@
-import React from "react";
-import { Animated, Image, View, LayoutChangeEvent } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import {
-  ArrowLeft,
-  Check,
-  ChevronRight,
-  CircleAlert,
-  Copy,
-  EyeOff,
-  FileCode,
-  FileText,
-  Heart,
-  HelpCircle,
-  Inbox,
-  Moon,
-  Palette,
-  Plus,
-  Minus,
-  Settings,
-  Smartphone,
-  Search,
-  BarChart3,
-  Sun,
-  Trash,
-  X,
-  ChevronsUpDown,
-} from "lucide-react-native";
-import {
-  Accordion,
-  Alert,
   AlertDialog,
-  AspectRatio,
-  Attachment,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-  AvatarBadge,
-  AvatarGroup,
-  AvatarGroupCount,
   Badge,
   Box,
-  BottomSheet,
-  BottomSheetView,
-  Bubble,
-  BubbleContent,
-  BubbleGroup,
-  BubbleReactions,
   Button,
-  ButtonGroup,
-  ButtonGroupSeparator,
-  ButtonGroupText,
-  Calendar,
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-  Checkbox,
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-  Combobox,
-  ComboboxInput,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuLabel,
-  ContextMenuCheckboxItem,
-  ContextMenuShortcut,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-  DropdownMenuCheckboxItem,
-  DropdownMenuShortcut,
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-  EmptyContent,
   Card,
+  Command,
   Divider,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
   IconButton,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemFooter,
-  ItemGroup,
-  ItemHeader,
-  ItemMedia,
-  ItemSeparator,
-  ItemTitle,
   KeyboardAvoiding,
-  Label,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormLabel,
-  FormMessage,
-  Progress,
-  RadioGroup,
-  RadioGroupItem,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  Skeleton,
-  Slider,
-  Stepper,
-  Switch,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-  Command,
-  DataList,
-  DataListItem,
-  DataListLabel,
-  DataListValue,
-  MetricCard,
-  Pagination,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  Table,
-  TableCell,
-  TableHead,
-  TableRow,
-  Textarea,
-  Timeline,
-  TimelineDescription,
-  TimelineItem,
-  TimelineTitle,
   Text,
-  useToast,
   useTheme,
   useThemeStyles,
+  useToast,
   type BottomSheetMethods,
   type ColorSchemePreference,
   type RenderIcon,
 } from "@masumdev/rn-ui";
+import { useRouter } from "expo-router";
 import {
-  ThemeProviderSection,
-  TextSection,
-  ButtonsSection,
-  IconButtonsSection,
-  BadgesSection,
-  AlertSection,
-  AlertDialogSection,
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  CircleAlert,
+  Moon,
+  Palette,
+  Settings,
+  Smartphone,
+  Sun,
+  Trash,
+  X,
+} from "lucide-react-native";
+import React from "react";
+import { Animated, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
   AccordionSection,
-  BoxCardDividerSection,
+  AlertDialogSection,
+  AlertSection,
   AspectRatioSection,
   AttachmentsSection,
   AvatarSection,
-  ChatBubblesSection,
+  BadgesSection,
+  BottomSheetSection,
+  BoxCardDividerSection,
   ButtonGroupsSection,
+  ButtonsSection,
   CalendarSection,
   CarouselSection,
+  ChatBubblesSection,
   CheckboxSection,
   CollapsibleSection,
   ComboboxSection,
   ContextMenuSection,
-  BottomSheetSection,
   DropdownMenuSection,
   EmptySection,
+  FormSection,
   HoverCardSection,
-  InputSection,
-  KeyboardAvoidingSection,
+  IconButtonsSection,
   InputGroupSection,
   InputOTPSection,
+  InputSection,
   ItemSection,
-  ToastSection,
-  FormSection,
-  SwitchRadioSliderSection,
+  KeyboardAvoidingSection,
+  PopoverPaginationBreadcrumbSection,
   ProgressSkeletonSection,
+  SwitchRadioSliderSection,
+  TableDataListSection,
   TabsStepperSheetSection,
   TextareaSelectCommandSection,
-  PopoverPaginationBreadcrumbSection,
-  TableDataListSection,
-  TimelineMetricCardSection
+  TextSection,
+  ThemeProviderSection,
+  TimelineMetricCardSection,
+  ToastSection,
 } from "../components/rn-ui";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
-  ({ color, size }) =>
-    <Icon color={color} size={size} />;
+  ({ color, size }) => <Icon color={color} size={size} />;
 
 const themeOptions: Array<{
   label: string;
@@ -233,16 +99,22 @@ export default function RnUiScreen() {
   const toast = useToast();
   const [showAlertDetails, setShowAlertDetails] = React.useState(false);
   const [alertDialogVisible, setAlertDialogVisible] = React.useState(false);
-  const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("monthly");
+  const [activeSegment, setActiveSegment] = React.useState<
+    "weekly" | "monthly" | "yearly"
+  >("monthly");
   const [containerWidth, setContainerWidth] = React.useState(0);
   const slideAnim = React.useRef(new Animated.Value(1)).current;
   const [selectedDate, setSelectedDate] = React.useState("2026-07-15");
-  const [rangeStart, setRangeStart] = React.useState<string | null>("2026-07-08");
+  const [rangeStart, setRangeStart] = React.useState<string | null>(
+    "2026-07-08",
+  );
   const [rangeEnd, setRangeEnd] = React.useState<string | null>("2026-07-11");
   const [checkOne, setCheckOne] = React.useState(false);
   const [checkTwo, setCheckTwo] = React.useState(true);
   const [framework, setFramework] = React.useState("");
-  const [sampleInput, setSampleInput] = React.useState("Expo React Native by Ma'sum");
+  const [sampleInput, setSampleInput] = React.useState(
+    "Expo React Native by Ma'sum",
+  );
   const [searchQuery, setSearchQuery] = React.useState("");
   const [otpValue, setOtpValue] = React.useState("2026");
   const [switchEnabled, setSwitchEnabled] = React.useState(true);
@@ -304,7 +176,8 @@ export default function RnUiScreen() {
   const styles = useStyles();
 
   React.useEffect(() => {
-    const toValue = activeSegment === "weekly" ? 0 : activeSegment === "monthly" ? 1 : 2;
+    const toValue =
+      activeSegment === "weekly" ? 0 : activeSegment === "monthly" ? 1 : 2;
     Animated.spring(slideAnim, {
       toValue,
       useNativeDriver: true,
@@ -315,7 +188,7 @@ export default function RnUiScreen() {
 
   const padding = 3;
   const borderWidth = 2.5; // Double of 1.25 border width
-  const innerWidth = containerWidth - (padding * 2) - borderWidth;
+  const innerWidth = containerWidth - padding * 2 - borderWidth;
   const activeBlockWidth = innerWidth / 3;
   const translateX = slideAnim.interpolate({
     inputRange: [0, 1, 2],
@@ -323,11 +196,70 @@ export default function RnUiScreen() {
   });
 
   const ctx = {
-    colors, radii, styles, icon, themeOptions, colorScheme, resolvedColorScheme, setColorScheme, toggleColorScheme, showAlertDetails, setShowAlertDetails, setAlertDialogVisible, activeSegment, setActiveSegment, containerWidth, setContainerWidth, padding, activeBlockWidth, translateX, selectedDate, setSelectedDate, rangeStart, rangeEnd, handleRangePress, getRangeMarkedDates, checkOne, setCheckOne, checkTwo, setCheckTwo, framework, setFramework, sampleInput, setSampleInput, searchQuery, setSearchQuery, otpValue, setOtpValue, switchEnabled, setSwitchEnabled, radioValue, setRadioValue, sliderValue, setSliderValue, stepperValue, setStepperValue, tabValue, setTabValue, selectValue, setSelectValue, setCommandVisible, page, setPage, showBookmark, setShowBookmark, compactMenu, setCompactMenu, bottomSheetRef, toast,
+    colors,
+    radii,
+    styles,
+    icon,
+    themeOptions,
+    colorScheme,
+    resolvedColorScheme,
+    setColorScheme,
+    toggleColorScheme,
+    showAlertDetails,
+    setShowAlertDetails,
+    setAlertDialogVisible,
+    activeSegment,
+    setActiveSegment,
+    containerWidth,
+    setContainerWidth,
+    padding,
+    activeBlockWidth,
+    translateX,
+    selectedDate,
+    setSelectedDate,
+    rangeStart,
+    rangeEnd,
+    handleRangePress,
+    getRangeMarkedDates,
+    checkOne,
+    setCheckOne,
+    checkTwo,
+    setCheckTwo,
+    framework,
+    setFramework,
+    sampleInput,
+    setSampleInput,
+    searchQuery,
+    setSearchQuery,
+    otpValue,
+    setOtpValue,
+    switchEnabled,
+    setSwitchEnabled,
+    radioValue,
+    setRadioValue,
+    sliderValue,
+    setSliderValue,
+    stepperValue,
+    setStepperValue,
+    tabValue,
+    setTabValue,
+    selectValue,
+    setSelectValue,
+    setCommandVisible,
+    page,
+    setPage,
+    showBookmark,
+    setShowBookmark,
+    compactMenu,
+    setCompactMenu,
+    bottomSheetRef,
+    toast,
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    >
       <KeyboardAvoiding
         scroll
         bg="background"
@@ -459,9 +391,24 @@ export default function RnUiScreen() {
         onClose={() => setCommandVisible(false)}
         title="Expo React Native Command"
         items={[
-          { value: "theme", label: "Theme tokens", description: "Colors, radius, typography.", icon: icon(Palette) },
-          { value: "form", label: "Form controls", description: "Input, Select, Textarea.", icon: icon(Settings) },
-          { value: "toast", label: "Toast", description: "Programmatic feedback.", icon: icon(CircleAlert) },
+          {
+            value: "theme",
+            label: "Theme tokens",
+            description: "Colors, radius, typography.",
+            icon: icon(Palette),
+          },
+          {
+            value: "form",
+            label: "Form controls",
+            description: "Input, Select, Textarea.",
+            icon: icon(Settings),
+          },
+          {
+            value: "toast",
+            label: "Toast",
+            description: "Programmatic feedback.",
+            icon: icon(CircleAlert),
+          },
         ]}
         onSelect={(value) =>
           toast.show({
@@ -486,17 +433,14 @@ export default function RnUiScreen() {
         onConfirm={() => setAlertDialogVisible(false)}
       />
 
-      <Sheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={bottomSheetSnapPoints}
-      >
+      <Sheet ref={bottomSheetRef} index={-1} snapPoints={bottomSheetSnapPoints}>
         <SheetContent style={styles.bottomSheetContent}>
           <Box gap="md">
             <SheetHeader>
               <SheetTitle>Expo React Native Sheet</SheetTitle>
               <SheetDescription>
-                Higher-level sheet wrapper by Ma'sum using Gorhom BottomSheet tokens.
+                Higher-level sheet wrapper by Ma'sum using Gorhom BottomSheet
+                tokens.
               </SheetDescription>
             </SheetHeader>
 

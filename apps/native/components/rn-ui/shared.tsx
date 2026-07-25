@@ -1,7 +1,7 @@
+import { Box, Text } from "@masumdev/rn-ui";
+import { ChevronRight } from "lucide-react-native";
 import React from "react";
 import { Animated, View } from "react-native";
-import { ChevronRight } from "lucide-react-native";
-import { Box, Text } from "@masumdev/rn-ui";
 
 export type RnUiSectionContext = Record<string, any>;
 
@@ -14,7 +14,11 @@ export function Section({
 }) {
   return (
     <Box gap="sm">
-      <Text variant="labelSmall" color="textSubtle" style={{ textTransform: "uppercase" }}>
+      <Text
+        variant="labelSmall"
+        color="textSubtle"
+        style={{ textTransform: "uppercase" }}
+      >
         {title}
       </Text>
       {children}

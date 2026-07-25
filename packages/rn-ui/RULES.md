@@ -156,7 +156,10 @@ When adding a component:
 - Keep modal/system UI behavior overrideable through props. Android navigation bar styling remains app-owned.
 - Add usage docs to `README.md`.
 - Add the component to the component list in this file.
-- Add a sample for the component in `apps/native/app/rn-ui.tsx`.
+- Add a sample for the component in the native sample app.
+- Keep native samples split by feature in `apps/native/components/rn-ui/sections/` and export them from `apps/native/components/rn-ui/index.ts`.
+- Keep `apps/native/app/rn-ui.tsx` as the screen composer only; do not add large sample implementations directly there.
+- Put new component samples at the bottom of the rn-ui sample screen unless a different order is intentionally documented.
 - Run package build and app typecheck before finishing.
 
 ## Component Usage
@@ -164,11 +167,11 @@ When adding a component:
 ### ThemeProvider
 
 ```tsx
-import { ThemeProvider } from '@masumdev/rn-ui';
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 <ThemeProvider defaultColorScheme="system">
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 With pluggable storage:
@@ -181,7 +184,7 @@ const storage = {
 
 <ThemeProvider storage={storage} defaultColorScheme="system">
   <App />
-</ThemeProvider>
+</ThemeProvider>;
 ```
 
 ### Box
@@ -213,7 +216,7 @@ Use `BottomSheet` as a thin theme-aware wrapper around `@gorhom/bottom-sheet`.
 <BottomSheet
   ref={bottomSheetRef}
   index={-1}
-  snapPoints={['35%', '70%']}
+  snapPoints={["35%", "70%"]}
   enablePanDownToClose
 >
   <BottomSheetView>
@@ -237,13 +240,13 @@ Use `Accordion` for expandable flat bordered sections.
 
 ```tsx
 <Accordion
-  defaultOpenIds={['theme']}
+  defaultOpenIds={["theme"]}
   items={[
     {
-      id: 'theme',
-      title: 'Theme tokens',
-      subtitle: 'Colors, fonts, spacing, and radius',
-      content: 'Accordion follows the same token-driven flat style.',
+      id: "theme",
+      title: "Theme tokens",
+      subtitle: "Colors, fonts, spacing, and radius",
+      content: "Accordion follows the same token-driven flat style.",
     },
   ]}
 />
@@ -285,7 +288,7 @@ With generic icon and action:
   variant="outline"
   icon={({ color, size }) => <Icon name="check" color={color} size={size} />}
   action={{
-    label: 'View details',
+    label: "View details",
     onPress: openDetails,
   }}
 >
@@ -343,9 +346,7 @@ With generic icon render function:
 
 ```tsx
 <Button
-  leftIcon={({ color, size }) => (
-    <Icon name="add" color={color} size={size} />
-  )}
+  leftIcon={({ color, size }) => <Icon name="add" color={color} size={size} />}
 >
   Create
 </Button>
@@ -397,7 +398,12 @@ Use `AspectRatio` to maintain aspect ratios of media and other layouts. Children
 
 ```tsx
 <AspectRatio ratio={16 / 9} radius="md">
-  <Image source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }} style={{ resizeMode: 'cover' }} />
+  <Image
+    source={{
+      uri: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
+    }}
+    style={{ resizeMode: "cover" }}
+  />
 </AspectRatio>
 ```
 
@@ -493,9 +499,9 @@ Use `Calendar` to display calendars and handle single day or range selections. I
 ```tsx
 <Calendar
   markedDates={{
-    '2026-07-12': { selected: true, startingDay: true },
-    '2026-07-13': { selected: true, color: 'muted' },
-    '2026-07-14': { selected: true, endingDay: true },
+    "2026-07-12": { selected: true, startingDay: true },
+    "2026-07-13": { selected: true, color: "muted" },
+    "2026-07-14": { selected: true, endingDay: true },
   }}
 />
 ```
@@ -508,10 +514,14 @@ Use `Carousel` to display a horizontal slideshow of cards with React Native `Ani
 <Carousel>
   <CarouselContent>
     <CarouselItem>
-      <Card><Text>Slide 1</Text></Card>
+      <Card>
+        <Text>Slide 1</Text>
+      </Card>
     </CarouselItem>
     <CarouselItem>
-      <Card><Text>Slide 2</Text></Card>
+      <Card>
+        <Text>Slide 2</Text>
+      </Card>
     </CarouselItem>
   </CarouselContent>
   <CarouselPrevious icon={leftIcon} />
@@ -530,11 +540,7 @@ Carousel rules:
 Use `Checkbox` to toggle boolean states. It uses standard Pressable states and flat token-based styling.
 
 ```tsx
-<Checkbox
-  checked={isChecked}
-  onCheckedChange={setIsChecked}
-  icon={checkIcon}
-/>
+<Checkbox checked={isChecked} onCheckedChange={setIsChecked} icon={checkIcon} />
 ```
 
 ### Collapsible
@@ -583,13 +589,17 @@ Use `ContextMenu` to show a popup menu when an element is long-pressed on mobile
 ```tsx
 <ContextMenu>
   <ContextMenuTrigger>
-    <Card><Text>Long press me</Text></Card>
+    <Card>
+      <Text>Long press me</Text>
+    </Card>
   </ContextMenuTrigger>
   <ContextMenuContent modalProps={modalProps} overlayStyle={overlayStyle}>
     <ContextMenuLabel>Actions</ContextMenuLabel>
     <ContextMenuItem onPress={handleEdit}>Edit</ContextMenuItem>
     <ContextMenuSeparator />
-    <ContextMenuItem variant="destructive" onPress={handleDelete}>Delete</ContextMenuItem>
+    <ContextMenuItem variant="destructive" onPress={handleDelete}>
+      Delete
+    </ContextMenuItem>
   </ContextMenuContent>
 </ContextMenu>
 ```
@@ -610,14 +620,20 @@ Use `DropdownMenu` for tap-triggered action menus.
   <DropdownMenuTrigger style={triggerStyle}>
     <Text variant="label">Open menu</Text>
   </DropdownMenuTrigger>
-  <DropdownMenuContent align="start" modalProps={modalProps} overlayStyle={overlayStyle}>
+  <DropdownMenuContent
+    align="start"
+    modalProps={modalProps}
+    overlayStyle={overlayStyle}
+  >
     <DropdownMenuLabel>Actions</DropdownMenuLabel>
     <DropdownMenuItem onPress={handleRefresh}>Refresh</DropdownMenuItem>
     <DropdownMenuCheckboxItem checked={compact} onCheckedChange={setCompact}>
       Compact mode
     </DropdownMenuCheckboxItem>
     <DropdownMenuSeparator />
-    <DropdownMenuItem variant="destructive" onPress={handleDelete}>Delete</DropdownMenuItem>
+    <DropdownMenuItem variant="destructive" onPress={handleDelete}>
+      Delete
+    </DropdownMenuItem>
   </DropdownMenuContent>
 </DropdownMenu>
 ```
@@ -644,9 +660,7 @@ Use `Empty` for empty states.
       <Icon color={colors.text} size={16} />
     </EmptyMedia>
     <EmptyTitle>Expo React Native</EmptyTitle>
-    <EmptyDescription>
-      Expo React Native by Ma'sum, 2026.
-    </EmptyDescription>
+    <EmptyDescription>Expo React Native by Ma'sum, 2026.</EmptyDescription>
   </EmptyHeader>
   <EmptyContent>
     <Button size="sm">Explore 2026</Button>
@@ -807,7 +821,9 @@ Use `Item` primitives for reusable list rows and grouped content.
       </ItemDescription>
     </ItemContent>
     <ItemActions>
-      <Badge tone="success" variant="soft">Active</Badge>
+      <Badge tone="success" variant="soft">
+        Active
+      </Badge>
     </ItemActions>
   </Item>
 </ItemGroup>
@@ -829,7 +845,7 @@ Use `Toast` for transient feedback rendered from a root `ToastProvider`.
 ```tsx
 <ToastProvider placement="top">
   <App />
-</ToastProvider>
+</ToastProvider>;
 
 const toast = useToast();
 
@@ -957,12 +973,12 @@ const ENABLE_THEME_DEBUG_LOGS = false;
 
 const debugTheme = (...args: unknown[]) => {
   if (__DEV__ && ENABLE_THEME_DEBUG_LOGS) {
-    console.debug('[rn-ui]', ...args);
+    console.debug("[rn-ui]", ...args);
   }
 };
 
 const errorTheme = (...args: unknown[]) => {
-  console.error('[rn-ui]', ...args);
+  console.error("[rn-ui]", ...args);
 };
 ```
 
