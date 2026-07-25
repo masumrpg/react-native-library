@@ -127,6 +127,12 @@ const components: ThemeComponents = {
     iconSize: { sm: 18, md: 22, lg: 24 },
     paddingX: { sm: 14, md: 18, lg: 22 },
   },
+  switch: {
+    width: { sm: 42, md: 50, lg: 58 },
+    height: { sm: 24, md: 30, lg: 34 },
+    thumbSize: { sm: 18, md: 22, lg: 26 },
+    iconSize: { sm: 10, md: 12, lg: 14 },
+  },
 };
 
 const lightColors: ThemeColors = {

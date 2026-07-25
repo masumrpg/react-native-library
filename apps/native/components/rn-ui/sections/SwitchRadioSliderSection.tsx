@@ -7,6 +7,7 @@ import {
   Switch,
   Text,
 } from "@masumdev/rn-ui";
+import { Check } from "lucide-react-native";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function SwitchRadioSliderSection({ ctx }: { ctx: RnUiSectionContext }) {
@@ -31,6 +32,34 @@ export function SwitchRadioSliderSection({ ctx }: { ctx: RnUiSectionContext }) {
               </Text>
             </Box>
             <Switch value={switchEnabled} onValueChange={setSwitchEnabled} />
+          </Box>
+
+          <Box row center gap="md">
+            <Box flex={1}>
+              <Text variant="label">Modern tone</Text>
+              <Text variant="bodySmall" color="textMuted">
+                Larger success switch with animated flat styling.
+              </Text>
+            </Box>
+            <Switch
+              value={switchEnabled}
+              onValueChange={setSwitchEnabled}
+              size="lg"
+              tone="success"
+              activeThumbContent={({ color, size }) => (
+                <Check color={color} size={size} />
+              )}
+            />
+          </Box>
+
+          <Box row center gap="md">
+            <Box flex={1}>
+              <Text variant="label">Invalid state</Text>
+              <Text variant="bodySmall" color="textMuted">
+                Danger border and track for validation feedback.
+              </Text>
+            </Box>
+            <Switch value={false} invalid tone="danger" />
           </Box>
 
           <RadioGroup value={radioValue} onValueChange={setRadioValue}>

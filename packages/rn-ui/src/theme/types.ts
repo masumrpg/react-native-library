@@ -168,6 +168,12 @@ export interface ThemeComponents {
     iconSize: Record<"sm" | "md" | "lg", number>;
     paddingX: Record<"sm" | "md" | "lg", number>;
   };
+  switch: {
+    width: Record<"sm" | "md" | "lg", number>;
+    height: Record<"sm" | "md" | "lg", number>;
+    thumbSize: Record<"sm" | "md" | "lg", number>;
+    iconSize: Record<"sm" | "md" | "lg", number>;
+  };
 }
 
 export interface Theme {

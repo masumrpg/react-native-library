@@ -1284,6 +1284,7 @@ Use these primitives for common form, preference, loading, and local navigation 
 </Label>
 
 <Switch value={enabled} onValueChange={setEnabled} />
+<Switch value={enabled} onValueChange={setEnabled} size="lg" tone="success" />
 
 <RadioGroup value={value} onValueChange={setValue}>
   <RadioGroupItem value="expo" label="Expo React Native" />
@@ -1310,13 +1311,22 @@ Parts and APIs:
 
 - `Label` with `required`, `requiredIndicator`, and `requiredIndicatorStyle`
 - `FormField`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, and `useFormField`
-- `Switch`
+- `Switch` with `size`, `tone`, `activeIcon`, `inactiveIcon`, `thumbContent`, `activeThumbContent`, `inactiveThumbContent`, `renderThumb`, `trackStyle`, and `thumbStyle`
 - `RadioGroup` and `RadioGroupItem`
 - `Slider`
 - `Progress`
 - `Skeleton`
 - `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent`
 - `Stepper`
+
+`Switch` is a custom Reanimated control, not the platform `Switch`. It keeps a
+simple controlled API while rendering a flat bordered track, animated thumb,
+theme-aware tone, and optional thumb icons.
+
+Use `thumbContent` for a simple ReactNode inside the thumb, or
+`activeThumbContent` / `inactiveThumbContent` when the content should change
+between states. Each content prop also accepts a render function with
+`{ checked, disabled, invalid, color, size }`.
 
 ### Sheet
 
@@ -1544,6 +1554,7 @@ src/
 - Use semantic colors such as `background`, `surface`, `text`, `primary`, `danger`, and `border` instead of hardcoded hex values.
 - Use `spacing`, `radii`, `fonts`, `typography`, and `components` tokens from `useTheme()` or `useThemeStyles()`.
 - Use `components.borderWidth` for default, strong, focus, ring, and hairline border sizing.
+- Use `components.switch` for switch width, height, thumb size, and icon size.
 - Keep app-specific storage, fonts, icons, and haptics outside the UI core.
 - Add new components through `components/` and export them from `components/index.ts`.
 - When changing package APIs, tokens, default visuals, persistence behavior, or app integration examples, update this README in the same change.

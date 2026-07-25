@@ -86,6 +86,7 @@ Rules:
 - Add new visual decisions as tokens before hardcoding them into components.
 - Use semantic colors: `background`, `surface`, `text`, `textMuted`, `primary`, `danger`, `border`, etc.
 - Use `components.borderWidth.default`, `strong`, `focus`, `ring`, and `hairline` for border sizing.
+- Use `components.switch` for Switch dimensions before hardcoding switch sizing.
 - Keep light and dark theme token names symmetrical.
 - Keep `system` mode based on React Native color scheme detection.
 - Keep persistence pluggable through a storage adapter with `getItem` and `setItem`.
@@ -902,6 +903,7 @@ Use these primitives for common form, preference, loading, and local navigation 
 </Label>
 
 <Switch value={enabled} onValueChange={setEnabled} />
+<Switch value={enabled} onValueChange={setEnabled} size="lg" tone="success" />
 <RadioGroup value={value} onValueChange={setValue} />
 <Slider value={64} onValueChange={setValue} />
 <Progress value={64} />
@@ -914,7 +916,8 @@ Form and control rules:
 - Keep `Label` and `FormField` app-form-library agnostic; do not import `react-hook-form`.
 - `Label required` must render a red `*` by default and allow override with `requiredIndicator` / `requiredIndicatorStyle`.
 - `FormField` should expose state through context only for styling/copy helpers.
-- `Switch` should wrap React Native `Switch` and map colors from tokens.
+- `Switch` should use a custom Pressable/Reanimated implementation so its flat border, track, thumb, sizes, and tones stay consistent across platforms.
+- `Switch` thumb customization should prefer `thumbContent`, `activeThumbContent`, `inactiveThumbContent`, or `renderThumb`; default thumb content stays empty/polished.
 - `RadioGroup` should support controlled and uncontrolled state.
 - `Slider` should remain dependency-free unless a future native peer dependency is explicitly chosen.
 - `Progress` and `Skeleton` should be lightweight and token-based.
