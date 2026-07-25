@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { useMemo } from "react";
+import { StyleSheet } from "react-native";
 
-import { useTheme } from './useTheme';
-import type { ThemeNamedStyles, ThemeStyleFactory } from './types';
+import { useTheme } from "./useTheme";
+import type { ThemeNamedStyles, ThemeStyleFactory } from "./types";
 
 export function useThemeStyles<T extends ThemeNamedStyles<T>>(
   factory: ThemeStyleFactory<T>,

@@ -1,17 +1,23 @@
-import React from 'react';
-import { Animated, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  Animated,
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface SkeletonProps extends ViewProps {
   animated?: boolean;
-  radius?: keyof ReturnType<typeof useTheme>['radii'];
+  radius?: keyof ReturnType<typeof useTheme>["radii"];
   style?: StyleProp<ViewStyle>;
 }
 
 export function Skeleton({
   animated = true,
-  radius = 'md',
+  radius = "md",
   style,
   ...props
 }: SkeletonProps) {

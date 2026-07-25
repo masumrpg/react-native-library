@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Pressable,
@@ -6,14 +6,20 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { renderIcon, type RenderIcon } from './types';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { renderIcon, type RenderIcon } from "./types";
+import { Text } from "./Text";
 
-export type AlertTone = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary';
-export type AlertVariant = 'soft' | 'outline' | 'solid';
+export type AlertTone =
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "secondary";
+export type AlertVariant = "soft" | "outline" | "solid";
 
 export interface AlertAction {
   label: string;
@@ -39,20 +45,48 @@ export interface AlertProps {
   textStyle?: StyleProp<TextStyle>;
 }
 
-function getToneColors(tone: AlertTone, colors: ReturnType<typeof useTheme>['colors']) {
-  if (tone === 'primary') return { base: colors.primary, soft: colors.primarySoft, on: colors.onPrimary };
-  if (tone === 'success') return { base: colors.success, soft: colors.successSoft, on: colors.onSuccess };
-  if (tone === 'warning') return { base: colors.warning, soft: colors.warningSoft, on: colors.onWarning };
-  if (tone === 'danger') return { base: colors.danger, soft: colors.dangerSoft, on: colors.onDanger };
-  if (tone === 'info') return { base: colors.info, soft: colors.infoSoft, on: colors.onInfo };
-  return { base: colors.secondary, soft: colors.secondarySoft, on: colors.onSecondary };
+function getToneColors(
+  tone: AlertTone,
+  colors: ReturnType<typeof useTheme>["colors"],
+) {
+  if (tone === "primary")
+    return {
+      base: colors.primary,
+      soft: colors.primarySoft,
+      on: colors.onPrimary,
+    };
+  if (tone === "success")
+    return {
+      base: colors.success,
+      soft: colors.successSoft,
+      on: colors.onSuccess,
+    };
+  if (tone === "warning")
+    return {
+      base: colors.warning,
+      soft: colors.warningSoft,
+      on: colors.onWarning,
+    };
+  if (tone === "danger")
+    return {
+      base: colors.danger,
+      soft: colors.dangerSoft,
+      on: colors.onDanger,
+    };
+  if (tone === "info")
+    return { base: colors.info, soft: colors.infoSoft, on: colors.onInfo };
+  return {
+    base: colors.secondary,
+    soft: colors.secondarySoft,
+    on: colors.onSecondary,
+  };
 }
 
 function renderTextContent(
   content: React.ReactNode,
   fallbackStyle: StyleProp<TextStyle>,
 ) {
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     return <Text style={fallbackStyle}>{content}</Text>;
   }
 
@@ -62,8 +96,8 @@ function renderTextContent(
 export function Alert({
   title,
   children,
-  tone = 'info',
-  variant = 'soft',
+  tone = "info",
+  variant = "soft",
   icon,
   action,
   dismissible = false,
@@ -76,18 +110,20 @@ export function Alert({
   titleStyle,
   textStyle,
 }: AlertProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const [visible, setVisible] = React.useState(true);
   const progress = React.useRef(new Animated.Value(1)).current;
   const toneColors = getToneColors(tone, colors);
-  const isSolid = variant === 'solid';
+  const isSolid = variant === "solid";
   const backgroundColor =
-    variant === 'solid' ? toneColors.base :
-    variant === 'soft' ? toneColors.soft :
-    colors.surface;
+    variant === "solid"
+      ? toneColors.base
+      : variant === "soft"
+        ? toneColors.soft
+        : colors.surface;
   const foregroundColor = isSolid ? toneColors.on : toneColors.base;
   const bodyColor = isSolid ? toneColors.on : colors.textMuted;
-  const borderColor = variant === 'outline' ? toneColors.base : toneColors.base;
+  const borderColor = variant === "outline" ? toneColors.base : toneColors.base;
 
   if (!visible) {
     return null;
@@ -118,10 +154,10 @@ export function Alert({
         {
           backgroundColor,
           borderColor,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderRadius: radii.xl,
           padding: spacing.lg,
-          flexDirection: 'row',
+          flexDirection: "row",
           gap: spacing.md,
         },
         style,
@@ -138,10 +174,7 @@ export function Alert({
           : null}
 
         {children
-          ? renderTextContent(children, [
-              { color: bodyColor },
-              textStyle,
-            ])
+          ? renderTextContent(children, [{ color: bodyColor }, textStyle])
           : null}
 
         {action ? (
@@ -149,9 +182,9 @@ export function Alert({
             accessibilityRole="button"
             onPress={action.onPress}
             style={({ pressed }) => ({
-              alignSelf: 'flex-start',
-              flexDirection: 'row',
-              alignItems: 'center',
+              alignSelf: "flex-start",
+              flexDirection: "row",
+              alignItems: "center",
               gap: spacing.xs,
               marginTop: spacing.xs,
               opacity: pressed ? 0.72 : 1,
@@ -174,12 +207,14 @@ export function Alert({
             width: 28,
             height: 28,
             borderRadius: 14,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: "center",
+            justifyContent: "center",
             opacity: pressed ? 0.72 : 1,
           })}
         >
-          {closeIcon ? renderIcon(closeIcon, foregroundColor, 16) : (
+          {closeIcon ? (
+            renderIcon(closeIcon, foregroundColor, 16)
+          ) : (
             <Text variant="label" style={{ color: foregroundColor }}>
               x
             </Text>

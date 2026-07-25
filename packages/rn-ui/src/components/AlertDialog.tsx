@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Modal,
@@ -8,14 +8,20 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { renderIcon, type RenderIcon } from './types';
-import { Button } from './Button';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { renderIcon, type RenderIcon } from "./types";
+import { Button } from "./Button";
+import { Text } from "./Text";
 
-export type AlertDialogTone = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary';
+export type AlertDialogTone =
+  | "primary"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "secondary";
 
 export interface AlertDialogProps {
   visible: boolean;
@@ -36,7 +42,10 @@ export interface AlertDialogProps {
   dismissOnBackdropPress?: boolean;
   animated?: boolean;
   animationDuration?: number;
-  modalProps?: Omit<ModalProps, 'visible' | 'transparent' | 'animationType' | 'onRequestClose'>;
+  modalProps?: Omit<
+    ModalProps,
+    "visible" | "transparent" | "animationType" | "onRequestClose"
+  >;
   overlayStyle?: StyleProp<ViewStyle>;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
@@ -44,22 +53,25 @@ export interface AlertDialogProps {
   descriptionStyle?: StyleProp<TextStyle>;
 }
 
-function getToneColor(tone: AlertDialogTone, colors: ReturnType<typeof useTheme>['colors']) {
-  if (tone === 'primary') return colors.primary;
-  if (tone === 'success') return colors.success;
-  if (tone === 'warning') return colors.warning;
-  if (tone === 'danger') return colors.danger;
-  if (tone === 'info') return colors.info;
+function getToneColor(
+  tone: AlertDialogTone,
+  colors: ReturnType<typeof useTheme>["colors"],
+) {
+  if (tone === "primary") return colors.primary;
+  if (tone === "success") return colors.success;
+  if (tone === "warning") return colors.warning;
+  if (tone === "danger") return colors.danger;
+  if (tone === "info") return colors.info;
   return colors.secondary;
 }
 
 function renderDialogText(
   content: React.ReactNode,
-  variant: React.ComponentProps<typeof Text>['variant'],
-  color: React.ComponentProps<typeof Text>['color'],
+  variant: React.ComponentProps<typeof Text>["variant"],
+  color: React.ComponentProps<typeof Text>["color"],
   style?: StyleProp<TextStyle>,
 ) {
-  if (typeof content === 'string') {
+  if (typeof content === "string") {
     return (
       <Text variant={variant} color={color} style={style}>
         {content}
@@ -75,11 +87,11 @@ export function AlertDialog({
   title,
   description,
   children,
-  tone = 'primary',
+  tone = "primary",
   icon,
   closeIcon,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
   onConfirm,
   onCancel,
   onClose,
@@ -96,7 +108,7 @@ export function AlertDialog({
   titleStyle,
   descriptionStyle,
 }: AlertDialogProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const [mounted, setMounted] = useState(visible);
   const progress = useRef(new Animated.Value(visible ? 1 : 0)).current;
   const toneColor = getToneColor(tone, colors);
@@ -142,11 +154,11 @@ export function AlertDialog({
     <View
       style={[
         {
-          width: '100%',
+          width: "100%",
           maxWidth: 420,
           backgroundColor: colors.surface,
           borderRadius: radii.xxl,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
           padding: spacing.lg,
           gap: spacing.lg,
@@ -154,7 +166,13 @@ export function AlertDialog({
         style,
       ]}
     >
-      <View style={{ flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' }}>
+      <View
+        style={{
+          flexDirection: "row",
+          gap: spacing.md,
+          alignItems: "flex-start",
+        }}
+      >
         {icon ? (
           <View
             style={{
@@ -162,8 +180,8 @@ export function AlertDialog({
               height: 40,
               borderRadius: radii.lg,
               backgroundColor: colors.backgroundMuted,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {renderIcon(icon, toneColor, 22)}
@@ -171,9 +189,14 @@ export function AlertDialog({
         ) : null}
 
         <View style={[{ flex: 1, gap: spacing.xs }, contentStyle]}>
-          {title ? renderDialogText(title, 'title', 'text', titleStyle) : null}
+          {title ? renderDialogText(title, "title", "text", titleStyle) : null}
           {description
-            ? renderDialogText(description, 'bodySmall', 'textMuted', descriptionStyle)
+            ? renderDialogText(
+                description,
+                "bodySmall",
+                "textMuted",
+                descriptionStyle,
+              )
             : null}
         </View>
 
@@ -186,12 +209,14 @@ export function AlertDialog({
               width: 32,
               height: 32,
               borderRadius: 16,
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
               opacity: pressed ? 0.72 : 1,
             })}
           >
-            {closeIcon ? renderIcon(closeIcon, colors.textMuted, 18) : (
+            {closeIcon ? (
+              renderIcon(closeIcon, colors.textMuted, 18)
+            ) : (
               <Text variant="label" color="textMuted">
                 x
               </Text>
@@ -202,8 +227,14 @@ export function AlertDialog({
 
       {children ? <View>{children}</View> : null}
 
-      {(onCancel || onConfirm) ? (
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm }}>
+      {onCancel || onConfirm ? (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            gap: spacing.sm,
+          }}
+        >
           {onCancel ? (
             <Button
               variant="outline"
@@ -218,8 +249,8 @@ export function AlertDialog({
 
           {onConfirm ? (
             <Button
-              variant={tone === 'danger' ? 'danger' : 'filled'}
-              tone={tone === 'danger' ? 'primary' : tone}
+              variant={tone === "danger" ? "danger" : "filled"}
+              tone={tone === "danger" ? "primary" : tone}
               size="sm"
               loading={confirmLoading}
               disabled={confirmDisabled}
@@ -250,8 +281,8 @@ export function AlertDialog({
             flex: 1,
             backgroundColor: colors.overlay,
             padding: spacing.xl,
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: "center",
+            justifyContent: "center",
           },
           overlayStyle,
         ]}
@@ -259,7 +290,7 @@ export function AlertDialog({
         <Pressable
           accessibilityRole="button"
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             right: 0,
             bottom: 0,
@@ -271,7 +302,7 @@ export function AlertDialog({
         {animated ? (
           <Animated.View
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 420,
               opacity: progress,
               transform: [

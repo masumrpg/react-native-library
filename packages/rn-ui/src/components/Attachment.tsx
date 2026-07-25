@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   Image,
@@ -8,15 +8,20 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
-import { renderIcon, type RenderIcon, type ThemeColorName } from './types';
-import { AspectRatio } from './AspectRatio';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon, type ThemeColorName } from "./types";
+import { AspectRatio } from "./AspectRatio";
 
-export type AttachmentLayout = 'card' | 'row';
-export type AttachmentDescriptionTone = 'default' | 'info' | 'success' | 'warning' | 'danger';
+export type AttachmentLayout = "card" | "row";
+export type AttachmentDescriptionTone =
+  | "default"
+  | "info"
+  | "success"
+  | "warning"
+  | "danger";
 
 export interface AttachmentProps {
   /**
@@ -79,7 +84,7 @@ export interface AttachmentProps {
 }
 
 export function Attachment({
-  layout = 'row',
+  layout = "row",
   name,
   description,
   thumbnail,
@@ -87,21 +92,24 @@ export function Attachment({
   onRemove,
   closeIcon,
   fileIcon,
-  descriptionTone = 'default',
+  descriptionTone = "default",
   onPress,
   style,
   nameStyle,
   descriptionStyle,
   ...props
 }: AttachmentProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
 
-  const descriptionColorByTone: Record<AttachmentDescriptionTone, ThemeColorName> = {
-    default: 'textMuted',
-    info: 'info',
-    success: 'success',
-    warning: 'warning',
-    danger: 'danger',
+  const descriptionColorByTone: Record<
+    AttachmentDescriptionTone,
+    ThemeColorName
+  > = {
+    default: "textMuted",
+    info: "info",
+    success: "success",
+    warning: "warning",
+    danger: "danger",
   };
   const descColor = colors[descriptionColorByTone[descriptionTone]];
 
@@ -117,14 +125,17 @@ export function Attachment({
         style={({ pressed }) => ({
           padding: spacing.xxs,
           opacity: pressed ? 0.6 : 1,
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
         })}
       >
         {closeIcon ? (
           renderIcon(closeIcon, colors.textMuted, size)
         ) : (
-          <Text variant="bodySmall" style={{ color: colors.textMuted, fontWeight: '600' }}>
+          <Text
+            variant="bodySmall"
+            style={{ color: colors.textMuted, fontWeight: "600" }}
+          >
             ×
           </Text>
         )}
@@ -136,15 +147,32 @@ export function Attachment({
   const renderThumbnail = (containerSize: number) => {
     if (loading) {
       return (
-        <View style={[styles.thumbnailPlaceholder, { backgroundColor: colors.backgroundMuted, width: containerSize, height: containerSize, borderRadius: radii.md }]}>
+        <View
+          style={[
+            styles.thumbnailPlaceholder,
+            {
+              backgroundColor: colors.backgroundMuted,
+              width: containerSize,
+              height: containerSize,
+              borderRadius: radii.md,
+            },
+          ]}
+        >
           <ActivityIndicator size="small" color={colors.textMuted} />
         </View>
       );
     }
 
-    if (typeof thumbnail === 'string') {
+    if (typeof thumbnail === "string") {
       return (
-        <View style={{ width: containerSize, height: containerSize, overflow: 'hidden', borderRadius: radii.md }}>
+        <View
+          style={{
+            width: containerSize,
+            height: containerSize,
+            overflow: "hidden",
+            borderRadius: radii.md,
+          }}
+        >
           <Image
             source={{ uri: thumbnail }}
             style={StyleSheet.absoluteFill}
@@ -156,7 +184,17 @@ export function Attachment({
 
     if (thumbnail) {
       return (
-        <View style={[styles.thumbnailPlaceholder, { backgroundColor: colors.backgroundMuted, width: containerSize, height: containerSize, borderRadius: radii.md }]}>
+        <View
+          style={[
+            styles.thumbnailPlaceholder,
+            {
+              backgroundColor: colors.backgroundMuted,
+              width: containerSize,
+              height: containerSize,
+              borderRadius: radii.md,
+            },
+          ]}
+        >
           {renderIcon(thumbnail, colors.textMuted, containerSize * 0.5)}
         </View>
       );
@@ -164,13 +202,25 @@ export function Attachment({
 
     // Default file icon fallback
     return (
-      <View style={[styles.thumbnailPlaceholder, { backgroundColor: colors.backgroundMuted, width: containerSize, height: containerSize, borderRadius: radii.md }]}>
-        {fileIcon ? renderIcon(fileIcon, colors.textMuted, containerSize * 0.5) : (
+      <View
+        style={[
+          styles.thumbnailPlaceholder,
+          {
+            backgroundColor: colors.backgroundMuted,
+            width: containerSize,
+            height: containerSize,
+            borderRadius: radii.md,
+          },
+        ]}
+      >
+        {fileIcon ? (
+          renderIcon(fileIcon, colors.textMuted, containerSize * 0.5)
+        ) : (
           <View
             style={{
               width: containerSize * 0.42,
               height: containerSize * 0.52,
-              borderWidth: 1.5,
+              borderWidth: components.borderWidth.focus,
               borderColor: colors.textMuted,
               borderRadius: radii.xs,
             }}
@@ -180,12 +230,12 @@ export function Attachment({
     );
   };
 
-  if (layout === 'card') {
+  if (layout === "card") {
     // Card Layout (usually fixed width preview, e.g. for grid views)
     const cardStyle: ViewStyle = {
       backgroundColor: colors.surface,
       borderColor: colors.border,
-      borderWidth: 1.25,
+      borderWidth: components.borderWidth.strong,
       borderRadius: radii.xl,
       padding: spacing.sm,
       width: 120,
@@ -236,11 +286,11 @@ export function Attachment({
   const rowStyle: ViewStyle = {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderWidth: 1.25,
+    borderWidth: components.borderWidth.strong,
     borderRadius: radii.xl,
     padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.md,
   };
 
@@ -285,10 +335,10 @@ export function Attachment({
 
 const styles = StyleSheet.create({
   thumbnailPlaceholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   textContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
 });

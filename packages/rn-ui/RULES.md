@@ -52,11 +52,13 @@ Rules:
 - Use TypeScript for every source file.
 - Prefer named exports over default exports.
 - Keep props interfaces exported when the component is public.
+- Export props interfaces for every public subcomponent, not only the root component.
 - Use `React.ReactNode` only when needed; for icon props prefer the existing `RenderIcon` type.
 - Keep components controlled by props and theme tokens, not hidden app state.
 - Keep components platform-neutral unless a React Native API is required.
 - Avoid hardcoded colors in components. Use `theme.colors`.
 - Avoid hardcoded spacing/radius values in components. Use `theme.spacing` and `theme.radii`.
+- Avoid hardcoded border widths in components. Use `theme.components.borderWidth`.
 - Avoid shadows/elevation by default. The default visual language is flat.
 - Floating components such as comboboxes and context menus must stay flat by default. Use borders and surfaces, not shadow/elevation.
 - Do not tie components to Ionicons, Expo, Reanimated, Haptics, navigation, or storage by default.
@@ -82,6 +84,7 @@ Rules:
 
 - Add new visual decisions as tokens before hardcoding them into components.
 - Use semantic colors: `background`, `surface`, `text`, `textMuted`, `primary`, `danger`, `border`, etc.
+- Use `components.borderWidth.default`, `strong`, `focus`, `ring`, and `hairline` for border sizing.
 - Keep light and dark theme token names symmetrical.
 - Keep `system` mode based on React Native color scheme detection.
 - Keep persistence pluggable through a storage adapter with `getItem` and `setItem`.
@@ -340,6 +343,10 @@ Use `Button` for text/icon actions.
 <Button variant="outline" tone="secondary">
   Cancel
 </Button>
+
+<Button tone="danger">
+  Delete
+</Button>
 ```
 
 With generic icon render function:
@@ -360,8 +367,15 @@ Use `IconButton` for icon-only actions.
 <IconButton
   icon={({ color, size }) => <Icon name="settings" color={color} size={size} />}
   variant="outline"
+  tone="secondary"
 />
 ```
+
+Button rules:
+
+- Keep `Button` variants visual-only: `filled`, `outline`, `ghost`, and `soft`.
+- Use `tone="danger"` for destructive buttons. `variant="danger"` can remain as backwards-compatible input, but samples and new docs should use `tone`.
+- Keep `IconButton tone` aligned with semantic token colors and allow `color` only as a token-name/custom-color override.
 
 ### Badge
 

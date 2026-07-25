@@ -1,9 +1,16 @@
-import React from 'react';
-import { Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon } from "./types";
 
 export interface SelectOption {
   value: string;
@@ -29,15 +36,15 @@ export function Select({
   value,
   defaultValue,
   options,
-  placeholder = 'Select option',
+  placeholder = "Select option",
   disabled = false,
-  title = 'Select',
+  title = "Select",
   onValueChange,
   chevronIcon,
   checkIcon,
   style,
 }: SelectProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const [open, setOpen] = React.useState(false);
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const currentValue = value ?? internalValue;
@@ -58,21 +65,21 @@ export function Select({
         style={({ pressed }) => [
           {
             minHeight: 44,
-            width: '100%',
-            borderWidth: 1.25,
+            width: "100%",
+            borderWidth: components.borderWidth.strong,
             borderColor: colors.border,
             borderRadius: radii.lg,
             backgroundColor: colors.input,
             paddingHorizontal: spacing.md,
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
             gap: spacing.sm,
             opacity: disabled ? 0.5 : pressed ? 0.78 : 1,
           },
           style,
         ]}
       >
-        <Text color={selected ? 'text' : 'placeholder'} style={{ flex: 1 }}>
+        <Text color={selected ? "text" : "placeholder"} style={{ flex: 1 }}>
           {selected?.label ?? placeholder}
         </Text>
         {renderIcon(chevronIcon, colors.textMuted, 18) ?? (
@@ -80,9 +87,18 @@ export function Select({
         )}
       </Pressable>
 
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+      >
         <Pressable
-          style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' }}
+          style={{
+            flex: 1,
+            backgroundColor: colors.overlay,
+            justifyContent: "flex-end",
+          }}
           onPress={() => setOpen(false)}
         >
           <Pressable
@@ -90,11 +106,11 @@ export function Select({
               backgroundColor: colors.surface,
               borderTopLeftRadius: radii.xxl,
               borderTopRightRadius: radii.xxl,
-              borderWidth: 1.25,
+              borderWidth: components.borderWidth.strong,
               borderColor: colors.border,
               padding: spacing.lg,
               gap: spacing.md,
-              maxHeight: '72%',
+              maxHeight: "72%",
             }}
           >
             <Text variant="title">{title}</Text>
@@ -110,12 +126,14 @@ export function Select({
                       style={({ pressed }) => ({
                         minHeight: 48,
                         borderRadius: radii.lg,
-                        borderWidth: 1.25,
+                        borderWidth: components.borderWidth.strong,
                         borderColor: active ? colors.primary : colors.border,
-                        backgroundColor: active ? colors.primarySoft : colors.surface,
+                        backgroundColor: active
+                          ? colors.primarySoft
+                          : colors.surface,
                         padding: spacing.md,
-                        flexDirection: 'row',
-                        alignItems: 'center',
+                        flexDirection: "row",
+                        alignItems: "center",
                         gap: spacing.md,
                         opacity: option.disabled ? 0.5 : pressed ? 0.78 : 1,
                       })}
@@ -123,10 +141,16 @@ export function Select({
                       <View style={{ flex: 1, gap: spacing.xs }}>
                         <Text variant="label">{option.label}</Text>
                         {option.description ? (
-                          <Text variant="bodySmall" color="textMuted">{option.description}</Text>
+                          <Text variant="bodySmall" color="textMuted">
+                            {option.description}
+                          </Text>
                         ) : null}
                       </View>
-                      {active ? renderIcon(checkIcon, colors.primary, 18) ?? <Text color="primary">✓</Text> : null}
+                      {active
+                        ? (renderIcon(checkIcon, colors.primary, 18) ?? (
+                            <Text color="primary">✓</Text>
+                          ))
+                        : null}
                     </Pressable>
                   );
                 })}

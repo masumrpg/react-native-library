@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Pressable,
@@ -6,11 +6,11 @@ import {
   View,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
-import { Calendar as WixCalendar } from 'react-native-calendars';
+} from "react-native";
+import { Calendar as WixCalendar } from "react-native-calendars";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
 export interface CalendarDayData {
   year: number;
@@ -30,7 +30,10 @@ export interface CalendarDayMarking {
   isMiddle?: boolean;
 }
 
-export interface CalendarProps extends Omit<React.ComponentProps<typeof WixCalendar>, 'current'> {
+export interface CalendarProps extends Omit<
+  React.ComponentProps<typeof WixCalendar>,
+  "current"
+> {
   style?: StyleProp<ViewStyle>;
   current?: string; // Controlled current date string (YYYY-MM-DD)
   enableYearMonthPicker?: boolean;
@@ -38,20 +41,40 @@ export interface CalendarProps extends Omit<React.ComponentProps<typeof WixCalen
 
 interface CustomDayProps {
   date: CalendarDayData;
-  state: 'selected' | 'disabled' | 'today' | '';
+  state: "selected" | "disabled" | "today" | "";
   marking?: CalendarDayMarking;
   onPress: (date: CalendarDayData) => void;
   onLongPress: (date: CalendarDayData) => void;
 }
 
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const MONTH_SHORTS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 // Pure component chevrons to avoid external icon dependencies
@@ -64,7 +87,7 @@ function ChevronLeft({ color }: { color: string }) {
         borderLeftWidth: 1.5,
         borderBottomWidth: 1.5,
         borderColor: color,
-        transform: [{ rotate: '45deg' }],
+        transform: [{ rotate: "45deg" }],
         marginRight: -2,
       }}
     />
@@ -80,32 +103,38 @@ function ChevronRight({ color }: { color: string }) {
         borderRightWidth: 1.5,
         borderTopWidth: 1.5,
         borderColor: color,
-        transform: [{ rotate: '45deg' }],
+        transform: [{ rotate: "45deg" }],
         marginLeft: -2,
       }}
     />
   );
 }
 
-function CalendarDayButton({ date, state, marking = {}, onPress, onLongPress }: CustomDayProps) {
+function CalendarDayButton({
+  date,
+  state,
+  marking = {},
+  onPress,
+  onLongPress,
+}: CustomDayProps) {
   const { colors, radii } = useTheme();
 
-  const isSelected = marking.selected || state === 'selected';
+  const isSelected = marking.selected || state === "selected";
   const isStart = marking.startingDay;
   const isEnd = marking.endingDay;
   const isMiddle = marking.isMiddle;
-  const isToday = state === 'today';
-  const isDisabled = state === 'disabled' || marking.disabled;
+  const isToday = state === "today";
+  const isDisabled = state === "disabled" || marking.disabled;
 
   const cellStyle: ViewStyle = {
     aspectRatio: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
     marginVertical: 1,
   };
 
-  let bg = 'transparent';
+  let bg = "transparent";
   let textColor = colors.text;
   let borderTopLeftRadius = 0;
   let borderBottomLeftRadius = 0;
@@ -165,7 +194,7 @@ function CalendarDayButton({ date, state, marking = {}, onPress, onLongPress }: 
         style={{
           color: textColor,
           fontSize: 14,
-          fontWeight: isSelected || isToday ? '600' : '400',
+          fontWeight: isSelected || isToday ? "600" : "400",
         }}
       >
         {date.day}
@@ -177,18 +206,22 @@ function CalendarDayButton({ date, state, marking = {}, onPress, onLongPress }: 
 export function Calendar({
   style,
   theme,
-  markingType = 'period',
+  markingType = "period",
   markedDates,
   current,
   enableYearMonthPicker = true,
   ...props
 }: CalendarProps) {
-  const { colors, radii } = useTheme();
+  const { colors, components, radii } = useTheme();
 
   // Parsing initial month/year
   const initialDate = current ? new Date(current) : new Date();
-  const [currentMonth, setCurrentMonth] = React.useState(initialDate.getMonth() + 1);
-  const [currentYear, setCurrentYear] = React.useState(initialDate.getFullYear());
+  const [currentMonth, setCurrentMonth] = React.useState(
+    initialDate.getMonth() + 1,
+  );
+  const [currentYear, setCurrentYear] = React.useState(
+    initialDate.getFullYear(),
+  );
 
   const [showMonthSelector, setShowMonthSelector] = React.useState(false);
   const [showYearSelector, setShowYearSelector] = React.useState(false);
@@ -239,7 +272,7 @@ export function Calendar({
     }
   }, [current]);
 
-  const visibleMonthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
+  const visibleMonthStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`;
 
   const handlePrevMonth = () => {
     if (currentMonth === 1) {
@@ -272,11 +305,11 @@ export function Calendar({
   const customTheme = {
     calendarBackground: colors.surface,
     monthTextColor: colors.text,
-    textMonthFontWeight: '600',
+    textMonthFontWeight: "600",
     textMonthFontSize: 16,
     textSectionTitleColor: colors.textMuted,
     textDayHeaderFontSize: 12,
-    textDayHeaderFontWeight: '500',
+    textDayHeaderFontWeight: "500",
     arrowColor: colors.text,
     disabledArrowColor: colors.disabledText,
     ...theme,
@@ -285,7 +318,10 @@ export function Calendar({
   // Generate years: from 100 years ago to 10 years ahead
   const endYear = new Date().getFullYear() + 5;
   const startYear = endYear - 100;
-  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => endYear - i);
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) => endYear - i,
+  );
 
   return (
     <View
@@ -293,10 +329,10 @@ export function Calendar({
         {
           backgroundColor: colors.surface,
           borderRadius: radii.lg,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
-          overflow: 'hidden',
-          position: 'relative',
+          overflow: "hidden",
+          position: "relative",
         },
         style,
       ]}
@@ -304,9 +340,9 @@ export function Calendar({
       {/* Custom header with month and year navigation. */}
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           paddingHorizontal: 12,
           paddingVertical: 10,
           borderBottomWidth: 0.5,
@@ -318,13 +354,15 @@ export function Calendar({
           style={({ pressed }) => ({
             padding: 8,
             borderRadius: radii.md,
-            backgroundColor: pressed ? colors.backgroundMuted : colors.transparent,
+            backgroundColor: pressed
+              ? colors.backgroundMuted
+              : colors.transparent,
           })}
         >
           <ChevronLeft color={colors.text} />
         </Pressable>
 
-        <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+        <View style={{ flexDirection: "row", gap: 6, alignItems: "center" }}>
           {enableYearMonthPicker ? (
             <>
               {/* Month Trigger */}
@@ -337,10 +375,20 @@ export function Calendar({
                   paddingHorizontal: 10,
                   paddingVertical: 6,
                   borderRadius: radii.md,
-                  backgroundColor: showMonthSelector ? colors.backgroundMuted : (pressed ? colors.backgroundMuted : colors.transparent),
+                  backgroundColor: showMonthSelector
+                    ? colors.backgroundMuted
+                    : pressed
+                      ? colors.backgroundMuted
+                      : colors.transparent,
                 })}
               >
-                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "600",
+                    color: colors.text,
+                  }}
+                >
                   {MONTHS[currentMonth - 1]}
                 </Text>
               </Pressable>
@@ -355,16 +403,28 @@ export function Calendar({
                   paddingHorizontal: 10,
                   paddingVertical: 6,
                   borderRadius: radii.md,
-                  backgroundColor: showYearSelector ? colors.backgroundMuted : (pressed ? colors.backgroundMuted : colors.transparent),
+                  backgroundColor: showYearSelector
+                    ? colors.backgroundMuted
+                    : pressed
+                      ? colors.backgroundMuted
+                      : colors.transparent,
                 })}
               >
-                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "600",
+                    color: colors.text,
+                  }}
+                >
                   {currentYear}
                 </Text>
               </Pressable>
             </>
           ) : (
-            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
+            <Text
+              style={{ fontSize: 15, fontWeight: "600", color: colors.text }}
+            >
               {MONTHS[currentMonth - 1]} {currentYear}
             </Text>
           )}
@@ -375,7 +435,9 @@ export function Calendar({
           style={({ pressed }) => ({
             padding: 8,
             borderRadius: radii.md,
-            backgroundColor: pressed ? colors.backgroundMuted : colors.transparent,
+            backgroundColor: pressed
+              ? colors.backgroundMuted
+              : colors.transparent,
           })}
         >
           <ChevronRight color={colors.text} />
@@ -384,9 +446,9 @@ export function Calendar({
 
       {/* Animated Month Fast Selector Overlay */}
       <Animated.View
-        pointerEvents={showMonthSelector ? 'auto' : 'none'}
+        pointerEvents={showMonthSelector ? "auto" : "none"}
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 52,
           left: 0,
           right: 0,
@@ -394,12 +456,18 @@ export function Calendar({
           backgroundColor: colors.surface,
           zIndex: 30,
           padding: 16,
-          justifyContent: 'center',
+          justifyContent: "center",
           opacity: monthAnim,
           transform: [{ translateY: monthTranslateY }],
         }}
       >
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
           {MONTH_SHORTS.map((m, idx) => {
             const isSel = currentMonth === idx + 1;
             return (
@@ -411,22 +479,22 @@ export function Calendar({
                   setCalendarKey((prev) => prev + 1);
                 }}
                 style={({ pressed }) => ({
-                  width: '30%',
+                  width: "30%",
                   margin: 4,
                   paddingVertical: 12,
                   borderRadius: radii.md,
                   backgroundColor: isSel ? colors.primary : colors.transparent,
-                  borderWidth: 1.25,
+                  borderWidth: components.borderWidth.strong,
                   borderColor: isSel ? colors.primary : colors.border,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   opacity: pressed ? 0.78 : 1,
                 })}
               >
                 <Text
                   style={{
                     fontSize: 14,
-                    fontWeight: isSel ? '600' : '400',
+                    fontWeight: isSel ? "600" : "400",
                     color: isSel ? colors.onPrimary : colors.text,
                   }}
                 >
@@ -440,7 +508,7 @@ export function Calendar({
 
       {/* Animated Year Fast Selector Overlay */}
       <Animated.View
-        pointerEvents={showYearSelector ? 'auto' : 'none'}
+        pointerEvents={showYearSelector ? "auto" : "none"}
         onLayout={(e) => {
           const { height } = e.nativeEvent.layout;
           if (height > 0) {
@@ -448,7 +516,7 @@ export function Calendar({
           }
         }}
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 52,
           left: 0,
           right: 0,
@@ -458,17 +526,17 @@ export function Calendar({
           padding: 8,
           opacity: yearAnim,
           transform: [{ translateY: yearTranslateY }],
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: "100%", height: "100%" }}
           contentContainerStyle={{
-            flexDirection: 'column',
-            flexWrap: 'wrap',
+            flexDirection: "column",
+            flexWrap: "wrap",
             height: overlayHeight - 24,
             paddingHorizontal: 8,
             paddingVertical: 12,
@@ -490,17 +558,17 @@ export function Calendar({
                   margin: 4,
                   borderRadius: radii.md,
                   backgroundColor: isSel ? colors.primary : colors.transparent,
-                  borderWidth: 1.25,
+                  borderWidth: components.borderWidth.strong,
                   borderColor: isSel ? colors.primary : colors.border,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                   opacity: pressed ? 0.78 : 1,
                 })}
               >
                 <Text
                   style={{
                     fontSize: 13,
-                    fontWeight: isSel ? '600' : '400',
+                    fontWeight: isSel ? "600" : "400",
                     color: isSel ? colors.onPrimary : colors.text,
                   }}
                 >

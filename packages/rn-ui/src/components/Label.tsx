@@ -1,7 +1,12 @@
-import React from 'react';
-import { Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
+import React from "react";
+import {
+  Text,
+  type StyleProp,
+  type TextProps,
+  type TextStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface LabelProps extends TextProps {
   required?: boolean;
@@ -29,20 +34,24 @@ export function Label({
       style={[
         typography.label,
         {
-          color: disabled ? colors.disabledText : invalid ? colors.danger : colors.text,
+          color: disabled
+            ? colors.disabledText
+            : invalid
+              ? colors.danger
+              : colors.text,
         },
         style,
       ]}
       {...props}
     >
       {children}
-      {required ? (
-        requiredIndicator ?? (
-          <Text style={[{ color: colors.danger }, requiredIndicatorStyle]}>
-            {' *'}
-          </Text>
-        )
-      ) : null}
+      {required
+        ? (requiredIndicator ?? (
+            <Text style={[{ color: colors.danger }, requiredIndicatorStyle]}>
+              {" *"}
+            </Text>
+          ))
+        : null}
     </Text>
   );
 }

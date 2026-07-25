@@ -1,19 +1,25 @@
-import React from 'react';
+import React from "react";
 import {
   TextInput,
   type KeyboardTypeOptions,
   type StyleProp,
   type TextInputProps,
   type TextStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { withAlpha } from '../utils';
+import { useTheme } from "../theme";
+import { withAlpha } from "../utils";
 
-export type InputSize = 'sm' | 'md' | 'lg';
-export type InputType = 'text' | 'email' | 'number' | 'password' | 'tel' | 'url';
+export type InputSize = "sm" | "md" | "lg";
+export type InputType =
+  | "text"
+  | "email"
+  | "number"
+  | "password"
+  | "tel"
+  | "url";
 
-export interface InputProps extends Omit<TextInputProps, 'style'> {
+export interface InputProps extends Omit<TextInputProps, "style"> {
   type?: InputType;
   size?: InputSize;
   invalid?: boolean;
@@ -35,17 +41,17 @@ const inputPaddingX: Record<InputSize, number> = {
 };
 
 function getKeyboardType(type: InputType): KeyboardTypeOptions {
-  if (type === 'email') return 'email-address';
-  if (type === 'number') return 'numeric';
-  if (type === 'tel') return 'phone-pad';
-  if (type === 'url') return 'url';
-  return 'default';
+  if (type === "email") return "email-address";
+  if (type === "number") return "numeric";
+  if (type === "tel") return "phone-pad";
+  if (type === "url") return "url";
+  return "default";
 }
 
 export const Input = React.forwardRef<TextInput, InputProps>(function Input(
   {
-    type = 'text',
-    size = 'md',
+    type = "text",
+    size = "md",
     invalid = false,
     disabled = false,
     fullWidth = true,
@@ -61,7 +67,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
   },
   ref,
 ) {
-  const { colors, typography, radii } = useTheme();
+  const { colors, components, typography, radii } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const isEditable = editable ?? !disabled;
 
@@ -76,7 +82,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
       ref={ref}
       editable={isEditable}
       keyboardType={keyboardType ?? getKeyboardType(type)}
-      secureTextEntry={secureTextEntry ?? type === 'password'}
+      secureTextEntry={secureTextEntry ?? type === "password"}
       placeholderTextColor={placeholderTextColor ?? colors.placeholder}
       onFocus={(event) => {
         setFocused(true);
@@ -89,17 +95,22 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
       style={[
         typography.body,
         {
-          width: fullWidth ? '100%' : undefined,
+          width: fullWidth ? "100%" : undefined,
           minHeight: multiline ? inputHeights[size] * 2 : inputHeights[size],
           paddingHorizontal: inputPaddingX[size],
           paddingVertical: multiline ? 10 : 0,
           borderRadius: radii.lg,
-          borderWidth: focused || invalid ? 1.5 : 1.25,
+          borderWidth:
+            focused || invalid
+              ? components.borderWidth.focus
+              : components.borderWidth.strong,
           borderColor,
-          backgroundColor: isEditable ? colors.input : withAlpha(colors.input, 0.55),
+          backgroundColor: isEditable
+            ? colors.input
+            : withAlpha(colors.input, 0.55),
           color: isEditable ? colors.text : colors.disabledText,
           opacity: isEditable ? 1 : 0.72,
-          textAlignVertical: multiline ? 'top' : 'center',
+          textAlignVertical: multiline ? "top" : "center",
         },
         focused && {
           shadowColor: invalid ? colors.danger : colors.primary,

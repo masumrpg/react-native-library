@@ -1,9 +1,15 @@
-import React from 'react';
-import { View, type StyleProp, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Label, type LabelProps } from './Label';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Label, type LabelProps } from "./Label";
+import { Text } from "./Text";
 
 export interface FormFieldContextValue {
   invalid: boolean;
@@ -11,7 +17,9 @@ export interface FormFieldContextValue {
   required: boolean;
 }
 
-const FormFieldContext = React.createContext<FormFieldContextValue | null>(null);
+const FormFieldContext = React.createContext<FormFieldContextValue | null>(
+  null,
+);
 
 export function useFormField() {
   return React.useContext(FormFieldContext);
@@ -42,7 +50,7 @@ export function FormField({
       <View
         style={[
           {
-            width: '100%',
+            width: "100%",
             gap: spacing.xs,
           },
           style,
@@ -77,7 +85,7 @@ export function FormControl({ style, ...props }: FormControlProps) {
     <View
       style={[
         {
-          width: '100%',
+          width: "100%",
         },
         style,
       ]}
@@ -112,7 +120,7 @@ export function FormMessage({ children, style }: FormMessageProps) {
   return (
     <Text
       variant="bodySmall"
-      color={field?.invalid ? 'danger' : 'textMuted'}
+      color={field?.invalid ? "danger" : "textMuted"}
       style={style}
     >
       {children}

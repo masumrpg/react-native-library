@@ -1,16 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   type StyleProp,
   type TextStyle,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
-export type EmptyMediaVariant = 'default' | 'icon';
+export type EmptyMediaVariant = "default" | "icon";
 
 export interface EmptyProps extends ViewProps {
   bordered?: boolean;
@@ -18,21 +18,21 @@ export interface EmptyProps extends ViewProps {
 }
 
 export function Empty({ bordered = false, style, ...props }: EmptyProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
 
   return (
     <View
       style={[
         {
-          width: '100%',
+          width: "100%",
           minWidth: 0,
           flexGrow: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
           gap: spacing.lg,
           borderRadius: radii.xl,
-          borderWidth: bordered ? 1.25 : 0,
-          borderStyle: bordered ? 'dashed' : 'solid',
+          borderWidth: bordered ? components.borderWidth.strong : 0,
+          borderStyle: bordered ? "dashed" : "solid",
           borderColor: bordered ? colors.border : colors.transparent,
           padding: spacing.xxl,
         },
@@ -54,9 +54,9 @@ export function EmptyHeader({ style, ...props }: EmptyHeaderProps) {
     <View
       style={[
         {
-          width: '100%',
+          width: "100%",
           maxWidth: 320,
-          alignItems: 'center',
+          alignItems: "center",
           gap: spacing.sm,
         },
         style,
@@ -71,17 +71,21 @@ export interface EmptyMediaProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function EmptyMedia({ variant = 'default', style, ...props }: EmptyMediaProps) {
+export function EmptyMedia({
+  variant = "default",
+  style,
+  ...props
+}: EmptyMediaProps) {
   const { colors, radii, spacing } = useTheme();
-  const isIcon = variant === 'icon';
+  const isIcon = variant === "icon";
 
   return (
     <View
       style={[
         {
           marginBottom: spacing.xs,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
           flexShrink: 0,
           width: isIcon ? 32 : undefined,
           height: isIcon ? 32 : undefined,
@@ -132,10 +136,10 @@ export function EmptyContent({ style, ...props }: EmptyContentProps) {
     <View
       style={[
         {
-          width: '100%',
+          width: "100%",
           maxWidth: 320,
           minWidth: 0,
-          alignItems: 'center',
+          alignItems: "center",
           gap: spacing.sm,
         },
         style,

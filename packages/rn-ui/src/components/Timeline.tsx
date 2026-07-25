@@ -1,31 +1,84 @@
-import React from 'react';
-import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
-export function Timeline({ style, ...props }: ViewProps & { style?: StyleProp<ViewStyle> }) {
+export interface TimelineProps extends ViewProps {
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface TimelineItemProps extends ViewProps {
+  active?: boolean;
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface TimelineTitleProps {
+  children?: React.ReactNode;
+}
+
+export interface TimelineDescriptionProps {
+  children?: React.ReactNode;
+}
+
+export function Timeline({ style, ...props }: TimelineProps) {
   const { spacing } = useTheme();
   return <View style={[{ gap: spacing.md }, style]} {...props} />;
 }
 
-export function TimelineItem({ active = false, style, children, ...props }: ViewProps & { active?: boolean; style?: StyleProp<ViewStyle> }) {
-  const { colors, spacing } = useTheme();
+export function TimelineItem({
+  active = false,
+  style,
+  children,
+  ...props
+}: TimelineItemProps) {
+  const { colors, components, spacing } = useTheme();
+  const indicatorSize = components.timeline.indicatorSize;
+
   return (
-    <View style={[{ flexDirection: 'row', gap: spacing.md }, style]} {...props}>
-      <View style={{ alignItems: 'center' }}>
-        <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: active ? colors.primary : colors.border }} />
-        <View style={{ width: 1.25, flex: 1, minHeight: 32, backgroundColor: colors.borderMuted }} />
+    <View style={[{ flexDirection: "row", gap: spacing.md }, style]} {...props}>
+      <View style={{ alignItems: "center" }}>
+        <View
+          style={{
+            width: indicatorSize,
+            height: indicatorSize,
+            borderRadius: indicatorSize / 2,
+            backgroundColor: active ? colors.primary : colors.border,
+          }}
+        />
+        <View
+          style={{
+            width: components.timeline.connectorWidth,
+            flex: 1,
+            minHeight: components.timeline.connectorMinHeight,
+            backgroundColor: colors.borderMuted,
+          }}
+        />
       </View>
       <View style={{ flex: 1, gap: spacing.xs }}>{children}</View>
     </View>
   );
 }
 
-export function TimelineTitle({ children }: { children?: React.ReactNode }) {
-  return typeof children === 'string' ? <Text variant="label">{children}</Text> : <>{children}</>;
+export function TimelineTitle({ children }: TimelineTitleProps) {
+  return typeof children === "string" ? (
+    <Text variant="label">{children}</Text>
+  ) : (
+    <>{children}</>
+  );
 }
 
-export function TimelineDescription({ children }: { children?: React.ReactNode }) {
-  return typeof children === 'string' ? <Text variant="bodySmall" color="textMuted">{children}</Text> : <>{children}</>;
+export function TimelineDescription({ children }: TimelineDescriptionProps) {
+  return typeof children === "string" ? (
+    <Text variant="bodySmall" color="textMuted">
+      {children}
+    </Text>
+  ) : (
+    <>{children}</>
+  );
 }

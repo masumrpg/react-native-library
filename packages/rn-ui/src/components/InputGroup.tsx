@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Text as RNText,
   View,
@@ -7,16 +7,25 @@ import {
   type TextStyle,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { withAlpha } from '../utils';
-import { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button';
-import { Input, type InputProps } from './Input';
+import { useTheme } from "../theme";
+import { withAlpha } from "../utils";
+import {
+  Button,
+  type ButtonProps,
+  type ButtonSize,
+  type ButtonVariant,
+} from "./Button";
+import { Input, type InputProps } from "./Input";
 
-export type InputGroupAddonAlign = 'inline-start' | 'inline-end' | 'block-start' | 'block-end';
-export type InputGroupButtonSize = 'xs' | 'sm' | 'icon-xs' | 'icon-sm';
-export type InputGroupOrientation = 'inline' | 'block';
+export type InputGroupAddonAlign =
+  | "inline-start"
+  | "inline-end"
+  | "block-start"
+  | "block-end";
+export type InputGroupButtonSize = "xs" | "sm" | "icon-xs" | "icon-sm";
+export type InputGroupOrientation = "inline" | "block";
 
 interface InputGroupContextValue {
   orientation: InputGroupOrientation;
@@ -27,7 +36,9 @@ interface InputGroupContextValue {
   setControlState: (state: { invalid?: boolean; disabled?: boolean }) => void;
 }
 
-const InputGroupContext = React.createContext<InputGroupContextValue | null>(null);
+const InputGroupContext = React.createContext<InputGroupContextValue | null>(
+  null,
+);
 
 function useInputGroupContext() {
   return React.useContext(InputGroupContext);
@@ -41,7 +52,7 @@ export interface InputGroupProps extends ViewProps {
 }
 
 export function InputGroup({
-  orientation = 'inline',
+  orientation = "inline",
   invalid = false,
   disabled = false,
   style,
@@ -57,7 +68,11 @@ export function InputGroup({
 
   const isInvalid = invalid || controlState.invalid;
   const isDisabled = disabled || controlState.disabled;
-  const borderColor = isInvalid ? colors.danger : focused ? colors.primary : colors.border;
+  const borderColor = isInvalid
+    ? colors.danger
+    : focused
+      ? colors.primary
+      : colors.border;
 
   const value = React.useMemo<InputGroupContextValue>(
     () => ({
@@ -82,15 +97,17 @@ export function InputGroup({
         accessibilityState={{ disabled: isDisabled }}
         style={[
           {
-            width: '100%',
+            width: "100%",
             minHeight: 44,
             borderRadius: radii.lg,
             borderWidth: focused || isInvalid ? 1.5 : 1.25,
             borderColor,
-            backgroundColor: isDisabled ? withAlpha(colors.input, 0.55) : colors.input,
-            flexDirection: orientation === 'block' ? 'column' : 'row',
-            alignItems: orientation === 'block' ? 'stretch' : 'center',
-            overflow: 'hidden',
+            backgroundColor: isDisabled
+              ? withAlpha(colors.input, 0.55)
+              : colors.input,
+            flexDirection: orientation === "block" ? "column" : "row",
+            alignItems: orientation === "block" ? "stretch" : "center",
+            overflow: "hidden",
             opacity: isDisabled ? 0.72 : 1,
           },
           style,
@@ -109,25 +126,25 @@ export interface InputGroupAddonProps extends ViewProps {
 }
 
 export function InputGroupAddon({
-  align = 'inline-start',
+  align = "inline-start",
   style,
   children,
   ...props
 }: InputGroupAddonProps) {
   const { spacing } = useTheme();
-  const isBlock = align === 'block-start' || align === 'block-end';
+  const isBlock = align === "block-start" || align === "block-end";
 
   return (
     <View
       style={[
         {
-          width: isBlock ? '100%' : undefined,
+          width: isBlock ? "100%" : undefined,
           minHeight: isBlock ? undefined : 44,
           paddingHorizontal: isBlock ? spacing.md : spacing.sm,
           paddingVertical: isBlock ? spacing.sm : 0,
-          alignItems: isBlock ? 'flex-start' : 'center',
-          justifyContent: 'center',
-          flexDirection: 'row',
+          alignItems: isBlock ? "flex-start" : "center",
+          justifyContent: "center",
+          flexDirection: "row",
           gap: spacing.sm,
         },
         style,
@@ -139,40 +156,44 @@ export function InputGroupAddon({
   );
 }
 
-export interface InputGroupButtonProps extends Omit<ButtonProps, 'size' | 'children'> {
+export interface InputGroupButtonProps extends Omit<
+  ButtonProps,
+  "size" | "children"
+> {
   size?: InputGroupButtonSize;
   variant?: ButtonVariant;
   children?: React.ReactNode;
 }
 
 export function InputGroupButton({
-  size = 'xs',
-  variant = 'ghost',
+  size = "xs",
+  variant = "ghost",
   shape,
   children,
   style,
   ...props
 }: InputGroupButtonProps) {
   const { radii } = useTheme();
-  const isIcon = size === 'icon-xs' || size === 'icon-sm';
-  const buttonSize: ButtonSize = size === 'sm' || size === 'icon-sm' ? 'sm' : 'xs';
+  const isIcon = size === "icon-xs" || size === "icon-sm";
+  const buttonSize: ButtonSize =
+    size === "sm" || size === "icon-sm" ? "sm" : "xs";
 
   return (
     <Button
       size={buttonSize}
       variant={variant}
-      shape={shape ?? (isIcon ? 'square' : 'rounded')}
+      shape={shape ?? (isIcon ? "square" : "rounded")}
       style={[
         {
-          minWidth: isIcon ? (size === 'icon-sm' ? 32 : 24) : undefined,
-          paddingHorizontal: isIcon ? 0 : size === 'sm' ? 12 : 10,
+          minWidth: isIcon ? (size === "icon-sm" ? 32 : 24) : undefined,
+          paddingHorizontal: isIcon ? 0 : size === "sm" ? 12 : 10,
           borderRadius: isIcon ? radii.sm : radii.md,
         },
         style,
       ]}
       {...props}
     >
-      {children ?? ''}
+      {children ?? ""}
     </Button>
   );
 }
@@ -194,21 +215,21 @@ export function InputGroupText({
     <View
       style={[
         {
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: spacing.sm,
         },
         style,
       ]}
       {...props}
     >
-      {typeof children === 'string' || typeof children === 'number' ? (
+      {typeof children === "string" || typeof children === "number" ? (
         <RNText
           style={[
             typography.bodySmall,
             {
               color: context?.disabled ? colors.disabledText : colors.textMuted,
-              fontWeight: '500',
+              fontWeight: "500",
             },
             textStyle,
           ]}
@@ -224,76 +245,81 @@ export function InputGroupText({
 
 export interface InputGroupInputProps extends InputProps {}
 
-export const InputGroupInput = React.forwardRef<TextInput, InputGroupInputProps>(
-  function InputGroupInput(
-    {
-      invalid = false,
-      disabled = false,
-      editable,
-      onFocus,
-      onBlur,
-      style,
-      ...props
-    },
-    ref,
-  ) {
-    const context = useInputGroupContext();
-    const isEditable = editable ?? !disabled;
-
-    React.useEffect(() => {
-      context?.setControlState({ invalid, disabled: !isEditable });
-    }, [context, invalid, isEditable]);
-
-    return (
-      <Input
-        ref={ref}
-        invalid={false}
-        disabled={!isEditable}
-        editable={isEditable}
-        fullWidth={false}
-        onFocus={(event) => {
-          context?.setFocused(true);
-          onFocus?.(event);
-        }}
-        onBlur={(event) => {
-          context?.setFocused(false);
-          onBlur?.(event);
-        }}
-        style={[
-          {
-            flex: context?.orientation === 'block' ? undefined : 1,
-            width: context?.orientation === 'block' ? '100%' : undefined,
-            borderWidth: 0,
-            borderRadius: 0,
-            backgroundColor: 'transparent',
-            minHeight: 42,
-          },
-          style,
-        ]}
-        {...props}
-      />
-    );
+export const InputGroupInput = React.forwardRef<
+  TextInput,
+  InputGroupInputProps
+>(function InputGroupInput(
+  {
+    invalid = false,
+    disabled = false,
+    editable,
+    onFocus,
+    onBlur,
+    style,
+    ...props
   },
-);
+  ref,
+) {
+  const context = useInputGroupContext();
+  const isEditable = editable ?? !disabled;
 
-export interface InputGroupTextareaProps extends Omit<InputGroupInputProps, 'multiline'> {}
+  React.useEffect(() => {
+    context?.setControlState({ invalid, disabled: !isEditable });
+  }, [context, invalid, isEditable]);
 
-export const InputGroupTextarea = React.forwardRef<TextInput, InputGroupTextareaProps>(
-  function InputGroupTextarea({ style, ...props }, ref) {
-    return (
-      <InputGroupInput
-        ref={ref}
-        multiline
-        textAlignVertical="top"
-        style={[
-          {
-            minHeight: 96,
-            paddingVertical: 10,
-          },
-          style,
-        ]}
-        {...props}
-      />
-    );
-  },
-);
+  return (
+    <Input
+      ref={ref}
+      invalid={false}
+      disabled={!isEditable}
+      editable={isEditable}
+      fullWidth={false}
+      onFocus={(event) => {
+        context?.setFocused(true);
+        onFocus?.(event);
+      }}
+      onBlur={(event) => {
+        context?.setFocused(false);
+        onBlur?.(event);
+      }}
+      style={[
+        {
+          flex: context?.orientation === "block" ? undefined : 1,
+          width: context?.orientation === "block" ? "100%" : undefined,
+          borderWidth: 0,
+          borderRadius: 0,
+          backgroundColor: "transparent",
+          minHeight: 42,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+});
+
+export interface InputGroupTextareaProps extends Omit<
+  InputGroupInputProps,
+  "multiline"
+> {}
+
+export const InputGroupTextarea = React.forwardRef<
+  TextInput,
+  InputGroupTextareaProps
+>(function InputGroupTextarea({ style, ...props }, ref) {
+  return (
+    <InputGroupInput
+      ref={ref}
+      multiline
+      textAlignVertical="top"
+      style={[
+        {
+          minHeight: 96,
+          paddingVertical: 10,
+        },
+        style,
+      ]}
+      {...props}
+    />
+  );
+});

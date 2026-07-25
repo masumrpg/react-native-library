@@ -175,7 +175,7 @@ export function ComboboxInput({
     measureTrigger,
     colors,
   } = useCombobox();
-  const { radii, spacing, typography } = useTheme();
+  const { components, radii, spacing, typography } = useTheme();
 
   const handleFocus = () => {
     if (!disabled) {
@@ -201,7 +201,7 @@ export function ComboboxInput({
           flexDirection: "row",
           alignItems: "center",
           height: 40,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
           borderRadius: radii.lg,
           backgroundColor: colors.input,
@@ -257,7 +257,7 @@ export function ComboboxContent({
   modalProps,
 }: ComboboxContentProps) {
   const { open, setOpen, triggerLayout, colors } = useCombobox();
-  const { radii } = useTheme();
+  const { components, radii } = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
@@ -313,7 +313,7 @@ export function ComboboxContent({
             left: triggerLayout.pageX,
             width: triggerLayout.width,
             backgroundColor: colors.surface,
-            borderWidth: 1.25,
+            borderWidth: components.borderWidth.strong,
             borderColor: colors.border,
             borderRadius: radii.lg,
             maxHeight: dropdownMaxHeight,

@@ -1,8 +1,14 @@
-import { darkTheme, lightTheme } from './tokens';
-import type { DeepPartial, Theme, ThemeInput, ThemeMode, TypographyVariant } from './types';
+import { darkTheme, lightTheme } from "./tokens";
+import type {
+  DeepPartial,
+  Theme,
+  ThemeInput,
+  ThemeMode,
+  TypographyVariant,
+} from "./types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
+  return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
 export function mergeTheme<T extends object>(
@@ -11,12 +17,17 @@ export function mergeTheme<T extends object>(
 ): T {
   if (!override) return base;
 
-  const output: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  const output: Record<string, unknown> = {
+    ...(base as Record<string, unknown>),
+  };
 
   Object.entries(override).forEach(([key, value]) => {
     const baseValue = output[key];
     if (isRecord(baseValue) && isRecord(value)) {
-      output[key] = mergeTheme(baseValue, value as DeepPartial<typeof baseValue>);
+      output[key] = mergeTheme(
+        baseValue,
+        value as DeepPartial<typeof baseValue>,
+      );
     } else if (value !== undefined) {
       output[key] = value;
     }
@@ -26,13 +37,13 @@ export function mergeTheme<T extends object>(
 }
 
 export function createTheme(mode: ThemeMode, override?: ThemeInput): Theme {
-  const base = mode === 'dark' ? darkTheme : lightTheme;
+  const base = mode === "dark" ? darkTheme : lightTheme;
   const merged = mergeTheme(base, override as DeepPartial<Theme>);
 
   return {
     ...merged,
     mode,
-    dark: mode === 'dark',
+    dark: mode === "dark",
     typography: applyFontTokens(merged),
   };
 }

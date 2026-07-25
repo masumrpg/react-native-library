@@ -1,15 +1,15 @@
 export function withAlpha(color: string, alpha: number): string {
   const safeAlpha = Math.max(0, Math.min(1, alpha));
 
-  if (color.startsWith('rgba(')) {
+  if (color.startsWith("rgba(")) {
     return color.replace(/rgba\((.*),\s*[\d.]+\)/, `rgba($1, ${safeAlpha})`);
   }
 
-  if (color.startsWith('rgb(')) {
-    return color.replace('rgb(', 'rgba(').replace(')', `, ${safeAlpha})`);
+  if (color.startsWith("rgb(")) {
+    return color.replace("rgb(", "rgba(").replace(")", `, ${safeAlpha})`);
   }
 
-  const hex = color.replace('#', '');
+  const hex = color.replace("#", "");
 
   if (hex.length !== 6) return color;
 

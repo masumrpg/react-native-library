@@ -110,7 +110,7 @@ export function ButtonGroupText({
   children,
   ...props
 }: ButtonGroupTextProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
 
   const textContainerStyle: ViewStyle = {
     flexDirection: "row",
@@ -118,7 +118,7 @@ export function ButtonGroupText({
     justifyContent: "center",
     backgroundColor: colors.backgroundMuted,
     borderColor: colors.border,
-    borderWidth: 1.25,
+    borderWidth: components.borderWidth.strong,
     borderRadius: radii.lg,
     paddingHorizontal: spacing.md,
   };

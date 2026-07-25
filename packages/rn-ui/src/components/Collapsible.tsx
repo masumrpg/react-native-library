@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Pressable,
   View,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
 export interface CollapsibleProps {
   open?: boolean;
@@ -20,12 +20,14 @@ export interface CollapsibleContextProps {
   toggle: () => void;
 }
 
-const CollapsibleContext = React.createContext<CollapsibleContextProps | null>(null);
+const CollapsibleContext = React.createContext<CollapsibleContextProps | null>(
+  null,
+);
 
 export function useCollapsible() {
   const context = React.useContext(CollapsibleContext);
   if (!context) {
-    throw new Error('useCollapsible must be used within a <Collapsible />');
+    throw new Error("useCollapsible must be used within a <Collapsible />");
   }
   return context;
 }
@@ -125,21 +127,21 @@ export function CollapsibleContent({
 
   return (
     <Animated.View
-      pointerEvents={open ? 'auto' : 'none'}
+      pointerEvents={open ? "auto" : "none"}
       style={[
         {
-          overflow: 'hidden',
+          overflow: "hidden",
           // Prior to first layout measurement, let it render naturally if defaultOpen is true
           // to prevent height desync issues during loading state
-          height: hasMeasured ? heightAnim : (open ? undefined : 0),
-          opacity: hasMeasured ? opacity : (open ? 1 : 0),
+          height: hasMeasured ? heightAnim : open ? undefined : 0,
+          opacity: hasMeasured ? opacity : open ? 1 : 0,
         },
         style,
       ]}
       {...props}
     >
       {/* Nested inner view is required to measure natural scroll height boundary */}
-      <View onLayout={handleLayout} style={{ width: '100%' }}>
+      <View onLayout={handleLayout} style={{ width: "100%" }}>
         {children}
       </View>
     </Animated.View>

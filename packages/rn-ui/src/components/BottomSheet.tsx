@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import GorhomBottomSheet, {
   BottomSheetBackdrop as GorhomBottomSheetBackdrop,
   BottomSheetFlatList,
@@ -13,20 +13,22 @@ import GorhomBottomSheet, {
   type BottomSheetBackdropProps,
   type BottomSheetModalProps,
   type BottomSheetProps as GorhomBottomSheetProps,
-} from '@gorhom/bottom-sheet';
-import type { StyleProp, ViewStyle } from 'react-native';
-import type { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+} from "@gorhom/bottom-sheet";
+import type { StyleProp, ViewStyle } from "react-native";
+import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
-type GorhomBackdropComponentProps = React.ComponentProps<typeof GorhomBottomSheetBackdrop>;
+type GorhomBackdropComponentProps = React.ComponentProps<
+  typeof GorhomBottomSheetBackdrop
+>;
 
 export interface BottomSheetProps extends GorhomBottomSheetProps {
   withBackdrop?: boolean;
   backdropOpacity?: number;
   backdropAppearsOnIndex?: number;
   backdropDisappearsOnIndex?: number;
-  backdropPressBehavior?: GorhomBackdropComponentProps['pressBehavior'];
+  backdropPressBehavior?: GorhomBackdropComponentProps["pressBehavior"];
   backdropStyle?: StyleProp<ViewStyle>;
 }
 
@@ -39,7 +41,7 @@ export const BottomSheet = React.forwardRef<
     backdropOpacity = 0.48,
     backdropAppearsOnIndex = 0,
     backdropDisappearsOnIndex = -1,
-    backdropPressBehavior = 'close',
+    backdropPressBehavior = "close",
     backdropStyle,
     backdropComponent,
     backgroundStyle,
@@ -51,7 +53,7 @@ export const BottomSheet = React.forwardRef<
   },
   ref,
 ) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
 
   const themedBackdrop = React.useCallback(
     (backdropProps: BottomSheetBackdropProps) => (
@@ -83,13 +85,15 @@ export const BottomSheet = React.forwardRef<
   return (
     <GorhomBottomSheet
       ref={ref}
-      backdropComponent={backdropComponent ?? (withBackdrop ? themedBackdrop : undefined)}
+      backdropComponent={
+        backdropComponent ?? (withBackdrop ? themedBackdrop : undefined)
+      }
       backgroundStyle={[
         {
           backgroundColor: colors.surface,
           borderTopLeftRadius: radii.xxl,
           borderTopRightRadius: radii.xxl,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
         },
         backgroundStyle,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dimensions,
   Modal,
@@ -8,17 +8,17 @@ import {
   type ModalProps,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { useTheme, type ThemeColors } from '../theme';
+import { useTheme, type ThemeColors } from "../theme";
 
-export type HoverCardAlign = 'start' | 'center' | 'end';
-export type HoverCardTriggerMode = 'longPress' | 'press' | 'manual';
+export type HoverCardAlign = "start" | "center" | "end";
+export type HoverCardTriggerMode = "longPress" | "press" | "manual";
 
 interface HoverCardTriggerLayout {
   pageX: number;
@@ -38,12 +38,14 @@ export interface HoverCardContextProps {
   colors: ThemeColors;
 }
 
-const HoverCardContext = React.createContext<HoverCardContextProps | null>(null);
+const HoverCardContext = React.createContext<HoverCardContextProps | null>(
+  null,
+);
 
 export function useHoverCard() {
   const context = React.useContext(HoverCardContext);
   if (!context) {
-    throw new Error('useHoverCard must be used within a <HoverCard />');
+    throw new Error("useHoverCard must be used within a <HoverCard />");
   }
   return context;
 }
@@ -64,17 +66,18 @@ export function HoverCard({
   onOpenChange,
   openDelay = 10,
   closeDelay = 100,
-  triggerMode = 'longPress',
+  triggerMode = "longPress",
   children,
 }: HoverCardProps) {
   const { colors } = useTheme();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
-  const [triggerLayout, setTriggerLayout] = React.useState<HoverCardTriggerLayout>({
-    pageX: 0,
-    pageY: 0,
-    width: 0,
-    height: 0,
-  });
+  const [triggerLayout, setTriggerLayout] =
+    React.useState<HoverCardTriggerLayout>({
+      pageX: 0,
+      pageY: 0,
+      width: 0,
+      height: 0,
+    });
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -102,7 +105,7 @@ export function HoverCard({
         colors,
       }}
     >
-      <View style={{ alignSelf: 'flex-start' }}>{children}</View>
+      <View style={{ alignSelf: "flex-start" }}>{children}</View>
     </HoverCardContext.Provider>
   );
 }
@@ -139,7 +142,7 @@ export function HoverCardTrigger({
 
   const measureAndSetOpen = React.useCallback(
     (nextOpen: boolean) => {
-      if (disabled || triggerMode === 'manual') return;
+      if (disabled || triggerMode === "manual") return;
 
       if (closeTimer.current) clearTimeout(closeTimer.current);
       triggerRef.current?.measureInWindow((x, y, width, height) => {
@@ -154,7 +157,7 @@ export function HoverCardTrigger({
   );
 
   const close = React.useCallback(() => {
-    if (triggerMode === 'manual') return;
+    if (triggerMode === "manual") return;
 
     if (openTimer.current) clearTimeout(openTimer.current);
     closeTimer.current = setTimeout(() => setOpen(false), closeDelay);
@@ -166,9 +169,13 @@ export function HoverCardTrigger({
       accessibilityRole="button"
       accessibilityState={{ expanded: open, disabled }}
       disabled={disabled}
-      onPress={triggerMode === 'press' ? () => measureAndSetOpen(!open) : undefined}
-      onLongPress={triggerMode === 'longPress' ? () => measureAndSetOpen(true) : undefined}
-      onPressOut={triggerMode === 'longPress' ? close : undefined}
+      onPress={
+        triggerMode === "press" ? () => measureAndSetOpen(!open) : undefined
+      }
+      onLongPress={
+        triggerMode === "longPress" ? () => measureAndSetOpen(true) : undefined
+      }
+      onPressOut={triggerMode === "longPress" ? close : undefined}
       delayLongPress={420}
       style={style}
     >
@@ -185,12 +192,15 @@ export interface HoverCardContentProps {
   sideOffset?: number;
   style?: StyleProp<ViewStyle>;
   overlayStyle?: StyleProp<ViewStyle>;
-  modalProps?: Omit<ModalProps, 'visible' | 'transparent' | 'animationType' | 'onRequestClose'>;
+  modalProps?: Omit<
+    ModalProps,
+    "visible" | "transparent" | "animationType" | "onRequestClose"
+  >;
 }
 
 export function HoverCardContent({
   children,
-  align = 'center',
+  align = "center",
   width = 256,
   maxHeight = 320,
   sideOffset = 4,
@@ -199,22 +209,23 @@ export function HoverCardContent({
   modalProps,
 }: HoverCardContentProps) {
   const { open, setOpen, triggerLayout, colors } = useHoverCard();
-  const { radii, spacing } = useTheme();
+  const { components, radii, spacing } = useTheme();
   const progress = useSharedValue(0);
 
   React.useEffect(() => {
     progress.value = withTiming(open ? 1 : 0, { duration: 100 });
   }, [open, progress]);
 
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
   const resolvedWidth = Math.min(width, screenWidth - spacing.lg * 2);
-  const spaceBelow = screenHeight - (triggerLayout.pageY + triggerLayout.height);
+  const spaceBelow =
+    screenHeight - (triggerLayout.pageY + triggerLayout.height);
   const renderAbove = spaceBelow < maxHeight + spacing.xl;
   const centerX = triggerLayout.pageX + triggerLayout.width / 2;
   const rawLeft =
-    align === 'start'
+    align === "start"
       ? triggerLayout.pageX
-      : align === 'end'
+      : align === "end"
         ? triggerLayout.pageX + triggerLayout.width - resolvedWidth
         : centerX - resolvedWidth / 2;
   const left = Math.min(
@@ -262,16 +273,16 @@ export function HoverCardContent({
       <Animated.View
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             left,
             width: resolvedWidth,
             maxHeight,
             borderRadius: radii.lg,
             backgroundColor: colors.surface,
-            borderWidth: 1.25,
+            borderWidth: components.borderWidth.strong,
             borderColor: colors.border,
             padding: spacing.md,
-            overflow: 'hidden',
+            overflow: "hidden",
           },
           positionStyle,
           animatedStyle,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   PanResponder,
   Pressable,
@@ -8,11 +8,11 @@ import {
   type StyleProp,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
-export interface SliderProps extends Omit<ViewProps, 'style'> {
+export interface SliderProps extends Omit<ViewProps, "style"> {
   value?: number;
   defaultValue?: number;
   min?: number;
@@ -45,31 +45,46 @@ export function Slider({
   style,
   ...props
 }: SliderProps) {
-  const { colors, radii } = useTheme();
+  const { colors, components, radii } = useTheme();
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [trackWidth, setTrackWidth] = React.useState(0);
   const currentValue = clamp(value ?? internalValue, min, max);
   const percent = max === min ? 0 : (currentValue - min) / (max - min);
 
-  const setNextValue = React.useCallback((locationX: number, complete = false) => {
-    if (disabled || trackWidth <= 0) return;
-    const raw = min + clamp(locationX / trackWidth, 0, 1) * (max - min);
-    const next = clamp(snap(raw, step, min), min, max);
-    if (value === undefined) setInternalValue(next);
-    onValueChange?.(next);
-    if (complete) onSlidingComplete?.(next);
-  }, [disabled, max, min, onSlidingComplete, onValueChange, step, trackWidth, value]);
+  const setNextValue = React.useCallback(
+    (locationX: number, complete = false) => {
+      if (disabled || trackWidth <= 0) return;
+      const raw = min + clamp(locationX / trackWidth, 0, 1) * (max - min);
+      const next = clamp(snap(raw, step, min), min, max);
+      if (value === undefined) setInternalValue(next);
+      onValueChange?.(next);
+      if (complete) onSlidingComplete?.(next);
+    },
+    [
+      disabled,
+      max,
+      min,
+      onSlidingComplete,
+      onValueChange,
+      step,
+      trackWidth,
+      value,
+    ],
+  );
 
   const panResponder = React.useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => !disabled,
         onMoveShouldSetPanResponder: () => !disabled,
-        onPanResponderMove: (_event: GestureResponderEvent, gesture: PanResponderGestureState) => {
-          setNextValue((percent * trackWidth) + gesture.dx);
+        onPanResponderMove: (
+          _event: GestureResponderEvent,
+          gesture: PanResponderGestureState,
+        ) => {
+          setNextValue(percent * trackWidth + gesture.dx);
         },
         onPanResponderRelease: (_event, gesture) => {
-          setNextValue((percent * trackWidth) + gesture.dx, true);
+          setNextValue(percent * trackWidth + gesture.dx, true);
         },
       }),
     [disabled, percent, setNextValue, trackWidth],
@@ -84,9 +99,9 @@ export function Slider({
       onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
       style={[
         {
-          width: '100%',
+          width: "100%",
           height: 32,
-          justifyContent: 'center',
+          justifyContent: "center",
           opacity: disabled ? 0.5 : 1,
         },
         style,
@@ -99,13 +114,13 @@ export function Slider({
           height: 6,
           borderRadius: radii.full,
           backgroundColor: colors.backgroundSubtle,
-          overflow: 'hidden',
+          overflow: "hidden",
         }}
       >
         <View
           style={{
             width: `${percent * 100}%`,
-            height: '100%',
+            height: "100%",
             backgroundColor: colors.primary,
           }}
         />
@@ -113,13 +128,13 @@ export function Slider({
       <View
         pointerEvents="none"
         style={{
-          position: 'absolute',
+          position: "absolute",
           left: `${percent * 100}%`,
           width: 22,
           height: 22,
           marginLeft: -11,
           borderRadius: 11,
-          borderWidth: 2,
+          borderWidth: components.borderWidth.ring,
           borderColor: colors.primary,
           backgroundColor: colors.surface,
         }}

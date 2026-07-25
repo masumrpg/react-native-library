@@ -1,15 +1,15 @@
-import React from 'react';
-import { View, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import { View, type ViewProps, type ViewStyle } from "react-native";
 
-import { useTheme } from '../theme';
-import type { ThemeColorName } from './types';
+import { useTheme } from "../theme";
+import type { ThemeColorName } from "./types";
 
-type Space = keyof ReturnType<typeof useTheme>['spacing'];
+type Space = keyof ReturnType<typeof useTheme>["spacing"];
 
 export interface BoxProps extends ViewProps {
   bg?: ThemeColorName;
   borderColor?: ThemeColorName;
-  radius?: keyof ReturnType<typeof useTheme>['radii'];
+  radius?: keyof ReturnType<typeof useTheme>["radii"];
   p?: Space;
   px?: Space;
   py?: Space;
@@ -52,9 +52,9 @@ export function Box({
     marginHorizontal: mx ? spacing[mx] : undefined,
     marginVertical: my ? spacing[my] : undefined,
     flex,
-    flexDirection: row ? 'row' : undefined,
-    alignItems: center ? 'center' : undefined,
-    justifyContent: center ? 'center' : undefined,
+    flexDirection: row ? "row" : undefined,
+    alignItems: center ? "center" : undefined,
+    justifyContent: center ? "center" : undefined,
     gap: gap ? spacing[gap] : undefined,
   };
 

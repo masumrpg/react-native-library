@@ -1,9 +1,14 @@
-import React from 'react';
-import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Button } from './Button';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Button } from "./Button";
+import { Text } from "./Text";
 
 export interface PaginationProps extends ViewProps {
   page: number;
@@ -18,8 +23,8 @@ export function Pagination({
   page,
   pageCount,
   onPageChange,
-  previousLabel = 'Prev',
-  nextLabel = 'Next',
+  previousLabel = "Prev",
+  nextLabel = "Next",
   style,
   ...props
 }: PaginationProps) {
@@ -30,23 +35,39 @@ export function Pagination({
     <View
       style={[
         {
-          width: '100%',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           gap: spacing.sm,
         },
         style,
       ]}
       {...props}
     >
-      <Button size="sm" variant="outline" tone="secondary" disabled={safePage <= 1} onPress={() => onPageChange?.(safePage - 1)}>
+      <Button
+        size="sm"
+        variant="outline"
+        tone="secondary"
+        disabled={safePage <= 1}
+        onPress={() => onPageChange?.(safePage - 1)}
+      >
         {previousLabel}
       </Button>
-      <Text variant="labelSmall" color="textMuted" style={{ fontVariant: ['tabular-nums'] }}>
+      <Text
+        variant="labelSmall"
+        color="textMuted"
+        style={{ fontVariant: ["tabular-nums"] }}
+      >
         {safePage} / {pageCount}
       </Text>
-      <Button size="sm" variant="outline" tone="secondary" disabled={safePage >= pageCount} onPress={() => onPageChange?.(safePage + 1)}>
+      <Button
+        size="sm"
+        variant="outline"
+        tone="secondary"
+        disabled={safePage >= pageCount}
+        onPress={() => onPageChange?.(safePage + 1)}
+      >
         {nextLabel}
       </Button>
     </View>

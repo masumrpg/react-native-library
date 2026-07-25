@@ -1,7 +1,13 @@
-import React from 'react';
-import { Animated, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  Animated,
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface ProgressProps extends ViewProps {
   value?: number;
@@ -41,10 +47,10 @@ export function Progress({
       accessibilityValue={{ min: 0, max, now: value }}
       style={[
         {
-          width: '100%',
+          width: "100%",
           height: 10,
           borderRadius: radii.full,
-          overflow: 'hidden',
+          overflow: "hidden",
           backgroundColor: colors.backgroundSubtle,
         },
         style,
@@ -54,10 +60,10 @@ export function Progress({
       <Animated.View
         style={[
           {
-            height: '100%',
+            height: "100%",
             width: width.interpolate({
               inputRange: [0, 1],
-              outputRange: ['0%', '100%'],
+              outputRange: ["0%", "100%"],
             }),
             borderRadius: radii.full,
             backgroundColor: colors.primary,

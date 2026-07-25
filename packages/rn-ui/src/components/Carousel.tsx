@@ -325,7 +325,7 @@ export interface CarouselButtonProps {
 }
 
 export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const { scrollPrev, canScrollPrev } = useCarousel();
 
   if (!canScrollPrev) return null;
@@ -343,7 +343,7 @@ export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
           height: 36,
           borderRadius: radii.full,
           backgroundColor: colors.surface,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
           justifyContent: "center",
           alignItems: "center",
@@ -363,7 +363,7 @@ export function CarouselPrevious({ style, icon }: CarouselButtonProps) {
 }
 
 export function CarouselNext({ style, icon }: CarouselButtonProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const { scrollNext, canScrollNext } = useCarousel();
 
   if (!canScrollNext) return null;
@@ -381,7 +381,7 @@ export function CarouselNext({ style, icon }: CarouselButtonProps) {
           height: 36,
           borderRadius: radii.full,
           backgroundColor: colors.surface,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
           justifyContent: "center",
           alignItems: "center",

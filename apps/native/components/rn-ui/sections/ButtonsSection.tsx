@@ -21,7 +21,7 @@ export function ButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {
           <Button variant="ghost" tone="info" fullWidth>
             Ghost Info
           </Button>
-          <Button variant="danger" fullWidth>
+          <Button tone="danger" fullWidth>
             Danger Action
           </Button>
           <Box row gap="sm" style={styles.wrap}>

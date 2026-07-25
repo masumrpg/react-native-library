@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import { StyleSheet, View, type ViewProps, type ViewStyle } from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface AspectRatioProps extends ViewProps {
   /**
@@ -12,7 +12,7 @@ export interface AspectRatioProps extends ViewProps {
   /**
    * The border radius token from the theme.
    */
-  radius?: keyof ReturnType<typeof useTheme>['radii'];
+  radius?: keyof ReturnType<typeof useTheme>["radii"];
   /**
    * The content to render inside the AspectRatio container.
    */
@@ -29,9 +29,9 @@ export function AspectRatio({
   const { radii } = useTheme();
 
   const containerStyle: ViewStyle = {
-    width: '100%',
+    width: "100%",
     aspectRatio: ratio,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderRadius: radius ? radii[radius] : undefined,
   };
 

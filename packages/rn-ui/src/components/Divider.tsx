@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, type ViewStyle } from 'react-native';
+import React from "react";
+import { View, type ViewStyle } from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface DividerProps {
   inset?: number;
@@ -21,7 +21,7 @@ export function Divider({ inset = 0, vertical = false, style }: DividerProps) {
           marginVertical: vertical ? inset : 0,
           width: vertical ? 1 : undefined,
           height: vertical ? undefined : 1,
-          alignSelf: vertical ? 'stretch' : undefined,
+          alignSelf: vertical ? "stretch" : undefined,
         },
         style,
       ]}

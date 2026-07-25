@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Animated,
   Pressable,
@@ -7,10 +13,10 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme } from "../theme";
+import { renderIcon, type RenderIcon } from "./types";
 
 export interface AccordionItem {
   id: string;
@@ -75,7 +81,7 @@ function renderIndicator(
   color: string,
   size: number,
 ) {
-  if (typeof indicator === 'function') {
+  if (typeof indicator === "function") {
     return indicator({ expanded, color, size });
   }
 
@@ -89,10 +95,10 @@ function renderIndicator(
         color,
         fontSize: size,
         lineHeight: size,
-        fontWeight: '700',
+        fontWeight: "700",
       }}
     >
-      {expanded ? '-' : '+'}
+      {expanded ? "-" : "+"}
     </RNText>
   );
 }
@@ -133,9 +139,9 @@ function DefaultAccordionContent({
   }
 
   return (
-    <Animated.View style={{ height, opacity: progress, overflow: 'hidden' }}>
+    <Animated.View style={{ height, opacity: progress, overflow: "hidden" }}>
       <View
-        style={[style, { position: 'absolute', left: 0, right: 0 }]}
+        style={[style, { position: "absolute", left: 0, right: 0 }]}
         onLayout={(event) => {
           setContentHeight(event.nativeEvent.layout.height);
         }}
@@ -164,7 +170,7 @@ function DefaultAccordionIndicator({
 
   const rotate = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
+    outputRange: ["0deg", "180deg"],
   });
 
   return (
@@ -192,7 +198,7 @@ export function Accordion({
   contentStyle,
   style,
 }: AccordionProps) {
-  const { colors, radii, spacing, typography } = useTheme();
+  const { colors, components, radii, spacing, typography } = useTheme();
   const [internalOpenIds, setInternalOpenIds] = useState(defaultOpenIds);
   const activeOpenIds = openIds ?? internalOpenIds;
 
@@ -209,8 +215,10 @@ export function Accordion({
     [onOpenChange, openIds],
   );
 
-  const AnimatedContent = animationComponents?.Content ?? DefaultAccordionContent;
-  const AnimatedIndicator = animationComponents?.Indicator ?? DefaultAccordionIndicator;
+  const AnimatedContent =
+    animationComponents?.Content ?? DefaultAccordionContent;
+  const AnimatedIndicator =
+    animationComponents?.Indicator ?? DefaultAccordionIndicator;
 
   const toggleItem = useCallback(
     (item: AccordionItem) => {
@@ -241,9 +249,9 @@ export function Accordion({
               {
                 backgroundColor: colors.surface,
                 borderRadius: radii.xl,
-                borderWidth: 1.25,
+                borderWidth: components.borderWidth.strong,
                 borderColor: expanded ? colors.primary : colors.border,
-                overflow: 'hidden',
+                overflow: "hidden",
                 opacity: itemDisabled ? 0.58 : 1,
               },
               itemStyle,
@@ -257,18 +265,25 @@ export function Accordion({
               style={({ pressed }) => [
                 {
                   padding: spacing.lg,
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  flexDirection: "row",
+                  alignItems: "center",
                   gap: spacing.md,
-                  backgroundColor: pressed && !itemDisabled ? colors.backgroundMuted : colors.surface,
+                  backgroundColor:
+                    pressed && !itemDisabled
+                      ? colors.backgroundMuted
+                      : colors.surface,
                 },
                 headerStyle,
               ]}
             >
-              {renderIcon(item.icon, expanded ? colors.primary : colors.textMuted, 20)}
+              {renderIcon(
+                item.icon,
+                expanded ? colors.primary : colors.textMuted,
+                20,
+              )}
 
               <View style={{ flex: 1, gap: spacing.xxs }}>
-                {typeof item.title === 'string' ? (
+                {typeof item.title === "string" ? (
                   <RNText
                     style={[
                       typography.subtitle,
@@ -282,7 +297,7 @@ export function Accordion({
                   item.title
                 )}
 
-                {typeof item.subtitle === 'string' ? (
+                {typeof item.subtitle === "string" ? (
                   <RNText
                     style={[
                       typography.bodySmall,
@@ -301,8 +316,8 @@ export function Accordion({
                 style={{
                   width: 24,
                   height: 24,
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {animated ? (
@@ -310,10 +325,20 @@ export function Accordion({
                     expanded={expanded}
                     duration={animationDuration}
                   >
-                    {renderIndicator(indicator, expanded, expanded ? colors.primary : colors.textMuted, 18)}
+                    {renderIndicator(
+                      indicator,
+                      expanded,
+                      expanded ? colors.primary : colors.textMuted,
+                      18,
+                    )}
                   </AnimatedIndicator>
                 ) : (
-                  renderIndicator(indicator, expanded, expanded ? colors.primary : colors.textMuted, 18)
+                  renderIndicator(
+                    indicator,
+                    expanded,
+                    expanded ? colors.primary : colors.textMuted,
+                    18,
+                  )
                 )}
               </View>
             </Pressable>
@@ -332,34 +357,40 @@ export function Accordion({
                   contentStyle,
                 ]}
               >
-                {typeof item.content === 'string' ? (
-                  <RNText style={[typography.body, { color: colors.textMuted }]}>
+                {typeof item.content === "string" ? (
+                  <RNText
+                    style={[typography.body, { color: colors.textMuted }]}
+                  >
                     {item.content}
                   </RNText>
                 ) : (
                   item.content
                 )}
               </AnimatedContent>
-            ) : expanded && (
-              <View
-                style={[
-                  {
-                    borderTopWidth: 1,
-                    borderTopColor: colors.border,
-                    padding: spacing.lg,
-                    backgroundColor: colors.surface,
-                  },
-                  contentStyle,
-                ]}
-              >
-                {typeof item.content === 'string' ? (
-                  <RNText style={[typography.body, { color: colors.textMuted }]}>
-                    {item.content}
-                  </RNText>
-                ) : (
-                  item.content
-                )}
-              </View>
+            ) : (
+              expanded && (
+                <View
+                  style={[
+                    {
+                      borderTopWidth: 1,
+                      borderTopColor: colors.border,
+                      padding: spacing.lg,
+                      backgroundColor: colors.surface,
+                    },
+                    contentStyle,
+                  ]}
+                >
+                  {typeof item.content === "string" ? (
+                    <RNText
+                      style={[typography.body, { color: colors.textMuted }]}
+                    >
+                      {item.content}
+                    </RNText>
+                  ) : (
+                    item.content
+                  )}
+                </View>
+              )
             )}
           </View>
         );

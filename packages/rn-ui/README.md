@@ -29,7 +29,7 @@ bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handle
 Wrap your app once with `ThemeProvider`.
 
 ```tsx
-import { ThemeProvider } from '@masumdev/rn-ui';
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 export default function App() {
   return (
@@ -51,7 +51,7 @@ export default function App() {
 ## Usage
 
 ```tsx
-import { Badge, Box, Button, Card, Text, useTheme } from '@masumdev/rn-ui';
+import { Badge, Box, Button, Card, Text, useTheme } from "@masumdev/rn-ui";
 
 export function Example() {
   const { setColorScheme, toggleColorScheme } = useTheme();
@@ -70,7 +70,7 @@ export function Example() {
         Toggle Theme
       </Button>
 
-      <Button variant="outline" onPress={() => setColorScheme('system')}>
+      <Button variant="outline" onPress={() => setColorScheme("system")}>
         Follow System
       </Button>
     </Box>
@@ -83,21 +83,21 @@ export function Example() {
 Override only the tokens you need. The library deep-merges your values with the default light and dark themes.
 
 ```tsx
-import { ThemeProvider } from '@masumdev/rn-ui';
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 const themes = {
   light: {
     colors: {
-      primary: '#4F46E5',
-      primarySoft: '#EEF2FF',
-      onPrimary: '#FFFFFF',
-      accent: '#F97316',
+      primary: "#4F46E5",
+      primarySoft: "#EEF2FF",
+      onPrimary: "#FFFFFF",
+      accent: "#F97316",
     },
     fonts: {
-      regular: 'OutfitRegular',
-      medium: 'OutfitMedium',
-      semibold: 'OutfitSemiBold',
-      bold: 'OutfitBold',
+      regular: "OutfitRegular",
+      medium: "OutfitMedium",
+      semibold: "OutfitSemiBold",
+      bold: "OutfitBold",
     },
     typography: {
       body: {
@@ -114,11 +114,11 @@ const themes = {
   },
   dark: {
     colors: {
-      background: '#08111F',
-      surface: '#0F1B2D',
-      primary: '#818CF8',
-      primarySoft: '#312E81',
-      onPrimary: '#111827',
+      background: "#08111F",
+      surface: "#0F1B2D",
+      primary: "#818CF8",
+      primarySoft: "#312E81",
+      onPrimary: "#111827",
     },
   },
 };
@@ -139,36 +139,36 @@ Fonts are pluggable. `rn-ui` does not load font files by itself, so it works wit
 Load the font in your app, then pass the registered font names through the `fonts` token.
 
 ```tsx
-import { useFonts } from 'expo-font';
-import { ThemeProvider } from '@masumdev/rn-ui';
+import { useFonts } from "expo-font";
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 const themes = {
   light: {
     fonts: {
-      regular: 'OutfitRegular',
-      medium: 'OutfitMedium',
-      semibold: 'OutfitSemiBold',
-      bold: 'OutfitBold',
-      mono: 'SpaceMono',
+      regular: "OutfitRegular",
+      medium: "OutfitMedium",
+      semibold: "OutfitSemiBold",
+      bold: "OutfitBold",
+      mono: "SpaceMono",
     },
   },
   dark: {
     fonts: {
-      regular: 'OutfitRegular',
-      medium: 'OutfitMedium',
-      semibold: 'OutfitSemiBold',
-      bold: 'OutfitBold',
-      mono: 'SpaceMono',
+      regular: "OutfitRegular",
+      medium: "OutfitMedium",
+      semibold: "OutfitSemiBold",
+      bold: "OutfitBold",
+      mono: "SpaceMono",
     },
   },
 };
 
 export function App() {
   const [loaded] = useFonts({
-    OutfitRegular: require('./assets/fonts/Outfit-Regular.ttf'),
-    OutfitMedium: require('./assets/fonts/Outfit-Medium.ttf'),
-    OutfitSemiBold: require('./assets/fonts/Outfit-SemiBold.ttf'),
-    OutfitBold: require('./assets/fonts/Outfit-Bold.ttf'),
+    OutfitRegular: require("./assets/fonts/Outfit-Regular.ttf"),
+    OutfitMedium: require("./assets/fonts/Outfit-Medium.ttf"),
+    OutfitSemiBold: require("./assets/fonts/Outfit-SemiBold.ttf"),
+    OutfitBold: require("./assets/fonts/Outfit-Bold.ttf"),
   });
 
   if (!loaded) return null;
@@ -195,7 +195,7 @@ const themes = {
   light: {
     typography: {
       h1: {
-        fontFamily: 'CustomDisplayBold',
+        fontFamily: "CustomDisplayBold",
         fontSize: 34,
         lineHeight: 42,
       },
@@ -213,8 +213,8 @@ The core package does not depend on AsyncStorage, SQLite, Expo SecureStore, MMKV
 ### Expo SecureStore
 
 ```tsx
-import * as SecureStore from 'expo-secure-store';
-import { ThemeProvider } from '@masumdev/rn-ui';
+import * as SecureStore from "expo-secure-store";
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 const storage = {
   getItem: (key: string) => SecureStore.getItemAsync(key),
@@ -233,8 +233,8 @@ export function App() {
 ### AsyncStorage
 
 ```tsx
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider } from '@masumdev/rn-ui';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ThemeProvider } from "@masumdev/rn-ui";
 
 const storage = {
   getItem: (key: string) => AsyncStorage.getItem(key),
@@ -263,12 +263,12 @@ const ENABLE_THEME_DEBUG_LOGS = false;
 
 const debugTheme = (...args: unknown[]) => {
   if (__DEV__ && ENABLE_THEME_DEBUG_LOGS) {
-    console.debug('[rn-ui]', ...args);
+    console.debug("[rn-ui]", ...args);
   }
 };
 
 const errorTheme = (...args: unknown[]) => {
-  console.error('[rn-ui]', ...args);
+  console.error("[rn-ui]", ...args);
 };
 ```
 
@@ -307,8 +307,8 @@ Current core components:
 Icons are intentionally not tied to Ionicons or Expo. Pass any React node or render function.
 
 ```tsx
-import { Button } from '@masumdev/rn-ui';
-import { Ionicons } from '@expo/vector-icons';
+import { Button } from "@masumdev/rn-ui";
+import { Ionicons } from "@expo/vector-icons";
 
 <Button
   leftIcon={({ color, size }) => (
@@ -316,7 +316,7 @@ import { Ionicons } from '@expo/vector-icons';
   )}
 >
   Create
-</Button>
+</Button>;
 ```
 
 ### Accordion
@@ -324,37 +324,37 @@ import { Ionicons } from '@expo/vector-icons';
 Use `Accordion` for expandable flat bordered sections. It supports controlled and uncontrolled state.
 
 ```tsx
-import { Accordion, Text } from '@masumdev/rn-ui';
+import { Accordion, Text } from "@masumdev/rn-ui";
 
 <Accordion
-  defaultOpenIds={['theme']}
+  defaultOpenIds={["theme"]}
   items={[
     {
-      id: 'theme',
-      title: 'Theme tokens',
-      subtitle: 'Colors, fonts, spacing, and radius',
-      content: 'Accordion follows the same flat token-driven style.',
+      id: "theme",
+      title: "Theme tokens",
+      subtitle: "Colors, fonts, spacing, and radius",
+      content: "Accordion follows the same flat token-driven style.",
     },
     {
-      id: 'icons',
-      title: 'Generic icons',
+      id: "icons",
+      title: "Generic icons",
       content: <Text color="textMuted">Icons can be render functions.</Text>,
     },
   ]}
-/>
+/>;
 ```
 
 Controlled:
 
 ```tsx
-const [openIds, setOpenIds] = React.useState(['theme']);
+const [openIds, setOpenIds] = React.useState(["theme"]);
 
 <Accordion
   openIds={openIds}
   onOpenChange={setOpenIds}
   allowMultiple
   items={items}
-/>
+/>;
 ```
 
 Animation:
@@ -367,11 +367,7 @@ Animation:
 - Pass `animationDuration` to tune timing.
 
 ```tsx
-<Accordion
-  animationDuration={220}
-  defaultOpenIds={['theme']}
-  items={items}
-/>
+<Accordion animationDuration={220} defaultOpenIds={["theme"]} items={items} />
 ```
 
 Reanimated or custom animation can be plugged in without making `rn-ui` depend on Reanimated:
@@ -380,7 +376,7 @@ Reanimated or custom animation can be plugged in without making `rn-ui` depend o
 import type {
   AccordionAnimatedContentProps,
   AccordionAnimatedIndicatorProps,
-} from '@masumdev/rn-ui';
+} from "@masumdev/rn-ui";
 
 function ReanimatedAccordionContent(props: AccordionAnimatedContentProps) {
   // App-owned Reanimated implementation.
@@ -398,6 +394,41 @@ function ReanimatedAccordionIndicator(props: AccordionAnimatedIndicatorProps) {
     Content: ReanimatedAccordionContent,
     Indicator: ReanimatedAccordionIndicator,
   }}
+/>;
+```
+
+### Button
+
+Use `Button` for text and icon actions. `variant` controls visual treatment, while `tone` controls semantic color.
+
+```tsx
+<Button variant="filled" tone="primary">
+  Continue
+</Button>
+
+<Button variant="outline" tone="secondary">
+  Cancel
+</Button>
+
+<Button tone="danger">Delete</Button>
+```
+
+`variant="danger"` is still accepted for older usage, but new code should prefer `tone="danger"` so variants stay visual-only.
+
+### IconButton
+
+Use `IconButton` for icon-only actions. Use `tone` for semantic token colors, or `color` for a token name/custom color override.
+
+```tsx
+<IconButton
+  icon={({ color, size }) => <Settings color={color} size={size} />}
+  variant="outline"
+  tone="secondary"
+/>
+
+<IconButton
+  icon={({ color, size }) => <Trash color={color} size={size} />}
+  tone="danger"
 />
 ```
 
@@ -412,13 +443,13 @@ bun add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handle
 Wrap the app root with `GestureHandlerRootView` at app level:
 
 ```tsx
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 <GestureHandlerRootView style={{ flex: 1 }}>
   <ThemeProvider>
     <App />
   </ThemeProvider>
-</GestureHandlerRootView>
+</GestureHandlerRootView>;
 ```
 
 If the app uses Reanimated 4, add the Worklets Babel plugin in the app config:
@@ -428,8 +459,8 @@ module.exports = function (api) {
   api.cache(true);
 
   return {
-    presets: ['babel-preset-expo'],
-    plugins: ['react-native-reanimated/plugin'],
+    presets: ["babel-preset-expo"],
+    plugins: ["react-native-reanimated/plugin"],
   };
 };
 ```
@@ -487,11 +518,11 @@ Gorhom primitives are re-exported for convenience: `BottomSheetView`, `BottomShe
 Use `Alert` for inline feedback. It supports semantic tones, flat variants, generic icons, optional action, and optional close control.
 
 ```tsx
-import { Alert } from '@masumdev/rn-ui';
+import { Alert } from "@masumdev/rn-ui";
 
 <Alert tone="info" title="Information">
   This message uses theme tokens and adapts to light or dark mode.
-</Alert>
+</Alert>;
 ```
 
 With icon and action:
@@ -502,7 +533,7 @@ With icon and action:
   variant="outline"
   icon={({ color, size }) => <Icon name="check" color={color} size={size} />}
   action={{
-    label: 'View details',
+    label: "View details",
     onPress: openDetails,
   }}
 >
@@ -538,7 +569,7 @@ Action icons can be fully overridden, including custom open/close animation owne
 ```tsx
 <Alert
   action={{
-    label: expanded ? 'Hide details' : 'View details',
+    label: expanded ? "Hide details" : "View details",
     icon: ({ color, size }) => (
       <AnimatedChevron expanded={expanded} color={color} size={size} />
     ),
@@ -603,15 +634,17 @@ Android notes:
 Use `AspectRatio` to display layout/media with a specific proportion. The child element automatically stretches to fill the container.
 
 ```tsx
-import { AspectRatio } from '@masumdev/rn-ui';
-import { Image } from 'react-native';
+import { AspectRatio } from "@masumdev/rn-ui";
+import { Image } from "react-native";
 
 <AspectRatio ratio={16 / 9} radius="md">
   <Image
-    source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }}
-    style={{ resizeMode: 'cover' }}
+    source={{
+      uri: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
+    }}
+    style={{ resizeMode: "cover" }}
   />
-</AspectRatio>
+</AspectRatio>;
 ```
 
 ### Attachment
@@ -689,7 +722,7 @@ import {
   BubbleContent,
   BubbleReactions,
   Text,
-} from '@masumdev/rn-ui';
+} from "@masumdev/rn-ui";
 
 <BubbleGroup>
   {/* Incoming message */}
@@ -704,7 +737,7 @@ import {
       <Text style={{ fontSize: 11 }}>👍 1</Text>
     </BubbleReactions>
   </Bubble>
-</BubbleGroup>
+</BubbleGroup>;
 ```
 
 ### ButtonGroup
@@ -717,14 +750,14 @@ import {
   ButtonGroupText,
   ButtonGroupSeparator,
   Button,
-} from '@masumdev/rn-ui';
+} from "@masumdev/rn-ui";
 
 <ButtonGroup orientation="horizontal">
   <ButtonGroupText>Prefix</ButtonGroupText>
   <Button variant="outline">Action A</Button>
   <ButtonGroupSeparator />
   <Button variant="outline">Action B</Button>
-</ButtonGroup>
+</ButtonGroup>;
 ```
 
 ### Calendar
@@ -732,15 +765,15 @@ import {
 Use `Calendar` to render date pickers and handle single date or range select.
 
 ```tsx
-import { Calendar } from '@masumdev/rn-ui';
+import { Calendar } from "@masumdev/rn-ui";
 
 <Calendar
   markedDates={{
-    '2026-07-12': { selected: true, startingDay: true },
-    '2026-07-13': { selected: true, color: 'muted' },
-    '2026-07-14': { selected: true, endingDay: true },
+    "2026-07-12": { selected: true, startingDay: true },
+    "2026-07-13": { selected: true, color: "muted" },
+    "2026-07-14": { selected: true, endingDay: true },
   }}
-/>
+/>;
 ```
 
 ### Carousel
@@ -754,20 +787,28 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from '@masumdev/rn-ui';
+} from "@masumdev/rn-ui";
 
 <Carousel itemWidth={280}>
   <CarouselContent>
     <CarouselItem>
-      <Card><Text>Slide one</Text></Card>
+      <Card>
+        <Text>Slide one</Text>
+      </Card>
     </CarouselItem>
     <CarouselItem>
-      <Card><Text>Slide two</Text></Card>
+      <Card>
+        <Text>Slide two</Text>
+      </Card>
     </CarouselItem>
   </CarouselContent>
-  <CarouselPrevious icon={({ color, size }) => <ChevronLeft color={color} size={size} />} />
-  <CarouselNext icon={({ color, size }) => <ChevronRight color={color} size={size} />} />
-</Carousel>
+  <CarouselPrevious
+    icon={({ color, size }) => <ChevronLeft color={color} size={size} />}
+  />
+  <CarouselNext
+    icon={({ color, size }) => <ChevronRight color={color} size={size} />}
+  />
+</Carousel>;
 ```
 
 ### Checkbox
@@ -805,12 +846,18 @@ Use `Combobox` for searchable selection. It uses React Native `Modal` by default
 <Combobox value={value} onValueChange={setValue}>
   <ComboboxInput
     placeholder="Select framework"
-    chevronIcon={({ color, size }) => <ChevronsUpDown color={color} size={size} />}
+    chevronIcon={({ color, size }) => (
+      <ChevronsUpDown color={color} size={size} />
+    )}
   />
   <ComboboxContent>
     <ComboboxList>
-      <ComboboxItem value="expo" label="Expo">Expo</ComboboxItem>
-      <ComboboxItem value="react-native" label="React Native">React Native</ComboboxItem>
+      <ComboboxItem value="expo" label="Expo">
+        Expo
+      </ComboboxItem>
+      <ComboboxItem value="react-native" label="React Native">
+        React Native
+      </ComboboxItem>
       <ComboboxEmpty>No results.</ComboboxEmpty>
     </ComboboxList>
   </ComboboxContent>
@@ -922,7 +969,9 @@ Use `HoverCard` for richer contextual previews. On mobile, the default trigger i
 ```tsx
 <HoverCard openDelay={10} closeDelay={100}>
   <HoverCardTrigger style={triggerStyle}>
-    <Text variant="label" color="primary">Expo React Native</Text>
+    <Text variant="label" color="primary">
+      Expo React Native
+    </Text>
   </HoverCardTrigger>
   <HoverCardContent>
     <Box gap="xs">
@@ -1093,7 +1142,9 @@ Use `Item` primitives for reusable list rows and grouped content.
       </ItemDescription>
     </ItemContent>
     <ItemActions>
-      <Badge tone="success" variant="soft">Active</Badge>
+      <Badge tone="success" variant="soft">
+        Active
+      </Badge>
     </ItemActions>
   </Item>
 
@@ -1102,14 +1153,22 @@ Use `Item` primitives for reusable list rows and grouped content.
   <Item variant="muted" size="sm">
     <ItemHeader>
       <ItemTitle>Theme tokens</ItemTitle>
-      <Badge tone="info" variant="outline">2026</Badge>
+      <Badge tone="info" variant="outline">
+        2026
+      </Badge>
     </ItemHeader>
     <ItemContent>
-      <ItemDescription>Header and footer areas stay full width.</ItemDescription>
+      <ItemDescription>
+        Header and footer areas stay full width.
+      </ItemDescription>
     </ItemContent>
     <ItemFooter>
-      <Text variant="caption" color="textMuted">by Ma'sum</Text>
-      <Button size="xs" variant="ghost" tone="secondary">View</Button>
+      <Text variant="caption" color="textMuted">
+        by Ma'sum
+      </Text>
+      <Button size="xs" variant="ghost" tone="secondary">
+        View
+      </Button>
     </ItemFooter>
   </Item>
 </ItemGroup>
@@ -1450,7 +1509,8 @@ src/
 - The default visual style is flat: no shadow/elevation by default, stronger borders, semantic surfaces, and consistent rounded corners.
 - Default primary color uses a modern indigo palette: `#4F46E5` in light mode and `#818CF8` in dark mode.
 - Use semantic colors such as `background`, `surface`, `text`, `primary`, `danger`, and `border` instead of hardcoded hex values.
-- Use `spacing`, `radii`, `fonts`, and `typography` tokens from `useTheme()` or `useThemeStyles()`.
+- Use `spacing`, `radii`, `fonts`, `typography`, and `components` tokens from `useTheme()` or `useThemeStyles()`.
+- Use `components.borderWidth` for default, strong, focus, ring, and hairline border sizing.
 - Keep app-specific storage, fonts, icons, and haptics outside the UI core.
 - Add new components through `components/` and export them from `components/index.ts`.
 - When changing package APIs, tokens, default visuals, persistence behavior, or app integration examples, update this README in the same change.

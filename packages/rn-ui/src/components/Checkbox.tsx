@@ -1,14 +1,14 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Pressable,
   View,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme } from "../theme";
+import { renderIcon, type RenderIcon } from "./types";
 
 export interface CheckboxProps {
   checked?: boolean;
@@ -29,7 +29,7 @@ function CheckIcon({ color }: { color: string }) {
         borderLeftWidth: 1.8,
         borderBottomWidth: 1.8,
         borderColor: color,
-        transform: [{ rotate: '-45deg' }],
+        transform: [{ rotate: "-45deg" }],
         marginTop: -2,
       }}
     />
@@ -45,7 +45,7 @@ export function Checkbox({
   icon,
   ...props
 }: CheckboxProps) {
-  const { colors } = useTheme();
+  const { colors, components } = useTheme();
 
   const checkedAnim = React.useRef(new Animated.Value(checked ? 1 : 0)).current;
 
@@ -67,8 +67,8 @@ export function Checkbox({
   const borderColor = invalid
     ? colors.danger
     : checked
-    ? colors.primary
-    : colors.border;
+      ? colors.primary
+      : colors.border;
 
   // Pop-in scale transition from 0.65 to 1.0
   const overlayScale = checkedAnim.interpolate({
@@ -87,13 +87,13 @@ export function Checkbox({
           width: 18,
           height: 18,
           borderRadius: 4,
-          borderWidth: 1.5,
+          borderWidth: components.borderWidth.focus,
           borderColor,
           backgroundColor: colors.transparent,
-          justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'hidden',
-          opacity: disabled ? 0.5 : (pressed ? 0.82 : 1),
+          justifyContent: "center",
+          alignItems: "center",
+          overflow: "hidden",
+          opacity: disabled ? 0.5 : pressed ? 0.82 : 1,
         },
         style,
       ]}
@@ -101,14 +101,14 @@ export function Checkbox({
     >
       <Animated.View
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
           backgroundColor: invalid ? colors.danger : colors.primary,
-          justifyContent: 'center',
-          alignItems: 'center',
+          justifyContent: "center",
+          alignItems: "center",
           opacity: checkedAnim,
           transform: [{ scale: overlayScale }],
         }}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -6,30 +6,64 @@ import {
   type PressableProps,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { withAlpha } from '../utils';
-import { renderIcon, type RenderIcon } from './types';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { withAlpha } from "../utils";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon, type ThemeColorName } from "./types";
 
-export type IconButtonVariant = 'filled' | 'outline' | 'ghost' | 'soft';
-export type IconButtonSize = 'sm' | 'md' | 'lg';
+export type IconButtonVariant = "filled" | "outline" | "ghost" | "soft";
+export type IconButtonSize = "sm" | "md" | "lg";
+export type IconButtonTone =
+  | "primary"
+  | "secondary"
+  | "accent"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info";
 
-export interface IconButtonProps extends Omit<PressableProps, 'children' | 'style'> {
+export interface IconButtonProps extends Omit<
+  PressableProps,
+  "children" | "style"
+> {
   icon: RenderIcon;
   variant?: IconButtonVariant;
   size?: IconButtonSize;
-  color?: string;
+  tone?: IconButtonTone;
+  color?: ThemeColorName | string;
   loading?: boolean;
   badge?: number;
   style?: StyleProp<ViewStyle>;
 }
 
+function getToneColor(
+  tone: IconButtonTone,
+  colors: ReturnType<typeof useTheme>["colors"],
+) {
+  if (tone === "primary") return colors.primary;
+  if (tone === "secondary") return colors.secondary;
+  if (tone === "accent") return colors.accent;
+  if (tone === "success") return colors.success;
+  if (tone === "warning") return colors.warning;
+  if (tone === "danger") return colors.danger;
+  return colors.info;
+}
+
+function resolveColor(
+  color: ThemeColorName | string | undefined,
+  colors: ReturnType<typeof useTheme>["colors"],
+) {
+  if (!color) return undefined;
+  return color in colors ? colors[color as ThemeColorName] : color;
+}
+
 export function IconButton({
   icon,
-  variant = 'ghost',
-  size = 'md',
+  variant = "ghost",
+  size = "md",
+  tone = "primary",
   color,
   loading,
   disabled,
@@ -38,23 +72,29 @@ export function IconButton({
   ...props
 }: IconButtonProps) {
   const { colors, components } = useTheme();
-  const base = color ?? colors.primary;
+  const base = resolveColor(color, colors) ?? getToneColor(tone, colors);
   const isDisabled = disabled || loading;
   const containerSize = components.iconButton.size[size];
   const iconSize = components.iconButton.iconSize[size];
+  const badgeTokens = components.iconButton.badge;
 
-  const backgroundColor =
-    isDisabled ? colors.disabled :
-    variant === 'filled' ? base :
-    variant === 'soft' ? withAlpha(base, 0.12) :
-    variant === 'outline' ? colors.surface :
-    colors.transparent;
+  const backgroundColor = isDisabled
+    ? colors.disabled
+    : variant === "filled"
+      ? base
+      : variant === "soft"
+        ? withAlpha(base, 0.12)
+        : variant === "outline"
+          ? colors.surface
+          : colors.transparent;
 
-  const iconColor =
-    isDisabled ? colors.disabledText :
-    variant === 'filled' ? colors.onPrimary :
-    variant === 'ghost' ? colors.text :
-    base;
+  const iconColor = isDisabled
+    ? colors.disabledText
+    : variant === "filled"
+      ? colors.onPrimary
+      : variant === "ghost"
+        ? colors.text
+        : base;
 
   return (
     <Pressable
@@ -66,36 +106,50 @@ export function IconButton({
           height: containerSize,
           borderRadius: containerSize / 2,
           backgroundColor,
-          borderColor: variant === 'outline' ? colors.border : colors.transparent,
-          borderWidth: variant === 'outline' ? 1.25 : 0,
-          alignItems: 'center',
-          justifyContent: 'center',
+          borderColor:
+            variant === "outline" ? colors.border : colors.transparent,
+          borderWidth:
+            variant === "outline" ? components.borderWidth.strong : 0,
+          alignItems: "center",
+          justifyContent: "center",
           opacity: pressed && !isDisabled ? 0.72 : 1,
         },
         style,
       ]}
       {...props}
     >
-      {loading ? <ActivityIndicator color={iconColor} /> : renderIcon(icon, iconColor, iconSize)}
+      {loading ? (
+        <ActivityIndicator color={iconColor} />
+      ) : (
+        renderIcon(icon, iconColor, iconSize)
+      )}
       {!!badge && badge > 0 && (
         <View
           style={{
-            position: 'absolute',
-            top: -2,
-            right: -2,
-            minWidth: 16,
-            height: 16,
-            paddingHorizontal: 4,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
+            position: "absolute",
+            top: badgeTokens.offset,
+            right: badgeTokens.offset,
+            minWidth: badgeTokens.minWidth,
+            height: badgeTokens.size,
+            paddingHorizontal: badgeTokens.paddingX,
+            borderRadius: badgeTokens.size / 2,
+            alignItems: "center",
+            justifyContent: "center",
             backgroundColor: colors.danger,
-            borderWidth: 1.5,
+            borderWidth: badgeTokens.borderWidth,
             borderColor: colors.surface,
           }}
         >
-          <Text variant="caption" color="onDanger" weight="700" style={{ fontSize: 8, lineHeight: 10 }}>
-            {badge > 99 ? '99+' : String(badge)}
+          <Text
+            variant="caption"
+            color="onDanger"
+            weight="700"
+            style={{
+              fontSize: badgeTokens.fontSize,
+              lineHeight: badgeTokens.lineHeight,
+            }}
+          >
+            {badge > 99 ? "99+" : String(badge)}
           </Text>
         </View>
       )}

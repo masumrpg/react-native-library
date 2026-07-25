@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Pressable,
   View,
@@ -6,10 +6,10 @@ import {
   type StyleProp,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
 export interface RadioGroupContextValue {
   value?: string;
@@ -17,7 +17,9 @@ export interface RadioGroupContextValue {
   onValueChange?: (value: string) => void;
 }
 
-const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(null);
+const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(
+  null,
+);
 
 export interface RadioGroupProps extends ViewProps {
   value?: string;
@@ -38,10 +40,13 @@ export function RadioGroup({
   const { spacing } = useTheme();
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const currentValue = value ?? internalValue;
-  const handleValueChange = React.useCallback((next: string) => {
-    if (value === undefined) setInternalValue(next);
-    onValueChange?.(next);
-  }, [onValueChange, value]);
+  const handleValueChange = React.useCallback(
+    (next: string) => {
+      if (value === undefined) setInternalValue(next);
+      onValueChange?.(next);
+    },
+    [onValueChange, value],
+  );
   const context = React.useMemo(
     () => ({ value: currentValue, disabled, onValueChange: handleValueChange }),
     [currentValue, disabled, handleValueChange],
@@ -51,14 +56,14 @@ export function RadioGroup({
     <RadioGroupContext.Provider value={context}>
       <View
         accessibilityRole="radiogroup"
-        style={[{ gap: spacing.sm, width: '100%' }, style]}
+        style={[{ gap: spacing.sm, width: "100%" }, style]}
         {...props}
       />
     </RadioGroupContext.Provider>
   );
 }
 
-export interface RadioGroupItemProps extends Omit<PressableProps, 'style'> {
+export interface RadioGroupItemProps extends Omit<PressableProps, "style"> {
   value: string;
   label?: React.ReactNode;
   description?: React.ReactNode;
@@ -75,7 +80,7 @@ export function RadioGroupItem({
   ...props
 }: RadioGroupItemProps) {
   const context = React.useContext(RadioGroupContext);
-  const { colors, radii, spacing, typography } = useTheme();
+  const { colors, components, radii, spacing, typography } = useTheme();
   const checked = context?.value === value;
   const isDisabled = disabled || Boolean(context?.disabled);
 
@@ -87,12 +92,12 @@ export function RadioGroupItem({
       onPress={() => context?.onValueChange?.(value)}
       style={({ pressed }) => [
         {
-          width: '100%',
-          flexDirection: 'row',
-          alignItems: 'flex-start',
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "flex-start",
           gap: spacing.md,
           padding: spacing.md,
-          borderWidth: 1.25,
+          borderWidth: components.borderWidth.strong,
           borderColor: checked ? colors.primary : colors.border,
           borderRadius: radii.lg,
           backgroundColor: checked ? colors.primarySoft : colors.surface,
@@ -107,10 +112,10 @@ export function RadioGroupItem({
           width: 18,
           height: 18,
           borderRadius: 9,
-          borderWidth: 1.5,
+          borderWidth: components.borderWidth.focus,
           borderColor: checked ? colors.primary : colors.border,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
           marginTop: 1,
         }}
       >
@@ -126,14 +131,20 @@ export function RadioGroupItem({
         ) : null}
       </View>
       <View style={{ flex: 1, gap: spacing.xs }}>
-        {typeof label === 'string' ? (
-          <Text variant="label" color="text">{label}</Text>
-        ) : label}
-        {typeof description === 'string' ? (
+        {typeof label === "string" ? (
+          <Text variant="label" color="text">
+            {label}
+          </Text>
+        ) : (
+          label
+        )}
+        {typeof description === "string" ? (
           <Text style={[typography.bodySmall, { color: colors.textMuted }]}>
             {description}
           </Text>
-        ) : description}
+        ) : (
+          description
+        )}
       </View>
     </Pressable>
   );

@@ -1,10 +1,15 @@
-import React from 'react';
-import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Button } from './Button';
-import { Text } from './Text';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme } from "../theme";
+import { Button } from "./Button";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon } from "./types";
 
 export interface StepperProps extends ViewProps {
   value?: number;
@@ -36,7 +41,7 @@ export function Stepper({
   style,
   ...props
 }: StepperProps) {
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const currentValue = clampStepper(value ?? internalValue, min, max);
   const setNextValue = (nextValue: number) => {
@@ -52,13 +57,13 @@ export function Stepper({
       style={[
         {
           minHeight: 44,
-          flexDirection: 'row',
-          alignItems: 'center',
-          borderWidth: 1.25,
+          flexDirection: "row",
+          alignItems: "center",
+          borderWidth: components.borderWidth.strong,
           borderColor: colors.border,
           borderRadius: radii.lg,
           backgroundColor: colors.surface,
-          overflow: 'hidden',
+          overflow: "hidden",
           opacity: disabled ? 0.5 : 1,
         },
         style,
@@ -73,10 +78,16 @@ export function Stepper({
         disabled={disabled || currentValue <= min}
         onPress={() => setNextValue(currentValue - step)}
       >
-        {decrementIcon ? renderIcon(decrementIcon, colors.text, 16) : '-'}
+        {decrementIcon ? renderIcon(decrementIcon, colors.text, 16) : "-"}
       </Button>
-      <View style={{ minWidth: 52, alignItems: 'center', paddingHorizontal: spacing.sm }}>
-        <Text variant="label" style={{ fontVariant: ['tabular-nums'] }}>
+      <View
+        style={{
+          minWidth: 52,
+          alignItems: "center",
+          paddingHorizontal: spacing.sm,
+        }}
+      >
+        <Text variant="label" style={{ fontVariant: ["tabular-nums"] }}>
           {currentValue}
         </Text>
       </View>
@@ -88,7 +99,7 @@ export function Stepper({
         disabled={disabled || currentValue >= max}
         onPress={() => setNextValue(currentValue + step)}
       >
-        {incrementIcon ? renderIcon(incrementIcon, colors.text, 16) : '+'}
+        {incrementIcon ? renderIcon(incrementIcon, colors.text, 16) : "+"}
       </Button>
     </View>
   );

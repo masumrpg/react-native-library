@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   Image,
   StyleSheet,
@@ -8,12 +8,12 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import { Text } from './Text';
+import { useTheme } from "../theme";
+import { Text } from "./Text";
 
-export type AvatarSize = 'default' | 'sm' | 'lg';
+export type AvatarSize = "default" | "sm" | "lg";
 
 interface AvatarContextType {
   size: AvatarSize;
@@ -29,21 +29,33 @@ const AvatarContext = createContext<AvatarContextType | null>(null);
 function useAvatarContext() {
   const context = useContext(AvatarContext);
   if (!context) {
-    throw new Error('Avatar components must be rendered within an Avatar provider');
+    throw new Error(
+      "Avatar components must be rendered within an Avatar provider",
+    );
   }
   return context;
 }
 
-const GroupContext = createContext<{ inGroup: boolean; size: AvatarSize } | null>(null);
+const GroupContext = createContext<{
+  inGroup: boolean;
+  size: AvatarSize;
+} | null>(null);
 
-export interface AvatarProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface AvatarProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   size?: AvatarSize;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
-export function Avatar({ size = 'default', style, children, ...props }: AvatarProps) {
-  const { colors, radii } = useTheme();
+export function Avatar({
+  size = "default",
+  style,
+  children,
+  ...props
+}: AvatarProps) {
+  const { colors, components, radii } = useTheme();
   const [hasLoaded, setHasLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -53,20 +65,20 @@ export function Avatar({ size = 'default', style, children, ...props }: AvatarPr
   const inGroup = !!group;
 
   // Determine width and height based on size
-  const dimension = finalSize === 'lg' ? 40 : finalSize === 'sm' ? 24 : 32;
+  const dimension = finalSize === "lg" ? 40 : finalSize === "sm" ? 24 : 32;
 
   const rootStyle: ViewStyle = {
-    position: 'relative',
+    position: "relative",
     width: dimension,
     height: dimension,
     borderRadius: radii.full,
     backgroundColor: colors.backgroundMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'visible', // Let the badge sit outside or on the edge
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "visible", // Let the badge sit outside or on the edge
     ...(inGroup
       ? {
-          borderWidth: 2,
+          borderWidth: components.borderWidth.ring,
           borderColor: colors.background, // ring-2 ring-background
         }
       : {}),
@@ -90,11 +102,17 @@ export function Avatar({ size = 'default', style, children, ...props }: AvatarPr
   );
 }
 
-export interface AvatarImageProps extends Omit<ImageProps, 'style'> {
+export interface AvatarImageProps extends Omit<ImageProps, "style"> {
   style?: StyleProp<ImageStyle>;
 }
 
-export function AvatarImage({ source, style, onLoad, onError, ...props }: AvatarImageProps) {
+export function AvatarImage({
+  source,
+  style,
+  onLoad,
+  onError,
+  ...props
+}: AvatarImageProps) {
   const { setHasLoaded, setHasError, hasError } = useAvatarContext();
   const { radii } = useTheme();
 
@@ -134,13 +152,20 @@ export function AvatarImage({ source, style, onLoad, onError, ...props }: Avatar
   );
 }
 
-export interface AvatarFallbackProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface AvatarFallbackProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   children?: React.ReactNode;
 }
 
-export function AvatarFallback({ style, textStyle, children, ...props }: AvatarFallbackProps) {
+export function AvatarFallback({
+  style,
+  textStyle,
+  children,
+  ...props
+}: AvatarFallbackProps) {
   const { hasLoaded, hasError, size } = useAvatarContext();
   const { colors, radii } = useTheme();
 
@@ -153,17 +178,22 @@ export function AvatarFallback({ style, textStyle, children, ...props }: AvatarF
     ...StyleSheet.absoluteFillObject,
     borderRadius: radii.full,
     backgroundColor: colors.backgroundMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   };
 
   // Determine text size based on size
-  const fontSize = size === 'lg' ? 16 : size === 'sm' ? 10 : 12;
+  const fontSize = size === "lg" ? 16 : size === "sm" ? 10 : 12;
 
   return (
     <View style={[fallbackStyle, style]} {...props}>
-      {typeof children === 'string' ? (
-        <Text style={[{ color: colors.textMuted, fontSize, fontWeight: '600' }, textStyle]}>
+      {typeof children === "string" ? (
+        <Text
+          style={[
+            { color: colors.textMuted, fontSize, fontWeight: "600" },
+            textStyle,
+          ]}
+        >
           {children}
         </Text>
       ) : (
@@ -173,28 +203,30 @@ export function AvatarFallback({ style, textStyle, children, ...props }: AvatarF
   );
 }
 
-export interface AvatarBadgeProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface AvatarBadgeProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   style?: StyleProp<ViewStyle>;
   bg?: string; // Custom background color override
 }
 
 export function AvatarBadge({ style, bg, ...props }: AvatarBadgeProps) {
   const { size } = useAvatarContext();
-  const { colors } = useTheme();
+  const { colors, components } = useTheme();
 
   // Determine badge dimensions based on parent size
-  const badgeSize = size === 'lg' ? 12 : size === 'sm' ? 8 : 10;
-  const offset = size === 'lg' ? 0 : size === 'sm' ? -1 : -0.5;
+  const badgeSize = size === "lg" ? 12 : size === "sm" ? 8 : 10;
+  const offset = size === "lg" ? 0 : size === "sm" ? -1 : -0.5;
 
   const badgeStyle: ViewStyle = {
-    position: 'absolute',
+    position: "absolute",
     right: offset,
     bottom: offset,
     width: badgeSize,
     height: badgeSize,
     borderRadius: badgeSize / 2,
     backgroundColor: bg || colors.primary,
-    borderWidth: 1.5,
+    borderWidth: components.borderWidth.focus,
     borderColor: colors.background, // ring-2 ring-background
     zIndex: 10,
   };
@@ -202,20 +234,27 @@ export function AvatarBadge({ style, bg, ...props }: AvatarBadgeProps) {
   return <View style={[badgeStyle, style]} {...props} />;
 }
 
-export interface AvatarGroupProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface AvatarGroupProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   size?: AvatarSize;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
-export function AvatarGroup({ size = 'default', style, children, ...props }: AvatarGroupProps) {
+export function AvatarGroup({
+  size = "default",
+  style,
+  children,
+  ...props
+}: AvatarGroupProps) {
   const groupStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   };
 
   // Spacing values mapped to negative margins
-  const spacing = size === 'lg' ? -10 : size === 'sm' ? -6 : -8;
+  const spacing = size === "lg" ? -10 : size === "sm" ? -6 : -8;
 
   return (
     <GroupContext.Provider value={{ inGroup: true, size }}>
@@ -237,36 +276,48 @@ export function AvatarGroup({ size = 'default', style, children, ...props }: Ava
   );
 }
 
-export interface AvatarGroupCountProps extends React.ComponentPropsWithoutRef<typeof View> {
+export interface AvatarGroupCountProps extends React.ComponentPropsWithoutRef<
+  typeof View
+> {
   count: number;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
 
-export function AvatarGroupCount({ count, style, textStyle, ...props }: AvatarGroupCountProps) {
-  const { colors, radii } = useTheme();
+export function AvatarGroupCount({
+  count,
+  style,
+  textStyle,
+  ...props
+}: AvatarGroupCountProps) {
+  const { colors, components, radii } = useTheme();
   const group = useContext(GroupContext);
-  const size = group ? group.size : 'default';
+  const size = group ? group.size : "default";
 
-  const dimension = size === 'lg' ? 40 : size === 'sm' ? 24 : 32;
-  const spacing = size === 'lg' ? -10 : size === 'sm' ? -6 : -8;
-  const fontSize = size === 'lg' ? 14 : size === 'sm' ? 10 : 12;
+  const dimension = size === "lg" ? 40 : size === "sm" ? 24 : 32;
+  const spacing = size === "lg" ? -10 : size === "sm" ? -6 : -8;
+  const fontSize = size === "lg" ? 14 : size === "sm" ? 10 : 12;
 
   const countStyle: ViewStyle = {
     width: dimension,
     height: dimension,
     borderRadius: radii.full,
     backgroundColor: colors.backgroundMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: components.borderWidth.ring,
     borderColor: colors.background, // ring-2 ring-background
     marginLeft: spacing,
   };
 
   return (
     <View style={[countStyle, style]} {...props}>
-      <Text style={[{ color: colors.textMuted, fontSize, fontWeight: '600' }, textStyle]}>
+      <Text
+        style={[
+          { color: colors.textMuted, fontSize, fontWeight: "600" },
+          textStyle,
+        ]}
+      >
         +{count}
       </Text>
     </View>

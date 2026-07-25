@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Pressable,
   Text,
@@ -9,29 +9,34 @@ import {
   type TextStyle,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
-export type ItemVariant = 'default' | 'outline' | 'muted';
-export type ItemSize = 'default' | 'sm' | 'xs';
-export type ItemMediaVariant = 'default' | 'icon' | 'image';
+export type ItemVariant = "default" | "outline" | "muted";
+export type ItemSize = "default" | "sm" | "xs";
+export type ItemMediaVariant = "default" | "icon" | "image";
 
 export interface ItemGroupProps extends ViewProps {
   size?: ItemSize;
   style?: StyleProp<ViewStyle>;
 }
 
-export function ItemGroup({ size = 'default', style, ...props }: ItemGroupProps) {
+export function ItemGroup({
+  size = "default",
+  style,
+  ...props
+}: ItemGroupProps) {
   const { spacing } = useTheme();
-  const gap = size === 'xs' ? spacing.sm : size === 'sm' ? spacing.md : spacing.lg;
+  const gap =
+    size === "xs" ? spacing.sm : size === "sm" ? spacing.md : spacing.lg;
 
   return (
     <View
       accessibilityRole="list"
       style={[
         {
-          width: '100%',
+          width: "100%",
           gap,
         },
         style,
@@ -53,7 +58,7 @@ export function ItemSeparator({ style, ...props }: ItemSeparatorProps) {
       style={[
         {
           height: 1,
-          width: '100%',
+          width: "100%",
           marginVertical: spacing.sm,
           backgroundColor: colors.divider,
         },
@@ -64,48 +69,52 @@ export function ItemSeparator({ style, ...props }: ItemSeparatorProps) {
   );
 }
 
-export interface ItemProps extends Omit<PressableProps, 'style'> {
+export interface ItemProps extends Omit<PressableProps, "style"> {
   variant?: ItemVariant;
   size?: ItemSize;
-  style?: StyleProp<ViewStyle> | ((state: { pressed: boolean }) => StyleProp<ViewStyle>);
+  style?:
+    | StyleProp<ViewStyle>
+    | ((state: { pressed: boolean }) => StyleProp<ViewStyle>);
 }
 
 export function Item({
-  variant = 'default',
-  size = 'default',
+  variant = "default",
+  size = "default",
   disabled,
   style,
   ...props
 }: ItemProps) {
   const { colors, radii, spacing } = useTheme();
 
-  const paddingX = size === 'xs' ? spacing.md : spacing.lg;
-  const paddingY = size === 'xs' ? spacing.sm : spacing.md;
-  const gap = size === 'xs' ? spacing.sm : spacing.md;
+  const paddingX = size === "xs" ? spacing.md : spacing.lg;
+  const paddingY = size === "xs" ? spacing.sm : spacing.md;
+  const gap = size === "xs" ? spacing.sm : spacing.md;
   const isDisabled = Boolean(disabled);
 
   return (
     <Pressable
-      accessibilityRole={props.onPress ? 'button' : undefined}
+      accessibilityRole={props.onPress ? "button" : undefined}
       accessibilityState={{ disabled: isDisabled }}
       disabled={isDisabled}
       style={({ pressed }) => [
         {
-          width: '100%',
-          minHeight: size === 'xs' ? 40 : 48,
+          width: "100%",
+          minHeight: size === "xs" ? 40 : 48,
           paddingHorizontal: paddingX,
           paddingVertical: paddingY,
           borderRadius: radii.lg,
-          borderWidth: variant === 'outline' ? 1.25 : 1.25,
-          borderColor: variant === 'outline' ? colors.border : colors.transparent,
-          backgroundColor: variant === 'muted' ? colors.surfaceMuted : colors.transparent,
-          flexDirection: 'row',
-          alignItems: 'center',
-          flexWrap: 'wrap',
+          borderWidth: variant === "outline" ? 1.25 : 1.25,
+          borderColor:
+            variant === "outline" ? colors.border : colors.transparent,
+          backgroundColor:
+            variant === "muted" ? colors.surfaceMuted : colors.transparent,
+          flexDirection: "row",
+          alignItems: "center",
+          flexWrap: "wrap",
           gap,
           opacity: isDisabled ? 0.5 : pressed ? 0.78 : 1,
         },
-        typeof style === 'function' ? style({ pressed }) : style,
+        typeof style === "function" ? style({ pressed }) : style,
       ]}
       {...props}
     />
@@ -119,26 +128,27 @@ export interface ItemMediaProps extends ViewProps {
 }
 
 export function ItemMedia({
-  variant = 'default',
-  size = 'default',
+  variant = "default",
+  size = "default",
   style,
   ...props
 }: ItemMediaProps) {
   const { colors, radii } = useTheme();
-  const imageSize = size === 'xs' ? 24 : size === 'sm' ? 32 : 40;
+  const imageSize = size === "xs" ? 24 : size === "sm" ? 32 : 40;
 
   return (
     <View
       style={[
         {
-          width: variant === 'image' ? imageSize : undefined,
-          height: variant === 'image' ? imageSize : undefined,
+          width: variant === "image" ? imageSize : undefined,
+          height: variant === "image" ? imageSize : undefined,
           flexShrink: 0,
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: variant === 'image' ? 'hidden' : undefined,
-          borderRadius: variant === 'image' ? radii.sm : undefined,
-          backgroundColor: variant === 'image' ? colors.backgroundMuted : colors.transparent,
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: variant === "image" ? "hidden" : undefined,
+          borderRadius: variant === "image" ? radii.sm : undefined,
+          backgroundColor:
+            variant === "image" ? colors.backgroundMuted : colors.transparent,
         },
         style,
       ]}
@@ -224,8 +234,8 @@ export function ItemActions({ style, ...props }: ItemActionsProps) {
     <View
       style={[
         {
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: spacing.sm,
         },
         style,
@@ -246,10 +256,10 @@ export function ItemHeader({ style, ...props }: ItemHeaderProps) {
     <View
       style={[
         {
-          width: '100%',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           gap: spacing.sm,
         },
         style,
@@ -270,10 +280,10 @@ export function ItemFooter({ style, ...props }: ItemFooterProps) {
     <View
       style={[
         {
-          width: '100%',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          width: "100%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           gap: spacing.sm,
         },
         style,

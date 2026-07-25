@@ -1,12 +1,14 @@
-import type { ReactNode } from 'react';
-import type { ImageStyle, TextStyle, ViewStyle } from 'react-native';
+import type { ReactNode } from "react";
+import type { ImageStyle, TextStyle, ViewStyle } from "react-native";
 
-export type ThemeMode = 'light' | 'dark';
-export type ColorSchemePreference = ThemeMode | 'system';
+export type ThemeMode = "light" | "dark";
+export type ColorSchemePreference = ThemeMode | "system";
 
 export type ThemeStyle = ViewStyle | TextStyle | ImageStyle;
 export type ThemeNamedStyles<T> = { [P in keyof T]: ThemeStyle };
-export type ThemeStyleFactory<T extends ThemeNamedStyles<T>> = (theme: Theme) => T;
+export type ThemeStyleFactory<T extends ThemeNamedStyles<T>> = (
+  theme: Theme,
+) => T;
 
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
@@ -60,7 +62,7 @@ export interface TypographyVariant {
   fontFamily?: string;
   fontSize: number;
   lineHeight: number;
-  fontWeight?: TextStyle['fontWeight'];
+  fontWeight?: TextStyle["fontWeight"];
   letterSpacing?: number;
 }
 
@@ -125,14 +127,41 @@ export interface ThemeShadows {
 }
 
 export interface ThemeComponents {
+  borderWidth: {
+    default: number;
+    strong: number;
+    focus: number;
+    ring: number;
+    hairline: number;
+  };
   button: {
-    height: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>;
-    paddingX: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>;
-    iconSize: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>;
+    height: Record<"xs" | "sm" | "md" | "lg" | "xl", number>;
+    paddingX: Record<"xs" | "sm" | "md" | "lg" | "xl", number>;
+    iconSize: Record<"xs" | "sm" | "md" | "lg" | "xl", number>;
   };
   iconButton: {
-    size: Record<'sm' | 'md' | 'lg', number>;
-    iconSize: Record<'sm' | 'md' | 'lg', number>;
+    size: Record<"sm" | "md" | "lg", number>;
+    iconSize: Record<"sm" | "md" | "lg", number>;
+    badge: {
+      size: number;
+      minWidth: number;
+      offset: number;
+      paddingX: number;
+      borderWidth: number;
+      fontSize: number;
+      lineHeight: number;
+    };
+  };
+  timeline: {
+    indicatorSize: number;
+    connectorWidth: number;
+    connectorMinHeight: number;
+  };
+  table: {
+    minColumnWidth: number;
+  };
+  metricCard: {
+    iconSize: number;
   };
 }
 
@@ -148,7 +177,7 @@ export interface Theme {
   components: ThemeComponents;
 }
 
-export type ThemeInput = DeepPartial<Omit<Theme, 'mode' | 'dark'>>;
+export type ThemeInput = DeepPartial<Omit<Theme, "mode" | "dark">>;
 
 export interface ThemeStorage {
   getItem: (key: string) => string | null | Promise<string | null>;

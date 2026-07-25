@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Pressable,
@@ -10,9 +10,9 @@ import {
   type TextInputProps,
   type ViewProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface InputOTPSlotState {
   char: string;
@@ -28,9 +28,14 @@ export interface InputOTPContextValue {
   focus: () => void;
 }
 
-export const InputOTPContext = React.createContext<InputOTPContextValue | null>(null);
+export const InputOTPContext = React.createContext<InputOTPContextValue | null>(
+  null,
+);
 
-export interface InputOTPProps extends Omit<PressableProps, 'children' | 'style'> {
+export interface InputOTPProps extends Omit<
+  PressableProps,
+  "children" | "style"
+> {
   children: React.ReactNode;
   value?: string;
   defaultValue?: string;
@@ -39,18 +44,21 @@ export interface InputOTPProps extends Omit<PressableProps, 'children' | 'style'
   disabled?: boolean;
   invalid?: boolean;
   autoFocus?: boolean;
-  textInputProps?: Omit<TextInputProps, 'value' | 'defaultValue' | 'onChangeText' | 'maxLength' | 'editable'>;
+  textInputProps?: Omit<
+    TextInputProps,
+    "value" | "defaultValue" | "onChangeText" | "maxLength" | "editable"
+  >;
   style?: StyleProp<ViewStyle>;
 }
 
 function normalizeValue(value: string, maxLength: number) {
-  return value.replace(/\s/g, '').slice(0, maxLength);
+  return value.replace(/\s/g, "").slice(0, maxLength);
 }
 
 export function InputOTP({
   children,
   value,
-  defaultValue = '',
+  defaultValue = "",
   onChangeText,
   maxLength = 6,
   disabled = false,
@@ -64,7 +72,9 @@ export function InputOTP({
   const { colors } = useTheme();
   const inputRef = React.useRef<TextInput>(null);
   const [focused, setFocused] = React.useState(false);
-  const [internalValue, setInternalValue] = React.useState(() => normalizeValue(defaultValue, maxLength));
+  const [internalValue, setInternalValue] = React.useState(() =>
+    normalizeValue(defaultValue, maxLength),
+  );
   const currentValue = normalizeValue(value ?? internalValue, maxLength);
   const activeIndex = Math.min(currentValue.length, maxLength - 1);
 
@@ -85,7 +95,7 @@ export function InputOTP({
   const slots = React.useMemo<InputOTPSlotState[]>(
     () =>
       Array.from({ length: maxLength }, (_, index) => {
-        const char = currentValue[index] ?? '';
+        const char = currentValue[index] ?? "";
         const isActive = focused && index === activeIndex;
 
         return {
@@ -149,7 +159,7 @@ export function InputOTP({
           }}
           style={[
             {
-              position: 'absolute',
+              position: "absolute",
               width: 1,
               height: 1,
               opacity: 0,
@@ -175,8 +185,8 @@ export function InputOTPGroup({ style, ...props }: InputOTPGroupProps) {
     <View
       style={[
         {
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           borderRadius: radii.lg,
           gap: spacing.xs,
         },
@@ -193,7 +203,7 @@ export interface InputOTPSlotProps extends ViewProps {
 }
 
 export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
-  const { colors, typography, radii } = useTheme();
+  const { colors, components, typography, radii } = useTheme();
   const context = React.useContext(InputOTPContext);
   const slot = context?.slots[index];
 
@@ -202,12 +212,15 @@ export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
       accessibilityState={{ selected: slot?.isActive }}
       style={[
         {
-          position: 'relative',
+          position: "relative",
           width: 38,
           height: 42,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: slot?.isActive || context?.invalid ? 1.5 : 1.25,
+          alignItems: "center",
+          justifyContent: "center",
+          borderWidth:
+            slot?.isActive || context?.invalid
+              ? components.borderWidth.focus
+              : components.borderWidth.strong,
           borderColor: context?.invalid
             ? colors.danger
             : slot?.isActive
@@ -225,7 +238,7 @@ export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
           typography.label,
           {
             color: context?.disabled ? colors.disabledText : colors.text,
-            fontVariant: ['tabular-nums'],
+            fontVariant: ["tabular-nums"],
           },
         ]}
       >
@@ -264,7 +277,7 @@ function InputOTPCaret() {
     <Animated.View
       pointerEvents="none"
       style={{
-        position: 'absolute',
+        position: "absolute",
         width: 1.25,
         height: 18,
         borderRadius: 1,
@@ -279,7 +292,11 @@ export interface InputOTPSeparatorProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function InputOTPSeparator({ style, children, ...props }: InputOTPSeparatorProps) {
+export function InputOTPSeparator({
+  style,
+  children,
+  ...props
+}: InputOTPSeparatorProps) {
   const { colors } = useTheme();
 
   return (
@@ -288,8 +305,8 @@ export function InputOTPSeparator({ style, children, ...props }: InputOTPSeparat
       style={[
         {
           width: 14,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
         },
         style,
       ]}

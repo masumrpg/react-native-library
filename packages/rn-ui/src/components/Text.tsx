@@ -1,19 +1,23 @@
-import React from 'react';
-import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
+import React from "react";
+import {
+  Text as RNText,
+  type TextProps as RNTextProps,
+  type TextStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
-import type { ThemeColorName } from './types';
+import { useTheme } from "../theme";
+import type { ThemeColorName } from "./types";
 
 export interface TextProps extends RNTextProps {
-  variant?: keyof ReturnType<typeof useTheme>['typography'];
+  variant?: keyof ReturnType<typeof useTheme>["typography"];
   color?: ThemeColorName;
-  align?: TextStyle['textAlign'];
-  weight?: TextStyle['fontWeight'];
+  align?: TextStyle["textAlign"];
+  weight?: TextStyle["fontWeight"];
 }
 
 export function Text({
-  variant = 'body',
-  color = 'text',
+  variant = "body",
+  color = "text",
   align,
   weight,
   style,

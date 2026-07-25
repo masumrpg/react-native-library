@@ -1,18 +1,28 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import { useColorScheme as useNativeColorScheme } from 'react-native';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useColorScheme as useNativeColorScheme } from "react-native";
 
-import { createTheme } from './createTheme';
+import { createTheme } from "./createTheme";
 import type {
   ColorSchemePreference,
   ThemeContextValue,
   ThemeMode,
   ThemeProviderProps,
-} from './types';
+} from "./types";
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const DEFAULT_STORAGE_KEY = 'rn-ui-color-scheme';
-const VALID_SCHEMES = new Set<ColorSchemePreference>(['light', 'dark', 'system']);
+const DEFAULT_STORAGE_KEY = "rn-ui-color-scheme";
+const VALID_SCHEMES = new Set<ColorSchemePreference>([
+  "light",
+  "dark",
+  "system",
+]);
 
 function isValidScheme(value: string | null): value is ColorSchemePreference {
   return !!value && VALID_SCHEMES.has(value as ColorSchemePreference);
@@ -22,8 +32,8 @@ function resolveColorScheme(
   preference: ColorSchemePreference,
   nativeScheme: ReturnType<typeof useNativeColorScheme>,
 ): ThemeMode {
-  if (preference === 'system') {
-    return nativeScheme === 'dark' ? 'dark' : 'light';
+  if (preference === "system") {
+    return nativeScheme === "dark" ? "dark" : "light";
   }
   return preference;
 }
@@ -31,7 +41,7 @@ function resolveColorScheme(
 export function ThemeProvider({
   children,
   colorScheme,
-  defaultColorScheme = 'system',
+  defaultColorScheme = "system",
   themes,
   storage,
   storageKey = DEFAULT_STORAGE_KEY,
@@ -41,8 +51,9 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const nativeScheme = useNativeColorScheme();
   const isControlled = colorScheme !== undefined;
-  const [internalScheme, setInternalScheme] =
-    useState<ColorSchemePreference>(colorScheme ?? defaultColorScheme);
+  const [internalScheme, setInternalScheme] = useState<ColorSchemePreference>(
+    colorScheme ?? defaultColorScheme,
+  );
   const [isHydrated, setIsHydrated] = useState(isControlled || !storage);
 
   useEffect(() => {
@@ -89,14 +100,16 @@ export function ThemeProvider({
       onColorSchemeChange?.(next);
 
       if (storage) {
-        Promise.resolve(storage.setItem(storageKey, next)).catch(() => undefined);
+        Promise.resolve(storage.setItem(storageKey, next)).catch(
+          () => undefined,
+        );
       }
     },
     [isControlled, onColorSchemeChange, storage, storageKey],
   );
 
   const toggleColorScheme = useCallback(() => {
-    setColorScheme(resolvedColorScheme === 'dark' ? 'light' : 'dark');
+    setColorScheme(resolvedColorScheme === "dark" ? "light" : "dark");
   }, [resolvedColorScheme, setColorScheme]);
 
   const value = useMemo<ThemeContextValue>(
@@ -116,12 +129,21 @@ export function ThemeProvider({
       setColorScheme,
       toggleColorScheme,
     }),
-    [activeScheme, isHydrated, resolvedColorScheme, setColorScheme, theme, toggleColorScheme],
+    [
+      activeScheme,
+      isHydrated,
+      resolvedColorScheme,
+      setColorScheme,
+      theme,
+      toggleColorScheme,
+    ],
   );
 
   if (waitForStorage && !isHydrated) {
     return <>{fallback}</>;
   }
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,14 +8,17 @@ import {
   type ScrollViewProps,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
-import type { ThemeColorName } from './types';
+import { useTheme } from "../theme";
+import type { ThemeColorName } from "./types";
 
-type Space = keyof ReturnType<typeof useTheme>['spacing'];
+type Space = keyof ReturnType<typeof useTheme>["spacing"];
 
-export interface KeyboardAvoidingProps extends Omit<KeyboardAvoidingViewProps, 'style'> {
+export interface KeyboardAvoidingProps extends Omit<
+  KeyboardAvoidingViewProps,
+  "style"
+> {
   bg?: ThemeColorName;
   p?: Space;
   px?: Space;
@@ -29,7 +32,7 @@ export interface KeyboardAvoidingProps extends Omit<KeyboardAvoidingViewProps, '
 }
 
 export function KeyboardAvoiding({
-  bg = 'background',
+  bg = "background",
   p,
   px,
   py,
@@ -46,11 +49,12 @@ export function KeyboardAvoiding({
   ...props
 }: KeyboardAvoidingProps) {
   const { colors, spacing } = useTheme();
-  const resolvedBehavior = behavior ?? (Platform.OS === 'ios' ? 'padding' : 'height');
+  const resolvedBehavior =
+    behavior ?? (Platform.OS === "ios" ? "padding" : "height");
   const {
     contentContainerStyle: scrollContentContainerStyle,
-    keyboardShouldPersistTaps = 'handled',
-    contentInsetAdjustmentBehavior = 'automatic',
+    keyboardShouldPersistTaps = "handled",
+    contentInsetAdjustmentBehavior = "automatic",
     ...restScrollViewProps
   } = scrollViewProps ?? {};
 

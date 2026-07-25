@@ -1,7 +1,13 @@
-import React from 'react';
-import { Modal,Pressable,type PressableProps,type StyleProp,type ViewStyle } from 'react-native';
+import React from "react";
+import {
+  Modal,
+  Pressable,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
 export interface PopoverProps {
   open?: boolean;
@@ -17,7 +23,12 @@ interface PopoverContextValue {
 
 const PopoverContext = React.createContext<PopoverContextValue | null>(null);
 
-export function Popover({ open, defaultOpen = false, onOpenChange, children }: PopoverProps) {
+export function Popover({
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  children,
+}: PopoverProps) {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
   const currentOpen = open ?? internalOpen;
   const setOpen = (next: boolean) => {
@@ -33,19 +44,24 @@ export function Popover({ open, defaultOpen = false, onOpenChange, children }: P
 }
 
 export interface PopoverTriggerProps extends PressableProps {
-  triggerMode?: 'press' | 'longPress';
+  triggerMode?: "press" | "longPress";
 }
 
-export function PopoverTrigger({ triggerMode = 'press', onPress, onLongPress, ...props }: PopoverTriggerProps) {
+export function PopoverTrigger({
+  triggerMode = "press",
+  onPress,
+  onLongPress,
+  ...props
+}: PopoverTriggerProps) {
   const context = React.useContext(PopoverContext);
   return (
     <Pressable
       onPress={(event) => {
-        if (triggerMode === 'press') context?.setOpen(true);
+        if (triggerMode === "press") context?.setOpen(true);
         onPress?.(event);
       }}
       onLongPress={(event) => {
-        if (triggerMode === 'longPress') context?.setOpen(true);
+        if (triggerMode === "longPress") context?.setOpen(true);
         onLongPress?.(event);
       }}
       {...props}
@@ -59,20 +75,38 @@ export interface PopoverContentProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function PopoverContent({ children, width = 280, style }: PopoverContentProps) {
+export function PopoverContent({
+  children,
+  width = 280,
+  style,
+}: PopoverContentProps) {
   const context = React.useContext(PopoverContext);
-  const { colors, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing } = useTheme();
   if (!context) return null;
   return (
-    <Modal visible={context.open} transparent animationType="fade" onRequestClose={() => context.setOpen(false)}>
-      <Pressable style={{ flex: 1, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center', padding: spacing.xl }} onPress={() => context.setOpen(false)}>
+    <Modal
+      visible={context.open}
+      transparent
+      animationType="fade"
+      onRequestClose={() => context.setOpen(false)}
+    >
+      <Pressable
+        style={{
+          flex: 1,
+          backgroundColor: colors.overlay,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: spacing.xl,
+        }}
+        onPress={() => context.setOpen(false)}
+      >
         <Pressable
           style={[
             {
               width,
-              maxWidth: '100%',
+              maxWidth: "100%",
               borderRadius: radii.xl,
-              borderWidth: 1.25,
+              borderWidth: components.borderWidth.strong,
               borderColor: colors.border,
               backgroundColor: colors.surface,
               padding: spacing.lg,

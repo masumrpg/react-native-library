@@ -10,10 +10,19 @@ export function IconButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {
       <Card>
         <Box row gap="md" center style={styles.wrap}>
           <IconButton icon={icon(ArrowLeft)} variant="ghost" />
-          <IconButton icon={icon(Settings)} variant="outline" />
-          <IconButton icon={icon(Heart)} variant="soft" />
+          <IconButton
+            icon={icon(Settings)}
+            variant="outline"
+            tone="secondary"
+          />
+          <IconButton icon={icon(Heart)} variant="soft" tone="accent" />
           <IconButton icon={icon(Plus)} variant="filled" />
-          <IconButton icon={icon(Heart)} variant="soft" badge={12} />
+          <IconButton
+            icon={icon(Heart)}
+            variant="soft"
+            tone="danger"
+            badge={12}
+          />
         </Box>
       </Card>
     </Section>

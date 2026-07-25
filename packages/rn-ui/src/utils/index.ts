@@ -1,1 +1,1 @@
-export { withAlpha } from './color';
+export { withAlpha } from "./color";

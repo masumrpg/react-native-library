@@ -1,14 +1,17 @@
-import React from 'react';
+import React from "react";
 import {
   Switch as RNSwitch,
   type StyleProp,
   type SwitchProps as RNSwitchProps,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-import { useTheme } from '../theme';
+import { useTheme } from "../theme";
 
-export interface SwitchProps extends Omit<RNSwitchProps, 'trackColor' | 'thumbColor'> {
+export interface SwitchProps extends Omit<
+  RNSwitchProps,
+  "trackColor" | "thumbColor"
+> {
   invalid?: boolean;
   style?: StyleProp<ViewStyle>;
 }

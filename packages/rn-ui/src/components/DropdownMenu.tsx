@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dimensions,
   Modal,
@@ -10,19 +10,19 @@ import {
   type StyleProp,
   type TextStyle,
   type ViewStyle,
-} from 'react-native';
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { useTheme, type ThemeColors } from '../theme';
-import { Text } from './Text';
-import { renderIcon, type RenderIcon } from './types';
+import { useTheme, type ThemeColors } from "../theme";
+import { Text } from "./Text";
+import { renderIcon, type RenderIcon } from "./types";
 
-export type DropdownMenuAlign = 'start' | 'end';
-export type DropdownMenuItemVariant = 'default' | 'destructive';
+export type DropdownMenuAlign = "start" | "end";
+export type DropdownMenuItemVariant = "default" | "destructive";
 
 interface DropdownMenuTriggerLayout {
   pageX: number;
@@ -39,12 +39,13 @@ export interface DropdownMenuContextProps {
   colors: ThemeColors;
 }
 
-const DropdownMenuContext = React.createContext<DropdownMenuContextProps | null>(null);
+const DropdownMenuContext =
+  React.createContext<DropdownMenuContextProps | null>(null);
 
 export function useDropdownMenu() {
   const context = React.useContext(DropdownMenuContext);
   if (!context) {
-    throw new Error('useDropdownMenu must be used within a <DropdownMenu />');
+    throw new Error("useDropdownMenu must be used within a <DropdownMenu />");
   }
   return context;
 }
@@ -64,12 +65,13 @@ export function DropdownMenu({
 }: DropdownMenuProps) {
   const { colors } = useTheme();
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
-  const [triggerLayout, setTriggerLayout] = React.useState<DropdownMenuTriggerLayout>({
-    pageX: 0,
-    pageY: 0,
-    width: 0,
-    height: 0,
-  });
+  const [triggerLayout, setTriggerLayout] =
+    React.useState<DropdownMenuTriggerLayout>({
+      pageX: 0,
+      pageY: 0,
+      width: 0,
+      height: 0,
+    });
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -94,7 +96,7 @@ export function DropdownMenu({
         colors,
       }}
     >
-      <View style={{ alignSelf: 'flex-start' }}>{children}</View>
+      <View style={{ alignSelf: "flex-start" }}>{children}</View>
     </DropdownMenuContext.Provider>
   );
 }
@@ -146,12 +148,15 @@ export interface DropdownMenuContentProps {
   sideOffset?: number;
   style?: StyleProp<ViewStyle>;
   overlayStyle?: StyleProp<ViewStyle>;
-  modalProps?: Omit<ModalProps, 'visible' | 'transparent' | 'animationType' | 'onRequestClose'>;
+  modalProps?: Omit<
+    ModalProps,
+    "visible" | "transparent" | "animationType" | "onRequestClose"
+  >;
 }
 
 export function DropdownMenuContent({
   children,
-  align = 'start',
+  align = "start",
   width = 200,
   maxHeight = 280,
   sideOffset = 6,
@@ -160,21 +165,25 @@ export function DropdownMenuContent({
   modalProps,
 }: DropdownMenuContentProps) {
   const { open, setOpen, triggerLayout, colors } = useDropdownMenu();
-  const { radii, spacing } = useTheme();
+  const { components, radii, spacing } = useTheme();
   const progress = useSharedValue(0);
 
   React.useEffect(() => {
     progress.value = withTiming(open ? 1 : 0, { duration: 150 });
   }, [open, progress]);
 
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
-  const spaceBelow = screenHeight - (triggerLayout.pageY + triggerLayout.height);
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+  const spaceBelow =
+    screenHeight - (triggerLayout.pageY + triggerLayout.height);
   const renderAbove = spaceBelow < maxHeight + 40;
   const rawLeft =
-    align === 'end'
+    align === "end"
       ? triggerLayout.pageX + triggerLayout.width - width
       : triggerLayout.pageX;
-  const left = Math.min(Math.max(spacing.sm, rawLeft), screenWidth - width - spacing.sm);
+  const left = Math.min(
+    Math.max(spacing.sm, rawLeft),
+    screenWidth - width - spacing.sm,
+  );
   const positionStyle = renderAbove
     ? { bottom: screenHeight - triggerLayout.pageY + sideOffset }
     : { top: triggerLayout.pageY + triggerLayout.height + sideOffset };
@@ -216,16 +225,16 @@ export function DropdownMenuContent({
       <Animated.View
         style={[
           {
-            position: 'absolute',
+            position: "absolute",
             left,
             width,
             backgroundColor: colors.surface,
-            borderWidth: 1.25,
+            borderWidth: components.borderWidth.strong,
             borderColor: colors.border,
             borderRadius: radii.lg,
             padding: spacing.xs,
             maxHeight,
-            overflow: 'hidden',
+            overflow: "hidden",
           },
           positionStyle,
           animatedStyle,
@@ -249,13 +258,13 @@ export interface DropdownMenuItemProps {
 export function DropdownMenuItem({
   onPress,
   children,
-  variant = 'default',
+  variant = "default",
   disabled = false,
   style,
 }: DropdownMenuItemProps) {
   const { setOpen, colors } = useDropdownMenu();
   const { radii, spacing, typography } = useTheme();
-  const isDestructive = variant === 'destructive';
+  const isDestructive = variant === "destructive";
   const textColor = disabled
     ? colors.textMuted
     : isDestructive
@@ -275,9 +284,9 @@ export function DropdownMenuItem({
       onPress={handlePress}
       style={({ pressed }) => [
         {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           paddingVertical: spacing.sm,
           paddingHorizontal: spacing.md,
           borderRadius: radii.md,
@@ -291,8 +300,10 @@ export function DropdownMenuItem({
         style,
       ]}
     >
-      {typeof children === 'string' ? (
-        <Text style={{ ...typography.bodySmall, color: textColor }}>{children}</Text>
+      {typeof children === "string" ? (
+        <Text style={{ ...typography.bodySmall, color: textColor }}>
+          {children}
+        </Text>
       ) : (
         children
       )}
@@ -318,7 +329,7 @@ function CheckIcon({ color }: { color: string }) {
         borderLeftWidth: 1.75,
         borderBottomWidth: 1.75,
         borderColor: color,
-        transform: [{ rotate: '-45deg' }],
+        transform: [{ rotate: "-45deg" }],
         marginRight: 2,
       }}
     />
@@ -349,9 +360,9 @@ export function DropdownMenuCheckboxItem({
       onPress={handlePress}
       style={({ pressed }) => [
         {
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           paddingVertical: spacing.sm,
           paddingHorizontal: spacing.md,
           borderRadius: radii.md,
@@ -361,10 +372,21 @@ export function DropdownMenuCheckboxItem({
         style,
       ]}
     >
-      <Text style={{ ...typography.bodySmall, color: disabled ? colors.textMuted : colors.text, flex: 1 }}>
+      <Text
+        style={{
+          ...typography.bodySmall,
+          color: disabled ? colors.textMuted : colors.text,
+          flex: 1,
+        }}
+      >
         {children}
       </Text>
-      {checked && (checkIcon ? renderIcon(checkIcon, colors.primary, 14) : <CheckIcon color={colors.primary} />)}
+      {checked &&
+        (checkIcon ? (
+          renderIcon(checkIcon, colors.primary, 14)
+        ) : (
+          <CheckIcon color={colors.primary} />
+        ))}
     </Pressable>
   );
 }
@@ -401,8 +423,13 @@ export function DropdownMenuLabel({ children, style }: DropdownMenuLabelProps) {
   const { spacing, typography } = useTheme();
 
   return (
-    <View style={[{ paddingVertical: spacing.xs + 2, paddingHorizontal: spacing.md }, style]}>
-      {typeof children === 'string' ? (
+    <View
+      style={[
+        { paddingVertical: spacing.xs + 2, paddingHorizontal: spacing.md },
+        style,
+      ]}
+    >
+      {typeof children === "string" ? (
         <Text style={{ ...typography.labelSmall, color: colors.textMuted }}>
           {children}
         </Text>
@@ -418,7 +445,10 @@ export interface DropdownMenuShortcutProps {
   style?: StyleProp<TextStyle>;
 }
 
-export function DropdownMenuShortcut({ children, style }: DropdownMenuShortcutProps) {
+export function DropdownMenuShortcut({
+  children,
+  style,
+}: DropdownMenuShortcutProps) {
   const { colors } = useDropdownMenu();
   const { spacing, typography } = useTheme();
 
