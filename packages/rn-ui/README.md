@@ -2,43 +2,128 @@
 
 Reusable React Native UI kit with typed theme tokens, flat light/dark mode, pluggable persistence, pluggable fonts, and composable core components.
 
+`@masumdev/rn-ui` is designed for Expo and React Native apps that want a consistent flat UI system without tying the library to app-specific choices such as navigation, storage, icon packs, haptics, or analytics.
+
+## What You Get
+
+- Flat, border-based components with no shadow/elevation by default.
+- Light, dark, and system color-scheme support.
+- Typed theme tokens for colors, fonts, typography, spacing, radius, shadows, and component sizing.
+- Pluggable theme persistence through a tiny storage adapter.
+- Pluggable fonts through theme tokens.
+- Pluggable icons through render functions or React nodes.
+- Reanimated-powered component interactions.
+- Mobile-first primitives for forms, feedback, overlays, data display, and local navigation UI.
+
+## Requirements
+
+Minimum runtime expectations:
+
+- React Native app or Expo app.
+- React and React Native installed by the app.
+- `react-native-reanimated` and `react-native-worklets`.
+- `react-native-gesture-handler` and `GestureHandlerRootView` at the app root for gesture-driven components such as `Slider` and Gorhom-based sheets.
+
+This package currently ships a single root export that includes every component. Because `Calendar` and `BottomSheet` are exported from the root package, install their peer dependencies too when consuming the package from npm:
+
+- `react-native-calendars`
+- `@gorhom/bottom-sheet`
+
+Future versions may split optional integrations into subpath exports so these can become truly optional.
+
 ## Install
 
+### Expo
+
 ```sh
-bun add @masumdev/rn-ui
+npx expo install react-native-reanimated react-native-worklets react-native-gesture-handler react-native-calendars
+bun add @masumdev/rn-ui @gorhom/bottom-sheet
 ```
 
-Peer dependencies:
+If you use npm instead of Bun:
 
 ```sh
-bun add react react-native react-native-reanimated react-native-worklets
+npx expo install react-native-reanimated react-native-worklets react-native-gesture-handler react-native-calendars
+npm install @masumdev/rn-ui @gorhom/bottom-sheet
 ```
 
-Optional component peer dependencies:
+### React Native CLI
+
+Install the package and peer dependencies:
 
 ```sh
-# Calendar
-bun add react-native-calendars
+bun add @masumdev/rn-ui react-native-reanimated react-native-worklets react-native-gesture-handler react-native-calendars @gorhom/bottom-sheet
+```
 
-# BottomSheet
-bun add @gorhom/bottom-sheet react-native-gesture-handler
+For iOS, run pods after installing native dependencies:
+
+```sh
+cd ios
+pod install
+cd ..
 ```
 
 ## Setup
 
-Wrap your app once with `ThemeProvider`.
+### 1. Add GestureHandlerRootView
+
+Wrap the app root with `GestureHandlerRootView`. This is required for gesture-driven components and `@gorhom/bottom-sheet`.
+
+Expo Router example:
 
 ```tsx
-import { ThemeProvider } from "@masumdev/rn-ui";
+import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ThemeProvider, ToastProvider } from "@masumdev/rn-ui";
 
-export default function App() {
+export default function RootLayout() {
   return (
-    <ThemeProvider defaultColorScheme="system">
-      <RootNavigator />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider defaultColorScheme="system">
+        <ToastProvider placement="bottom">
+          <Stack screenOptions={{ headerShown: false }} />
+        </ToastProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 ```
+
+Plain React Native example:
+
+```tsx
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ThemeProvider, ToastProvider } from "@masumdev/rn-ui";
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider defaultColorScheme="system">
+        <ToastProvider>
+          <RootNavigator />
+        </ToastProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
+  );
+}
+```
+
+### 2. Configure Reanimated
+
+Expo SDKs usually create the correct Babel setup, but if your app manages Babel manually, keep the Reanimated plugin last.
+
+```js
+module.exports = function (api) {
+  api.cache(true);
+
+  return {
+    presets: ["babel-preset-expo"],
+    plugins: ["react-native-reanimated/plugin"],
+  };
+};
+```
+
+### 3. Wrap Once With ThemeProvider
 
 `defaultColorScheme` accepts:
 
@@ -47,6 +132,20 @@ export default function App() {
 - `system`
 
 `system` follows the device color scheme through React Native `useColorScheme()`.
+
+`ThemeProvider` should live once near the app root. Components read tokens through context, so nested providers are only needed if a subtree intentionally uses a different theme.
+
+### 4. Add ToastProvider When Using Toast
+
+`useToast()` requires `ToastProvider` above the screen/component that calls it.
+
+```tsx
+import { ToastProvider } from "@masumdev/rn-ui";
+
+<ToastProvider placement="bottom">
+  <AppScreens />
+</ToastProvider>;
+```
 
 ## Usage
 
@@ -82,16 +181,26 @@ export function Example() {
 
 Override only the tokens you need. The library deep-merges your values with the default light and dark themes.
 
+When changing `primary`, also set `primarySoft`, `primaryStrong`, and `onPrimary` so filled buttons, soft badges, sliders, switches, focus states, and selected controls stay readable in both modes.
+
 ```tsx
 import { ThemeProvider } from "@masumdev/rn-ui";
 
 const themes = {
   light: {
     colors: {
-      primary: "#4F46E5",
-      primarySoft: "#EEF2FF",
-      onPrimary: "#FFFFFF",
-      accent: "#F97316",
+      background: "#F6FBFC",
+      surface: "#FFFFFF",
+      text: "#06202A",
+      textMuted: "#476371",
+      primary: "#06B6D4",
+      primarySoft: "#CFFAFE",
+      primaryStrong: "#0891B2",
+      onPrimary: "#06202A",
+      accent: "#F43F5E",
+      accentSoft: "#FFE4E6",
+      border: "#B8D4DD",
+      borderMuted: "#D8E8EE",
     },
     fonts: {
       regular: "OutfitRegular",
@@ -114,11 +223,18 @@ const themes = {
   },
   dark: {
     colors: {
-      background: "#08111F",
-      surface: "#0F1B2D",
-      primary: "#818CF8",
-      primarySoft: "#312E81",
-      onPrimary: "#111827",
+      background: "#06141B",
+      surface: "#0B202A",
+      text: "#F2FBFD",
+      textMuted: "#B7CDD5",
+      primary: "#67E8F9",
+      primarySoft: "#164E63",
+      primaryStrong: "#A5F3FC",
+      onPrimary: "#06202A",
+      accent: "#FB7185",
+      accentSoft: "#4C1220",
+      border: "#2A5260",
+      borderMuted: "#173441",
     },
   },
 };
@@ -131,6 +247,18 @@ export function App() {
   );
 }
 ```
+
+Common tokens:
+
+- `colors.background`: screen background.
+- `colors.surface`: cards, menus, sheets, and panels.
+- `colors.text`, `textMuted`, `textSubtle`: text hierarchy.
+- `colors.primary`, `primarySoft`, `primaryStrong`, `onPrimary`: main action color system.
+- `colors.border`, `borderMuted`, `divider`: flat border system.
+- `spacing`: named spacing scale used by layout primitives.
+- `radii`: corner radius scale.
+- `typography`: text variants used by `Text`.
+- `components`: component-specific sizes such as `button`, `iconButton`, `switch`, `slider`, and `floatingActionButton`.
 
 ## Fonts
 
@@ -1494,6 +1622,99 @@ Useful props:
 - `enabled={false}` to disable keyboard avoiding when the app uses another keyboard library
 - `keyboardVerticalOffset`, `behavior`, and `enabled` from React Native `KeyboardAvoidingView`
 - `scrollViewProps` for `keyboardShouldPersistTaps`, `contentInsetAdjustmentBehavior`, and other `ScrollView` options
+
+## Common Setup Issues
+
+### Gesture components do not respond
+
+Make sure `GestureHandlerRootView` wraps the native app root.
+
+```tsx
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+<GestureHandlerRootView style={{ flex: 1 }}>
+  <App />
+</GestureHandlerRootView>;
+```
+
+This affects `Slider`, Gorhom `BottomSheet`, and any future gesture-driven component.
+
+### Reanimated animations do not run
+
+Verify the app has installed:
+
+```sh
+bun add react-native-reanimated react-native-worklets
+```
+
+For manual Babel config, keep the Reanimated plugin last:
+
+```js
+plugins: ["react-native-reanimated/plugin"];
+```
+
+Restart Metro after changing Babel/Reanimated setup.
+
+### Toast does not show
+
+`useToast()` needs `ToastProvider` above the component that calls it.
+
+```tsx
+<ThemeProvider>
+  <ToastProvider>
+    <App />
+  </ToastProvider>
+</ThemeProvider>
+```
+
+### Dark mode resets after reload
+
+Pass a `storage` adapter to `ThemeProvider` and control `colorScheme` in the app if you need app-owned persistence.
+
+```tsx
+<ThemeProvider
+  storage={storage}
+  storageKey="rn-ui-color-scheme"
+  defaultColorScheme="system"
+>
+  <App />
+</ThemeProvider>
+```
+
+If the app uses Expo Go, choose storage supported by Expo Go, such as `expo-secure-store`.
+
+### Missing peer dependency errors
+
+Because the package currently exports all components from one root entry, install the peer dependencies listed in the install section even if your first screen only uses a few components. Missing peers usually show up as Metro import errors for packages such as:
+
+- `react-native-reanimated`
+- `react-native-worklets`
+- `react-native-gesture-handler`
+- `react-native-calendars`
+- `@gorhom/bottom-sheet`
+
+### Expo Go vs development builds
+
+`rn-ui` avoids app-specific native system UI modules. Components should work in Expo Go as long as their peer dependencies are available in the Expo runtime. If an app chooses extra native modules outside this package, such as custom system bar libraries, those modules may require a development build.
+
+## Publishing Notes
+
+The npm package publishes compiled files from `dist`, `README.md`, and `LICENSE`.
+
+Before publishing:
+
+```sh
+bun run --filter @masumdev/rn-ui build
+cd packages/rn-ui
+npm pack --dry-run
+npm publish --access public
+```
+
+The published package exposes:
+
+- CommonJS: `dist/index.js`
+- ESM: `dist/index.mjs`
+- Types: `dist/index.d.ts`
 
 ## Folder Structure
 
