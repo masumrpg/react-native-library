@@ -174,6 +174,13 @@ export interface ThemeComponents {
     thumbSize: Record<"sm" | "md" | "lg", number>;
     iconSize: Record<"sm" | "md" | "lg", number>;
   };
+  slider: {
+    height: number;
+    trackHeight: number;
+    thumbSize: number;
+    activeThumbSize: number;
+    hitSlop: number;
+  };
 }
 
 export interface Theme {

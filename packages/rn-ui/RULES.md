@@ -87,6 +87,7 @@ Rules:
 - Use semantic colors: `background`, `surface`, `text`, `textMuted`, `primary`, `danger`, `border`, etc.
 - Use `components.borderWidth.default`, `strong`, `focus`, `ring`, and `hairline` for border sizing.
 - Use `components.switch` for Switch dimensions before hardcoding switch sizing.
+- Use `components.slider` for Slider dimensions before hardcoding slider sizing.
 - Keep light and dark theme token names symmetrical.
 - Keep `system` mode based on React Native color scheme detection.
 - Keep persistence pluggable through a storage adapter with `getItem` and `setItem`.
@@ -905,7 +906,7 @@ Use these primitives for common form, preference, loading, and local navigation 
 <Switch value={enabled} onValueChange={setEnabled} />
 <Switch value={enabled} onValueChange={setEnabled} size="lg" tone="success" />
 <RadioGroup value={value} onValueChange={setValue} />
-<Slider value={64} onValueChange={setValue} />
+<Slider value={64} tone="accent" onValueChange={setValue} />
 <Progress value={64} />
 <Skeleton style={{ height: 16, width: "72%" }} />
 <Stepper value={2} onValueChange={setValue} />
@@ -919,11 +920,13 @@ Form and control rules:
 - `Switch` should use a custom Pressable/Reanimated implementation so its flat border, track, thumb, sizes, and tones stay consistent across platforms.
 - `Switch` thumb customization should prefer `thumbContent`, `activeThumbContent`, `inactiveThumbContent`, or `renderThumb`; default thumb content stays empty/polished.
 - `RadioGroup` should support controlled and uncontrolled state.
-- `Slider` should remain dependency-free unless a future native peer dependency is explicitly chosen.
+- `Slider` should use React Native Gesture Handler and Reanimated for tap-to-seek, hold feedback, smooth horizontal dragging, and release snapping.
+- Slider apps must keep `GestureHandlerRootView` at the native root.
 - `Progress` and `Skeleton` should be lightweight and token-based.
 - `Tabs` are local content tabs, not navigation tabs.
 - `Stepper` should support controlled and uncontrolled numeric values.
 - `Sheet` should wrap the existing Gorhom-backed `BottomSheet`; do not duplicate bottom sheet internals.
+- `Sheet` should default to closed with `index={-1}` and `animateOnMount={false}` so sample screens do not show a bottom sheet before user interaction.
 - Keep every default flat and border/token-based.
 
 ### Data And Overlays

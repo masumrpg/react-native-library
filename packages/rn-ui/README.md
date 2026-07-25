@@ -1290,7 +1290,12 @@ Use these primitives for common form, preference, loading, and local navigation 
   <RadioGroupItem value="expo" label="Expo React Native" />
 </RadioGroup>
 
-<Slider value={64} onValueChange={setValue} />
+<Slider
+  value={64}
+  tone="accent"
+  onValueChange={setValue}
+  onSlidingComplete={saveValue}
+/>
 <Progress value={64} />
 <Skeleton style={{ height: 16, width: "72%" }} />
 
@@ -1313,7 +1318,7 @@ Parts and APIs:
 - `FormField`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, and `useFormField`
 - `Switch` with `size`, `tone`, `activeIcon`, `inactiveIcon`, `thumbContent`, `activeThumbContent`, `inactiveThumbContent`, `renderThumb`, `trackStyle`, and `thumbStyle`
 - `RadioGroup` and `RadioGroupItem`
-- `Slider`
+- `Slider` with `tone`, `step`, tap-to-seek, hold feedback, smooth drag gestures, `trackStyle`, `activeTrackStyle`, and `thumbStyle`
 - `Progress`
 - `Skeleton`
 - `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent`
@@ -1328,12 +1333,17 @@ Use `thumbContent` for a simple ReactNode inside the thumb, or
 between states. Each content prop also accepts a render function with
 `{ checked, disabled, invalid, color, size }`.
 
+`Slider` uses React Native Gesture Handler and Reanimated for tap-to-seek,
+press/hold feedback, smooth horizontal dragging, and spring snapping on release.
+Apps must keep `GestureHandlerRootView` at the native root, which is also
+required by BottomSheet.
+
 ### Sheet
 
 Use `Sheet` as a higher-level wrapper around the package BottomSheet integration.
 
 ```tsx
-<Sheet ref={sheetRef} index={-1} snapPoints={["35%", "70%"]}>
+<Sheet ref={sheetRef} snapPoints={["35%", "70%"]}>
   <SheetContent>
     <SheetHeader>
       <SheetTitle>Expo React Native Sheet</SheetTitle>
@@ -1345,6 +1355,10 @@ Use `Sheet` as a higher-level wrapper around the package BottomSheet integration
   </SheetContent>
 </Sheet>
 ```
+
+`Sheet` defaults to `index={-1}`, `animateOnMount={false}`, and
+`enablePanDownToClose` so it stays closed on initial screen render and only
+opens when the app calls methods such as `snapToIndex(0)`.
 
 Parts:
 
@@ -1555,6 +1569,7 @@ src/
 - Use `spacing`, `radii`, `fonts`, `typography`, and `components` tokens from `useTheme()` or `useThemeStyles()`.
 - Use `components.borderWidth` for default, strong, focus, ring, and hairline border sizing.
 - Use `components.switch` for switch width, height, thumb size, and icon size.
+- Use `components.slider` for slider height, track height, thumb sizing, and hit slop.
 - Keep app-specific storage, fonts, icons, and haptics outside the UI core.
 - Add new components through `components/` and export them from `components/index.ts`.
 - When changing package APIs, tokens, default visuals, persistence behavior, or app integration examples, update this README in the same change.

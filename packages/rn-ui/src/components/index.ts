@@ -288,7 +288,7 @@ export type {
 export { Skeleton } from "./Skeleton";
 export type { SkeletonProps } from "./Skeleton";
 export { Slider } from "./Slider";
-export type { SliderProps } from "./Slider";
+export type { SliderProps, SliderTone } from "./Slider";
 export { Stepper } from "./Stepper";
 export type { StepperProps } from "./Stepper";
 export { Switch } from "./Switch";

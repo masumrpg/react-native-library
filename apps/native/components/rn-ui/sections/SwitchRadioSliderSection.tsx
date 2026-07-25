@@ -82,7 +82,12 @@ export function SwitchRadioSliderSection({ ctx }: { ctx: RnUiSectionContext }) {
                 {sliderValue}%
               </Text>
             </Box>
-            <Slider value={sliderValue} onValueChange={setSliderValue} />
+            <Slider
+              value={sliderValue}
+              tone="accent"
+              onValueChange={setSliderValue}
+              onSlidingComplete={setSliderValue}
+            />
           </Box>
         </Box>
       </Card>

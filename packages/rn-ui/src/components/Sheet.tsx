@@ -17,8 +17,16 @@ import { Text } from "./Text";
 import { useTheme } from "../theme";
 
 export const Sheet = React.forwardRef<BottomSheetMethods, BottomSheetProps>(
-  function Sheet(props, ref) {
-    return <BottomSheet ref={ref} enablePanDownToClose {...props} />;
+  function Sheet({ index = -1, animateOnMount = false, ...props }, ref) {
+    return (
+      <BottomSheet
+        ref={ref}
+        index={index}
+        animateOnMount={animateOnMount}
+        enablePanDownToClose
+        {...props}
+      />
+    );
   },
 );
 

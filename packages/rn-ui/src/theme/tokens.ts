@@ -133,6 +133,13 @@ const components: ThemeComponents = {
     thumbSize: { sm: 18, md: 22, lg: 26 },
     iconSize: { sm: 10, md: 12, lg: 14 },
   },
+  slider: {
+    height: 36,
+    trackHeight: 8,
+    thumbSize: 22,
+    activeThumbSize: 28,
+    hitSlop: 12,
+  },
 };
 
 const lightColors: ThemeColors = {

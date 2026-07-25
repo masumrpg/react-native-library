@@ -444,7 +444,7 @@ export default function RnUiScreen() {
         onConfirm={() => setAlertDialogVisible(false)}
       />
 
-      <Sheet ref={bottomSheetRef} index={-1} snapPoints={bottomSheetSnapPoints}>
+      <Sheet ref={bottomSheetRef} snapPoints={bottomSheetSnapPoints}>
         <SheetContent style={styles.bottomSheetContent}>
           <Box gap="md">
             <SheetHeader>
