@@ -1,8 +1,15 @@
 import React from "react";
-import { ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { BookOpen, ChevronRight, Moon, Palette, QrCode, Sun } from "lucide-react-native";
+import {
+  BookOpen,
+  ChevronRight,
+  Moon,
+  Palette,
+  QrCode,
+  Sun,
+} from "lucide-react-native";
 import {
   Badge,
   Box,
@@ -13,11 +20,11 @@ import {
   useThemeStyles,
   type RenderIcon,
 } from "@masumdev/rn-ui";
+import { SystemUIOverlay } from "../components/system-ui-overlay";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
-  ({ color, size }) =>
-    <Icon color={color} size={size} />;
+  ({ color, size }) => <Icon color={color} size={size} />;
 
 const showcases = [
   {
@@ -51,12 +58,22 @@ const showcases = [
 
 export default function Native() {
   const router = useRouter();
-  const { colors, isDark, setColorScheme } = useTheme();
+  const { colors, isDark, setColorScheme, spacing } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles();
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SystemUIOverlay />
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: insets.top + spacing.xl,
+            paddingBottom: insets.bottom + spacing.xl,
+          },
+        ]}
+      >
         <Box gap="lg" style={styles.headerContainer}>
           <Box row center gap="md">
             <Box flex={1} gap="sm">
@@ -82,7 +99,11 @@ export default function Native() {
         </Box>
 
         <Box gap="md">
-          <Text variant="labelSmall" color="textSubtle" style={styles.sectionLabel}>
+          <Text
+            variant="labelSmall"
+            color="textSubtle"
+            style={styles.sectionLabel}
+          >
             Explore Showcase Screens
           </Text>
 
@@ -108,7 +129,10 @@ export default function Native() {
                     <Box
                       center
                       radius="lg"
-                      style={[styles.iconContainer, { backgroundColor: softColor }]}
+                      style={[
+                        styles.iconContainer,
+                        { backgroundColor: softColor },
+                      ]}
                     >
                       <Icon color={toneColor} size={24} />
                     </Box>
@@ -144,7 +168,7 @@ export default function Native() {
           </Text>
         </Box>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

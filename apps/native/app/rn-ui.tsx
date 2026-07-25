@@ -38,7 +38,7 @@ import {
 } from "lucide-react-native";
 import React from "react";
 import { Animated, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   AccordionSection,
   AlertDialogSection,
@@ -80,6 +80,7 @@ import {
   TimelineMetricCardSection,
   ToastSection,
 } from "../components/rn-ui";
+import { SystemUIOverlay } from "../components/system-ui-overlay";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
@@ -98,6 +99,7 @@ const themeOptions: Array<{
 export default function RnUiScreen() {
   const router = useRouter();
   const toast = useToast();
+  const insets = useSafeAreaInsets();
   const [showAlertDetails, setShowAlertDetails] = React.useState(false);
   const [alertDialogVisible, setAlertDialogVisible] = React.useState(false);
   const [activeSegment, setActiveSegment] = React.useState<
@@ -173,6 +175,7 @@ export default function RnUiScreen() {
     setColorScheme,
     toggleColorScheme,
     radii,
+    spacing,
   } = useTheme();
   const styles = useStyles();
 
@@ -258,13 +261,18 @@ export default function RnUiScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SystemUIOverlay />
       <KeyboardAvoiding
         scroll
         bg="background"
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          {
+            paddingTop: insets.top + spacing.lg,
+            paddingBottom: insets.bottom + spacing.xxxl,
+          },
+        ]}
         scrollViewProps={{ showsVerticalScrollIndicator: false }}
       >
         <Box row center gap="md" style={styles.topBar}>
@@ -467,7 +475,7 @@ export default function RnUiScreen() {
           </Box>
         </SheetContent>
       </Sheet>
-    </SafeAreaView>
+    </View>
   );
 }
 

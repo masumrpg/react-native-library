@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ChevronLeft, RefreshCw } from "lucide-react-native";
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
@@ -14,11 +14,11 @@ import {
   useThemeStyles,
   type RenderIcon,
 } from "@masumdev/rn-ui";
+import { SystemUIOverlay } from "../components/system-ui-overlay";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
-  ({ color, size }) =>
-    <Icon color={color} size={size} />;
+  ({ color, size }) => <Icon color={color} size={size} />;
 
 const featuredVariants = [
   { label: "Basic Variant", value: "https://google.com", variant: "BASIC" },
@@ -33,7 +33,8 @@ const bareVariants = [
 
 export default function QRCodeScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, spacing } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles();
   const [demoLoading, setDemoLoading] = useState(true);
 
@@ -47,24 +48,34 @@ export default function QRCodeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <Box row center gap="md" style={styles.headerBar}>
-        <IconButton
-          icon={icon(ChevronLeft)}
-          variant="outline"
-          onPress={() => router.back()}
-        />
-        <Text variant="subtitle" align="center" style={styles.headerTitle}>
-          QR Code Generator
-        </Text>
-        <View style={styles.headerSpacer} />
-      </Box>
-
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SystemUIOverlay />
       <ScrollView
         style={styles.contentScroll}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: insets.top + spacing.xl,
+            paddingBottom: insets.bottom + spacing.xl,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
+        <Box row center gap="md" style={styles.topBar}>
+          <IconButton
+            icon={icon(ChevronLeft)}
+            variant="outline"
+            onPress={() => router.back()}
+          />
+          <Box flex={1}>
+            <Text variant="labelSmall" color="primary">
+              @masumdev/react-native-qr-code-gen
+            </Text>
+            <Text variant="h3">QR Code Generator</Text>
+          </Box>
+          <View style={styles.headerSpacer} />
+        </Box>
+
         <Text color="textMuted" align="center">
           Modern custom QR components with presets, states, and gallery preview.
         </Text>
@@ -85,7 +96,11 @@ export default function QRCodeScreen() {
           <Box row gap="md" style={styles.wrap}>
             {bareVariants.map((item) => (
               <Card key={item.variant} style={styles.bareCard}>
-                <Text variant="labelSmall" color="textSubtle" style={styles.uppercase}>
+                <Text
+                  variant="labelSmall"
+                  color="textSubtle"
+                  style={styles.uppercase}
+                >
                   {item.label}
                 </Text>
                 <QRCode
@@ -122,8 +137,12 @@ export default function QRCodeScreen() {
               isLoading={demoLoading}
               renderLoading={() => (
                 <Box center style={styles.loadingPlaceholder}>
-                  <ActivityIndicator size="large" color={colors.primary} />
-                  <Text variant="caption" color="textMuted" style={styles.loadingText}>
+                  <RefreshCw color={colors.primary} size={28} />
+                  <Text
+                    variant="caption"
+                    color="textMuted"
+                    style={styles.loadingText}
+                  >
                     Generating...
                   </Text>
                 </Box>
@@ -164,7 +183,7 @@ export default function QRCodeScreen() {
           </Text>
         </Box>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -217,15 +236,8 @@ function useStyles() {
     safeArea: {
       flex: 1,
     },
-    headerBar: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
-      backgroundColor: theme.colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    headerTitle: {
-      flex: 1,
+    topBar: {
+      minHeight: 48,
     },
     headerSpacer: {
       width: theme.components.iconButton.size.md,

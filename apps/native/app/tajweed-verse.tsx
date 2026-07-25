@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Alert, ScrollView, Switch, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import TajweedVerse, { TajweedThemes } from "@masumdev/rn-tajweed-verse";
 import {
@@ -21,16 +21,18 @@ import {
   Card,
   Divider,
   IconButton,
+  Switch,
   Text,
   useTheme,
   useThemeStyles,
+  useToast,
   type RenderIcon,
 } from "@masumdev/rn-ui";
+import { SystemUIOverlay } from "../components/system-ui-overlay";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
-  ({ color, size }) =>
-    <Icon color={color} size={size} />;
+  ({ color, size }) => <Icon color={color} size={size} />;
 
 const quranSamples = [
   {
@@ -99,12 +101,15 @@ const tajweedThemeOptions: TajweedThemeKey[] = [
 
 export default function TajweedVerseScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const toast = useToast();
+  const { colors, spacing } = useTheme();
+  const insets = useSafeAreaInsets();
   const styles = useStyles();
   const [isColored, setIsColored] = useState(true);
   const [isInteractive, setIsInteractive] = useState(true);
   const [selectedFont, setSelectedFont] = useState<FontKey>("amiri");
-  const [selectedTheme, setSelectedTheme] = useState<TajweedThemeKey>("classic");
+  const [selectedTheme, setSelectedTheme] =
+    useState<TajweedThemeKey>("classic");
   const [verseText, setVerseText] = useState(quranSamples[0].verse);
   const [customInfoText, setCustomInfoText] = useState(
     "Tap a colored word to see the Tajweed rule explanation here!",
@@ -192,24 +197,34 @@ export default function TajweedVerseScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <Box row center gap="md" style={styles.headerBar}>
-        <IconButton
-          icon={icon(ChevronLeft)}
-          variant="outline"
-          onPress={() => router.back()}
-        />
-        <Text variant="subtitle" align="center" style={styles.headerTitle}>
-          Tajweed Verse Renderer
-        </Text>
-        <View style={styles.headerSpacer} />
-      </Box>
-
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <SystemUIOverlay />
       <ScrollView
         style={styles.contentScroll}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: insets.top + spacing.xl,
+            paddingBottom: insets.bottom + spacing.xl,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
+        <Box row center gap="md" style={styles.topBar}>
+          <IconButton
+            icon={icon(ChevronLeft)}
+            variant="outline"
+            onPress={() => router.back()}
+          />
+          <Box flex={1}>
+            <Text variant="labelSmall" color="primary">
+              @masumdev/rn-tajweed-verse
+            </Text>
+            <Text variant="h3">Tajweed Verse Renderer</Text>
+          </Box>
+          <View style={styles.headerSpacer} />
+        </Box>
+
         <Text color="textMuted" align="center">
           Quranic text parsing, coloring, and interactive rule previews.
         </Text>
@@ -328,10 +343,12 @@ export default function TajweedVerseScreen() {
                   renderText: (text: string) =>
                     text.replace(/\[custom\[/, "").replace(/\]/, ""),
                   onPress: (text: string) =>
-                    Alert.alert(
-                      "Custom Highlight Rule",
-                      `Tapped custom matched text: ${text}`,
-                    ),
+                    toast.show({
+                      title: "Custom Highlight Rule",
+                      description: `Tapped custom matched text: ${text}`,
+                      tone: "info",
+                      icon: icon(Info),
+                    }),
                 },
               ]}
             />
@@ -361,7 +378,7 @@ export default function TajweedVerseScreen() {
           </Text>
         </Box>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -449,15 +466,8 @@ function useStyles() {
     safeArea: {
       flex: 1,
     },
-    headerBar: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
-      backgroundColor: theme.colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
-    },
-    headerTitle: {
-      flex: 1,
+    topBar: {
+      minHeight: 48,
     },
     headerSpacer: {
       width: theme.components.iconButton.size.md,
