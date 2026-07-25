@@ -1134,6 +1134,211 @@ Useful props:
 - `Item size="default" | "sm" | "xs"`
 - `ItemMedia variant="default" | "icon" | "image"`
 
+### Toast
+
+Wrap the app once with `ToastProvider`, then use `useToast()` from any screen.
+
+```tsx
+<ThemeProvider>
+  <ToastProvider placement="top">
+    <App />
+  </ToastProvider>
+</ThemeProvider>
+```
+
+```tsx
+const toast = useToast();
+
+toast.show({
+  title: "Expo React Native",
+  description: "Toast by Ma'sum for 2026 mobile UI.",
+  tone: "success",
+  icon: ({ color, size }) => <Check color={color} size={size} />,
+  action: {
+    label: "Undo",
+    onPress: handleUndo,
+  },
+});
+```
+
+Parts and APIs:
+
+- `ToastProvider`
+- `useToast`
+- `ToastViewport`
+- `Toast`
+- `ToastContent`
+- `ToastTitle`
+- `ToastDescription`
+- `ToastAction`
+- `ToastClose`
+
+Useful props:
+
+- `ToastProvider placement="top" | "bottom"`
+- `offset` to control distance from the top/bottom edge; Android top placement accounts for `StatusBar.currentHeight`, and Android bottom placement leaves extra room for navigation controls by default
+- `duration`, `maxToasts`, `swipeToDismiss`, `viewportStyle`, and `renderToast`
+- `toast.show({ title, description, tone, icon, closeIcon, action, duration })`
+- `toast.dismiss(id?)` and `toast.update(id, options)`
+
+### Form And Controls
+
+Use these primitives for common form, preference, loading, and local navigation UI.
+
+```tsx
+<FormField required>
+  <FormLabel>Expo React Native</FormLabel>
+  <FormControl>
+    <Input placeholder="Expo React Native by Ma'sum" />
+  </FormControl>
+  <FormDescription>Consistent field copy.</FormDescription>
+  <FormMessage>Shown when the field is invalid.</FormMessage>
+</FormField>
+
+<Label required requiredIndicator=" (required)">
+  Expo React Native
+</Label>
+
+<Switch value={enabled} onValueChange={setEnabled} />
+
+<RadioGroup value={value} onValueChange={setValue}>
+  <RadioGroupItem value="expo" label="Expo React Native" />
+</RadioGroup>
+
+<Slider value={64} onValueChange={setValue} />
+<Progress value={64} />
+<Skeleton style={{ height: 16, width: "72%" }} />
+
+<Tabs value={tab} onValueChange={setTab}>
+  <TabsList>
+    <TabsTrigger value="preview">Preview</TabsTrigger>
+    <TabsTrigger value="tokens">Tokens</TabsTrigger>
+  </TabsList>
+  <TabsContent value="preview">
+    <Text>Expo React Native by Ma'sum</Text>
+  </TabsContent>
+</Tabs>
+
+<Stepper value={2} onValueChange={setValue} min={0} max={9} />
+```
+
+Parts and APIs:
+
+- `Label` with `required`, `requiredIndicator`, and `requiredIndicatorStyle`
+- `FormField`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, and `useFormField`
+- `Switch`
+- `RadioGroup` and `RadioGroupItem`
+- `Slider`
+- `Progress`
+- `Skeleton`
+- `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent`
+- `Stepper`
+
+### Sheet
+
+Use `Sheet` as a higher-level wrapper around the package BottomSheet integration.
+
+```tsx
+<Sheet ref={sheetRef} index={-1} snapPoints={["35%", "70%"]}>
+  <SheetContent>
+    <SheetHeader>
+      <SheetTitle>Expo React Native Sheet</SheetTitle>
+      <SheetDescription>by Ma'sum, 2026.</SheetDescription>
+    </SheetHeader>
+    <SheetFooter>
+      <Button onPress={() => sheetRef.current?.close()}>Close</Button>
+    </SheetFooter>
+  </SheetContent>
+</Sheet>
+```
+
+Parts:
+
+- `Sheet`
+- `SheetContent`
+- `SheetHeader`
+- `SheetTitle`
+- `SheetDescription`
+- `SheetFooter`
+
+### Data And Overlays
+
+Use these primitives for multiline fields, mobile selection, command sheets, anchored content, and compact data display.
+
+```tsx
+<Textarea placeholder="Write Expo React Native notes by Ma'sum..." />
+
+<Select
+  value={value}
+  onValueChange={setValue}
+  options={[{ value: "expo", label: "Expo React Native" }]}
+/>
+
+<Command
+  visible={visible}
+  onClose={close}
+  items={[{ value: "theme", label: "Theme tokens" }]}
+  onSelect={handleSelect}
+/>
+
+<Popover>
+  <PopoverTrigger>
+    <Text>Open Popover</Text>
+  </PopoverTrigger>
+  <PopoverContent>
+    <Text>Expo React Native by Ma'sum</Text>
+  </PopoverContent>
+</Popover>
+
+<Pagination page={1} pageCount={5} onPageChange={setPage} />
+
+<Breadcrumb>
+  <BreadcrumbLink>Expo</BreadcrumbLink>
+  <BreadcrumbSeparator />
+  <BreadcrumbPage>Ma'sum</BreadcrumbPage>
+</Breadcrumb>
+
+<Table>
+  <TableRow>
+    <TableHead>Name</TableHead>
+    <TableHead>Status</TableHead>
+  </TableRow>
+  <TableRow>
+    <TableCell>Expo React Native</TableCell>
+    <TableCell>Active</TableCell>
+  </TableRow>
+</Table>
+
+<DataList>
+  <DataListItem>
+    <DataListLabel>Framework</DataListLabel>
+    <DataListValue>Expo React Native</DataListValue>
+  </DataListItem>
+</DataList>
+
+<Timeline>
+  <TimelineItem active>
+    <TimelineTitle>Theme tokens</TimelineTitle>
+    <TimelineDescription>Flat border system by Ma'sum.</TimelineDescription>
+  </TimelineItem>
+</Timeline>
+
+<MetricCard label="Expo React Native" value="2026" />
+```
+
+Parts and APIs:
+
+- `Textarea`
+- `Select`
+- `Command`
+- `Popover`, `PopoverTrigger`, and `PopoverContent`
+- `Pagination`
+- `Breadcrumb`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbPage`, and `BreadcrumbSeparator`
+- `Table`, `TableRow`, `TableHead`, and `TableCell`
+- `DataList`, `DataListItem`, `DataListLabel`, and `DataListValue`
+- `Timeline`, `TimelineItem`, `TimelineTitle`, and `TimelineDescription`
+- `MetricCard`
+
 ### KeyboardAvoiding
 
 Use `KeyboardAvoiding` for form screens that need keyboard-safe layout. It wraps React Native `KeyboardAvoidingView` and can optionally include a themed `ScrollView`.
@@ -1191,6 +1396,8 @@ src/
     Collapsible.tsx
     Combobox.tsx
     ContextMenu.tsx
+    Command.tsx
+    DataList.tsx
     DropdownMenu.tsx
     Empty.tsx
     HoverCard.tsx
@@ -1199,6 +1406,23 @@ src/
     InputOTP.tsx
     Item.tsx
     KeyboardAvoiding.tsx
+    Label.tsx
+    MetricCard.tsx
+    Pagination.tsx
+    Popover.tsx
+    FormField.tsx
+    Progress.tsx
+    RadioGroup.tsx
+    Sheet.tsx
+    Skeleton.tsx
+    Slider.tsx
+    Stepper.tsx
+    Switch.tsx
+    Tabs.tsx
+    Table.tsx
+    Textarea.tsx
+    Timeline.tsx
+    Toast.tsx
     Badge.tsx
     Box.tsx
     Button.tsx

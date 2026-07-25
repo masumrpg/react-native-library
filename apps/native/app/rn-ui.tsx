@@ -17,9 +17,11 @@ import {
   Moon,
   Palette,
   Plus,
+  Minus,
   Settings,
   Smartphone,
   Search,
+  BarChart3,
   Sun,
   Trash,
   X,
@@ -114,7 +116,56 @@ import {
   ItemSeparator,
   ItemTitle,
   KeyboardAvoiding,
+  Label,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormLabel,
+  FormMessage,
+  Progress,
+  RadioGroup,
+  RadioGroupItem,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  Skeleton,
+  Slider,
+  Stepper,
+  Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Command,
+  DataList,
+  DataListItem,
+  DataListLabel,
+  DataListValue,
+  MetricCard,
+  Pagination,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  Table,
+  TableCell,
+  TableHead,
+  TableRow,
+  Textarea,
+  Timeline,
+  TimelineDescription,
+  TimelineItem,
+  TimelineTitle,
   Text,
+  useToast,
   useTheme,
   useThemeStyles,
   type BottomSheetMethods,
@@ -139,6 +190,7 @@ const themeOptions: Array<{
 
 export default function RnUiScreen() {
   const router = useRouter();
+  const toast = useToast();
   const [showAlertDetails, setShowAlertDetails] = React.useState(false);
   const [alertDialogVisible, setAlertDialogVisible] = React.useState(false);
   const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("monthly");
@@ -153,6 +205,14 @@ export default function RnUiScreen() {
   const [sampleInput, setSampleInput] = React.useState("Expo React Native by Ma'sum");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [otpValue, setOtpValue] = React.useState("2026");
+  const [switchEnabled, setSwitchEnabled] = React.useState(true);
+  const [radioValue, setRadioValue] = React.useState("expo");
+  const [sliderValue, setSliderValue] = React.useState(64);
+  const [stepperValue, setStepperValue] = React.useState(2);
+  const [tabValue, setTabValue] = React.useState("preview");
+  const [selectValue, setSelectValue] = React.useState("expo");
+  const [commandVisible, setCommandVisible] = React.useState(false);
+  const [page, setPage] = React.useState(1);
   const [showBookmark, setShowBookmark] = React.useState(true);
   const [compactMenu, setCompactMenu] = React.useState(false);
   const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
@@ -1485,7 +1545,310 @@ export default function RnUiScreen() {
             </ItemGroup>
           </Card>
         </Section>
+
+        <Section title="Toast">
+          <Card>
+            <Box gap="md">
+              <Text color="textMuted">
+                Programmatic flat toast with themed border, action, close, and swipe dismiss.
+              </Text>
+
+              <Box row gap="sm" style={styles.wrap}>
+                <Button
+                  size="sm"
+                  onPress={() =>
+                    toast.show({
+                      title: "Expo React Native",
+                      description: "Toast by Ma'sum for 2026 mobile UI.",
+                      tone: "success",
+                      icon: icon(Check),
+                      action: {
+                        label: "Undo",
+                        onPress: () => undefined,
+                      },
+                    })
+                  }
+                >
+                  Show Toast
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  tone="secondary"
+                  onPress={() =>
+                    toast.show({
+                      title: "Something needs attention",
+                      description: "Danger toast follows the same flat token system.",
+                      tone: "danger",
+                      icon: icon(CircleAlert),
+                      closeIcon: icon(X),
+                    })
+                  }
+                >
+                  Danger
+                </Button>
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Form">
+          <Card>
+            <Box gap="md">
+              <FormField required>
+                <FormLabel>Expo React Native</FormLabel>
+                <FormControl>
+                  <Input placeholder="Expo React Native by Ma'sum" />
+                </FormControl>
+                <FormDescription>
+                  Label, helper, and control share one field context.
+                </FormDescription>
+              </FormField>
+
+              <FormField invalid>
+                <FormLabel>Highlight 2026</FormLabel>
+                <FormControl>
+                  <Input invalid value="Ma'sum UI" onChangeText={() => undefined} />
+                </FormControl>
+                <FormMessage>Use Expo React Native by Ma'sum.</FormMessage>
+              </FormField>
+
+              <Label>Standalone Label</Label>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Switch, Radio, Slider">
+          <Card>
+            <Box gap="md">
+              <Box row center gap="md">
+                <Box flex={1}>
+                  <Text variant="label">Expo React Native</Text>
+                  <Text variant="bodySmall" color="textMuted">
+                    Toggle preference by Ma'sum.
+                  </Text>
+                </Box>
+                <Switch value={switchEnabled} onValueChange={setSwitchEnabled} />
+              </Box>
+
+              <RadioGroup value={radioValue} onValueChange={setRadioValue}>
+                <RadioGroupItem
+                  value="expo"
+                  label="Expo React Native"
+                  description="Default option for 2026 UI samples."
+                />
+                <RadioGroupItem
+                  value="masum"
+                  label="by Ma'sum"
+                  description="Composable and theme-ready."
+                />
+              </RadioGroup>
+
+              <Box gap="xs">
+                <Box row center style={{ justifyContent: "space-between" }}>
+                  <Text variant="label">Progress config</Text>
+                  <Text variant="labelSmall" color="textMuted">{sliderValue}%</Text>
+                </Box>
+                <Slider value={sliderValue} onValueChange={setSliderValue} />
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Progress, Skeleton">
+          <Card>
+            <Box gap="md">
+              <Progress value={sliderValue} />
+              <Box gap="sm">
+                <Skeleton style={{ height: 18, width: "68%" }} />
+                <Skeleton style={{ height: 14, width: "92%" }} />
+                <Skeleton style={{ height: 14, width: "54%" }} />
+              </Box>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Tabs, Stepper, Sheet">
+          <Card>
+            <Box gap="md">
+              <Tabs value={tabValue} onValueChange={setTabValue}>
+                <TabsList>
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
+                  <TabsTrigger value="tokens">Tokens</TabsTrigger>
+                </TabsList>
+                <TabsContent value="preview">
+                  <Text color="textMuted">
+                    Expo React Native by Ma'sum preview content.
+                  </Text>
+                </TabsContent>
+                <TabsContent value="tokens">
+                  <Text color="textMuted">
+                    Flat theme tokens for consistent 2026 UI.
+                  </Text>
+                </TabsContent>
+              </Tabs>
+
+              <Box row center style={{ justifyContent: "space-between" }}>
+                <Box>
+                  <Text variant="label">Stepper</Text>
+                  <Text variant="bodySmall" color="textMuted">Quantity control</Text>
+                </Box>
+                <Stepper
+                  value={stepperValue}
+                  onValueChange={setStepperValue}
+                  min={0}
+                  max={9}
+                  decrementIcon={icon(Minus)}
+                  incrementIcon={icon(Plus)}
+                />
+              </Box>
+
+              <Button
+                variant="outline"
+                tone="secondary"
+                onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+              >
+                Open Sheet
+              </Button>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Textarea, Select, Command">
+          <Card>
+            <Box gap="md">
+              <Textarea placeholder="Write Expo React Native notes by Ma'sum..." />
+              <Select
+                value={selectValue}
+                onValueChange={setSelectValue}
+                title="Choose framework"
+                placeholder="Select framework"
+                options={[
+                  { value: "expo", label: "Expo React Native", description: "Recommended sample for 2026." },
+                  { value: "rn", label: "React Native", description: "Core mobile runtime." },
+                  { value: "masum", label: "by Ma'sum", description: "Theme-ready UI library." },
+                ]}
+                checkIcon={icon(Check)}
+                chevronIcon={icon(ChevronsUpDown)}
+              />
+              <Button variant="outline" tone="secondary" onPress={() => setCommandVisible(true)}>
+                Open Command
+              </Button>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Popover, Pagination, Breadcrumb">
+          <Card>
+            <Box gap="md">
+              <Popover>
+                <PopoverTrigger style={styles.popoverTrigger}>
+                  <Text variant="label" color="primary">Open Popover</Text>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <Box gap="xs">
+                    <Text variant="label">Expo React Native</Text>
+                    <Text variant="bodySmall" color="textMuted">
+                      Popover content by Ma'sum, 2026.
+                    </Text>
+                  </Box>
+                </PopoverContent>
+              </Popover>
+
+              <Pagination page={page} pageCount={5} onPageChange={setPage} />
+
+              <Breadcrumb>
+                <BreadcrumbItem>
+                  <BreadcrumbLink>Expo</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink>React Native</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Ma'sum</BreadcrumbPage>
+                </BreadcrumbItem>
+              </Breadcrumb>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Table, Data List">
+          <Card>
+            <Box gap="md">
+              <Table>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Expo React Native</TableCell>
+                  <TableCell>Active</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>by Ma'sum</TableCell>
+                  <TableCell>2026</TableCell>
+                </TableRow>
+              </Table>
+
+              <DataList>
+                <DataListItem>
+                  <DataListLabel>Framework</DataListLabel>
+                  <DataListValue>Expo React Native</DataListValue>
+                </DataListItem>
+                <DataListItem>
+                  <DataListLabel>Author</DataListLabel>
+                  <DataListValue>Ma'sum</DataListValue>
+                </DataListItem>
+              </DataList>
+            </Box>
+          </Card>
+        </Section>
+
+        <Section title="Timeline, Metric Card">
+          <Card>
+            <Box gap="md">
+              <MetricCard
+                label="Expo React Native"
+                value="2026"
+                delta="+12 reusable components"
+                icon={icon(BarChart3)}
+              />
+
+              <Timeline>
+                <TimelineItem active>
+                  <TimelineTitle>Theme tokens</TimelineTitle>
+                  <TimelineDescription>Flat border system by Ma'sum.</TimelineDescription>
+                </TimelineItem>
+                <TimelineItem>
+                  <TimelineTitle>Component samples</TimelineTitle>
+                  <TimelineDescription>Ready for Expo React Native apps.</TimelineDescription>
+                </TimelineItem>
+              </Timeline>
+            </Box>
+          </Card>
+        </Section>
       </KeyboardAvoiding>
+
+      <Command
+        visible={commandVisible}
+        onClose={() => setCommandVisible(false)}
+        title="Expo React Native Command"
+        items={[
+          { value: "theme", label: "Theme tokens", description: "Colors, radius, typography.", icon: icon(Palette) },
+          { value: "form", label: "Form controls", description: "Input, Select, Textarea.", icon: icon(Settings) },
+          { value: "toast", label: "Toast", description: "Programmatic feedback.", icon: icon(CircleAlert) },
+        ]}
+        onSelect={(value) =>
+          toast.show({
+            title: "Expo React Native",
+            description: `Selected ${value} by Ma'sum.`,
+            tone: "info",
+          })
+        }
+      />
 
       <AlertDialog
         visible={alertDialogVisible}
@@ -1501,26 +1864,19 @@ export default function RnUiScreen() {
         onConfirm={() => setAlertDialogVisible(false)}
       />
 
-      <BottomSheet
+      <Sheet
         ref={bottomSheetRef}
         index={-1}
         snapPoints={bottomSheetSnapPoints}
-        enablePanDownToClose
       >
-        <BottomSheetView style={styles.bottomSheetContent}>
+        <SheetContent style={styles.bottomSheetContent}>
           <Box gap="md">
-            <Box row center gap="md">
-              <Box center bg="primarySoft" radius="lg" style={styles.sampleTile}>
-                <Palette color={colors.primary} size={22} />
-              </Box>
-              <Box flex={1}>
-                <Text variant="title">Theme-aware sheet</Text>
-                <Text variant="bodySmall" color="textMuted">
-                  Background, handle, border, and backdrop are mapped from
-                  rn-ui tokens.
-                </Text>
-              </Box>
-            </Box>
+            <SheetHeader>
+              <SheetTitle>Expo React Native Sheet</SheetTitle>
+              <SheetDescription>
+                Higher-level sheet wrapper by Ma'sum using Gorhom BottomSheet tokens.
+              </SheetDescription>
+            </SheetHeader>
 
             <Divider />
 
@@ -1530,16 +1886,18 @@ export default function RnUiScreen() {
               <Badge tone="info">Gorhom</Badge>
             </Box>
 
-            <Button
-              variant="outline"
-              tone="secondary"
-              onPress={() => bottomSheetRef.current?.close()}
-            >
-              Close
-            </Button>
+            <SheetFooter>
+              <Button
+                variant="outline"
+                tone="secondary"
+                onPress={() => bottomSheetRef.current?.close()}
+              >
+                Close
+              </Button>
+            </SheetFooter>
           </Box>
-        </BottomSheetView>
-      </BottomSheet>
+        </SheetContent>
+      </Sheet>
     </SafeAreaView>
   );
 }
@@ -1698,6 +2056,17 @@ function useStyles() {
       minHeight: 280,
     },
     hoverCardTrigger: {
+      minHeight: theme.components.button.height.md,
+      paddingHorizontal: theme.components.button.paddingX.md,
+      borderRadius: theme.radii.lg,
+      borderWidth: 1.25,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.surface,
+      alignItems: "center",
+      justifyContent: "center",
+      alignSelf: "flex-start",
+    },
+    popoverTrigger: {
       minHeight: theme.components.button.height.md,
       paddingHorizontal: theme.components.button.paddingX.md,
       borderRadius: theme.radii.lg,

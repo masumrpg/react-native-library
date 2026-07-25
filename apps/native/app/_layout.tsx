@@ -10,6 +10,7 @@ import {
 } from "@expo-google-fonts/outfit";
 import {
   ThemeProvider,
+  ToastProvider,
   type ColorSchemePreference,
   type ThemeInput,
   type ThemeStorage,
@@ -134,7 +135,9 @@ const AppLayout = () => {
         storageKey={THEME_STORAGE_KEY}
         onColorSchemeChange={handleColorSchemeChange}
       >
-        <Stack screenOptions={{ headerShown: false }} />
+        <ToastProvider placement="bottom">
+          <Stack screenOptions={{ headerShown: false }} />
+        </ToastProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

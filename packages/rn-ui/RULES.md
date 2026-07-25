@@ -122,6 +122,27 @@ Current public components:
 - `InputOTP`
 - `Item`
 - `KeyboardAvoiding`
+- `Label`
+- `FormField`
+- `Switch`
+- `RadioGroup`
+- `Slider`
+- `Progress`
+- `Skeleton`
+- `Tabs`
+- `Stepper`
+- `Sheet`
+- `Toast`
+- `Textarea`
+- `Select`
+- `Command`
+- `Popover`
+- `Pagination`
+- `Breadcrumb`
+- `Table`
+- `DataList`
+- `Timeline`
+- `MetricCard`
 
 When adding a component:
 
@@ -800,6 +821,100 @@ Item rules:
 - Keep default, outline, and muted variants flat and token-based.
 - Do not add shadow/elevation by default.
 - Use `ItemHeader` and `ItemFooter` for full-width metadata rows.
+
+### Toast
+
+Use `Toast` for transient feedback rendered from a root `ToastProvider`.
+
+```tsx
+<ToastProvider placement="top">
+  <App />
+</ToastProvider>
+
+const toast = useToast();
+
+toast.show({
+  title: "Expo React Native",
+  description: "Toast by Ma'sum for 2026 mobile UI.",
+  tone: "success",
+  icon: successIcon,
+});
+```
+
+Toast rules:
+
+- Keep the API split between `ToastProvider`, `useToast`, and composable view parts.
+- Keep provider placement app-owned; apps must wrap their root where overlay stacking makes sense.
+- Use React Native `Animated` by default and keep Reanimated optional through future render overrides.
+- Keep icons app-owned through `RenderIcon`.
+- Support `placement`, `offset`, `duration`, `maxToasts`, `swipeToDismiss`, `viewportStyle`, and `renderToast`.
+- Default top placement must account for Android `StatusBar.currentHeight`; default bottom placement must leave extra room for Android navigation controls. Apps can override with `offset` or `viewportStyle`.
+- Keep `show`, `dismiss`, and `update` available from `useToast`.
+- Keep defaults flat, border-based, and token-driven with no shadow/elevation.
+
+### Form And Controls
+
+Use these primitives for common form, preference, loading, and local navigation UI.
+
+```tsx
+<FormField required>
+  <FormLabel>Expo React Native</FormLabel>
+  <FormControl>
+    <Input placeholder="Expo React Native by Ma'sum" />
+  </FormControl>
+  <FormDescription>Consistent field copy.</FormDescription>
+  <FormMessage>Shown when invalid.</FormMessage>
+</FormField>
+
+<Label required requiredIndicator=" (required)">
+  Expo React Native
+</Label>
+
+<Switch value={enabled} onValueChange={setEnabled} />
+<RadioGroup value={value} onValueChange={setValue} />
+<Slider value={64} onValueChange={setValue} />
+<Progress value={64} />
+<Skeleton style={{ height: 16, width: "72%" }} />
+<Stepper value={2} onValueChange={setValue} />
+```
+
+Form and control rules:
+
+- Keep `Label` and `FormField` app-form-library agnostic; do not import `react-hook-form`.
+- `Label required` must render a red `*` by default and allow override with `requiredIndicator` / `requiredIndicatorStyle`.
+- `FormField` should expose state through context only for styling/copy helpers.
+- `Switch` should wrap React Native `Switch` and map colors from tokens.
+- `RadioGroup` should support controlled and uncontrolled state.
+- `Slider` should remain dependency-free unless a future native peer dependency is explicitly chosen.
+- `Progress` and `Skeleton` should be lightweight and token-based.
+- `Tabs` are local content tabs, not navigation tabs.
+- `Stepper` should support controlled and uncontrolled numeric values.
+- `Sheet` should wrap the existing Gorhom-backed `BottomSheet`; do not duplicate bottom sheet internals.
+- Keep every default flat and border/token-based.
+
+### Data And Overlays
+
+Use these primitives for multiline fields, mobile selection, command sheets, anchored content, and compact data display.
+
+```tsx
+<Textarea placeholder="Expo React Native by Ma'sum" />
+<Select options={[{ value: "expo", label: "Expo React Native" }]} />
+<Pagination page={1} pageCount={5} onPageChange={setPage} />
+<MetricCard label="Expo React Native" value="2026" />
+```
+
+Data and overlay rules:
+
+- `Textarea` should reuse `Input` behavior and only specialize multiline sizing.
+- `Select` and `Command` should stay native-friendly and dependency-free by default.
+- `Popover` should support press and long-press trigger modes; mobile fallback may use `Modal`.
+- `Pagination` should be controlled and compact.
+- `Breadcrumb` is optional mobile UI; keep it lightweight.
+- `Table` should support horizontal overflow for compact mobile screens.
+- `DataList` is preferred over `Table` for mobile label-value data.
+- `Timeline` should be simple and token-based.
+- `MetricCard` should accept app-owned icons through `RenderIcon`.
+- Keep every default flat and border/token-based.
 
 ### KeyboardAvoiding
 
