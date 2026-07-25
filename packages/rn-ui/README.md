@@ -1454,6 +1454,10 @@ Parts and APIs:
 - `MetricCard`
 - `FloatingActionButton`
 
+`TableHead` defaults to a transparent flat header with a subtle divider, so it
+inherits the surrounding card/surface color instead of rendering a mismatched
+filled header background.
+
 ### KeyboardAvoiding
 
 Use `KeyboardAvoiding` for form screens that need keyboard-safe layout. It wraps React Native `KeyboardAvoidingView` and can optionally include a themed `ScrollView`.

@@ -75,7 +75,8 @@ export function TableHead({ children, style, ...props }: TableHeadProps) {
         {
           minWidth: components.table.minColumnWidth,
           padding: spacing.md,
-          backgroundColor: colors.backgroundMuted,
+          borderBottomWidth: components.borderWidth.default,
+          borderBottomColor: colors.borderMuted,
         },
         style,
       ]}

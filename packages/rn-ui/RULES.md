@@ -948,6 +948,7 @@ Data and overlay rules:
 - `Pagination` should be controlled and compact.
 - `Breadcrumb` is optional mobile UI; keep it lightweight.
 - `Table` should support horizontal overflow for compact mobile screens.
+- `TableHead` should stay transparent/flat by default and use dividers instead of filled header backgrounds.
 - `DataList` is preferred over `Table` for mobile label-value data.
 - `Timeline` should be simple and token-based.
 - `MetricCard` should accept app-owned icons through `RenderIcon`.

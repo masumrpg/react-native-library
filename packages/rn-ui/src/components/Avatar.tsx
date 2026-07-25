@@ -175,7 +175,6 @@ export function AvatarFallback({
   }
 
   const fallbackStyle: ViewStyle = {
-    ...StyleSheet.absoluteFillObject,
     borderRadius: radii.full,
     backgroundColor: colors.backgroundMuted,
     alignItems: "center",
@@ -186,7 +185,7 @@ export function AvatarFallback({
   const fontSize = size === "lg" ? 16 : size === "sm" ? 10 : 12;
 
   return (
-    <View style={[fallbackStyle, style]} {...props}>
+    <View style={[StyleSheet.absoluteFill, fallbackStyle, style]} {...props}>
       {typeof children === "string" ? (
         <Text
           style={[

@@ -1,14 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { SystemBars, type SystemBarStyle } from "react-native-edge-to-edge";
+import { StatusBar, StyleSheet, View, type StatusBarStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@masumdev/rn-ui";
 
 export interface SystemUIOverlayProps {
   top?: boolean;
   bottom?: boolean;
-  statusBarStyle?: Extract<SystemBarStyle, "light" | "dark" | "auto">;
+  statusBarStyle?: "light" | "dark" | "auto";
 }
 
 export function SystemUIOverlay({
@@ -19,10 +17,20 @@ export function SystemUIOverlay({
   const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const resolvedStyle = statusBarStyle ?? (isDark ? "light" : "dark");
+  const barStyle: StatusBarStyle =
+    resolvedStyle === "auto"
+      ? "default"
+      : resolvedStyle === "light"
+        ? "light-content"
+        : "dark-content";
 
   return (
     <>
-      <SystemBars style={resolvedStyle} />
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={barStyle}
+      />
 
       {top ? (
         <View
@@ -36,7 +44,7 @@ export function SystemUIOverlay({
         </View>
       ) : null}
 
-      {bottom ? (
+      {/* {bottom ? (
         <View
           pointerEvents="none"
           style={[styles.bottomGradient, { height: insets.bottom + 60 }]}
@@ -46,7 +54,7 @@ export function SystemUIOverlay({
             style={StyleSheet.absoluteFill}
           />
         </View>
-      ) : null}
+      ) : null} */}
     </>
   );
 }
