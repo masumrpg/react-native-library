@@ -24,7 +24,8 @@
   ],
   "scripts": {
     "build": "bob build",
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
     "react-native",
