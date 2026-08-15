@@ -12,7 +12,7 @@
   "devDependencies": {
     "@turbo/gen": "^2.9.8",
     "prettier": "^3.1.1",
-    "turbo": "^2.10.0"
+    "turbo": "^2.10.7"
   },
   "engines": {
     "node": ">=18"
@@ -24,5 +24,19 @@
   ],
   "dependencies": {
     "react-native-parsed-text": "^0.0.22"
+  },
+  "overrides": {
+    "react-native": "0.86.2",
+    "react-native-reanimated": "4.5.1",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-worklets": "0.10.1",
+    "react-native-calendars": "^1.1314.0",
+    "react-native-svg": "15.15.4",
+    "@gorhom/bottom-sheet": "^5.2.14",
+    "expo": "^57.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "@babel/core": "^7.25.0",
+    "@babel/preset-env": "^7.25.0"
   }
 }
