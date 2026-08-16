@@ -37,6 +37,9 @@ export const BottomSheet = React.forwardRef<
   BottomSheetProps
 >(function BottomSheet(
   {
+    index = -1,
+    animateOnMount = false,
+    enablePanDownToClose = true,
     withBackdrop = true,
     backdropOpacity = 0.48,
     backdropAppearsOnIndex = 0,
@@ -85,6 +88,9 @@ export const BottomSheet = React.forwardRef<
   return (
     <GorhomBottomSheet
       ref={ref}
+      index={index}
+      animateOnMount={animateOnMount}
+      enablePanDownToClose={enablePanDownToClose}
       backdropComponent={
         backdropComponent ?? (withBackdrop ? themedBackdrop : undefined)
       }

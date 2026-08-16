@@ -1,7 +1,6 @@
 import React from "react";
 import {
   StyleSheet,
-  View,
   type LayoutChangeEvent,
   type StyleProp,
   type ViewProps,
@@ -18,47 +17,59 @@ import Animated, {
 
 import { useTheme } from "../theme";
 
+export type SkeletonShimmerDirection =
+  | "top-left-to-bottom-right"
+  | "left-to-right"
+  | "top-to-bottom"
+  | "top-right-to-bottom-left";
+
 export interface SkeletonProps extends ViewProps {
   animated?: boolean;
   radius?: keyof ReturnType<typeof useTheme>["radii"];
+  direction?: SkeletonShimmerDirection;
   style?: StyleProp<ViewStyle>;
 }
 
 export function Skeleton({
   animated = true,
   radius = "md",
+  direction = "top-left-to-bottom-right",
   style,
   onLayout,
   ...props
 }: SkeletonProps) {
   const { colors, radii } = useTheme();
-  const [containerWidth, setContainerWidth] = React.useState(0);
+  const [layout, setLayout] = React.useState({ width: 0, height: 0 });
 
   const opacity = useSharedValue(0.6);
-  const translateX = useSharedValue(-100);
+  const translateProgress = useSharedValue(-1);
 
   React.useEffect(() => {
     if (!animated) {
       cancelAnimation(opacity);
-      cancelAnimation(translateX);
+      cancelAnimation(translateProgress);
       opacity.value = 1;
       return;
     }
 
-    // Pulse animation
-    opacity.value = 0.5;
+    // Subtle background pulse
+    opacity.value = 0.65;
     opacity.value = withRepeat(
-      withTiming(1, { duration: 900, easing: Easing.inOut(Easing.ease) }),
+      withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
       -1,
       true,
     );
 
-    // Shimmer sweep animation
-    const targetWidth = containerWidth > 0 ? containerWidth * 1.5 : 300;
-    translateX.value = -targetWidth;
-    translateX.value = withRepeat(
-      withTiming(targetWidth, {
-        duration: 1300,
+    // Continuous -1 to 1 loop on UI thread (doesn't depend on layout state re-renders)
+    const startProgress =
+      direction === "top-right-to-bottom-left" ? 1 : -1;
+    const endProgress =
+      direction === "top-right-to-bottom-left" ? -1 : 1;
+
+    translateProgress.value = startProgress;
+    translateProgress.value = withRepeat(
+      withTiming(endProgress, {
+        duration: 1500,
         easing: Easing.linear,
       }),
       -1,
@@ -67,14 +78,14 @@ export function Skeleton({
 
     return () => {
       cancelAnimation(opacity);
-      cancelAnimation(translateX);
+      cancelAnimation(translateProgress);
     };
-  }, [animated, containerWidth, opacity, translateX]);
+  }, [animated, direction, opacity, translateProgress]);
 
   const handleLayout = (e: LayoutChangeEvent) => {
-    const w = e.nativeEvent.layout.width;
-    if (w > 0 && w !== containerWidth) {
-      setContainerWidth(w);
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 0 && (width !== layout.width || height !== layout.height)) {
+      setLayout({ width, height });
     }
     onLayout?.(e);
   };
@@ -83,9 +94,34 @@ export function Skeleton({
     opacity: opacity.value,
   }));
 
-  const shimmerAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
+  const shimmerAnimatedStyle = useAnimatedStyle(() => {
+    const w = layout.width || 200;
+    const h = layout.height || 100;
+    const sweepDistance = (w + h) * 1.5;
+    const currentTranslate = translateProgress.value * sweepDistance;
+
+    switch (direction) {
+      case "top-to-bottom":
+        return {
+          transform: [{ translateY: currentTranslate }],
+        };
+      case "top-right-to-bottom-left":
+        return {
+          transform: [{ translateX: currentTranslate }, { rotate: "-25deg" }],
+        };
+      case "left-to-right":
+        return {
+          transform: [{ translateX: currentTranslate }],
+        };
+      case "top-left-to-bottom-right":
+      default:
+        return {
+          transform: [{ translateX: currentTranslate }, { rotate: "25deg" }],
+        };
+    }
+  });
+
+  const shimmerWidth = Math.max(40, Math.min((layout.width || 200) * 0.3, 100));
 
   return (
     <Animated.View
@@ -107,9 +143,11 @@ export function Skeleton({
           style={[
             StyleSheet.absoluteFill,
             {
-              width: "50%",
+              top: -60,
+              bottom: -60,
+              width: shimmerWidth,
               backgroundColor: colors.surface,
-              opacity: 0.35,
+              opacity: 0.25,
             },
             shimmerAnimatedStyle,
           ]}

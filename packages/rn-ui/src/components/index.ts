@@ -286,7 +286,7 @@ export type {
   SheetTitleProps,
 } from "./Sheet";
 export { Skeleton } from "./Skeleton";
-export type { SkeletonProps } from "./Skeleton";
+export type { SkeletonProps, SkeletonShimmerDirection } from "./Skeleton";
 export { Slider } from "./Slider";
 export type { SliderProps, SliderTone } from "./Slider";
 export { Stepper } from "./Stepper";

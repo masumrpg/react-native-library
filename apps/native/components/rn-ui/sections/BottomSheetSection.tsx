@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react-native";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function BottomSheetSection({ ctx }: { ctx: RnUiSectionContext }) {
-  const { icon, bottomSheetRef } = ctx;
+  const { icon, openSheet } = ctx;
 
   return (
     <Section title="Bottom Sheet">
@@ -15,7 +15,7 @@ export function BottomSheetSection({ ctx }: { ctx: RnUiSectionContext }) {
           </Text>
           <Button
             leftIcon={icon(ChevronRight)}
-            onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+            onPress={openSheet}
           >
             Open Themed Bottom Sheet
           </Button>

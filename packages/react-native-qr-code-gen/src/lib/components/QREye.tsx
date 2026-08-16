@@ -3,7 +3,7 @@ import { G, Circle, Path, Defs, Mask, Rect } from "react-native-svg";
 import { DotShapeProps, EyeSize, QREyeProps, SquareRadius } from "../types";
 import { normalizeRadius, roundedRectPath } from "../utils";
 
-export const QREye = ({
+const QREyeComponent = ({
   x,
   y,
   cellSize,
@@ -261,82 +261,85 @@ const dotShape = (
     asMask,
   }: DotShapeProps,
 ) => {
-  return (
-    <G key={keyPrefix}>
-      {Array.from({ length: 7 }).map((_, row) =>
-        Array.from({ length: 7 }).map((_, col) => {
-          const cx = x + col * cellSize + cellSize / 2;
-          const cy = y + row * cellSize + cellSize / 2;
+  const elements: React.ReactNode[] = [];
+  const radius = cellSize * dotSizeRatio;
 
-          const isCenter = row >= 2 && row <= 4 && col >= 2 && col <= 4;
-          const isInner = row >= 1 && row <= 5 && col >= 1 && col <= 5;
+  for (let row = 0; row < 7; row++) {
+    for (let col = 0; col < 7; col++) {
+      const isCenter = row >= 2 && row <= 4 && col >= 2 && col <= 4;
+      const isInner = row >= 1 && row <= 5 && col >= 1 && col <= 5;
 
-          const fill = isCenter ? innerEyeColor : isInner ? eyeBg : eyeColor;
+      if (isInner && !isCenter) {
+        const isInnerCorner =
+          (row === 1 && col === 1) ||
+          (row === 1 && col === 5) ||
+          (row === 5 && col === 1) ||
+          (row === 5 && col === 5);
+        if (!isInnerCorner) continue;
+      }
 
-          const radius = cellSize * dotSizeRatio;
+      const cx = x + col * cellSize + cellSize / 2;
+      const cy = y + row * cellSize + cellSize / 2;
+      const fill = asMask
+        ? "white"
+        : isCenter
+        ? innerEyeColor
+        : isInner
+        ? eyeBg
+        : eyeColor;
 
-          if (isInner && !isCenter) {
-            const isInnerCorner =
-              (row === 1 && col === 1) ||
-              (row === 1 && col === 5) ||
-              (row === 5 && col === 1) ||
-              (row === 5 && col === 5);
-            if (!isInnerCorner) {
-              return null;
-            }
-          }
+      switch (variant) {
+        case "heart": {
+          const heartPath = `M ${cx} ${cy + radius * 0.7} C ${cx} ${
+            cy + radius * 0.3
+          } ${cx - radius} ${cy - radius * 0.5} ${cx - radius} ${
+            cy - radius * 0.2
+          } C ${cx - radius} ${cy - radius * 1.2} ${cx} ${
+            cy - radius * 1.2
+          } ${cx} ${cy - radius * 0.7} C ${cx} ${
+            cy - radius * 1.2
+          } ${cx + radius} ${cy - radius * 1.2} ${cx + radius} ${
+            cy - radius * 0.2
+          } C ${cx + radius} ${cy - radius * 0.5} ${cx} ${
+            cy + radius * 0.3
+          } ${cx} ${cy + radius * 0.7} Z`;
+          elements.push(
+            <Path
+              key={`${keyPrefix}-heart-${row}-${col}`}
+              d={heartPath}
+              fill={fill}
+            />,
+          );
+          break;
+        }
+        case "triangle":
+          elements.push(
+            <Path
+              key={`${keyPrefix}-triangle-${row}-${col}`}
+              d={`M ${cx} ${cy - radius} L ${cx + radius} ${
+                cy + radius
+              } L ${cx - radius} ${cy + radius} Z`}
+              fill={fill}
+            />,
+          );
+          break;
+        case "dot":
+        default:
+          elements.push(
+            <Circle
+              key={`${keyPrefix}-dot-${row}-${col}`}
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill={fill}
+            />,
+          );
+          break;
+      }
+    }
+  }
 
-          const heartPath = `
-            M ${cx} ${cy + radius * 0.7}
-            C ${cx} ${cy + radius * 0.3} ${cx - radius * 1.0} ${
-              cy - radius * 0.5
-            } ${cx - radius * 1.0} ${cy - radius * 0.2}
-            C ${cx - radius * 1.0} ${cy - radius * 1.2} ${cx} ${
-              cy - radius * 1.2
-            } ${cx} ${cy - radius * 0.7}
-            C ${cx} ${cy - radius * 1.2} ${cx + radius * 1.0} ${
-              cy - radius * 1.2
-            } ${cx + radius * 1.0} ${cy - radius * 0.2}
-            C ${cx + radius * 1.0} ${cy - radius * 0.5} ${cx} ${
-              cy + radius * 0.3
-            } ${cx} ${cy + radius * 0.7}
-            Z`
-            .trim()
-            .replace(/\s+/g, " ");
-
-          switch (variant) {
-            case "heart":
-              return (
-                <Path
-                  key={`${keyPrefix}-heart-${row}-${col}`}
-                  d={heartPath}
-                  fill={asMask ? "white" : fill}
-                />
-              );
-            case "triangle":
-              return (
-                <Path
-                  key={`${keyPrefix}-triangle-${row}-${col}`}
-                  d={`M ${cx} ${cy - radius}
-                      L ${cx + radius} ${cy + radius}
-                      L ${cx - radius} ${cy + radius} Z`}
-                  fill={asMask ? "white" : fill}
-                />
-              );
-            case "dot":
-            default:
-              return (
-                <Circle
-                  key={`${keyPrefix}-dot-rounded-${row}-${col}`}
-                  cx={cx}
-                  cy={cy}
-                  r={radius}
-                  fill={asMask ? "white" : fill}
-                />
-              );
-          }
-        }),
-      )}
-    </G>
-  );
+  return <G key={keyPrefix}>{elements}</G>;
 };
+
+export const QREye = React.memo(QREyeComponent);

@@ -18,32 +18,28 @@ export const useGenerateQrCode = ({
   errorCorrectionLevel,
 }: Props) => {
   const matrix = useMemo(() => {
+    if (!value) return [];
     try {
       const level: QRCodeErrorCorrectionLevel =
         errorCorrectionLevel ?? (logo ? "H" : "M");
 
-      let qr;
+      const options: QRCode.QRCodeOptions = {
+        errorCorrectionLevel: level,
+      };
 
       if (version) {
-        qr = QRCode.create(value, {
-          errorCorrectionLevel: level,
-          version,
-        });
-      } else {
-        for (let v = 1; v <= maxVersion; v++) {
-          try {
-            qr = QRCode.create(value, {
-              errorCorrectionLevel: level,
-              version: v,
-            });
-            break;
-          } catch {
-            continue;
-          }
-        }
+        options.version = version;
       }
 
+      const qr = QRCode.create(value, options);
+
       if (!qr) return [];
+
+      if (maxVersion && qr.version > maxVersion) {
+        console.warn(
+          `[QRCode] Generated version ${qr.version} exceeds maxVersion ${maxVersion}`,
+        );
+      }
 
       const { size, data } = qr.modules;
       const newMatrix: number[][] = [];

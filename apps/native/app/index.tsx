@@ -61,6 +61,22 @@ export default function Native() {
   const { colors, isDark, setColorScheme, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
+  const [navigatingRoute, setNavigatingRoute] = React.useState<string | null>(
+    null,
+  );
+
+  const handleNavigate = React.useCallback(
+    (route: string) => {
+      setNavigatingRoute(route);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          router.push(route as never);
+          setTimeout(() => setNavigatingRoute(null), 600);
+        }, 30);
+      });
+    },
+    [router],
+  );
 
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -121,6 +137,7 @@ export default function Native() {
                 : item.tone === "accent"
                   ? colors.accentSoft
                   : colors.primarySoft;
+            const isNavigating = navigatingRoute === item.route;
 
             return (
               <Card key={item.route} padded={false}>
@@ -152,9 +169,11 @@ export default function Native() {
                     variant="outline"
                     tone={item.tone}
                     rightIcon={icon(ChevronRight)}
-                    onPress={() => router.push(item.route as never)}
+                    loading={isNavigating}
+                    disabled={navigatingRoute !== null}
+                    onPress={() => handleNavigate(item.route)}
                   >
-                    Explore Screen
+                    {isNavigating ? "Opening..." : "Explore Screen"}
                   </Button>
                 </Box>
               </Card>

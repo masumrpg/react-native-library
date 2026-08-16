@@ -40,46 +40,36 @@ const QRPieceComponent = ({
   const posX = x * cellSize + centerOffset;
   const posY = y * cellSize + centerOffset;
 
-  // Rain Effect
-  const rainBarWidth = adjustedSize * 0.6;
-  const rainBarHeight = adjustedSize * 1.4;
-  const rainBarX = posX + (adjustedSize - rainBarWidth) / 2;
-  const rainBarY = posY + (cellSize - rainBarHeight) / 2;
-
-  // Heart Shape
-  const heartPath = `
-      M ${posX + adjustedSize / 2} ${posY + adjustedSize}
-      C ${posX + adjustedSize / 2} ${
-        posY + adjustedSize * 0.5
-      } ${posX} ${posY} ${posX} ${posY + adjustedSize * 0.5}
-      C ${posX} ${posY - adjustedSize * 0.2} ${posX + adjustedSize / 2} ${
-        posY - adjustedSize * 0.2
-      } ${posX + adjustedSize / 2} ${posY + adjustedSize * 0.3}
-      C ${posX + adjustedSize / 2} ${posY - adjustedSize * 0.2} ${
-        posX + adjustedSize
-      } ${posY - adjustedSize * 0.2} ${posX + adjustedSize} ${
-        posY + adjustedSize * 0.5
-      }
-      C ${posX} ${posY} ${posX + adjustedSize / 2} ${
-        posY + adjustedSize * 0.5
-      } ${posX + adjustedSize / 2} ${posY + adjustedSize}
-      Z`
-    .trim()
-    .replace(/\s+/g, " ");
-
   switch (shape) {
     case "triangle":
       return (
         <Path
           key={keyPrefix}
-          d={`M ${posX + adjustedSize / 2} ${posY}
-             L ${posX + adjustedSize} ${posY + adjustedSize}
-             L ${posX} ${posY + adjustedSize} Z`}
+          d={`M ${posX + adjustedSize / 2} ${posY} L ${
+            posX + adjustedSize
+          } ${posY + adjustedSize} L ${posX} ${posY + adjustedSize} Z`}
           fill={pieceColor}
           opacity={opacity}
         />
       );
-    case "heart":
+    case "heart": {
+      const heartPath = `M ${posX + adjustedSize / 2} ${
+        posY + adjustedSize
+      } C ${posX + adjustedSize / 2} ${posY + adjustedSize * 0.5} ${posX} ${
+        posY
+      } ${posX} ${posY + adjustedSize * 0.5} C ${posX} ${
+        posY - adjustedSize * 0.2
+      } ${posX + adjustedSize / 2} ${posY - adjustedSize * 0.2} ${
+        posX + adjustedSize / 2
+      } ${posY + adjustedSize * 0.3} C ${posX + adjustedSize / 2} ${
+        posY - adjustedSize * 0.2
+      } ${posX + adjustedSize} ${posY - adjustedSize * 0.2} ${
+        posX + adjustedSize
+      } ${posY + adjustedSize * 0.5} C ${posX} ${posY} ${
+        posX + adjustedSize / 2
+      } ${posY + adjustedSize * 0.5} ${posX + adjustedSize / 2} ${
+        posY + adjustedSize
+      } Z`;
       return (
         <Path
           key={keyPrefix}
@@ -88,6 +78,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
+    }
     case "dot":
       return (
         <Circle
@@ -113,7 +104,11 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
-    case "rain":
+    case "rain": {
+      const rainBarWidth = adjustedSize * 0.6;
+      const rainBarHeight = adjustedSize * 1.4;
+      const rainBarX = posX + (adjustedSize - rainBarWidth) / 2;
+      const rainBarY = posY + (cellSize - rainBarHeight) / 2;
       return (
         <Rect
           key={keyPrefix}
@@ -127,6 +122,7 @@ const QRPieceComponent = ({
           opacity={opacity}
         />
       );
+    }
     case "square":
     default:
       return (

@@ -19,7 +19,7 @@ export function TabsStepperSheetSection({ ctx }: { ctx: RnUiSectionContext }) {
     setStepperValue,
     tabValue,
     setTabValue,
-    bottomSheetRef,
+    openSheet,
   } = ctx;
 
   return (
@@ -63,7 +63,7 @@ export function TabsStepperSheetSection({ ctx }: { ctx: RnUiSectionContext }) {
           <Button
             variant="outline"
             tone="secondary"
-            onPress={() => bottomSheetRef.current?.snapToIndex(0)}
+            onPress={openSheet}
           >
             Open Sheet
           </Button>
