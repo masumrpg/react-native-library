@@ -1,1 +1,0 @@
-{"version":3,"names":["renderIcon","icon","color","size"],"sourceRoot":"../../../src","sources":["components/types.ts"],"mappings":";;;;;;AAQO,SAASA,UAAUA,CACxBC,IAA4B,EAC5BC,KAAa,EACbC,IAAY,EACZ;EACA,IAAI,CAACF,IAAI,EAAE,OAAO,IAAI;EACtB,OAAO,OAAOA,IAAI,KAAK,UAAU,GAAGA,IAAI,CAAC;IAAEC,KAAK;IAAEC;EAAK,CAAC,CAAC,GAAGF,IAAI;AAClE","ignoreList":[]}
