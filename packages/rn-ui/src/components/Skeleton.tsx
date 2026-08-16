@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Dimensions,
   StyleSheet,
   type LayoutChangeEvent,
   type StyleProp,
@@ -30,7 +31,9 @@ export interface SkeletonProps extends ViewProps {
   style?: StyleProp<ViewStyle>;
 }
 
-export function Skeleton({
+const INITIAL_WIDTH = Dimensions.get("window").width || 300;
+
+function SkeletonComponent({
   animated = true,
   radius = "md",
   direction = "top-left-to-bottom-right",
@@ -40,8 +43,8 @@ export function Skeleton({
 }: SkeletonProps) {
   const { colors, radii } = useTheme();
 
-  const widthSV = useSharedValue(0);
-  const heightSV = useSharedValue(0);
+  const widthSV = useSharedValue(INITIAL_WIDTH);
+  const heightSV = useSharedValue(100);
   const opacity = useSharedValue(0.65);
   const translateProgress = useSharedValue(-1);
 
@@ -83,7 +86,7 @@ export function Skeleton({
 
   const handleLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
-    if (width > 0 && (width !== widthSV.value || height !== heightSV.value)) {
+    if (width > 0) {
       widthSV.value = width;
       heightSV.value = height;
     }
@@ -95,7 +98,7 @@ export function Skeleton({
   }));
 
   const shimmerAnimatedStyle = useAnimatedStyle(() => {
-    const w = widthSV.value || 200;
+    const w = widthSV.value || INITIAL_WIDTH;
     const h = heightSV.value || 100;
     const sweepDistance = (w + h) * 1.5;
     const currentTranslate = translateProgress.value * sweepDistance;
@@ -158,3 +161,5 @@ export function Skeleton({
     </Animated.View>
   );
 }
+
+export const Skeleton = React.memo(SkeletonComponent);
