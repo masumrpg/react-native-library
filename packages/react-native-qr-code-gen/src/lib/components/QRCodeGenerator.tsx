@@ -38,6 +38,151 @@ const QRCodeGeneratorSVG = (
     errorCorrectionLevel,
   });
 
+  const cellSize = matrix.length > 0 ? size / matrix.length : 0;
+
+  const pieces = React.useMemo(() => {
+    if (!matrix || matrix.length === 0) return [];
+    const eyeZone = 7;
+    const len = matrix.length;
+    const result: React.ReactNode[] = [];
+
+    for (let y = 0; y < len; y++) {
+      const row = matrix[y];
+      for (let x = 0; x < len; x++) {
+        if (!row[x]) continue;
+
+        const inTopLeft = x < eyeZone && y < eyeZone;
+        const inTopRight = x >= len - eyeZone && y < eyeZone;
+        const inBottomLeft = x < eyeZone && y >= len - eyeZone;
+        if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+        result.push(
+          <QRPiece
+            key={`piece-${x}-${y}`}
+            x={x}
+            y={y}
+            cell={row[x]}
+            cellSize={cellSize}
+            pieceOptions={piece || {}}
+            defaultColor={color}
+            keyPrefix={`piece-${x}-${y}`}
+          />,
+        );
+      }
+    }
+    return result;
+  }, [matrix, cellSize, piece, color]);
+
+  const maskPieces = React.useMemo(() => {
+    if (!matrix || matrix.length === 0 || (!gradient && !imageClip)) return null;
+
+    const eyeZone = 7;
+    const len = matrix.length;
+    const result: React.ReactNode[] = [];
+
+    for (let y = 0; y < len; y++) {
+      const row = matrix[y];
+      for (let x = 0; x < len; x++) {
+        if (!row[x]) continue;
+
+        const inTopLeft = x < eyeZone && y < eyeZone;
+        const inTopRight = x >= len - eyeZone && y < eyeZone;
+        const inBottomLeft = x < eyeZone && y >= len - eyeZone;
+        if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+        result.push(
+          <QRPiece
+            key={`piece-mask-${x}-${y}`}
+            x={x}
+            y={y}
+            cell={row[x]}
+            cellSize={cellSize}
+            pieceOptions={piece || {}}
+            defaultColor="white"
+            keyPrefix={`piece-mask-${x}-${y}`}
+            asMask
+          />,
+        );
+      }
+    }
+    return result;
+  }, [matrix, cellSize, piece, gradient, imageClip]);
+
+  const eyes = React.useMemo(() => {
+    if (!matrix || matrix.length === 0) return null;
+
+    return (
+      <>
+        <QREye
+          x={0}
+          y={0}
+          cellSize={cellSize}
+          eyeOptions={eye?.topLeft || {}}
+          defaultColor={color}
+          defaultBackgroundColor={backgroundColor}
+          keyPrefix="eye-tl"
+        />
+        <QREye
+          x={size - cellSize * 7}
+          y={0}
+          cellSize={cellSize}
+          eyeOptions={eye?.topRight || {}}
+          defaultColor={color}
+          defaultBackgroundColor={backgroundColor}
+          keyPrefix="eye-tr"
+        />
+        <QREye
+          x={0}
+          y={size - cellSize * 7}
+          cellSize={cellSize}
+          eyeOptions={eye?.bottomLeft || {}}
+          defaultColor={color}
+          defaultBackgroundColor={backgroundColor}
+          keyPrefix="eye-bl"
+        />
+      </>
+    );
+  }, [matrix, cellSize, eye, color, backgroundColor, size]);
+
+  const maskEyes = React.useMemo(() => {
+    if (!matrix || matrix.length === 0 || (!gradient && !imageClip)) return null;
+
+    return (
+      <>
+        <QREye
+          x={0}
+          y={0}
+          cellSize={cellSize}
+          eyeOptions={eye?.topLeft || {}}
+          defaultColor="white"
+          defaultBackgroundColor="black"
+          keyPrefix="eye-tl-mask"
+          asMask
+        />
+        <QREye
+          x={size - cellSize * 7}
+          y={0}
+          cellSize={cellSize}
+          eyeOptions={eye?.topRight || {}}
+          defaultColor="white"
+          defaultBackgroundColor="black"
+          keyPrefix="eye-tr-mask"
+          asMask
+        />
+        <QREye
+          x={0}
+          y={size - cellSize * 7}
+          cellSize={cellSize}
+          eyeOptions={eye?.bottomLeft || {}}
+          defaultColor="white"
+          defaultBackgroundColor="black"
+          keyPrefix="eye-bl-mask"
+          asMask
+        />
+      </>
+    );
+  }, [matrix, cellSize, eye, size, gradient, imageClip]);
+
   if (isLoading || matrix.length === 0) {
     if (renderLoading) {
       return <>{renderLoading()}</>;
@@ -57,16 +202,6 @@ const QRCodeGeneratorSVG = (
       />
     );
   }
-
-  const cellSize = size / matrix.length;
-
-  const isInEye = (x: number, y: number) => {
-    const eyeZone = 7;
-    const inTopLeft = x < eyeZone && y < eyeZone;
-    const inTopRight = x >= matrix.length - eyeZone && y < eyeZone;
-    const inBottomLeft = x < eyeZone && y >= matrix.length - eyeZone;
-    return inTopLeft || inTopRight || inBottomLeft;
-  };
 
   const renderSvgContent = (children: React.ReactNode) => {
     const svg = (
@@ -95,72 +230,12 @@ const QRCodeGeneratorSVG = (
     );
   };
 
-  const renderEyes = (
-    defaultColor: string,
-    defaultBackgroundColor: string,
-    asMask?: boolean,
-  ) => (
-    <>
-      <QREye
-        x={0}
-        y={0}
-        cellSize={cellSize}
-        eyeOptions={eye?.topLeft || {}}
-        defaultColor={defaultColor}
-        defaultBackgroundColor={defaultBackgroundColor}
-        keyPrefix="eye-tl"
-        {...(asMask ? { asMask } : {})}
-      />
-      <QREye
-        x={size - cellSize * 7}
-        y={0}
-        cellSize={cellSize}
-        eyeOptions={eye?.topRight || {}}
-        defaultColor={defaultColor}
-        defaultBackgroundColor={defaultBackgroundColor}
-        keyPrefix="eye-tr"
-        {...(asMask ? { asMask } : {})}
-      />
-      <QREye
-        x={0}
-        y={size - cellSize * 7}
-        cellSize={cellSize}
-        eyeOptions={eye?.bottomLeft || {}}
-        defaultColor={defaultColor}
-        defaultBackgroundColor={defaultBackgroundColor}
-        keyPrefix="eye-bl"
-        {...(asMask ? { asMask } : {})}
-      />
-    </>
-  );
-
-  const renderPieces = (defaultColor: string, asMask?: boolean) => {
-    return matrix.flatMap((row, y) =>
-      row.map((cell, x) => {
-        if (!cell || isInEye(x, y)) return null;
-        return (
-          <QRPiece
-            key={`piece-${x}-${y}`}
-            x={x}
-            y={y}
-            cell={cell}
-            cellSize={cellSize}
-            pieceOptions={piece || {}}
-            defaultColor={defaultColor}
-            keyPrefix={`piece-${x}-${y}`}
-            {...(asMask ? { asMask } : {})}
-          />
-        );
-      }),
-    );
-  };
-
   // --- CASE 1: Gradient with maskLogo
   if (gradient?.maskLogo) {
     return renderSvgContent(
       <QRGradient width={size} height={size} {...gradient}>
-        {renderPieces("white", true)}
-        {renderEyes("white", "black", true)}
+        {maskPieces}
+        {maskEyes}
         {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
       </QRGradient>,
     );
@@ -171,8 +246,8 @@ const QRCodeGeneratorSVG = (
     return renderSvgContent(
       <>
         <QRGradient width={size} height={size} {...gradient}>
-          {renderPieces("white", true)}
-          {renderEyes("white", "black", true)}
+          {maskPieces}
+          {maskEyes}
         </QRGradient>
         {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
       </>,
@@ -187,13 +262,13 @@ const QRCodeGeneratorSVG = (
         source={imageClip}
         baseClip={
           <>
-            {renderPieces(color)}
-            {renderEyes(color, backgroundColor)}
+            {pieces}
+            {eyes}
           </>
         }
       >
-        {renderPieces("white", true)}
-        {renderEyes("white", "black", true)}
+        {maskPieces}
+        {maskEyes}
       </QRImage>,
     );
   }
@@ -201,8 +276,8 @@ const QRCodeGeneratorSVG = (
   // --- CASE 4: Plain QR (no gradient)
   return renderSvgContent(
     <>
-      {renderPieces(color)}
-      {renderEyes(color, backgroundColor)}
+      {pieces}
+      {eyes}
       {logo && <QRLogo logo={logo} size={size} matrix={matrix} />}
     </>,
   );

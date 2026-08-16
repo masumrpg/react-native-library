@@ -31,6 +31,17 @@ export function ButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {
             <Button size="lg">LG</Button>
             <Button size="xl">XL</Button>
           </Box>
+          <Box row gap="sm" style={styles.wrap}>
+            <Button size="sm" loading>
+              Loading
+            </Button>
+            <Button size="sm" variant="outline" loading>
+              Outline Loading
+            </Button>
+            <Button size="sm" disabled>
+              Disabled
+            </Button>
+          </Box>
         </Box>
       </Card>
     </Section>

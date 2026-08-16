@@ -130,8 +130,17 @@ export default function RnUiScreen() {
   const [page, setPage] = React.useState(1);
   const [showBookmark, setShowBookmark] = React.useState(true);
   const [compactMenu, setCompactMenu] = React.useState(false);
+  const [isSheetVisible, setIsSheetVisible] = React.useState(false);
   const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
   const bottomSheetSnapPoints = React.useMemo(() => ["35%", "70%"], []);
+
+  const openSheet = React.useCallback(() => {
+    setIsSheetVisible(true);
+  }, []);
+
+  const closeSheet = React.useCallback(() => {
+    setIsSheetVisible(false);
+  }, []);
 
   const handleRangePress = (day: { dateString: string }) => {
     const { dateString } = day;
@@ -257,6 +266,8 @@ export default function RnUiScreen() {
     compactMenu,
     setCompactMenu,
     bottomSheetRef,
+    openSheet,
+    closeSheet,
     toast,
   };
 
@@ -444,37 +455,44 @@ export default function RnUiScreen() {
         onConfirm={() => setAlertDialogVisible(false)}
       />
 
-      <Sheet ref={bottomSheetRef} snapPoints={bottomSheetSnapPoints}>
-        <SheetContent style={styles.bottomSheetContent}>
-          <Box gap="md">
-            <SheetHeader>
-              <SheetTitle>Expo React Native Sheet</SheetTitle>
-              <SheetDescription>
-                Higher-level sheet wrapper by Ma'sum using Gorhom BottomSheet
-                tokens.
-              </SheetDescription>
-            </SheetHeader>
+      {isSheetVisible && (
+        <Sheet
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={bottomSheetSnapPoints}
+          onClose={closeSheet}
+        >
+          <SheetContent style={styles.bottomSheetContent}>
+            <Box gap="md">
+              <SheetHeader>
+                <SheetTitle>Expo React Native Sheet</SheetTitle>
+                <SheetDescription>
+                  Higher-level sheet wrapper by Ma'sum using Gorhom BottomSheet
+                  tokens.
+                </SheetDescription>
+              </SheetHeader>
 
-            <Divider />
+              <Divider />
 
-            <Box row gap="sm">
-              <Badge tone="primary">Flat</Badge>
-              <Badge tone="success">Dark ready</Badge>
-              <Badge tone="info">Gorhom</Badge>
+              <Box row gap="sm">
+                <Badge tone="primary">Flat</Badge>
+                <Badge tone="success">Dark ready</Badge>
+                <Badge tone="info">Gorhom</Badge>
+              </Box>
+
+              <SheetFooter>
+                <Button
+                  variant="outline"
+                  tone="secondary"
+                  onPress={closeSheet}
+                >
+                  Close
+                </Button>
+              </SheetFooter>
             </Box>
-
-            <SheetFooter>
-              <Button
-                variant="outline"
-                tone="secondary"
-                onPress={() => bottomSheetRef.current?.close()}
-              >
-                Close
-              </Button>
-            </SheetFooter>
-          </Box>
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
+      )}
     </View>
   );
 }

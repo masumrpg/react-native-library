@@ -28,18 +28,7 @@ const roundedRectPath = (
   const validBR = isFinite(br) ? br : 0;
   const validBL = isFinite(bl) ? bl : 0;
 
-  return `
-    M${x + validTL},${y}
-    H${x + w - validTR}
-    A${validTR},${validTR} 0 0 1 ${x + w},${y + validTR}
-    V${y + h - validBR}
-    A${validBR},${validBR} 0 0 1 ${x + w - validBR},${y + h}
-    H${x + validBL}
-    A${validBL},${validBL} 0 0 1 ${x},${y + h - validBL}
-    V${y + validTL}
-    A${validTL},${validTL} 0 0 1 ${x + validTL},${y}
-    Z
-  `;
+  return `M${x + validTL},${y}H${x + w - validTR}A${validTR},${validTR} 0 0 1 ${x + w},${y + validTR}V${y + h - validBR}A${validBR},${validBR} 0 0 1 ${x + w - validBR},${y + h}H${x + validBL}A${validBL},${validBL} 0 0 1 ${x},${y + h - validBL}V${y + validTL}A${validTL},${validTL} 0 0 1 ${x + validTL},${y}Z`;
 };
 
 export { normalizeRadius, roundedRectPath };
