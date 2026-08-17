@@ -442,3 +442,13 @@ export type {
   ContextMenuShortcutProps,
 } from "./ContextMenu";
 export type { RenderIcon, ThemeColorName } from "./types";
+export { Rating } from "./Rating";
+export type {
+  RatingItemInfo,
+  RatingPrecision,
+  RatingProps,
+  RatingShape,
+  RatingSize,
+  RatingTone,
+} from "./Rating";
+

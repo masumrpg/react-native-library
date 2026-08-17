@@ -181,6 +181,9 @@ export interface ThemeComponents {
     activeThumbSize: number;
     hitSlop: number;
   };
+  rating: {
+    size: Record<"sm" | "md" | "lg" | "xl", number>;
+  };
 }
 
 export interface Theme {

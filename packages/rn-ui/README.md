@@ -441,6 +441,7 @@ Current core components:
 - `Switch`
 - `RadioGroup`
 - `Slider`
+- `Rating`
 - `Progress`
 - `Skeleton`
 - `Tabs`
@@ -1447,6 +1448,7 @@ Parts and APIs:
 - `Switch` with `size`, `tone`, `activeIcon`, `inactiveIcon`, `thumbContent`, `activeThumbContent`, `inactiveThumbContent`, `renderThumb`, `trackStyle`, and `thumbStyle`
 - `RadioGroup` and `RadioGroupItem`
 - `Slider` with `tone`, `step`, tap-to-seek, hold feedback, smooth drag gestures, `trackStyle`, `activeTrackStyle`, and `thumbStyle`
+- `Rating` with `shape` (`star`, `heart`, `thumb`, `fire`, `smile`, `shield`), `precision` (`full`, `half`, `exact`, float number), `size`, `tone`, `color`, `emptyColor`, `readOnly`, `allowClear`, `showValue`, `renderItem`, `icon`, tap & drag gestures, and dual-layer partial fill clipping
 - `Progress`
 - `Skeleton`
 - `Tabs`, `TabsList`, `TabsTrigger`, and `TabsContent`
@@ -1465,6 +1467,12 @@ between states. Each content prop also accepts a render function with
 press/hold feedback, smooth horizontal dragging, and spring snapping on release.
 Apps must keep `GestureHandlerRootView` at the native root, which is also
 required by BottomSheet.
+
+`Rating` provides high-precision tap & drag gesture interaction for review and feedback scores.
+It supports preset vector shapes (`star`, `heart`, `thumb`, `fire`, `smile`, `shield`), custom `RenderIcon` components, and custom `renderItem` functions.
+Partial fill calculations use dual-layer overflow container clipping for 100% accurate fractional display (such as 3.4 or 4.5).
+Precision options include `"full"` (1), `"half"` (0.5), `"exact"` (0.1), or custom float numbers.
+
 
 ### Sheet
 
