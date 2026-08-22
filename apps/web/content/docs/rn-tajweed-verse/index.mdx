@@ -1,0 +1,35 @@
+---
+title: Overview
+description: Render Quranic verses with color-coded Tajweed rules and interactive tooltips in React Native.
+icon: Layout
+---
+
+`@masumdev/rn-tajweed-verse` parses formatted Quranic verse strings containing bracketed Tajweed markup tags (e.g. `[n[...]`, `[q[...]`) and renders color-coded text with interactive press callbacks.
+
+<Cards>
+  <Card
+    title="Installation"
+    description="Install the package and setup peer dependencies."
+    href="/docs/rn-tajweed-verse/installation"
+    icon="Download"
+  />
+  <Card
+    title="Usage Guide"
+    description="Render your first Tajweed verse component with custom configurations."
+    href="/docs/rn-tajweed-verse/usage"
+    icon="Code"
+  />
+  <Card
+    title="Tajweed Rules"
+    description="Complete reference of supported Tajweed rules (Qalqalah, Ghunnah, Madd, Ikhfa')."
+    href="/docs/rn-tajweed-verse/tajweed-rules"
+    icon="List"
+  />
+</Cards>
+
+## Key Features
+
+- **20+ Supported Tajweed Rules**: Supports `ham_wasl`, `slnt`, `madda_normal`, `madda_permissible`, `madda_necessary`, `madda_obligatory`, `qlq`, `ikhf_shfw`, `ikhf`, `idghm_shfw`, `iqlb`, and more.
+- **Interactive Callbacks**: Per-rule `onPress` callback returning pressed text and character index.
+- **Custom Rule Styling**: Override text color or font styles per rule.
+- **Pure React Native**: Built on `react-native-parsed-text` — lightweight with zero native binaries.

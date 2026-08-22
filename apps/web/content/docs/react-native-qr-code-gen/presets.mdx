@@ -1,0 +1,19 @@
+---
+title: Presets
+description: Using pre-configured QR code design presets.
+---
+
+Import built-in design presets from `QR_CODE_CONFIGS`:
+
+```tsx
+import QRCodeGen, { QR_CODE_CONFIGS } from '@masumdev/react-native-qr-code-gen';
+
+export function PresetExample() {
+  return (
+    <QRCodeGen
+      value="https://masumdev.vercel.app"
+      {...QR_CODE_CONFIGS.modernRound}
+    />
+  );
+}
+```

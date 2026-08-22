@@ -1,0 +1,13 @@
+{
+  "title": "RN QR Code Gen",
+  "root": true,
+  "icon": "QrCode",
+  "pages": [
+    "index",
+    "installation",
+    "usage",
+    "customization",
+    "presets",
+    "changelog"
+  ]
+}

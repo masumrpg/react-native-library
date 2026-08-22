@@ -1,0 +1,13 @@
+{
+  "title": "RN UI",
+  "root": true,
+  "icon": "Smartphone",
+  "pages": [
+    "index",
+    "installation",
+    "usage",
+    "theming",
+    "components",
+    "changelog"
+  ]
+}

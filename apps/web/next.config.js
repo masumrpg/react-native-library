@@ -1,4 +1,9 @@
-module.exports = {
+const { createMDX } = require("fumadocs-mdx/next");
+
+const withMDX = createMDX();
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   turbopack: {
     resolveAlias: {
@@ -19,7 +24,6 @@ module.exports = {
   webpack: (config) => {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      // Transform all direct `react-native` imports to `react-native-web`
       "react-native$": "react-native-web",
     };
     config.resolve.extensions = [
@@ -32,3 +36,5 @@ module.exports = {
     return config;
   },
 };
+
+module.exports = withMDX(nextConfig);

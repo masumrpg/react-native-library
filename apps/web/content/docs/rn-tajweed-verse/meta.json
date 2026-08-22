@@ -1,0 +1,13 @@
+{
+  "title": "RN Tajweed Verse",
+  "root": true,
+  "icon": "BookOpen",
+  "pages": [
+    "index",
+    "installation",
+    "usage",
+    "customization",
+    "tajweed-rules",
+    "changelog"
+  ]
+}

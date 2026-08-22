@@ -1,0 +1,15 @@
+{
+  "title": "Components",
+  "pages": [
+    "index",
+    "button",
+    "bottom-sheet",
+    "avatar",
+    "badge",
+    "card",
+    "toast",
+    "form-field",
+    "select"
+  ],
+  "icon": "Layers"
+}

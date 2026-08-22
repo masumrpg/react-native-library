@@ -1,0 +1,5 @@
+{
+  "title": "Masum Dev Docs",
+  "pages": ["index", "rn-ui", "rn-tajweed-verse", "react-native-qr-code-gen"],
+  "icon": "Package"
+}
