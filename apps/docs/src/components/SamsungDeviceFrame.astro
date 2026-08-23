@@ -4,29 +4,79 @@ export interface Props {
 }
 
 const { url = 'https://rn-ui.netlify.app/' } = Astro.props;
+
+const DEVICE_W = 401;
+const DEVICE_H = 838;
 ---
 
 <div class="samsung-frame-container">
-  <!-- Samsung Galaxy Phone Outer Container (Unclipped for side buttons) -->
-  <div class="samsung-device">
-    <!-- Side Hardware Buttons -->
+  <div class="samsung-device" style={`width:${DEVICE_W}px; height:${DEVICE_H}px;`}>
     <div class="side-btn volume-up"></div>
     <div class="side-btn volume-down"></div>
     <div class="side-btn power"></div>
 
-    <!-- Phone Inner Body (Clipped strictly with overflow: hidden) -->
     <div class="samsung-body">
       <div class="screen-bezel">
-        <!-- Camera Punch-Hole (Infinity-O Cutout) -->
-        <div class="camera-notch">
-          <div class="lens"></div>
+        <!-- Samsung One UI Official Status Bar (Unified Pixel-Perfect SVG Canvas) -->
+        <div class="status-bar">
+          <div class="status-left">
+            <span class="status-time">9:36</span>
+          </div>
+
+          <div class="camera-notch">
+            <div class="lens"></div>
+          </div>
+
+          <!-- Single Unified Status Bar SVG - Guaranteed 100% Pixel-Straight Alignment -->
+          <svg class="status-bar-svg" width="94" height="13" viewBox="0 0 94 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 1. Alarm Clock Icon -->
+            <g transform="translate(0, 0)">
+              <circle cx="5.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.2" fill="none"/>
+              <polyline points="5.5 4.5 5.5 6.5 7 6.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+              <line x1="2" y1="2" x2="0.8" y2="3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="9" y1="2" x2="10.2" y2="3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </g>
+
+            <!-- 2. Samsung Wi-Fi Icon -->
+            <g transform="translate(15, 0)">
+              <path d="M5.5 11a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2Z" fill="currentColor"/>
+              <path d="M3 8.3a3.8 3.8 0 0 1 5 0l.8-.8a4.9 4.9 0 0 0-6.6 0l.8.8Z" fill="currentColor"/>
+              <path d="M1.4 6.5a6.4 6.4 0 0 1 8.2 0l.8-.8a7.5 7.5 0 0 0-9.8 0l.8.8Z" fill="currentColor"/>
+              <path d="M.1 4.7a8.6 8.6 0 0 1 10.8 0l.8-.8A9.7 9.7 0 0 0 .1 3.9l0 .8Z" fill="currentColor"/>
+            </g>
+
+            <!-- 3. VoLTE Phone Icon -->
+            <g transform="translate(29, 0.5)">
+              <path d="M2.8 1.1a.5.5 0 0 0-.8 0L1.2 1.9c-.4.4-.5.9-.3 1.4A14 14 0 0 0 4.2 8.5a14 14 0 0 0 5.2 3.3c.5.2 1 .1 1.4-.3l.8-.8a.5.5 0 0 0 0-.8l-1.8-1.4a.5.5 0 0 0-.5-.1l-1.7.4a1.4 1.4 0 0 1-1.3-.4L4.1 7.2a1.4 1.4 0 0 1-.4-1.3l.4-1.7a.5.5 0 0 0-.1-.5L2.8 1.1z" fill="currentColor"/>
+              <path d="M8.5 1a2.5 2.5 0 0 1 2.5 2.5h-.8a1.7 1.7 0 0 0-1.7-1.7V1z" fill="currentColor" opacity="0.85"/>
+            </g>
+
+            <!-- 4. 4 Signal Bars -->
+            <g transform="translate(43, 0.5)">
+              <rect x="0" y="7.5" width="1.8" height="3" rx="0.3" fill="currentColor"/>
+              <rect x="2.8" y="5" width="1.8" height="5.5" rx="0.3" fill="currentColor"/>
+              <rect x="5.6" y="2.5" width="1.8" height="8" rx="0.3" fill="currentColor"/>
+              <rect x="8.4" y="0" width="1.8" height="10.5" rx="0.3" fill="currentColor"/>
+            </g>
+
+            <!-- 5. Battery Percentage Text -->
+            <text x="57" y="9.5" font-family="-apple-system, BlinkMacSystemFont, Roboto, sans-serif" font-size="10" font-weight="500" fill="currentColor">78%</text>
+
+            <!-- 6. Samsung Vertical Battery Icon -->
+            <g transform="translate(83, 0)">
+              <rect x="2.5" y="0.5" width="3" height="1" rx="0.5" fill="currentColor"/>
+              <rect x="0.5" y="1.8" width="7" height="10.5" rx="2" stroke="currentColor" stroke-width="1.1" fill="none"/>
+              <rect x="1.7" y="3.8" width="4.6" height="7" rx="1.2" fill="currentColor"/>
+            </g>
+          </svg>
         </div>
 
-        <!-- Live Web App Iframe -->
         <iframe
+          id="demo-iframe"
           src={url}
           title="RN UI Interactive Playground Demo"
           loading="eager"
+          scrolling="yes"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           class="demo-iframe"
         ></iframe>
@@ -36,123 +86,95 @@ const { url = 'https://rn-ui.netlify.app/' } = Astro.props;
 </div>
 
 <style>
-  .samsung-frame-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 32px 0;
-    width: 100%;
-  }
+  .samsung-frame-container { display: flex; justify-content: center; align-items: center; padding: 32px 0; width: 100%; }
+  .samsung-device { position: relative; box-sizing: border-box; }
+  .samsung-body { position: relative; width: 100%; height: 100%; background: #0f172a; border-radius: 46px; padding: 10px; box-sizing: border-box; overflow: hidden; border: 3px solid #334155; box-shadow: 0 0 0 2px rgba(255,255,255,0.1), 0 25px 60px -15px rgba(0,0,0,0.5), 0 0 40px rgba(99,102,241,0.15); }
+  .side-btn { position: absolute; background: #475569; border-radius: 2px; z-index: 10; }
+  .volume-up { left: -6px; top: 130px; width: 4px; height: 48px; }
+  .volume-down { left: -6px; top: 190px; width: 4px; height: 48px; }
+  .power { right: -6px; top: 160px; width: 4px; height: 42px; }
+  .screen-bezel { position: relative; width: 100%; height: 100%; background: #05161E; border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; }
 
-  .samsung-device {
-    position: relative;
-    width: 360px;
-    height: 720px;
-    box-sizing: border-box;
-  }
-
-  @media (max-width: 480px) {
-    .samsung-device {
-      width: 310px;
-      height: 620px;
-    }
-  }
-
-  /* Phone Shell Body - Hard Clipped */
-  .samsung-body {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #0f172a;
-    border-radius: 46px;
-    padding: 10px;
-    box-sizing: border-box;
-    overflow: hidden;
-    border: 3px solid #334155;
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.1),
-      0 25px 60px -15px rgba(0, 0, 0, 0.5),
-      0 0 40px rgba(99, 102, 241, 0.15);
-  }
-
-  /* Hardware Side Buttons (Positioned outside samsung-body) */
-  .side-btn {
-    position: absolute;
-    background: #475569;
-    border-radius: 2px;
-    z-index: 10;
-  }
-
-  .volume-up {
-    left: -6px;
-    top: 130px;
-    width: 4px;
-    height: 48px;
-  }
-
-  .volume-down {
-    left: -6px;
-    top: 190px;
-    width: 4px;
-    height: 48px;
-  }
-
-  .power {
-    right: -6px;
-    top: 160px;
-    width: 4px;
-    height: 42px;
-  }
-
-  /* Screen Frame Bezel */
-  .screen-bezel {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #ffffff;
-    border-radius: 36px;
-    overflow: hidden;
-    transform: translateZ(0);
-    isolation: isolate;
-  }
-
-  /* Samsung Punch Hole Camera */
   .camera-notch {
     position: absolute;
-    top: 8px;
+    top: 6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 14px;
-    height: 14px;
+    width: 11px;
+    height: 11px;
     background: #000;
     border-radius: 50%;
     z-index: 100;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 1.5px rgba(255,255,255,0.08);
     pointer-events: none;
   }
 
   .camera-notch .lens {
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     background: #1e1b4b;
     border-radius: 50%;
-    box-shadow: inset 0 0 2px rgba(99, 102, 241, 0.8);
   }
 
-  /* Absolute Positioned Iframe */
-  .demo-iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 36px;
-    background: #ffffff;
-    display: block;
-    overflow: hidden;
+  /* ── Samsung One UI Official Status Bar ── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 18px 2px 18px;
+    height: 24px;
+    box-sizing: border-box;
+    background: #05161E;
+    color: rgba(255, 255, 255, 0.95);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    z-index: 50;
+    flex-shrink: 0;
+    position: relative;
+    user-select: none;
   }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .status-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 11.5px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .status-bar-svg {
+    color: rgba(255, 255, 255, 0.95);
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .demo-iframe { display: block; width: 100%; flex: 1; border: none; background: #05161E; }
 </style>
+
+<script>
+  const iframe = document.getElementById('demo-iframe') as HTMLIFrameElement;
+
+  function nudgeResize() {
+    if (!iframe) return;
+    const original = iframe.style.height || '';
+    iframe.style.height = 'calc(100% - 1px)';
+    void iframe.offsetHeight;
+    requestAnimationFrame(() => {
+      iframe.style.height = original;
+    });
+  }
+
+  iframe?.addEventListener('load', () => {
+    setTimeout(nudgeResize, 300);
+    setTimeout(nudgeResize, 1000);
+    setTimeout(nudgeResize, 2000);
+  });
+</script>

@@ -89,6 +89,20 @@ const AppLayout = () => {
     OutfitBold: Outfit_700Bold,
   });
 
+  // Hide scrollbars on web (still scrollable via touch/wheel)
+  React.useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const style = document.createElement("style");
+    style.textContent = `
+      *::-webkit-scrollbar { display: none !important; }
+      * { scrollbar-width: none !important; }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   React.useEffect(() => {
     themeStorage
       .getItem(THEME_STORAGE_KEY)
