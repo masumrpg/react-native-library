@@ -1,33 +1,32 @@
-import { Box, Card, Divider, Text } from "@masumdev/rn-ui";
+import { Box, Card, Text } from "@masumdev/rn-ui";
 import { Palette } from "lucide-react-native";
+import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function BoxCardDividerSection({ ctx }: { ctx: RnUiSectionContext }) {
+export function BoxSection({ ctx }: { ctx: RnUiSectionContext }) {
   const { colors, styles } = ctx;
 
   return (
-    <Section title="Box, Card, Divider">
-      <Card padded={false} outlined>
+    <Section title="Box">
+      <Card outlined>
         <Box p="lg" gap="md">
-          <Box row center gap="md">
-            <Box center bg="primarySoft" radius="lg" style={styles.sampleTile}>
+          <Box row style={{ alignItems: "center", gap: 12 }}>
+            <Box center bg="primarySoft" radius="lg" style={{ width: 44, height: 44 }}>
               <Palette color={colors.primary} size={22} />
             </Box>
             <Box flex={1}>
-              <Text variant="subtitle">Composable layout primitives</Text>
+              <Text variant="subtitle">Box Layout Primitive</Text>
               <Text variant="bodySmall" color="textMuted">
-                Box handles common spacing, color, radius, and row layout.
+                Box handles common spacing, flexbox alignment, background, and radius tokens.
               </Text>
             </Box>
           </Box>
-
-          <Divider />
 
           <Box row gap="sm">
             <Box flex={1} bg="backgroundMuted" radius="lg" p="md">
               <Text variant="label">Surface A</Text>
               <Text variant="caption" color="textMuted">
-                muted bg
+                bg="backgroundMuted"
               </Text>
             </Box>
             <Box flex={1} bg="primarySoft" radius="lg" p="md">
@@ -35,7 +34,7 @@ export function BoxCardDividerSection({ ctx }: { ctx: RnUiSectionContext }) {
                 Surface B
               </Text>
               <Text variant="caption" color="textMuted">
-                primary soft
+                bg="primarySoft"
               </Text>
             </Box>
           </Box>

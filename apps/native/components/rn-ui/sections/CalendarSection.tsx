@@ -1,15 +1,54 @@
 import { Box, Calendar, Card, Text } from "@masumdev/rn-ui";
+import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function CalendarSection({ ctx }: { ctx: RnUiSectionContext }) {
-  const {
-    selectedDate,
-    setSelectedDate,
-    rangeStart,
-    rangeEnd,
-    handleRangePress,
-    getRangeMarkedDates,
-  } = ctx;
+export function CalendarSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
+  const [selectedDate, setSelectedDate] = React.useState("2026-07-12");
+  const [rangeStart, setRangeStart] = React.useState<string | null>("2026-07-10");
+  const [rangeEnd, setRangeEnd] = React.useState<string | null>("2026-07-18");
+
+  const handleRangePress = (day: { dateString: string }) => {
+    const date = day.dateString;
+    if (!rangeStart || (rangeStart && rangeEnd)) {
+      setRangeStart(date);
+      setRangeEnd(null);
+    } else if (rangeStart && !rangeEnd) {
+      if (date < rangeStart) {
+        setRangeStart(date);
+        setRangeEnd(null);
+      } else {
+        setRangeEnd(date);
+      }
+    }
+  };
+
+  const getRangeMarkedDates = (start: string | null, end: string | null) => {
+    if (!start) return {};
+    if (!end) {
+      return {
+        [start]: { selected: true, startingDay: true, endingDay: true, color: "#06B6D4" },
+      };
+    }
+
+    const marked: Record<string, any> = {};
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const curr = new Date(startDate);
+
+    while (curr <= endDate) {
+      const dateStr = curr.toISOString().split("T")[0];
+      if (dateStr === start) {
+        marked[dateStr] = { startingDay: true, color: "#06B6D4", textColor: "#FFFFFF" };
+      } else if (dateStr === end) {
+        marked[dateStr] = { endingDay: true, color: "#06B6D4", textColor: "#FFFFFF" };
+      } else {
+        marked[dateStr] = { isMiddle: true, color: "rgba(6, 182, 212, 0.2)", textColor: "#06202A" };
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    return marked;
+  };
 
   return (
     <Section title="Calendar">
@@ -56,7 +95,7 @@ export function CalendarSection({ ctx }: { ctx: RnUiSectionContext }) {
             <Calendar
               current="2026-07-12"
               markedDates={getRangeMarkedDates(rangeStart, rangeEnd)}
-              onDayPress={handleRangePress}
+              onDayPress={(day: any) => handleRangePress(day)}
             />
             <Text
               variant="bodySmall"

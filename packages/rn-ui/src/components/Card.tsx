@@ -24,6 +24,7 @@ export function Card({
     padding: padded ? spacing.lg : undefined,
     borderWidth: outlined ? components.borderWidth.strong : 0,
     borderColor: colors.border,
+    overflow: "hidden",
     ...(elevated ? shadows.md : shadows.none),
   };
 
