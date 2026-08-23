@@ -37,3 +37,5 @@ export { PopoverPaginationBreadcrumbSection } from './sections/PopoverPagination
 export { TableDataListSection } from './sections/TableDataListSection';
 export { TimelineMetricCardSection } from './sections/TimelineMetricCardSection';
 export { FloatingActionButtonSection } from './sections/FloatingActionButtonSection';
+export { RatingSection } from './sections/RatingSection';
+

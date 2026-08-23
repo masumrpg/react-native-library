@@ -1,0 +1,38 @@
+---
+title: Pagination
+description: Page numbers navigation bar with previous and next controls.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Pagination } from '@masumdev/rn-ui';
+
+export function PaginationExample() {
+  const [page, setPage] = useState(1);
+
+  return (
+    <Pagination
+      currentPage={page}
+      totalPages={10}
+      onPageChange={setPage}
+    />
+  );
+}`;
+
+`Pagination` enables navigation through multi-page data lists.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="PaginationExample.tsx" mark={['Pagination', 'currentPage={page}', 'totalPages={10}']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    currentPage: { type: 'number', description: 'Active page number (1-indexed).' },
+    totalPages: { type: 'number', description: 'Total number of available pages.' },
+    onPageChange: { type: '(page: number) => void', description: 'Callback on page change.' },
+  }}
+/>

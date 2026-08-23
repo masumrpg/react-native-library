@@ -1,0 +1,50 @@
+---
+title: AlertDialog
+description: Modal confirmation dialog for critical or destructive user actions.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { AlertDialog, Button } from '@masumdev/rn-ui';
+
+export function AlertDialogExample() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button tone="danger" onPress={() => setOpen(true)}>Delete Account</Button>
+      <AlertDialog
+        visible={open}
+        tone="danger"
+        title="Delete Account?"
+        description="This action cannot be undone. All your data will be permanently removed."
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onClose={() => setOpen(false)}
+        onConfirm={() => setOpen(false)}
+      />
+    </>
+  );
+}`;
+
+`AlertDialog` modal interrupts users with important confirmation actions.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="AlertDialogExample.tsx" mark={['AlertDialog', 'visible={open}', 'onConfirm']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    visible: { type: 'boolean', description: 'Modal visibility state.' },
+    title: { type: 'string', description: 'Dialog heading.' },
+    description: { type: 'string', description: 'Detailed confirmation explanation.' },
+    confirmText: { type: 'string', default: "'Confirm'", description: 'Primary action button text.' },
+    cancelText: { type: 'string', default: "'Cancel'", description: 'Cancel action button text.' },
+    onConfirm: { type: '() => void', description: 'Callback when confirm button is pressed.' },
+    onClose: { type: '() => void', description: 'Callback when modal requests close.' },
+  }}
+/>

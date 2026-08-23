@@ -1,0 +1,38 @@
+---
+title: FloatingActionButton
+description: Fixed position Floating Action Button (FAB) with placement options and label badges.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { FloatingActionButton } from '@masumdev/rn-ui';
+import { Plus } from 'lucide-react-native';
+
+export function FABExample() {
+  return (
+    <FloatingActionButton
+      icon={({ color, size }) => <Plus color={color} size={size} />}
+      placement="bottom-right"
+      tone="primary"
+      onPress={() => console.log('Create new')}
+    />
+  );
+}`;
+
+`FloatingActionButton` renders a primary action button anchored over content views.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="FABExample.tsx" mark={['FloatingActionButton', 'placement="bottom-right"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    icon: { type: 'RenderIcon', description: 'Icon render function.' },
+    placement: { type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Fixed position placement.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success'", default: "'primary'", description: 'Color tone.' },
+    size: { type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Button size dimensions.' },
+  }}
+/>

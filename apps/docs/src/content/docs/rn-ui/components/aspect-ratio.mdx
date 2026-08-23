@@ -1,0 +1,36 @@
+---
+title: AspectRatio
+description: Aspect ratio container for media images and responsive embeds.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Image } from 'react-native';
+import { AspectRatio } from '@masumdev/rn-ui';
+
+export function AspectRatioExample() {
+  return (
+    <AspectRatio ratio={16 / 9}>
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe' }}
+        style={{ width: '100%', height: '100%', borderRadius: 12 }}
+      />
+    </AspectRatio>
+  );
+}`;
+
+`AspectRatio` maintains a fixed aspect ratio for child elements (such as images, videos, or maps).
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="AspectRatioExample.tsx" mark={['AspectRatio', 'ratio={16 / 9}']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    ratio: { type: 'number', default: '1', description: 'Width-to-height ratio value (e.g. 16/9, 4/3, 1).' },
+    children: { type: 'ReactNode', description: 'Content rendered inside ratio container.' },
+  }}
+/>

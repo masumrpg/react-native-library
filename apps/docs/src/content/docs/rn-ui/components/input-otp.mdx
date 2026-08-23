@@ -1,0 +1,41 @@
+---
+title: InputOTP
+description: OTP pin code input digits with auto-focus and separator slots.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@masumdev/rn-ui';
+
+export function OTPExample() {
+  const [value, setValue] = useState('');
+
+  return (
+    <InputOTP maxLength={4} value={value} onChange={setValue}>
+      <InputOTPGroup>
+        <InputOTPSlot index={0} />
+        <InputOTPSlot index={1} />
+        <InputOTPSlot index={2} />
+        <InputOTPSlot index={3} />
+      </InputOTPGroup>
+    </InputOTP>
+  );
+}`;
+
+`InputOTP` handles multi-digit verification codes and OTP pin inputs.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="OTPExample.tsx" mark={['InputOTP', 'InputOTPGroup', 'InputOTPSlot']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Current OTP digit value.' },
+    onChange: { type: '(value: string) => void', description: 'Callback when digits are entered.' },
+    maxLength: { type: 'number', default: '4', description: 'Total number of OTP digits.' },
+  }}
+/>

@@ -1,0 +1,144 @@
+---
+title: Usage
+sidebar:
+  order: 3
+description: Code examples, preset variants, loading states, and Props API reference for QRCode.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const basicUsageCode = `import React from 'react';
+import { QRCode } from '@masumdev/react-native-qr-code-gen';
+
+export function BasicQRCodeExample() {
+  return (
+    <QRCode
+      value="https://masum.dev"
+      size={200}
+      variant="BASIC"
+    />
+  );
+}`;
+
+export const presetVariantCode = `import React from 'react';
+import { QRCode } from '@masumdev/react-native-qr-code-gen';
+
+export function PresetVariantsExample() {
+  return (
+    <>
+      {/* Heart preset variant */}
+      <QRCode value="Love QR" size={180} variant="HEART" />
+
+      {/* Linear Gradient preset variant */}
+      <QRCode value="Gradients" size={180} variant="LINEAR_GRADIENT" />
+
+      {/* Triangle preset variant */}
+      <QRCode value="Triangle" size={140} variant="TRIANGLE" />
+    </>
+  );
+}`;
+
+export const loadingStateCode = `import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { QRCode } from '@masumdev/react-native-qr-code-gen';
+
+export function LoadingQRCodeExample() {
+  const [loading, setLoading] = useState(true);
+
+  return (
+    <QRCode
+      value="https://masum.dev"
+      size={180}
+      isLoading={loading}
+      renderLoading={() => (
+        <View style={{ width: 180, height: 180, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Generating QR Code...</Text>
+        </View>
+      )}
+    />
+  );
+}`;
+
+## Basic Usage
+
+Render a vector SVG QR code by passing `value` and `size`:
+
+<Code code={basicUsageCode} lang="tsx" title="BasicQRCodeExample.tsx" mark={['QRCode', 'value', 'size', 'variant="BASIC"']} />
+
+## Preset Design Variants
+
+Use the `variant` prop to apply pre-configured design styles:
+
+<Code code={presetVariantCode} lang="tsx" title="PresetVariantsExample.tsx" mark={['variant="HEART"', 'variant="LINEAR_GRADIENT"', 'variant="TRIANGLE"']} />
+
+## Loading Placeholder States
+
+Provide `isLoading` and `renderLoading` to render fallback UI during async generator runs:
+
+<Code code={loadingStateCode} lang="tsx" title="LoadingQRCodeExample.tsx" mark={['isLoading={loading}', 'renderLoading']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: {
+      type: 'string',
+      description: 'Payload text or URL encoded in the QR code.',
+    },
+    size: {
+      type: 'number',
+      default: '250',
+      description: 'Width and height of the rendered SVG container in dp.',
+    },
+    variant: {
+      type: "'BASIC' | 'TRIANGLE' | 'HEART' | 'DOT' | 'WITH_LOGO' | 'RAIN' | 'LINEAR_GRADIENT' | 'RADIAL_GRADIENT' | 'IMAGE_BACKGROUND'",
+      default: "'BASIC'",
+      description: 'Pre-configured design preset key from QR_CODE_CONFIGS.',
+    },
+    color: {
+      type: 'string',
+      default: "'#000000'",
+      description: 'Primary foreground color for cells.',
+    },
+    backgroundColor: {
+      type: 'string',
+      default: "'#ffffff'",
+      description: 'Background canvas color.',
+    },
+    piece: {
+      type: '{ shape?: "square" | "dot" | "rounded" | "heart" | "triangle" | "rain"; color?: string; size?: number; borderRadius?: number }',
+      description: 'Options for individual data module cells.',
+    },
+    eye: {
+      type: 'Partial<{ topLeft: EyeOptions; topRight: EyeOptions; bottomLeft: EyeOptions }>',
+      description: 'Shape, color, and size overrides for 3 corner eye patterns.',
+    },
+    logo: {
+      type: 'LogoOptions',
+      description: 'Center logo image source, size ratio (0.0-1.0), padding, and background color.',
+    },
+    gradient: {
+      type: 'QRCodeGradientConfig',
+      description: 'Linear or radial gradient config with color stops and mask options.',
+    },
+    imageClip: {
+      type: 'ImageProps',
+      description: 'Image href background clip fill for data modules.',
+    },
+    errorCorrectionLevel: {
+      type: "'L' | 'M' | 'Q' | 'H'",
+      default: "'M'",
+      description: 'QR error correction level (Level H recommended when using center logos).',
+    },
+    isLoading: {
+      type: 'boolean',
+      default: 'false',
+      description: 'Displays the loading placeholder view.',
+    },
+    renderLoading: {
+      type: '() => ReactNode',
+      description: 'Custom loading placeholder component renderer.',
+    },
+  }}
+/>

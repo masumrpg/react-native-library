@@ -1,0 +1,42 @@
+---
+title: Input
+description: TextInput field with sizes, focus rings, disabled states, and error highlights.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Input } from '@masumdev/rn-ui';
+
+export function InputExample() {
+  const [value, setValue] = useState('');
+
+  return (
+    <Input
+      placeholder="Enter username"
+      value={value}
+      onChangeText={setValue}
+      size="md"
+    />
+  );
+}`;
+
+`Input` renders single-line text input fields styled with focus rings and error states.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="InputExample.tsx" mark={['Input', 'placeholder="Enter username"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Input text value.' },
+    onChangeText: { type: '(text: string) => void', description: 'Callback when input text changes.' },
+    placeholder: { type: 'string', description: 'Placeholder hint string.' },
+    size: { type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Input height size.' },
+    error: { type: 'boolean', default: 'false', description: 'Highlights border with danger error color.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disables user interaction.' },
+  }}
+/>

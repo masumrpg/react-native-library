@@ -293,7 +293,7 @@ export function Calendar({
     setCalendarKey((prev) => prev + 1);
   };
 
-  const handleMonthChange = (dateData: any) => {
+  const handleMonthChange = (dateData: CalendarDayData) => {
     setCurrentMonth(dateData.month);
     setCurrentYear(dateData.year);
     if (props.onMonthChange) {
@@ -301,7 +301,7 @@ export function Calendar({
     }
   };
 
-  const customTheme = {
+  const customTheme: React.ComponentProps<typeof WixCalendar>["theme"] = {
     calendarBackground: colors.surface,
     monthTextColor: colors.text,
     textMonthFontWeight: "600",
@@ -590,14 +590,14 @@ export function Calendar({
         hideArrows={true}
         renderHeader={() => null}
         current={visibleMonthStr}
-        onMonthChange={handleMonthChange}
-        dayComponent={({ date, state, marking, onPress, onLongPress }: any) => (
+        onMonthChange={handleMonthChange as any}
+        dayComponent={({ date, state, marking, onPress, onLongPress }) => (
           <CalendarDayButton
-            date={date}
-            state={state}
-            marking={marking}
-            onPress={onPress}
-            onLongPress={onLongPress}
+            date={date as unknown as CalendarDayData}
+            state={state as "selected" | "disabled" | "today" | ""}
+            marking={marking as unknown as CalendarDayMarking}
+            onPress={onPress as unknown as (date: CalendarDayData) => void}
+            onLongPress={onLongPress as unknown as (date: CalendarDayData) => void}
           />
         )}
         {...props}

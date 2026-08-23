@@ -4,10 +4,19 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:native": "turbo dev --filter='@masumdev/*' --filter=native",
+    "dev:docs": "turbo dev --filter=docs",
     "gen:expo-package": "bunx turbo gen expo-package",
     "build": "turbo run build",
     "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
+    "bump:patch:rn-ui": "npm version patch --prefix packages/rn-ui --no-git-tag-version",
+    "bump:minor:rn-ui": "npm version minor --prefix packages/rn-ui --no-git-tag-version",
+    "bump:major:rn-ui": "npm version major --prefix packages/rn-ui --no-git-tag-version",
+    "publish:rn-ui": "turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
+    "publish:rn-ui:patch": "npm version patch --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
+    "publish:rn-ui:minor": "npm version minor --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
+    "publish:rn-ui:major": "npm version major --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
+    "publish:all": "turbo run build && bun publish --access public"
   },
   "devDependencies": {
     "@turbo/gen": "^2.9.8",
@@ -23,7 +32,15 @@
     "packages/*"
   ],
   "dependencies": {
-    "react-native-parsed-text": "^0.0.22"
+    "@tailwindcss/postcss": "^4.3.3",
+    "fumadocs-core": "^16.15.0",
+    "fumadocs-docgen": "^3.1.0",
+    "fumadocs-mdx": "^15.3.1",
+    "fumadocs-ui": "^16.15.0",
+    "lucide-react": "^1.33.0",
+    "postcss": "^8.5.26",
+    "react-native-parsed-text": "^0.0.22",
+    "tailwindcss": "^4.3.3"
   },
   "overrides": {
     "react-native": "0.86.2",
@@ -37,6 +54,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "@babel/core": "^7.25.0",
-    "@babel/preset-env": "^7.25.0"
+    "@babel/preset-env": "^7.25.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   }
 }

@@ -1,0 +1,38 @@
+---
+title: Carousel
+description: Horizontal swipe carousel gallery with item pagination indicators.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Carousel, CarouselContent, CarouselItem, Card, Text } from '@masumdev/rn-ui';
+
+export function CarouselExample() {
+  return (
+    <Carousel>
+      <CarouselContent>
+        <CarouselItem>
+          <Card><Text>Slide 1</Text></Card>
+        </CarouselItem>
+        <CarouselItem>
+          <Card><Text>Slide 2</Text></Card>
+        </CarouselItem>
+      </CarouselContent>
+    </Carousel>
+  );
+}`;
+
+`Carousel` displays horizontal swipeable content slides.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="CarouselExample.tsx" mark={['Carousel', 'CarouselContent', 'CarouselItem']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'CarouselContent and items.' },
+  }}
+/>

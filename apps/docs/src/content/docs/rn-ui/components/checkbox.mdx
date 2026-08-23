@@ -1,0 +1,40 @@
+---
+title: Checkbox
+description: Checkbox input with checked state, tone colors, and label support.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Checkbox } from '@masumdev/rn-ui';
+
+export function CheckboxExample() {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <Checkbox
+      label="Accept terms and conditions"
+      checked={checked}
+      onCheckedChange={setChecked}
+      tone="primary"
+    />
+  );
+}`;
+
+`Checkbox` allows users to select one or more options.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="CheckboxExample.tsx" mark={['Checkbox', 'checked={checked}', 'onCheckedChange']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    checked: { type: 'boolean', description: 'Checked boolean state.' },
+    onCheckedChange: { type: '(checked: boolean) => void', description: 'Callback when toggle state changes.' },
+    label: { type: 'string', description: 'Adjacent label text.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success'", default: "'primary'", description: 'Color tone when checked.' },
+  }}
+/>

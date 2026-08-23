@@ -1,0 +1,34 @@
+---
+title: KeyboardAvoiding
+description: Scrollable keyboard avoiding view wrapper with automatic safe area padding.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { KeyboardAvoiding, Input, Button } from '@masumdev/rn-ui';
+
+export function FormScreen() {
+  return (
+    <KeyboardAvoiding scroll bg="background">
+      <Input placeholder="Enter your email" />
+      <Button tone="primary">Submit</Button>
+    </KeyboardAvoiding>
+  );
+}`;
+
+`KeyboardAvoiding` prevents the software keyboard from obscuring text input fields.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="FormScreen.tsx" mark={['KeyboardAvoiding', 'scroll', 'bg="background"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Form elements wrapped by the container.' },
+    scroll: { type: 'boolean', default: 'true', description: 'Wraps content in a ScrollView.' },
+    bg: { type: 'ThemeColorName', description: 'Background color token.' },
+  }}
+/>

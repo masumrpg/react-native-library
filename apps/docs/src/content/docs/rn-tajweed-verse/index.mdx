@@ -1,0 +1,53 @@
+---
+title: RN Tajweed Verse
+sidebar:
+  label: Overview
+  order: 1
+description: Specialized Quranic Tajweed parser and renderer for React Native & Expo.
+---
+
+import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
+
+`@masumdev/rn-tajweed-verse` is a specialized Quran verse parser and renderer for React Native and Expo applications. It automatically parses Quranic text annotated with bracket markup tags (e.g. `[q[خَلَقَ]]`) and applies color-coding, rule explanations, and interactive touch handlers.
+
+## Features
+
+<CardGrid>
+  <Card title="15 Core Tajweed Rules" icon="open-book">
+    Supports Hamzatul Wasl, Silent letters, Normal/Permissible/Necessary/Obligatory Madd, Qalqalah, Ikhfa, Iqlab, Idgham, and Ghunnah.
+  </Card>
+  <Card title="4 Color Theme Presets" icon="palette">
+    Pre-configured theme palettes (`classic`, `dark`, `pastel`, and `accessible`) tailored for light and dark screens.
+  </Card>
+  <Card title="Interactive Touch Guides" icon="comment">
+    Tap any color-coded word to trigger rule explanations, linguistic descriptions, and pronunciation guides.
+  </Card>
+  <Card title="Custom Rule Injection" icon="setting">
+    Inject custom regex patterns and styling callbacks (`customRules`) alongside standard Tajweed rule definitions.
+  </Card>
+</CardGrid>
+
+## Getting Started
+
+<CardGrid>
+  <LinkCard
+    title="Installation"
+    href="/rn-tajweed-verse/installation/"
+    description="Learn how to install @masumdev/rn-tajweed-verse and react-native-parsed-text."
+  />
+  <LinkCard
+    title="Usage Guide"
+    href="/rn-tajweed-verse/usage/"
+    description="Render Tajweed verses with interactive callbacks, font selections, and theme presets."
+  />
+  <LinkCard
+    title="Tajweed Rules Reference"
+    href="/rn-tajweed-verse/tajweed-rules/"
+    description="Complete reference table of all 15 supported Tajweed rule keys and bracket tag patterns."
+  />
+  <LinkCard
+    title="Customization & Fonts"
+    href="/rn-tajweed-verse/customization/"
+    description="Configure Arabic fonts (Amiri, Scheherazade), custom regex rules, and memoization."
+  />
+</CardGrid>

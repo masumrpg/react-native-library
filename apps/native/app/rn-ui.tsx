@@ -71,6 +71,7 @@ import {
   KeyboardAvoidingSection,
   PopoverPaginationBreadcrumbSection,
   ProgressSkeletonSection,
+  RatingSection,
   SwitchRadioSliderSection,
   TableDataListSection,
   TabsStepperSheetSection,
@@ -392,6 +393,8 @@ export default function RnUiScreen() {
         <FormSection ctx={ctx} />
 
         <SwitchRadioSliderSection ctx={ctx} />
+
+        <RatingSection ctx={ctx} />
 
         <ProgressSkeletonSection ctx={ctx} />
 

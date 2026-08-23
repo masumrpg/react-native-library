@@ -1,0 +1,33 @@
+---
+title: Skeleton
+description: Shimmering skeleton loader for card, text, and avatar placeholders.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Skeleton, Box } from '@masumdev/rn-ui';
+
+export function SkeletonExample() {
+  return (
+    <Box gap="md">
+      <Skeleton style={{ width: 64, height: 64, borderRadius: 32 }} />
+      <Skeleton style={{ width: '100%', height: 20, borderRadius: 6 }} />
+      <Skeleton style={{ width: '75%', height: 20, borderRadius: 6 }} />
+    </Box>
+  );
+}`;
+
+`Skeleton` renders animated shimmer placeholders while content is loading.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SkeletonExample.tsx" mark={['Skeleton']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    style: { type: 'StyleProp<ViewStyle>', description: 'Placeholder dimensions and border radius style.' },
+  }}
+/>

@@ -1,0 +1,38 @@
+---
+title: Bubble
+description: Chat message bubble component with alignment, reactions, and variants.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { BubbleGroup, Bubble, BubbleContent } from '@masumdev/rn-ui';
+
+export function ChatExample() {
+  return (
+    <BubbleGroup>
+      <Bubble align="left">
+        <BubbleContent>Hello! How can I help you today?</BubbleContent>
+      </Bubble>
+      <Bubble align="right" variant="filled">
+        <BubbleContent>I'd like to check the RN UI docs.</BubbleContent>
+      </Bubble>
+    </BubbleGroup>
+  );
+}`;
+
+`Bubble` renders chat message bubbles styled for messaging interfaces.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ChatExample.tsx" mark={['BubbleGroup', 'Bubble', 'align="left"', 'align="right"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Bubble message content.' },
+    align: { type: "'left' | 'right'", default: "'left'", description: 'Alignment for incoming vs outgoing messages.' },
+    variant: { type: "'filled' | 'soft' | 'outline'", default: "'soft'", description: 'Visual style variant.' },
+  }}
+/>

@@ -1,0 +1,36 @@
+---
+title: Popover
+description: Floating popover card anchored to trigger elements.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Popover, PopoverTrigger, PopoverContent, Button, Text } from '@masumdev/rn-ui';
+
+export function PopoverExample() {
+  return (
+    <Popover>
+      <PopoverTrigger>
+        <Button variant="outline">Open Popover</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Text>Floating card overlay content</Text>
+      </PopoverContent>
+    </Popover>
+  );
+}`;
+
+`Popover` renders floating content popups positioned relative to anchor triggers.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="PopoverExample.tsx" mark={['Popover', 'PopoverTrigger', 'PopoverContent']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'PopoverTrigger and PopoverContent elements.' },
+  }}
+/>

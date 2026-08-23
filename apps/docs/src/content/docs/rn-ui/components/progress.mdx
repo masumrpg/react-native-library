@@ -1,0 +1,30 @@
+---
+title: Progress
+description: Progress bar indicator component with percentage fill.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Progress } from '@masumdev/rn-ui';
+
+export function ProgressExample() {
+  return (
+    <Progress value={65} tone="primary" />
+  );
+}`;
+
+`Progress` displays task completion progress bars.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ProgressExample.tsx" mark={['Progress', 'value={65}', 'tone="primary"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'number', default: '0', description: 'Percentage completion value (0-100).' },
+    tone: { type: "'primary' | 'success' | 'warning' | 'danger'", default: "'primary'", description: 'Fill bar color tone.' },
+  }}
+/>

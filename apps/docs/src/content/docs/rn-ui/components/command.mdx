@@ -1,0 +1,51 @@
+---
+title: Command
+description: Command palette search modal with item selection and filtering.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Command, Button } from '@masumdev/rn-ui';
+
+export function CommandExample() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button onPress={() => setOpen(true)}>Open Command Palette</Button>
+      <Command
+        visible={open}
+        onClose={() => setOpen(false)}
+        title="Navigation Commands"
+        items={[
+          { value: 'theme', label: 'Theme Tokens', description: 'Colors, radius, typography' },
+          { value: 'toast', label: 'Toast Notifications', description: 'Feedback alerts' },
+        ]}
+        onSelect={(value) => {
+          console.log('Selected command:', value);
+          setOpen(false);
+        }}
+      />
+    </>
+  );
+}`;
+
+`Command` provides a command palette modal for fast navigation and actions.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="CommandExample.tsx" mark={['Command', 'visible={open}', 'onSelect']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    visible: { type: 'boolean', description: 'Palette modal visibility.' },
+    title: { type: 'string', description: 'Command palette heading.' },
+    items: { type: 'CommandItem[]', description: 'Array of searchable command item objects.' },
+    onSelect: { type: '(value: string) => void', description: 'Callback when command item is selected.' },
+    onClose: { type: '() => void', description: 'Callback when palette is closed.' },
+  }}
+/>

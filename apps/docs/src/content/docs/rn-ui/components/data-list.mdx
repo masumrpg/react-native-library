@@ -1,0 +1,39 @@
+---
+title: DataList
+description: Key-value data list table layout component for property details.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { DataList, DataListItem, DataListLabel, DataListValue } from '@masumdev/rn-ui';
+
+export function DataListExample() {
+  return (
+    <DataList>
+      <DataListItem>
+        <DataListLabel>Package</DataListLabel>
+        <DataListValue>@masumdev/rn-ui</DataListValue>
+      </DataListItem>
+      <DataListItem>
+        <DataListLabel>Version</DataListLabel>
+        <DataListValue>v0.1.0</DataListValue>
+      </DataListItem>
+    </DataList>
+  );
+}`;
+
+`DataList` displays key-value pairs formatted cleanly for detail screens and specs.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="DataListExample.tsx" mark={['DataList', 'DataListItem', 'DataListLabel', 'DataListValue']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'DataListItem elements.' },
+    orientation: { type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Label and value alignment.' },
+  }}
+/>

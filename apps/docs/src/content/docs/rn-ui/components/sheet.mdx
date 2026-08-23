@@ -1,0 +1,41 @@
+---
+title: Sheet
+description: High-level modal bottom sheet container with SheetHeader, SheetTitle, SheetDescription, and SheetFooter.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button } from '@masumdev/rn-ui';
+
+export function SheetExample() {
+  return (
+    <Sheet index={0} snapPoints={['40%', '80%']}>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Filter Options</SheetTitle>
+          <SheetDescription>Configure your search filters below.</SheetDescription>
+        </SheetHeader>
+        <SheetFooter>
+          <Button tone="primary">Apply</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}`;
+
+`Sheet` presents compound bottom sheet layouts wrapping `@gorhom/bottom-sheet` elements.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SheetExample.tsx" mark={['Sheet', 'SheetContent', 'SheetHeader', 'SheetTitle']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    snapPoints: { type: '(string | number)[]', description: 'Array of snap point height ratios or pixels.' },
+    index: { type: 'number', default: '0', description: 'Initial snap point index.' },
+    onClose: { type: '() => void', description: 'Callback when sheet is dismissed.' },
+  }}
+/>

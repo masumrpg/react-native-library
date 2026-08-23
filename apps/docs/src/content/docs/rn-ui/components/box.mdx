@@ -1,0 +1,39 @@
+---
+title: Box
+description: Flex container with row/column layout props, alignment, and background colors.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Box, Text } from '@masumdev/rn-ui';
+
+export function BoxExample() {
+  return (
+    <Box row center gap="md" bg="surface" style={{ padding: 16, borderRadius: 12 }}>
+      <Box flex={1}>
+        <Text variant="h3">Box Container</Text>
+        <Text color="textMuted">Flex layout primitive styled with theme tokens.</Text>
+      </Box>
+    </Box>
+  );
+}`;
+
+`Box` is the fundamental layout container component for building flexbox layouts with theme token shortcuts.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="BoxExample.tsx" mark={['Box', 'row', 'center', 'bg="surface"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Container children.' },
+    row: { type: 'boolean', default: 'false', description: 'Sets flex direction to row.' },
+    center: { type: 'boolean', default: 'false', description: 'Centers items horizontally and vertically.' },
+    gap: { type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'", description: 'Spacing gap between flex children.' },
+    bg: { type: 'ThemeColorName', description: 'Background color token from active theme.' },
+    flex: { type: 'number', description: 'Flex grow/shrink value.' },
+  }}
+/>

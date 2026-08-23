@@ -1,0 +1,156 @@
+---
+export interface PropDetail {
+  type: string;
+  description?: string;
+  default?: string;
+  required?: boolean;
+}
+
+export interface Props {
+  type: Record<string, PropDetail>;
+}
+
+const { type } = Astro.props;
+---
+
+{type && typeof type === 'object' && (
+  <div class="type-table-wrapper">
+    <table class="type-table">
+      <thead>
+        <tr>
+          <th>Prop</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Object.entries(type).map(([propName, info]) => (
+          <tr>
+            <td class="prop-name">
+              <code>{propName}</code>
+              {info.required && <span class="required">*</span>}
+            </td>
+            <td class="prop-type">
+              <code>{info.type}</code>
+            </td>
+            <td class="prop-default">
+              {info.default ? <code>{info.default}</code> : <span class="muted">—</span>}
+            </td>
+            <td class="prop-desc">
+              {info.description || '—'}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+
+<style is:global>
+  .type-table-wrapper {
+    margin: 1.5rem 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    background-color: var(--sl-color-bg-nav, var(--sl-color-gray-6));
+  }
+
+  .type-table-wrapper table.type-table {
+    width: 100% !important;
+    min-width: 680px !important;
+    border-collapse: collapse !important;
+    text-align: left !important;
+    font-size: var(--sl-text-sm) !important;
+    display: table !important;
+    margin: 0 !important;
+  }
+
+  .type-table-wrapper table.type-table th {
+    background-color: var(--sl-color-gray-6) !important;
+    color: var(--sl-color-gray-2) !important;
+    font-weight: 600 !important;
+    padding: 0.875rem 1.25rem !important;
+    border-bottom: 1px solid var(--sl-color-gray-5) !important;
+    white-space: nowrap !important;
+  }
+
+  .type-table-wrapper table.type-table td {
+    padding: 0.875rem 1.25rem !important;
+    border-bottom: 1px solid var(--sl-color-gray-6) !important;
+    vertical-align: top !important;
+    word-break: normal !important;
+  }
+
+  .type-table-wrapper table.type-table tr:last-child td {
+    border-bottom: none !important;
+  }
+
+  .type-table-wrapper .prop-name {
+    white-space: nowrap !important;
+    width: 18%;
+  }
+
+  .type-table-wrapper .prop-name code {
+    font-family: var(--__sl-font-mono, monospace) !important;
+    font-weight: 700 !important;
+    color: var(--sl-color-accent-high) !important;
+    background: transparent !important;
+    font-size: 0.875rem !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+
+  .type-table-wrapper .required {
+    color: #ef4444 !important;
+    margin-left: 0.25rem !important;
+    font-weight: bold !important;
+  }
+
+  .type-table-wrapper .prop-type {
+    width: 32%;
+  }
+
+  .type-table-wrapper .prop-type code {
+    font-family: var(--__sl-font-mono, monospace) !important;
+    font-size: 0.8125rem !important;
+    color: var(--sl-color-accent) !important;
+    background-color: var(--sl-color-gray-6) !important;
+    padding: 0.2rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    display: inline-block !important;
+    line-height: 1.4 !important;
+  }
+
+  .type-table-wrapper .prop-default {
+    white-space: nowrap !important;
+    width: 15%;
+  }
+
+  .type-table-wrapper .prop-default code {
+    font-family: var(--__sl-font-mono, monospace) !important;
+    font-size: 0.8125rem !important;
+    color: var(--sl-color-gray-3) !important;
+    background-color: var(--sl-color-gray-6) !important;
+    padding: 0.2rem 0.45rem !important;
+    border-radius: 0.25rem !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    word-break: keep-all !important;
+  }
+
+  .type-table-wrapper .muted {
+    color: var(--sl-color-gray-4) !important;
+  }
+
+  .type-table-wrapper .prop-desc {
+    color: var(--sl-color-gray-2) !important;
+    line-height: 1.5 !important;
+    width: 35%;
+  }
+</style>

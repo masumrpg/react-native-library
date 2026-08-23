@@ -1,0 +1,40 @@
+---
+title: Slider
+description: Range track slider component with min/max values and tone styling.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Slider } from '@masumdev/rn-ui';
+
+export function SliderExample() {
+  const [val, setVal] = useState(50);
+
+  return (
+    <Slider
+      value={val}
+      onValueChange={setVal}
+      minimumValue={0}
+      maximumValue={100}
+    />
+  );
+}`;
+
+`Slider` allows users to select a value from a continuous or discrete range.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SliderExample.tsx" mark={['Slider', 'value={val}', 'onValueChange']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'number', description: 'Current numeric value.' },
+    onValueChange: { type: '(value: number) => void', description: 'Callback during slide drag.' },
+    minimumValue: { type: 'number', default: '0', description: 'Minimum bounds.' },
+    maximumValue: { type: 'number', default: '100', description: 'Maximum bounds.' },
+  }}
+/>

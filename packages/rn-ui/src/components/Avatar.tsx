@@ -125,12 +125,12 @@ export function AvatarImage({
     return null;
   }
 
-  const handleLoad = (e: any) => {
+  const handleLoad = (e: Parameters<NonNullable<ImageProps["onLoad"]>>[0]) => {
     setHasLoaded(true);
     onLoad?.(e);
   };
 
-  const handleError = (e: any) => {
+  const handleError = (e: Parameters<NonNullable<ImageProps["onError"]>>[0]) => {
     setHasError(true);
     onError?.(e);
   };
@@ -259,7 +259,7 @@ export function AvatarGroup({
     <GroupContext.Provider value={{ inGroup: true, size }}>
       <View style={[groupStyle, style]} {...props}>
         {React.Children.map(children, (child, index) => {
-          if (!React.isValidElement(child)) return child;
+          if (!React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)) return child;
 
           return React.cloneElement(child, {
             style: [
@@ -268,7 +268,7 @@ export function AvatarGroup({
               },
               child.props.style,
             ],
-          } as any);
+          });
         })}
       </View>
     </GroupContext.Provider>

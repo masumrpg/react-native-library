@@ -1,0 +1,37 @@
+---
+title: Text
+description: Typography component with theme variant scaling, color tokens, and alignment props.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Text, Box } from '@masumdev/rn-ui';
+
+export function TypographyExample() {
+  return (
+    <Box gap="sm">
+      <Text variant="h1">Heading Level 1</Text>
+      <Text variant="h3" color="primary">Heading Level 3</Text>
+      <Text variant="body" color="textMuted">Body paragraph styled with theme typography.</Text>
+      <Text variant="caption" color="textSubtle">Caption timestamp or label footer.</Text>
+    </Box>
+  );
+}`;
+
+`Text` renders typography styled according to active theme font families, sizes, line heights, and colors.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TypographyExample.tsx" mark={['Text', 'variant="h1"', 'color="primary"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Text content.' },
+    variant: { type: "'h1' | 'h2' | 'h3' | 'h4' | 'title1' | 'title2' | 'body' | 'bodySmall' | 'label' | 'labelSmall' | 'caption'", default: "'body'", description: 'Typography scale variant.' },
+    color: { type: 'ThemeColorName', default: "'text'", description: 'Theme color token.' },
+    align: { type: "'auto' | 'left' | 'right' | 'center' | 'justify'", description: 'Text alignment.' },
+  }}
+/>

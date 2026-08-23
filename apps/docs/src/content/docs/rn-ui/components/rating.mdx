@@ -1,0 +1,40 @@
+---
+title: Rating
+description: Interactive star rating bar component with custom shapes and fractional precision.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Rating } from '@masumdev/rn-ui';
+
+export function RatingExample() {
+  const [rating, setRating] = useState(4.5);
+
+  return (
+    <Rating
+      value={rating}
+      onRatingChange={setRating}
+      maxCount={5}
+      precision={0.5}
+    />
+  );
+}`;
+
+`Rating` displays star or custom shape ratings with interactive tap and drag input.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="RatingExample.tsx" mark={['Rating', 'value={rating}', 'onRatingChange']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'number', description: 'Numeric rating value.' },
+    onRatingChange: { type: '(rating: number) => void', description: 'Callback when rating changes.' },
+    maxCount: { type: 'number', default: '5', description: 'Total star count.' },
+    precision: { type: '0.1 | 0.5 | 1', default: '1', description: 'Rating value increment step.' },
+  }}
+/>

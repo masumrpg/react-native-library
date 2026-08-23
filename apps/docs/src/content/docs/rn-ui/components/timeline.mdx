@@ -1,0 +1,35 @@
+---
+title: Timeline
+description: Event timeline list component with TimelineItem, TimelineTitle, and TimelineDescription.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Timeline, TimelineItem, TimelineTitle, TimelineDescription } from '@masumdev/rn-ui';
+
+export function TimelineExample() {
+  return (
+    <Timeline>
+      <TimelineItem active>
+        <TimelineTitle>v0.1.0 Released</TimelineTitle>
+        <TimelineDescription>Initial open source release of RN UI.</TimelineDescription>
+      </TimelineItem>
+    </Timeline>
+  );
+}`;
+
+`Timeline` displays chronological event feeds.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TimelineExample.tsx" mark={['Timeline', 'TimelineItem', 'TimelineTitle', 'TimelineDescription']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'TimelineItem elements.' },
+    active: { type: 'boolean', default: 'false', description: 'Highlights active timeline step.' },
+  }}
+/>

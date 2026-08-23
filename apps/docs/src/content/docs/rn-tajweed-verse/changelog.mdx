@@ -1,0 +1,33 @@
+---
+title: Changelog
+sidebar:
+  order: 99
+description: Release notes and version history for @masumdev/rn-tajweed-verse.
+---
+
+import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
+
+export const releases = [
+  {
+    version: 'v0.1.0',
+    date: '2026-08-22',
+    tag: 'Latest Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: 'Initial release of <code>@masumdev/rn-tajweed-verse</code>.',
+      },
+      {
+        type: 'feat',
+        text: 'Added support for 11 core Tajweed rules with bracket tag markup parser.',
+      },
+      {
+        type: 'feat',
+        text: 'Built-in custom color rules override, custom font size, font family, and line height support.',
+      },
+    ],
+  },
+];
+
+<ChangelogTimeline releases={releases} />

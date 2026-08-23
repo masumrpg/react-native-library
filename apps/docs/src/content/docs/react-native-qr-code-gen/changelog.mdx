@@ -1,0 +1,33 @@
+---
+title: Changelog
+sidebar:
+  order: 99
+description: Release notes and version history for @masumdev/react-native-qr-code-gen.
+---
+
+import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
+
+export const releases = [
+  {
+    version: 'v0.1.0',
+    date: '2026-08-22',
+    tag: 'Latest Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: 'Initial release of <code>@masumdev/react-native-qr-code-gen</code>.',
+      },
+      {
+        type: 'feat',
+        text: 'Custom eye shapes, piece shapes, logo embedding, and high-performance SVG rendering.',
+      },
+      {
+        type: 'feat',
+        text: 'Built-in support for linear & radial gradient colors, linear quiet zones, and error correction levels.',
+      },
+    ],
+  },
+];
+
+<ChangelogTimeline releases={releases} />

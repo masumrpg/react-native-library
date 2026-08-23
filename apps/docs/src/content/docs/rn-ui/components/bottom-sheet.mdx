@@ -1,0 +1,46 @@
+---
+title: BottomSheet
+description: Reanimated bottom sheet modal component wrapping @gorhom/bottom-sheet.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const sheetCode = `import React, { useRef } from 'react';
+import { BottomSheet, Button, Text } from '@masumdev/rn-ui';
+import type BottomSheetMethods from '@gorhom/bottom-sheet';
+
+export function SheetExample() {
+  const ref = useRef<BottomSheetMethods>(null);
+
+  return (
+    <>
+      <Button onPress={() => ref.current?.expand()}>Open Sheet</Button>
+      <BottomSheet ref={ref} snapPoints={['25%', '50%']}>
+        <Text variant="title2">Sheet Content</Text>
+      </BottomSheet>
+    </>
+  );
+}`;
+
+`BottomSheet` displays a modal sheet sliding up from the bottom of the screen with gesture handling and snap points.
+
+## Usage
+
+<Code code={sheetCode} lang="tsx" title="SheetExample.tsx" mark={['BottomSheet', 'snapPoints']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    snapPoints: {
+      type: '(string | number)[]',
+      default: "['25%', '50%']",
+      description: 'Snap point positions for the sheet height.',
+    },
+    children: {
+      type: 'ReactNode',
+      description: 'Content rendered inside the sheet body.',
+    },
+  }}
+/>

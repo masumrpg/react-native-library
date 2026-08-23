@@ -1,0 +1,90 @@
+---
+title: Tajweed Rules Reference
+sidebar:
+  order: 4
+description: Complete breakdown of supported Tajweed rules, bracket tag markup patterns, and linguistic descriptions.
+---
+
+import TypeTable from '@/components/TypeTable.astro';
+
+`@masumdev/rn-tajweed-verse` supports 15 core Tajweed rules out of the box. Each rule key maps to a specific bracket tag pattern in your Quran database text:
+
+<TypeTable
+  type={{
+    ham_wasl: {
+      type: '[h[...]',
+      default: '#AAAAAA',
+      description: 'Hamzatul Wasl (connecting hamzah). Dropped when connecting words.',
+    },
+    slnt: {
+      type: '[s[...], [l[...]',
+      default: '#AAAAAA',
+      description: 'Silent letters written in text but omitted during recitation.',
+    },
+    madda_normal: {
+      type: '[n[...]',
+      default: '#537FFF',
+      description: 'Normal Madd (2 beats prolongation).',
+    },
+    madda_permissible: {
+      type: '[p[...]',
+      default: '#4050FF',
+      description: 'Permissible Madd (Madd Jaiz - 2, 4, or 5 beats).',
+    },
+    madda_necessary: {
+      type: '[m[...]',
+      default: '#000EBC',
+      description: 'Necessary Madd (Madd Lazim - compulsory 6 beats).',
+    },
+    madda_obligatory: {
+      type: '[o[...]',
+      default: '#2144C1',
+      description: 'Obligatory Madd (Madd Wajib - 4 or 5 beats).',
+    },
+    qlq: {
+      type: '[q[...]',
+      default: '#DD0008',
+      description: 'Qalqalah (Echoing/bouncing sound on ق, ط, ب, ج, د).',
+    },
+    ikhf_shfw: {
+      type: '[c[...]',
+      default: '#D500B7',
+      description: "Ikhfa Syafawi (Meem Sakinah followed by Ba with nasalization).",
+    },
+    ikhf: {
+      type: '[f[...]',
+      default: '#9400A8',
+      description: "Ikhfa (Concealing Noon Sakinah or Tanween for 2 beats).",
+    },
+    idghm_shfw: {
+      type: '[w[...]',
+      default: '#58B800',
+      description: 'Idgham Syafawi (Merging Meem Sakinah into following Meem).',
+    },
+    iqlb: {
+      type: '[i[...]',
+      default: '#26BFFD',
+      description: 'Iqlab (Converting Noon Sakinah or Tanween into Meem sound before Ba).',
+    },
+    idgh_ghn: {
+      type: '[a[...]',
+      default: '#169777',
+      description: "Idgham Ma'al Ghunnah (Merging Noon into ي, ن, م, و with nasalization).",
+    },
+    idgh_w_ghn: {
+      type: '[u[...]',
+      default: '#169200',
+      description: 'Idgham Bighairil Ghunnah (Merging Noon into ل, ر without nasalization).',
+    },
+    idgh_mus: {
+      type: '[d[...], [b[...]',
+      default: '#A1A1A1',
+      description: 'Idgham Mutamathilayn / Mutajanisayn (Merging identical consonants).',
+    },
+    ghn: {
+      type: '[g[...]',
+      default: '#FF7E1E',
+      description: 'Ghunnah (Nasal sound held for 2 beats on Noon or Meem with shaddah).',
+    },
+  }}
+/>

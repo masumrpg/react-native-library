@@ -1,0 +1,61 @@
+---
+title: Changelog
+sidebar:
+  order: 99
+description: Release history and version notes for @masumdev/rn-ui.
+---
+
+import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
+
+export const releases = [
+  {
+    version: 'v0.1.7',
+    date: '2026-08-23',
+    tag: 'Latest Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: '<strong>Exported Shared Base UI Interfaces</strong>: Exported <code>ToneProps</code>, <code>VariantProps</code>, <code>SizeProps</code>, <code>ShapeProps</code>, <code>IconSlotsProps</code>, and <code>BaseUIComponentProps</code> from <code>@masumdev/rn-ui</code>.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Unified Component Inheritance</strong>: Refactored <code>Button</code>, <code>IconButton</code>, <code>Badge</code>, <code>Alert</code>, <code>AlertDialog</code>, <code>FloatingActionButton</code>, and <code>Progress</code> to consistently extend shared base prop interfaces.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Strict Type Safety Enforcement</strong>: Cleaned up internal implementations to achieve <strong>Zero <code>any</code></strong> types across all components and event handlers.',
+      },
+      {
+        type: 'docs',
+        text: '<strong>Design System Rules & Custom Components Guide</strong>: Published <code>RULES.md</code> in the library package and created the <a href="/rn-ui/custom-components">Building Custom Components</a> guide.',
+      },
+      {
+        type: 'docs',
+        text: '<strong>Imperative Toast Hook Documentation</strong>: Expanded documentation for <code>useToast()</code> hook, <code>toast.show/dismiss/update</code> methods, and <code>ToastProvider</code>.',
+      },
+    ],
+  },
+  {
+    version: 'v0.1.0',
+    date: '2026-08-22',
+    tag: 'Initial Release',
+    isLatest: false,
+    changes: [
+      {
+        type: 'feat',
+        text: 'Initial release of <code>@masumdev/rn-ui</code>.',
+      },
+      {
+        type: 'feat',
+        text: 'Added 55+ production-grade React Native UI components: <code>Button</code>, <code>Avatar</code>, <code>Badge</code>, <code>BottomSheet</code>, <code>Toast</code>, <code>Card</code>, <code>FormField</code>, <code>Select</code>, <code>Input</code>, <code>Box</code>, <code>Text</code>, and more.',
+      },
+      {
+        type: 'feat',
+        text: 'Built-in <code>ThemeProvider</code> with flat design tokens, dark mode support, and pluggable storage hydration.',
+      },
+    ],
+  },
+];
+
+<ChangelogTimeline releases={releases} />

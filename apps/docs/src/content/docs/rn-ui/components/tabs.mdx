@@ -1,0 +1,45 @@
+---
+title: Tabs
+description: Tab bar container component with TabsList, TabsTrigger, and TabsContent.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Text } from '@masumdev/rn-ui';
+
+export function TabsExample() {
+  const [tab, setTab] = useState('account');
+
+  return (
+    <Tabs value={tab} onValueChange={setTab}>
+      <TabsList>
+        <TabsTrigger value="account">Account</TabsTrigger>
+        <TabsTrigger value="settings">Settings</TabsTrigger>
+      </TabsList>
+      <TabsContent value="account">
+        <Text>Account Panel Content</Text>
+      </TabsContent>
+      <TabsContent value="settings">
+        <Text>Settings Panel Content</Text>
+      </TabsContent>
+    </Tabs>
+  );
+}`;
+
+`Tabs` organizes content into multiple tabbed panels.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TabsExample.tsx" mark={['Tabs', 'TabsList', 'TabsTrigger', 'TabsContent']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Active tab value.' },
+    onValueChange: { type: '(value: string) => void', description: 'Callback on tab change.' },
+    children: { type: 'ReactNode', description: 'Tab triggers and content panels.' },
+  }}
+/>

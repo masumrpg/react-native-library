@@ -441,4 +441,27 @@ export type {
   ContextMenuCheckboxItemProps,
   ContextMenuShortcutProps,
 } from "./ContextMenu";
-export type { RenderIcon, ThemeColorName } from "./types";
+export type {
+  RenderIcon,
+  ThemeColorName,
+  ComponentTone,
+  ComponentSize,
+  ComponentShape,
+  ToneProps,
+  VariantProps,
+  SizeProps,
+  ShapeProps,
+  IconSlotsProps,
+  BaseUIComponentProps,
+} from "./types";
+export { renderIcon } from "./types";
+export { Rating } from "./Rating";
+export type {
+  RatingItemInfo,
+  RatingPrecision,
+  RatingProps,
+  RatingShape,
+  RatingSize,
+  RatingTone,
+} from "./Rating";
+

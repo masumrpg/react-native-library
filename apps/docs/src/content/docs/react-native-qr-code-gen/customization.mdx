@@ -1,0 +1,82 @@
+---
+title: Customization
+sidebar:
+  order: 5
+description: Custom eye corner radii, linear & radial gradients, logos, and image background clips in @masumdev/react-native-qr-code-gen.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+export const customEyeCode = `<QRCode
+  value="Custom Eyes"
+  size={200}
+  eye={{
+    topLeft: {
+      shape: 'square',
+      color: '#2563eb',
+      innerColor: '#1e293b',
+      radius: {
+        radiusOuter: { tl: 20, tr: 20, bl: 20, br: 0 },
+        radiusInner: { tl: 13, tr: 13, bl: 13, br: 0 },
+        radiusCenter: 15,
+      },
+    },
+    topRight: {
+      shape: 'circle',
+      color: '#2563eb',
+    },
+    bottomLeft: {
+      shape: 'heart',
+      color: '#ec4899',
+    },
+  }}
+/>`;
+
+export const gradientCode = `<QRCode
+  value="Custom Gradient"
+  size={240}
+  gradient={{
+    type: 'linear',
+    direction: 'to-bottom-right',
+    colors: [
+      { offset: '0%', color: '#6366F1', opacity: 0.9 },
+      { offset: '50%', color: '#EC4899', opacity: 0.8 },
+      { offset: '100%', color: '#3B82F6', opacity: 0.9 },
+    ],
+  }}
+  piece={{
+    shape: 'rounded',
+    borderRadius: 3,
+  }}
+/>`;
+
+export const logoCode = `<QRCode
+  value="Logo QR Code"
+  size={240}
+  errorCorrectionLevel="H"
+  logo={{
+    source: require('./assets/logo.png'),
+    size: 0.22,
+    backgroundColor: '#ffffff',
+    padding: 6,
+    borderRadius: 99,
+  }}
+/>`;
+
+## Custom Corner Eye Shapes & Radii
+
+Configure each corner eye (`topLeft`, `topRight`, `bottomLeft`) independently with custom shapes and corner radii:
+
+<Code code={customEyeCode} lang="tsx" title="CustomEyeExample.tsx" mark={['eye={{', 'radiusOuter', 'shape: \'heart\'']} />
+
+## Linear & Radial Gradients
+
+Apply linear or radial vector SVG gradients across data module cells:
+
+<Code code={gradientCode} lang="tsx" title="GradientExample.tsx" mark={['gradient={{', 'type: \'linear\'', 'direction: \'to-bottom-right\'']} />
+
+## Center Logo Embedding
+
+Embed custom logos into the center of the QR code with background padding and high error correction:
+
+<Code code={logoCode} lang="tsx" title="LogoExample.tsx" mark={['errorCorrectionLevel="H"', 'logo={{', 'source: require']} />

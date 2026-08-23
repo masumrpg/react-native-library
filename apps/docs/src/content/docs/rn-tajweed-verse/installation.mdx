@@ -1,0 +1,35 @@
+---
+title: Installation
+sidebar:
+  order: 2
+description: Install @masumdev/rn-tajweed-verse in your Expo or React Native project.
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
+import Callout from '@/components/Callout.astro';
+
+export const npmInstall = `npm i @masumdev/rn-tajweed-verse react-native-parsed-text`;
+export const pnpmInstall = `pnpm add @masumdev/rn-tajweed-verse react-native-parsed-text`;
+export const yarnInstall = `yarn add @masumdev/rn-tajweed-verse react-native-parsed-text`;
+export const bunInstall = `bun add @masumdev/rn-tajweed-verse react-native-parsed-text`;
+
+Install `@masumdev/rn-tajweed-verse` and `react-native-parsed-text` using your preferred package manager:
+
+<Tabs syncKey="pkg">
+  <TabItem label="npm" icon="seti:npm">
+    <Code code={npmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm" icon="pnpm">
+    <Code code={pnpmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="yarn" icon="seti:yarn">
+    <Code code={yarnInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="bun" icon="bun">
+    <Code code={bunInstall} lang="bash" />
+  </TabItem>
+</Tabs>
+
+<Callout type="info">
+This package is written in pure TypeScript and JavaScript with no native iOS/Android binary code required.
+</Callout>

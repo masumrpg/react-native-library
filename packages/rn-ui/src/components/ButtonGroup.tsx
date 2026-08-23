@@ -1,6 +1,7 @@
 import React from "react";
 import {
   View,
+  StyleSheet,
   type StyleProp,
   type TextStyle,
   type ViewProps,
@@ -18,12 +19,10 @@ export interface ButtonGroupProps extends ViewProps {
   children?: React.ReactNode;
 }
 
-const isAbsolute = (style: any): boolean => {
+const isAbsolute = (style: StyleProp<ViewStyle>): boolean => {
   if (!style) return false;
-  if (Array.isArray(style)) {
-    return style.some((s) => s && s.position === "absolute");
-  }
-  return style.position === "absolute";
+  const flattened = Array.isArray(style) ? StyleSheet.flatten(style) : (style as ViewStyle);
+  return (flattened as ViewStyle)?.position === "absolute";
 };
 
 export function ButtonGroup({
@@ -42,7 +41,7 @@ export function ButtonGroup({
 
   const validChildren = React.Children.toArray(children).filter(Boolean);
   const layoutChildren = validChildren.filter((child) => {
-    if (!React.isValidElement(child)) return false;
+    if (!React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)) return false;
     return !isAbsolute(child.props.style);
   });
   const count = layoutChildren.length;
@@ -51,7 +50,7 @@ export function ButtonGroup({
   return (
     <View style={[groupStyle, style]} {...props}>
       {validChildren.map((child) => {
-        if (!React.isValidElement(child)) return child;
+        if (!React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)) return child;
 
         if (isAbsolute(child.props.style)) {
           // If the child is absolute (like the sliding indicator), we do not modify its style
@@ -90,7 +89,7 @@ export function ButtonGroup({
         // We append childStyle AFTER child's own style to ensure adjacent flat corners & border removals override defaults.
         return React.cloneElement(child, {
           style: [child.props.style, childStyle],
-        } as any);
+        });
       })}
     </View>
   );

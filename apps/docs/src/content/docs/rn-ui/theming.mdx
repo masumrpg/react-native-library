@@ -1,0 +1,155 @@
+---
+title: Theming & Dark Mode
+sidebar:
+  order: 3
+description: ThemeProvider props, custom color palettes, useTheme, useThemeStyles hooks, and persistent storage hydration.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const useThemeCode = `import React from 'react';
+import { useTheme, Button, Text, Box } from '@masumdev/rn-ui';
+
+export function ThemeToggleExample() {
+  const { colors, colorScheme, isDark, toggleColorScheme, setColorScheme } = useTheme();
+
+  return (
+    <Box style={{ backgroundColor: colors.background, padding: 16 }}>
+      <Text style={{ color: colors.text }}>
+        Current Mode: {colorScheme} (Active: {isDark ? 'Dark' : 'Light'})
+      </Text>
+      <Box row gap="sm" style={{ marginTop: 12 }}>
+        <Button size="sm" tone="primary" onPress={toggleColorScheme}>
+          Toggle Dark Mode
+        </Button>
+        <Button size="sm" variant="outline" onPress={() => setColorScheme('system')}>
+          Use System
+        </Button>
+      </Box>
+    </Box>
+  );
+}`;
+
+export const useThemeStylesCode = `import React from 'react';
+import { View, Text } from 'react-native';
+import { useThemeStyles } from '@masumdev/rn-ui';
+
+export function CustomStyledCard() {
+  const styles = useStyles();
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>Type-Safe Theme Stylesheet</Text>
+    </View>
+  );
+}
+
+function useStyles() {
+  return useThemeStyles((theme) => ({
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radii.xl,
+      padding: theme.spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    title: {
+      color: theme.colors.text,
+      fontFamily: theme.fonts.bold,
+      fontSize: 18,
+    },
+  }));
+}`;
+
+export const customThemesCode = `import { ThemeProvider, type ThemeInput } from '@masumdev/rn-ui';
+
+const customLight: ThemeInput = {
+  colors: {
+    primary: '#06B6D4',
+    background: '#F6FBFC',
+    surface: '#FFFFFF',
+    text: '#06202A',
+    border: '#B8D4DD',
+  },
+  fonts: {
+    regular: 'OutfitRegular',
+    medium: 'OutfitMedium',
+    bold: 'OutfitBold',
+  },
+};
+
+const customDark: ThemeInput = {
+  colors: {
+    primary: '#67E8F9',
+    background: '#06141B',
+    surface: '#0B202A',
+    text: '#F2FBFD',
+    border: '#2A5260',
+  },
+};
+
+export default function App() {
+  return (
+    <ThemeProvider themes={{ light: customLight, dark: customDark }}>
+      <RootNavigation />
+    </ThemeProvider>
+  );
+}`;
+
+`@masumdev/rn-ui` features a typed theme engine with built-in dark mode support, reactive hooks, dynamic style resolution, and storage hydration.
+
+## ThemeProvider API
+
+<TypeTable
+  type={{
+    children: {
+      type: 'ReactNode',
+      description: 'Application components wrapped by the provider.',
+    },
+    colorScheme: {
+      type: "'light' | 'dark' | 'system'",
+      description: 'Controlled color scheme value.',
+    },
+    defaultColorScheme: {
+      type: "'light' | 'dark' | 'system'",
+      default: "'system'",
+      description: 'Uncontrolled initial color scheme preference.',
+    },
+    themes: {
+      type: '{ light?: ThemeInput; dark?: ThemeInput }',
+      description: 'Custom light and dark theme object overrides.',
+    },
+    storage: {
+      type: '{ getItem: (key: string) => Promise<string | null>; setItem: (key: string, val: string) => Promise<void> }',
+      description: 'Storage instance for persisting color scheme (e.g., SecureStore or AsyncStorage).',
+    },
+    storageKey: {
+      type: 'string',
+      default: "'rn-ui-color-scheme'",
+      description: 'Key name used in persistent storage.',
+    },
+    onColorSchemeChange: {
+      type: '(colorScheme: ColorSchemePreference) => void',
+      description: 'Callback triggered whenever the user updates the color scheme.',
+    },
+  }}
+/>
+
+## Using the `useTheme` Hook
+
+Access active theme colors, mode state, and toggle functions from any component:
+
+<Code code={useThemeCode} lang="tsx" title="ThemeToggleExample.tsx" mark={['useTheme', 'toggleColorScheme', 'setColorScheme']} />
+
+## Using the `useThemeStyles` Hook
+
+Create type-safe, performance-optimized style objects driven by active theme tokens:
+
+<Code code={useThemeStylesCode} lang="tsx" title="CustomStyledCard.tsx" mark={['useThemeStyles', 'theme.colors', 'theme.spacing']} />
+
+## Custom Themes & Font Customization
+
+Pass custom `ThemeInput` definitions to `ThemeProvider` to change colors, fonts, spacing, or border radii:
+
+<Code code={customThemesCode} lang="tsx" title="App.tsx" mark={['ThemeInput', 'themes={{ light: customLight, dark: customDark }}']} />

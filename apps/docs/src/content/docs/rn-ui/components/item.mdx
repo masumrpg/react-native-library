@@ -1,0 +1,42 @@
+---
+title: Item
+description: List item row component with media slots, title, description, and action buttons.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Item, ItemMedia, ItemContent, ItemTitle, ItemDescription, ItemActions, Avatar, Button } from '@masumdev/rn-ui';
+
+export function ItemExample() {
+  return (
+    <Item>
+      <ItemMedia>
+        <Avatar name="Ma'sum" />
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>Ma'sum Dev</ItemTitle>
+        <ItemDescription>React Native Monorepo Developer</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <Button size="sm" variant="outline">Follow</Button>
+      </ItemActions>
+    </Item>
+  );
+}`;
+
+`Item` displays list row items with media avatars, title/description slots, and action buttons.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ItemExample.tsx" mark={['Item', 'ItemMedia', 'ItemContent', 'ItemActions']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Compound item sub-components.' },
+    size: { type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Item padding size.' },
+    variant: { type: "'default' | 'card' | 'outline'", default: "'default'", description: 'Row background variant.' },
+  }}
+/>

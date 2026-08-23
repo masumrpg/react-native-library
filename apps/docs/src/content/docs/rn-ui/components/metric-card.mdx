@@ -1,0 +1,37 @@
+---
+title: MetricCard
+description: KPI metric stat card with icon badge, title, metric number, and percentage indicator.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { MetricCard } from '@masumdev/rn-ui';
+
+export function MetricExample() {
+  return (
+    <MetricCard
+      title="Total Downloads"
+      value="124.5k"
+      change="+14.2%"
+      trend="up"
+    />
+  );
+}`;
+
+`MetricCard` displays key performance indicators and dashboard metrics.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="MetricExample.tsx" mark={['MetricCard', 'title', 'value', 'change']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    title: { type: 'string', description: 'Metric card label title.' },
+    value: { type: 'string | number', description: 'Main metric display value.' },
+    change: { type: 'string', description: 'Percentage or delta change text.' },
+    trend: { type: "'up' | 'down' | 'neutral'", default: "'up'", description: 'Trend indicator direction.' },
+  }}
+/>
