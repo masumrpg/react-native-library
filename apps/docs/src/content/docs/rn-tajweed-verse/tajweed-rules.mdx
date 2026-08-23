@@ -1,0 +1,70 @@
+---
+title: Tajweed Rules Reference
+sidebar:
+  order: 4
+description: Complete breakdown of supported Tajweed rules and bracket tag markup patterns.
+---
+
+import TypeTable from '@/components/TypeTable.astro';
+
+## Supported Rule Keys & Tags
+
+<TypeTable
+  type={{
+    ham_wasl: {
+      type: '[h[...]',
+      default: 'Gray',
+      description: 'Hamzatul Wasl (connecting hamzah).',
+    },
+    slnt: {
+      type: '[s[...], [l[...]',
+      default: 'Light Gray',
+      description: 'Silent letters.',
+    },
+    madda_normal: {
+      type: '[n[...]',
+      default: 'Purple',
+      description: "Normal Prolongation (Madd Tabee'ee).",
+    },
+    madda_permissible: {
+      type: '[p[...]',
+      default: 'Orange',
+      description: "Permissible Prolongation (Madd Ja'iz).",
+    },
+    madda_necessary: {
+      type: '[m[...]',
+      default: 'Red',
+      description: 'Necessary Prolongation (Madd Lazim).',
+    },
+    madda_obligatory: {
+      type: '[o[...]',
+      default: 'Dark Red',
+      description: 'Obligatory Prolongation (Madd Wajib).',
+    },
+    qlq: {
+      type: '[q[...]',
+      default: 'Blue',
+      description: 'Qalqalah (Echoing / Shaking sound).',
+    },
+    ikhf_shfw: {
+      type: '[c[...]',
+      default: 'Green',
+      description: "Ikhfa' Syafawi (Meem Sakinah).",
+    },
+    ikhf: {
+      type: '[f[...]',
+      default: 'Light Green',
+      description: "Ikhfa' (Noon Sakinah & Tanween).",
+    },
+    idghm_shfw: {
+      type: '[w[...]',
+      default: 'Teal',
+      description: 'Idgham Syafawi.',
+    },
+    iqlb: {
+      type: '[i[...]',
+      default: 'Amber',
+      description: 'Iqlab (Changing sound to Meem).',
+    },
+  }}
+/>

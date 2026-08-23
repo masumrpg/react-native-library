@@ -1,0 +1,95 @@
+---
+title: Installation
+sidebar:
+  order: 2
+description: How to install @masumdev/rn-ui and configure peer dependencies in React Native or Expo apps.
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
+import Callout from '@/components/Callout.astro';
+
+export const npmInstall = `npm i @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
+export const pnpmInstall = `pnpm add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
+export const yarnInstall = `yarn add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
+export const bunInstall = `bun add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
+
+export const npmOptional = `npm i @gorhom/bottom-sheet react-native-calendars`;
+export const pnpmOptional = `pnpm add @gorhom/bottom-sheet react-native-calendars`;
+export const yarnOptional = `yarn add @gorhom/bottom-sheet react-native-calendars`;
+export const bunOptional = `bun add @gorhom/bottom-sheet react-native-calendars`;
+
+export const babelCode = `module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: [
+    // Reanimated plugin must be listed last
+    'react-native-reanimated/plugin',
+  ],
+};`;
+
+export const appCode = `import React from 'react';
+import { ThemeProvider, Button, Box, Text } from '@masumdev/rn-ui';
+
+export default function App() {
+  return (
+    <ThemeProvider defaultColorScheme="system">
+      <Box style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text variant="title1">Welcome to @masumdev/rn-ui</Text>
+        <Button tone="primary" onPress={() => console.log('Pressed')}>
+          Get Started
+        </Button>
+      </Box>
+    </ThemeProvider>
+  );
+}`;
+
+## Step 1: Install Package
+
+Install `@masumdev/rn-ui` along with required peer dependencies using your preferred package manager:
+
+<Tabs syncKey="pkg">
+  <TabItem label="npm" icon="seti:npm">
+    <Code code={npmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm" icon="pnpm">
+    <Code code={pnpmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="yarn" icon="seti:yarn">
+    <Code code={yarnInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="bun" icon="bun">
+    <Code code={bunInstall} lang="bash" />
+  </TabItem>
+</Tabs>
+
+If you plan to use `BottomSheet` or `Calendar`, also install optional dependencies:
+
+<Tabs syncKey="pkg">
+  <TabItem label="npm" icon="seti:npm">
+    <Code code={npmOptional} lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm" icon="pnpm">
+    <Code code={pnpmOptional} lang="bash" />
+  </TabItem>
+  <TabItem label="yarn" icon="seti:yarn">
+    <Code code={yarnOptional} lang="bash" />
+  </TabItem>
+  <TabItem label="bun" icon="bun">
+    <Code code={bunOptional} lang="bash" />
+  </TabItem>
+</Tabs>
+
+## Step 2: Add Reanimated Plugin
+
+Add `react-native-reanimated/plugin` to your project's `babel.config.js`:
+
+<Code code={babelCode} lang="js" title="babel.config.js" mark={['react-native-reanimated/plugin']} />
+
+<Callout type="info">
+`@masumdev/rn-ui` components come pre-compiled with Reanimated worklets, but your app still needs the Reanimated Babel plugin for runtime worklet execution.
+</Callout>
+
+## Step 3: Wrap App with ThemeProvider
+
+Wrap your root application component with `ThemeProvider`:
+
+<Code code={appCode} lang="tsx" title="App.tsx" mark={['ThemeProvider', '@masumdev/rn-ui']} />

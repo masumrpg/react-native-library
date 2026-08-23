@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:native": "turbo dev --filter='@masumdev/*' --filter=native",
+    "dev:docs": "turbo dev --filter=docs",
     "gen:expo-package": "bunx turbo gen expo-package",
     "build": "turbo run build",
     "clean": "turbo run clean && rm -rf node_modules",

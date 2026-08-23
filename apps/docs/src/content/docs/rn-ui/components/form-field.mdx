@@ -1,0 +1,26 @@
+---
+title: FormField
+description: Form field wrapper combining Label, Input, and helper/error text messages.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const formFieldCode = `import { FormField, Input } from '@masumdev/rn-ui';
+
+<FormField label="Email Address" error="Invalid email address">
+  <Input placeholder="user@example.com" />
+</FormField>`;
+
+<Code code={formFieldCode} lang="tsx" title="FormFieldExample.tsx" mark={['FormField', 'error']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    label: { type: 'string', description: 'Field label text.' },
+    error: { type: 'string', description: 'Error message text string.' },
+    helperText: { type: 'string', description: 'Helper text displayed below input.' },
+    required: { type: 'boolean', default: 'false', description: 'Appends red asterisk to label.' },
+  }}
+/>

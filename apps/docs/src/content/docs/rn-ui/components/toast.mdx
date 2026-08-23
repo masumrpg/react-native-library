@@ -1,0 +1,23 @@
+---
+title: Toast
+description: Animated floating notification toast message.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const toastCode = `import { Toast } from '@masumdev/rn-ui';
+
+<Toast message="Settings saved successfully!" tone="success" />`;
+
+<Code code={toastCode} lang="tsx" title="ToastExample.tsx" mark={['Toast', 'tone="success"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    message: { type: 'string', description: 'Notification message text.' },
+    tone: { type: "'info' | 'success' | 'warning' | 'danger'", default: "'info'" },
+    duration: { type: 'number', default: '3000', description: 'Auto hide duration in ms.' },
+  }}
+/>

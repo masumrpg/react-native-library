@@ -15,13 +15,13 @@ Whenever a new package (`packages/<name>`) or a new component/API is added or mo
   - Interactive callbacks and state updates.
   - Light mode & Dark mode visual rendering.
 
-### Rule 2: Web Documentation (`apps/web`) 🌐
-- Every new component or library **MUST** have official MDX documentation pages inside `apps/web/content/docs/`.
+### Rule 2: Web Documentation (`apps/docs`) 🌐
+- Every new component or library **MUST** have official MDX documentation pages inside `apps/docs/src/content/docs/`.
 - Documentation pages must include:
   - **Overview & Installation** guide (`bun add @masumdev/<name>`).
-  - **Props & API Table** describing all parameters, default values, and types.
-  - **Code Snippet Examples** with copyable code blocks.
-  - Proper frontmatter (`title`, `description`, `icon`) and updated `meta.json` in `apps/web/content/docs/`.
+  - **Props & API Table** describing all parameters, default values, and types using `<TypeTable />`.
+  - **Code Snippet Examples** with copyable Expressive Code blocks.
+  - Proper frontmatter (`title`, `description`) and updated sidebar entries in `apps/docs/astro.config.mjs`.
 
 ### Rule 3: Package README Update (`packages/<name>/README.md`) 📝
 - Every new component, feature addition, or API change **MUST** be recorded in the corresponding package's `README.md` (`packages/<name>/README.md`).
@@ -32,5 +32,5 @@ Whenever a new package (`packages/<name>`) or a new component/API is added or mo
 ## ⚙️ WORKSPACE INTEGRITY & VERIFICATION RULES
 
 1. **No Untested Commits**: Run `bun run build` across the monorepo before declaring work complete.
-2. **Title Case Navigation**: Keep all sidebar and top navigation package titles in **Title Case** (`RN UI`, `RN Tajweed Verse`, `RN QR Code Gen`).
-3. **Fumadocs Search Sync**: Ensure new MDX pages maintain valid frontmatter (`title`, `description`, `icon`) so the built-in Fumadocs Search API (`/api/search`) indexes them automatically.
+2. **Title Case Navigation**: Keep all sidebar and navigation titles in **Title Case** (`RN UI`, `RN Tajweed Verse`, `RN QR Code Gen`).
+3. **Starlight Search Sync**: Ensure new MDX pages maintain valid frontmatter (`title`, `description`) so Pagefind indexes them automatically.

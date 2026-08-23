@@ -1,0 +1,22 @@
+---
+export interface Props {
+  type?: 'info' | 'warn' | 'error' | 'note';
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const borderColors = {
+  info: 'border-emerald-500 bg-emerald-950/20 text-emerald-200',
+  note: 'border-blue-500 bg-blue-950/20 text-blue-200',
+  warn: 'border-amber-500 bg-amber-950/20 text-amber-200',
+  error: 'border-red-500 bg-red-950/20 text-red-200',
+};
+---
+
+<aside class={`my-4 p-4 rounded-r-lg border-l-4 ${borderColors[type] || borderColors.info}`}>
+  {title && <h5 class="font-bold mb-1 text-current">{title}</h5>}
+  <div class="text-sm leading-relaxed">
+    <slot />
+  </div>
+</aside>

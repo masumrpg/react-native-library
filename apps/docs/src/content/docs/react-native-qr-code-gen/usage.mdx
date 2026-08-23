@@ -1,0 +1,50 @@
+---
+title: Usage
+sidebar:
+  order: 3
+description: Code examples and Props API reference for QRCodeGen.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const qrUsageCode = `import React from 'react';
+import QRCodeGen from '@masumdev/react-native-qr-code-gen';
+
+export function QRCodeExample() {
+  return (
+    <QRCodeGen
+      value="https://masumdev.vercel.app"
+      size={240}
+      color="#1e293b"
+      backgroundColor="#ffffff"
+      eyeOptions={{
+        shape: 'circle',
+        color: '#2563eb',
+      }}
+      pieceOptions={{
+        shape: 'rounded',
+        color: '#1e293b',
+      }}
+    />
+  );
+}`;
+
+Render a QR code component with custom styling:
+
+<Code code={qrUsageCode} lang="tsx" title="QRCodeExample.tsx" mark={['QRCodeGen', 'eyeOptions', 'pieceOptions']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Target payload string or URL encoded in the QR code.' },
+    size: { type: 'number', default: '200', description: 'Width and height of the rendered SVG container in dp.' },
+    color: { type: 'string', default: "'#000000'", description: 'Primary foreground color for cells.' },
+    backgroundColor: { type: 'string', default: "'#ffffff'", description: 'Background canvas color.' },
+    eyeOptions: { type: 'EyeOptions', description: 'Shape, color, and size options for the 3 corner eyes.' },
+    pieceOptions: { type: 'PieceOptions', description: 'Shape and size multiplier for data module cells.' },
+    logoOptions: { type: 'LogoOptions', description: 'Center logo image source, size, and background padding.' },
+    ecl: { type: "'L' | 'M' | 'Q' | 'H'", default: "'M'", description: 'Error Correction Level (Level H recommended when adding logos).' },
+  }}
+/>

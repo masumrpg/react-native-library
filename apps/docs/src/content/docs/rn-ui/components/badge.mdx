@@ -1,0 +1,23 @@
+---
+title: Badge
+description: Small status badge or count pill indicator.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const badgeCode = `import { Badge } from '@masumdev/rn-ui';
+
+<Badge tone="danger" variant="soft">New</Badge>`;
+
+<Code code={badgeCode} lang="tsx" title="BadgeExample.tsx" mark={['Badge', 'tone="danger"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Badge text or number.' },
+    tone: { type: "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'" },
+    variant: { type: "'filled' | 'outline' | 'soft'", default: "'filled'" },
+  }}
+/>

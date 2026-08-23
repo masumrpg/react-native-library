@@ -1,0 +1,24 @@
+---
+title: Avatar
+description: User avatar component with image support, initials fallback, and status indicator.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const avatarCode = `import { Avatar } from '@masumdev/rn-ui';
+
+<Avatar name="Ma'sum" size="lg" status="online" />`;
+
+<Code code={avatarCode} lang="tsx" title="AvatarExample.tsx" mark={['Avatar', 'status="online"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    source: { type: 'ImageSourcePropType', description: 'Avatar image source.' },
+    name: { type: 'string', description: 'Used to render fallback initials.' },
+    size: { type: "'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: 'Avatar diameter.' },
+    status: { type: "'online' | 'offline' | 'busy' | 'away'", description: 'Optional status dot indicator.' },
+  }}
+/>
