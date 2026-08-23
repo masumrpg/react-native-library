@@ -1,0 +1,40 @@
+---
+title: IconButton
+description: Icon button component with variants (filled, outline, ghost), sizes, and loading state.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { IconButton } from '@masumdev/rn-ui';
+import { Search } from 'lucide-react-native';
+
+export function IconButtonExample() {
+  return (
+    <IconButton
+      icon={({ color, size }) => <Search color={color} size={size} />}
+      variant="outline"
+      tone="primary"
+      size="md"
+      onPress={() => console.log('Search pressed')}
+    />
+  );
+}`;
+
+`IconButton` renders compact square/circle icon buttons.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="IconButtonExample.tsx" mark={['IconButton', 'variant="outline"', 'tone="primary"']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    icon: { type: 'RenderIcon', description: 'Icon render function or ReactNode element.' },
+    variant: { type: "'filled' | 'outline' | 'ghost' | 'soft'", default: "'filled'", description: 'Button style variant.' },
+    size: { type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: 'Button size dimensions.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'", description: 'Color tone.' },
+    loading: { type: 'boolean', default: 'false', description: 'Displays loading spinner.' },
+  }}
+/>

@@ -1,23 +1,96 @@
 ---
 title: Toast
-description: Animated floating notification toast message.
+description: Imperative animated floating notification toast feedback hook and provider.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const toastCode = `import { Toast } from '@masumdev/rn-ui';
+export const toastUsageCode = `import React from 'react';
+import { useToast, Button, Box } from '@masumdev/rn-ui';
 
-<Toast message="Settings saved successfully!" tone="success" />`;
+export function ToastExample() {
+  const toast = useToast();
 
-<Code code={toastCode} lang="tsx" title="ToastExample.tsx" mark={['Toast', 'tone="success"']} />
+  const handleShowToast = () => {
+    toast.show({
+      title: 'Action Completed',
+      description: 'Your settings have been saved successfully.',
+      tone: 'success',
+      duration: 3500,
+      action: {
+        label: 'Undo',
+        onPress: () => console.log('Undo pressed'),
+      },
+    });
+  };
 
-## Props API
+  return (
+    <Box gap="sm">
+      <Button tone="success" onPress={handleShowToast}>
+        Trigger Success Toast
+      </Button>
+      <Button tone="danger" variant="outline" onPress={() => toast.dismiss()}>
+        Dismiss All Toasts
+      </Button>
+    </Box>
+  );
+}`;
+
+export const providerCode = `import { ToastProvider } from '@masumdev/rn-ui';
+
+export default function App() {
+  return (
+    <ToastProvider placement="bottom" maxToasts={3}>
+      <RootNavigation />
+    </ToastProvider>
+  );
+}`;
+
+`Toast` provides programmatic, animated notification toasts with swipe-to-dismiss support, action buttons, and automatic timers.
+
+## Usage with `useToast()`
+
+Call `useToast()` inside any child component of `ToastProvider`:
+
+<Code code={toastUsageCode} lang="tsx" title="ToastExample.tsx" mark={['useToast', 'toast.show', 'toast.dismiss']} />
+
+## Provider Setup
+
+Wrap your application root with `ToastProvider`:
+
+<Code code={providerCode} lang="tsx" title="App.tsx" mark={['ToastProvider', 'placement="bottom"']} />
+
+## `useToast()` API
+
+Calling `useToast()` returns an object with the following methods:
 
 <TypeTable
   type={{
-    message: { type: 'string', description: 'Notification message text.' },
-    tone: { type: "'info' | 'success' | 'warning' | 'danger'", default: "'info'" },
-    duration: { type: 'number', default: '3000', description: 'Auto hide duration in ms.' },
+    show: {
+      type: '(options: ToastOptions) => string',
+      description: 'Triggers a new toast notification and returns its unique ID.',
+    },
+    dismiss: {
+      type: '(id?: string) => void',
+      description: 'Dismisses a specific toast by ID, or all toasts if no ID is passed.',
+    },
+    update: {
+      type: '(id: string, options: ToastOptions) => void',
+      description: 'Updates properties of an existing active toast in place.',
+    },
+  }}
+/>
+
+## ToastOptions Configuration
+
+<TypeTable
+  type={{
+    title: { type: 'ReactNode', description: 'Headline title string or component.' },
+    description: { type: 'ReactNode', description: 'Body description text or component.' },
+    tone: { type: "'default' | 'success' | 'warning' | 'danger' | 'info'", default: "'default'", description: 'Color tone styling.' },
+    duration: { type: 'number', default: '3500', description: 'Auto-dismiss timeout duration in ms (set 0 to disable).' },
+    action: { type: '{ label: string; onPress: () => void }', description: 'Optional action button configuration.' },
+    icon: { type: 'RenderIcon', description: 'Custom left icon render function.' },
   }}
 />

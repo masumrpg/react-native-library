@@ -1,0 +1,38 @@
+---
+title: HoverCard
+description: Preview card popover triggered on hover or press.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { HoverCard, HoverCardTrigger, HoverCardContent, Text, Avatar } from '@masumdev/rn-ui';
+
+export function HoverCardExample() {
+  return (
+    <HoverCard>
+      <HoverCardTrigger>
+        <Text color="primary">@masumdev</Text>
+      </HoverCardTrigger>
+      <HoverCardContent>
+        <Avatar name="Ma'sum" />
+        <Text variant="h4">Ma'sum Dev</Text>
+        <Text variant="caption">React Native UI Library Author</Text>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}`;
+
+`HoverCard` provides rich previews for profile links or item cards.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="HoverCardExample.tsx" mark={['HoverCard', 'HoverCardTrigger', 'HoverCardContent']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Trigger and Content elements.' },
+  }}
+/>

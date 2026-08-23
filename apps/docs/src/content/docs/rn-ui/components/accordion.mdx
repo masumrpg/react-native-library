@@ -1,0 +1,42 @@
+---
+title: Accordion
+description: Expandable accordion panel sections with smooth animation.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Accordion } from '@masumdev/rn-ui';
+
+export function AccordionExample() {
+  return (
+    <Accordion
+      items={[
+        {
+          id: '1',
+          title: 'Is @masumdev/rn-ui open source?',
+          content: 'Yes, it is 100% open source under the MIT license.',
+        },
+        {
+          id: '2',
+          title: 'Does it support dark mode?',
+          content: 'Yes, dark mode is supported out of the box with ThemeProvider.',
+        },
+      ]}
+    />
+  );
+}`;
+
+`Accordion` renders expandable panels for FAQ sections and collapsible lists.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="AccordionExample.tsx" mark={['Accordion', 'items={[']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    items: { type: 'AccordionItem[]', description: 'Array of accordion panel objects containing id, title, and content.' },
+  }}
+/>

@@ -1,0 +1,39 @@
+---
+title: Textarea
+description: Multiline text area input with auto-expand height.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Textarea } from '@masumdev/rn-ui';
+
+export function TextareaExample() {
+  const [value, setValue] = useState('');
+
+  return (
+    <Textarea
+      placeholder="Write a message or feedback..."
+      value={value}
+      onChangeText={setValue}
+      numberOfLines={4}
+    />
+  );
+}`;
+
+`Textarea` renders multiline text input boxes for descriptions and feedback forms.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TextareaExample.tsx" mark={['Textarea', 'numberOfLines={4}']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Textarea text value.' },
+    onChangeText: { type: '(text: string) => void', description: 'Callback on text change.' },
+    numberOfLines: { type: 'number', default: '4', description: 'Initial number of visible lines.' },
+  }}
+/>

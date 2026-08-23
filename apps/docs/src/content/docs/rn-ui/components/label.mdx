@@ -1,0 +1,30 @@
+---
+title: Label
+description: Form input label text component with required asterisk indicator.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Label } from '@masumdev/rn-ui';
+
+export function LabelExample() {
+  return (
+    <Label required>Email Address</Label>
+  );
+}`;
+
+`Label` renders accessible form label text.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="LabelExample.tsx" mark={['Label', 'required']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Label text content.' },
+    required: { type: 'boolean', default: 'false', description: 'Displays a red required asterisk (*).' },
+  }}
+/>

@@ -1,0 +1,37 @@
+---
+title: Breadcrumb
+description: Breadcrumb path navigation component with separator icons and active link states.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@masumdev/rn-ui';
+
+export function BreadcrumbExample() {
+  return (
+    <Breadcrumb>
+      <BreadcrumbItem>
+        <BreadcrumbLink onPress={() => console.log('Home')}>Home</BreadcrumbLink>
+      </BreadcrumbItem>
+      <BreadcrumbSeparator />
+      <BreadcrumbItem>
+        <BreadcrumbPage>RN UI Components</BreadcrumbPage>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+}`;
+
+`Breadcrumb` displays hierarchical navigation trails.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="BreadcrumbExample.tsx" mark={['Breadcrumb', 'BreadcrumbItem', 'BreadcrumbLink', 'BreadcrumbPage']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'BreadcrumbItem and BreadcrumbSeparator elements.' },
+  }}
+/>

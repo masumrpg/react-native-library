@@ -1,0 +1,37 @@
+---
+title: Empty
+description: Empty state placeholder component with media slot, title, description, and action button.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyContent, Button } from '@masumdev/rn-ui';
+
+export function EmptyExample() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>No Notifications</EmptyTitle>
+        <EmptyDescription>You have read all your recent updates.</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button size="sm">Refresh Feed</Button>
+      </EmptyContent>
+    </Empty>
+  );
+}`;
+
+`Empty` presents clear empty state screens when lists or datasets have no records.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="EmptyExample.tsx" mark={['Empty', 'EmptyHeader', 'EmptyTitle', 'EmptyDescription']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Empty state layout elements.' },
+  }}
+/>

@@ -1,0 +1,39 @@
+---
+title: Table
+description: Tabular data layout component with Table, TableRow, TableHead, and TableCell.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Table, TableRow, TableHead, TableCell } from '@masumdev/rn-ui';
+
+export function TableExample() {
+  return (
+    <Table>
+      <TableRow header>
+        <TableHead>Component</TableHead>
+        <TableHead>Status</TableHead>
+      </TableRow>
+      <TableRow>
+        <TableCell>Button</TableCell>
+        <TableCell>Stable</TableCell>
+      </TableRow>
+    </Table>
+  );
+}`;
+
+`Table` renders tabular data with clean headers and rows.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TableExample.tsx" mark={['Table', 'TableRow', 'TableHead', 'TableCell']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'TableRow elements.' },
+    border: { type: 'boolean', default: 'true', description: 'Shows cell divider borders.' },
+  }}
+/>

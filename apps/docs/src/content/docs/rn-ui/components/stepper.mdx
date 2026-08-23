@@ -1,0 +1,38 @@
+---
+title: Stepper
+description: Step progress indicator for multi-step form wizards.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Stepper } from '@masumdev/rn-ui';
+
+export function StepperExample() {
+  const [step, setStep] = useState(2);
+
+  return (
+    <Stepper
+      currentStep={step}
+      totalSteps={4}
+      onStepChange={setStep}
+    />
+  );
+}`;
+
+`Stepper` tracks progress across multi-step wizard screens.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="StepperExample.tsx" mark={['Stepper', 'currentStep={step}', 'totalSteps={4}']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    currentStep: { type: 'number', description: 'Active step index.' },
+    totalSteps: { type: 'number', description: 'Total number of steps.' },
+    onStepChange: { type: '(step: number) => void', description: 'Callback when step indicator is pressed.' },
+  }}
+/>

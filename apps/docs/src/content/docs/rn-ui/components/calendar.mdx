@@ -1,0 +1,40 @@
+---
+title: Calendar
+description: Full month calendar picker with date marking, range selection, and custom theme overrides.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Calendar } from '@masumdev/rn-ui';
+
+export function CalendarExample() {
+  const [selected, setSelected] = useState('2026-08-23');
+
+  return (
+    <Calendar
+      current={selected}
+      onDayPress={(day) => setSelected(day.dateString)}
+      markedDates={{
+        [selected]: { selected: true, selectedColor: '#06B6D4' },
+      }}
+    />
+  );
+}`;
+
+`Calendar` provides interactive month view date selection and range marking powered by `react-native-calendars`.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="CalendarExample.tsx" mark={['Calendar', 'current={selected}', 'onDayPress', 'markedDates']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    current: { type: 'string', description: 'Currently active ISO date string (YYYY-MM-DD).' },
+    onDayPress: { type: '(day: { dateString: string }) => void', description: 'Callback when a calendar day cell is pressed.' },
+    markedDates: { type: 'Record<string, CalendarDayMarking>', description: 'Object map of marked date strings and selection colors.' },
+  }}
+/>

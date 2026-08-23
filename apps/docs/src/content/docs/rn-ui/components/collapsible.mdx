@@ -1,0 +1,40 @@
+---
+title: Collapsible
+description: Single collapsible panel disclosure view.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent, Button, Text } from '@masumdev/rn-ui';
+
+export function CollapsibleExample() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger>
+        <Button variant="outline">{open ? 'Hide Details' : 'Show Details'}</Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Text>Hidden collapsible content disclosed on press.</Text>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}`;
+
+`Collapsible` toggles the visibility of an element.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="CollapsibleExample.tsx" mark={['Collapsible', 'CollapsibleTrigger', 'CollapsibleContent']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    open: { type: 'boolean', description: 'Open state.' },
+    onOpenChange: { type: '(open: boolean) => void', description: 'Callback when open state changes.' },
+  }}
+/>

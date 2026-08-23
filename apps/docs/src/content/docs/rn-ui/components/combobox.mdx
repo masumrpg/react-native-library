@@ -1,0 +1,41 @@
+---
+title: Combobox
+description: Searchable select input with dropdown list suggestions and clear buttons.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Combobox, ComboboxInput, ComboboxContent, ComboboxList, ComboboxItem } from '@masumdev/rn-ui';
+
+export function ComboboxExample() {
+  const [selected, setSelected] = useState('');
+
+  return (
+    <Combobox value={selected} onValueChange={setSelected}>
+      <ComboboxInput placeholder="Select framework..." />
+      <ComboboxContent>
+        <ComboboxList>
+          <ComboboxItem value="expo">Expo React Native</ComboboxItem>
+          <ComboboxItem value="cli">React Native CLI</ComboboxItem>
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}`;
+
+`Combobox` combines an input field with an inline filterable popup menu.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ComboboxExample.tsx" mark={['Combobox', 'ComboboxInput', 'ComboboxContent', 'ComboboxItem']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'string', description: 'Selected option value.' },
+    onValueChange: { type: '(value: string) => void', description: 'Callback when option is selected.' },
+  }}
+/>

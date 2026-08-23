@@ -1,0 +1,37 @@
+---
+title: Attachment
+description: File attachment preview card with file details, icon badges, and remove actions.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Attachment } from '@masumdev/rn-ui';
+
+export function AttachmentExample() {
+  return (
+    <Attachment
+      fileName="document.pdf"
+      fileSize="2.4 MB"
+      fileType="pdf"
+      onRemove={() => console.log('Remove file')}
+    />
+  );
+}`;
+
+`Attachment` displays uploaded or linked file cards with file details and action buttons.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="AttachmentExample.tsx" mark={['Attachment', 'fileName="document.pdf"', 'onRemove']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    fileName: { type: 'string', description: 'Name of the attached file.' },
+    fileSize: { type: 'string', description: 'Human readable file size string.' },
+    fileType: { type: 'string', description: 'File extension format badge.' },
+    onRemove: { type: '() => void', description: 'Callback when remove action button is pressed.' },
+  }}
+/>

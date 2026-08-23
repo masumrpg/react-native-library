@@ -1,0 +1,36 @@
+---
+title: Alert
+description: Banner alert notification component with info, success, warning, and danger tones.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { Alert } from '@masumdev/rn-ui';
+
+export function AlertExample() {
+  return (
+    <Alert
+      tone="info"
+      title="System Maintenance"
+      description="Scheduled database optimization will run at midnight UTC."
+    />
+  );
+}`;
+
+`Alert` displays prominent contextual callouts and banner messages.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="AlertExample.tsx" mark={['Alert', 'tone="info"', 'title', 'description']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    title: { type: 'string', description: 'Alert title string.' },
+    description: { type: 'string', description: 'Detailed message body.' },
+    tone: { type: "'info' | 'success' | 'warning' | 'danger'", default: "'info'", description: 'Color tone variant.' },
+    variant: { type: "'soft' | 'filled' | 'outline'", default: "'soft'", description: 'Visual style background.' },
+  }}
+/>
