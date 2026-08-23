@@ -9,10 +9,66 @@ import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
 
 export const releases = [
   {
+    version: 'v0.2.0',
+    date: '2026-08-23',
+    tag: 'Latest Feature Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: '<strong>SVG CircularProgress with Rounded Line Caps</strong>: Implemented SVG-based <code>CircularProgress</code> component supporting <code>strokeLinecap="round"</code> for Apple Watch-style rounded arc ends and centered percentage typography.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Carousel AutoPlay, Loop & Reanimated Dots</strong>: Added <code>autoPlay</code>, <code>autoPlayInterval</code>, and <code>loop</code> props to <code>Carousel</code>, alongside 60-120 FPS continuous <code>scrollX</code> interpolated <code>CarouselDot</code> indicator dots.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Calendar Event Dots & Today Quick Jump</strong>: Enhanced <code>Calendar</code> with event dot indicators (<code>marked</code> / <code>dots</code>), quick "Today" header navigation button, ring today highlight, and fast month/year overlay selectors.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Avatar XL Size, Shapes & Status Indicators</strong>: Added <code>xl</code> size (56px), shape options (<code>circle</code>, <code>square</code>, <code>rounded</code>), status badges (<code>online</code>, <code>busy</code>, <code>away</code>, <code>offline</code>), and stacked <code>AvatarGroup</code> with count indicator.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Toast Variants, Safe Area & Promise Updates</strong>: Added <code>ToastVariant</code> (<code>outlined</code>, <code>flat</code>, <code>subtle</code>), safe area bottom inset padding, tone icon badges, action buttons, and async promise in-place updates (<code>toast.update(...)</code>).',
+      },
+      {
+        type: 'fix',
+        text: '<strong>Collapsible Height Measurement & Zero Glitch</strong>: Eliminated layout position switching glitch in <code>CollapsibleContent</code> by introducing an unconstrained off-screen height listener to guarantee persistent toggling.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Badge 6 Style Variants</strong>: Added <code>subtle</code> and <code>ghost</code> variants to <code>Badge</code> alongside <code>solid</code>, <code>soft</code>, <code>outline</code>, and <code>glass</code>.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Universal Glassmorphism (<code>glass?: boolean</code>)</strong>: Added <code>glass?: boolean</code> (default: <code>false</code>) across all surface/container components (<code>Card</code>, <code>Box</code>, <code>Button</code>, <code>IconButton</code>, <code>Badge</code>, <code>Sheet</code>, <code>BottomSheet</code>, <code>Popover</code>, <code>Input</code>, <code>Accordion</code>) featuring translucent frosted backgrounds and soft highlight borders.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Tactile Micro-Interactions & Haptic Engine</strong>: Safe optional <code>expo-haptics</code> integration for <code>Button</code>, <code>IconButton</code>, <code>Switch</code>, <code>Checkbox</code>, <code>Slider</code>, <code>Rating</code>, and <code>Accordion</code> with press-down spring scale animations.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Form Validation Shake Motion</strong>: Added automatic horizontal error shake animation and haptic feedback to <code>FormField</code> when <code>invalid</code> state triggers.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Clean Base Component Interfaces</strong>: Exported <code>BaseGlassProps</code>, <code>BaseHapticProps</code>, <code>BaseAnimatedProps</code>, and <code>BaseComponentProps</code> in <code>types.ts</code> for clean prop inheritance.',
+      },
+      {
+        type: 'docs',
+        text: '<strong>Dedicated 1-to-1 Showcase Pages</strong>: Restructured native playground app so all 53 UI components have focused, dedicated showcase routes.',
+      },
+    ],
+  },
+  {
     version: 'v0.1.7',
     date: '2026-08-23',
-    tag: 'Latest Release',
-    isLatest: true,
+    tag: 'Previous Release',
+    isLatest: false,
     changes: [
       {
         type: 'feat',
@@ -29,10 +85,6 @@ export const releases = [
       {
         type: 'docs',
         text: '<strong>Design System Rules & Custom Components Guide</strong>: Published <code>RULES.md</code> in the library package and created the <a href="/rn-ui/custom-components">Building Custom Components</a> guide.',
-      },
-      {
-        type: 'docs',
-        text: '<strong>Imperative Toast Hook Documentation</strong>: Expanded documentation for <code>useToast()</code> hook, <code>toast.show/dismiss/update</code> methods, and <code>ToastProvider</code>.',
       },
     ],
   },

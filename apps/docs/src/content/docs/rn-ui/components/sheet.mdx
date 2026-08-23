@@ -1,41 +1,102 @@
 ---
 title: Sheet
-description: High-level modal bottom sheet container with SheetHeader, SheetTitle, SheetDescription, and SheetFooter.
+description: High-level bottom sheet modal container with drag handle, animated slide-up entry, backdrop dismiss, glassmorphism, and haptics.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, Button } from '@masumdev/rn-ui';
+export const exampleCode = `import React, { useState } from 'react';
+import { Sheet, Button, Box, Text } from '@masumdev/rn-ui';
+import { SlidersHorizontal, Check } from 'lucide-react-native';
 
 export function SheetExample() {
+  const [visible, setVisible] = useState(false);
+  const [glassVisible, setGlassVisible] = useState(false);
+
   return (
-    <Sheet index={0} snapPoints={['40%', '80%']}>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>Filter Options</SheetTitle>
-          <SheetDescription>Configure your search filters below.</SheetDescription>
-        </SheetHeader>
-        <SheetFooter>
-          <Button tone="primary">Apply</Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+    <Box gap="md">
+      <Button
+        variant="filled"
+        tone="primary"
+        leftIcon={({ color, size }) => <SlidersHorizontal color={color} size={size} />}
+        onPress={() => setVisible(true)}
+      >
+        Open Bottom Sheet
+      </Button>
+
+      <Button
+        variant="outline"
+        tone="accent"
+        onPress={() => setGlassVisible(true)}
+      >
+        Open Glass Sheet
+      </Button>
+
+      {/* 1. Default Sheet Modal */}
+      <Sheet
+        visible={visible}
+        onClose={() => setVisible(false)}
+        title="Filter Preferences"
+        description="Customize your feed preferences and content discovery settings."
+      >
+        <Box gap="md">
+          <Text variant="bodySmall" color="textMuted">
+            Select your preferred view mode and content sorting order.
+          </Text>
+
+          <Box row style={{ justifyContent: 'flex-end', gap: 8 }}>
+            <Button variant="outline" tone="secondary" onPress={() => setVisible(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="filled"
+              tone="primary"
+              leftIcon={({ color, size }) => <Check color={color} size={size} />}
+              onPress={() => setVisible(false)}
+            >
+              Apply Filters
+            </Button>
+          </Box>
+        </Box>
+      </Sheet>
+
+      {/* 2. Glassmorphism Sheet Modal */}
+      <Sheet
+        glass
+        visible={glassVisible}
+        onClose={() => setGlassVisible(false)}
+        title="Glassmorphism Sheet"
+        description="Translucent backdrop blur styling with smooth spring motion."
+      >
+        <Box gap="md">
+          <Text variant="bodySmall" color="textMuted">
+            This bottom sheet uses glassmorphism tokens matching dark & light themes.
+          </Text>
+          <Button variant="filled" tone="accent" onPress={() => setGlassVisible(false)}>
+            Got It
+          </Button>
+        </Box>
+      </Sheet>
+    </Box>
   );
 }`;
 
-`Sheet` presents compound bottom sheet layouts wrapping `@gorhom/bottom-sheet` elements.
+`Sheet` presents custom bottom-anchored modal overlays featuring smooth Reanimated slide-up spring transitions, drag handle headers, backdrop click dismiss, glassmorphism, and haptic feedback.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="SheetExample.tsx" mark={['Sheet', 'SheetContent', 'SheetHeader', 'SheetTitle']} />
+<Code code={exampleCode} lang="tsx" title="SheetExample.tsx" mark={['Sheet', 'visible={visible}', 'onClose', 'glass', 'title', 'description']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    snapPoints: { type: '(string | number)[]', description: 'Array of snap point height ratios or pixels.' },
-    index: { type: 'number', default: '0', description: 'Initial snap point index.' },
-    onClose: { type: '() => void', description: 'Callback when sheet is dismissed.' },
+    visible: { type: 'boolean', default: 'false', description: 'Modal visibility state.' },
+    onClose: { type: '() => void', description: 'Callback triggered when backdrop is pressed or drag handle is pulled down.' },
+    title: { type: 'string', description: 'Optional header title string.' },
+    description: { type: 'string', description: 'Optional header subtitle description text.' },
+    glass: { type: 'boolean', default: 'false', description: 'Enables translucent frosted glass background styling.' },
+    children: { type: 'ReactNode', description: 'Sheet inner body components and controls.' },
   }}
 />

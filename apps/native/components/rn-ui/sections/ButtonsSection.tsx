@@ -1,5 +1,6 @@
-import { Box, Button, Card } from "@masumdev/rn-ui";
-import { Heart, Plus } from "lucide-react-native";
+import { Box, Button, Card, Text } from "@masumdev/rn-ui";
+import { Sparkles, Heart } from "lucide-react-native";
+import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function ButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {
@@ -7,40 +8,43 @@ export function ButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {
 
   return (
     <Section title="Buttons">
-      <Card>
-        <Box gap="md">
-          <Button leftIcon={icon(Plus)} fullWidth>
-            Filled Primary
-          </Button>
-          <Button variant="outline" tone="secondary" fullWidth>
-            Outline Secondary
-          </Button>
-          <Button variant="soft" tone="accent" leftIcon={icon(Heart)} fullWidth>
-            Soft Accent
-          </Button>
-          <Button variant="ghost" tone="info" fullWidth>
-            Ghost Info
-          </Button>
-          <Button tone="danger" fullWidth>
-            Danger Action
-          </Button>
-          <Box row gap="sm" style={styles.wrap}>
-            <Button size="xs">XS</Button>
-            <Button size="sm">SM</Button>
-            <Button size="md">MD</Button>
-            <Button size="lg">LG</Button>
-            <Button size="xl">XL</Button>
+      <Card outlined>
+        <Box gap="lg">
+          <Text color="textMuted">
+            Interactive buttons with variants, semantic tones, haptic feedback, and glassmorphism styling.
+          </Text>
+
+          {/* Variants */}
+          <Box gap="xs">
+            <Text variant="labelSmall" color="textSubtle">
+              Variants
+            </Text>
+            <Box row style={styles.wrap} gap="sm">
+              <Button variant="filled">Filled</Button>
+              <Button variant="soft">Soft</Button>
+              <Button variant="outline">Outline</Button>
+              <Button variant="ghost">Ghost</Button>
+              <Button glass leftIcon={icon(Sparkles)}>
+                Glassmorphism
+              </Button>
+            </Box>
           </Box>
-          <Box row gap="sm" style={styles.wrap}>
-            <Button size="sm" loading>
-              Loading
-            </Button>
-            <Button size="sm" variant="outline" loading>
-              Outline Loading
-            </Button>
-            <Button size="sm" disabled>
-              Disabled
-            </Button>
+
+          {/* Tones */}
+          <Box gap="xs">
+            <Text variant="labelSmall" color="textSubtle">
+              Semantic Tones
+            </Text>
+            <Box row style={styles.wrap} gap="sm">
+              <Button tone="primary" leftIcon={icon(Heart)}>
+                Primary
+              </Button>
+              <Button tone="secondary">Secondary</Button>
+              <Button tone="accent">Accent</Button>
+              <Button tone="success">Success</Button>
+              <Button tone="warning">Warning</Button>
+              <Button tone="danger">Danger</Button>
+            </Box>
           </Box>
         </Box>
       </Card>

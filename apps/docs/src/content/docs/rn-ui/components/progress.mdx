@@ -1,30 +1,65 @@
 ---
 title: Progress
-description: Progress bar indicator component with percentage fill.
+description: Progress bar indicator component with sizes (xs, sm, default, lg, xl), indeterminate loading animation, and SVG CircularProgress rings with rounded line caps.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Progress } from '@masumdev/rn-ui';
+export const progressCode = `import React from 'react';
+import { Progress, CircularProgress, Box, Text } from '@masumdev/rn-ui';
 
 export function ProgressExample() {
   return (
-    <Progress value={65} tone="primary" />
+    <Box gap="md">
+      {/* Sizes Scale */}
+      <Progress value={85} size="xs" tone="success" />
+      <Progress value={70} size="sm" tone="primary" />
+      <Progress value={55} size="default" tone="warning" />
+      <Progress value={90} size="xl" tone="danger" />
+
+      {/* Indeterminate Loading Bar */}
+      <Progress indeterminate tone="primary" size="sm" />
+
+      {/* Rounded Circular Ring Indicators */}
+      <Box row gap="lg" center>
+        <CircularProgress value={75} tone="primary" size={64} strokeLinecap="round" />
+        <CircularProgress value={92} tone="success" size={64} strokeLinecap="round" />
+      </Box>
+    </Box>
   );
 }`;
 
-`Progress` displays task completion progress bars.
+`Progress` displays percentage completion bars and circular progress ring indicators with Reanimated UI thread easing and SVG rounded stroke caps.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="ProgressExample.tsx" mark={['Progress', 'value={65}', 'tone="primary"']} />
+<Code code={progressCode} lang="tsx" title="ProgressExample.tsx" mark={['Progress', 'size="xl"', 'indeterminate', 'CircularProgress', 'strokeLinecap="round"']} />
 
 ## Props API
+
+### Progress
 
 <TypeTable
   type={{
     value: { type: 'number', default: '0', description: 'Percentage completion value (0-100).' },
-    tone: { type: "'primary' | 'success' | 'warning' | 'danger'", default: "'primary'", description: 'Fill bar color tone.' },
+    max: { type: 'number', default: '100', description: 'Maximum total progress value.' },
+    size: { type: "'xs' | 'sm' | 'default' | 'lg' | 'xl'", default: "'default'", description: 'Bar height scale (xs=4px, sm=6px, default=10px, lg=14px, xl=18px).' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'", description: 'Color tone styling.' },
+    indeterminate: { type: 'boolean', default: 'false', description: 'Enables continuous infinite loading animation.' },
+    animated: { type: 'boolean', default: 'true', description: 'Enables smooth Reanimated fill transitions.' },
+  }}
+/>
+
+### CircularProgress
+
+<TypeTable
+  type={{
+    value: { type: 'number', default: '0', description: 'Percentage completion value (0-100).' },
+    size: { type: 'number', default: '64', description: 'Outer diameter ring dimension in pixels.' },
+    strokeWidth: { type: 'number', default: '6', description: 'Thickness of the progress stroke ring.' },
+    strokeLinecap: { type: "'round' | 'square' | 'butt'", default: "'round'", description: 'Line cap styling for arc ends (round=smooth rounded caps).' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'", description: 'Color tone styling.' },
+    showValue: { type: 'boolean', default: 'true', description: 'Displays percentage text inside ring center.' },
   }}
 />

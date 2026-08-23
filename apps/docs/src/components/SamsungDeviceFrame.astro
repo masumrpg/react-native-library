@@ -1,0 +1,158 @@
+---
+export interface Props {
+  url?: string;
+}
+
+const { url = 'https://rn-ui.netlify.app/' } = Astro.props;
+---
+
+<div class="samsung-frame-container">
+  <!-- Samsung Galaxy Phone Outer Container (Unclipped for side buttons) -->
+  <div class="samsung-device">
+    <!-- Side Hardware Buttons -->
+    <div class="side-btn volume-up"></div>
+    <div class="side-btn volume-down"></div>
+    <div class="side-btn power"></div>
+
+    <!-- Phone Inner Body (Clipped strictly with overflow: hidden) -->
+    <div class="samsung-body">
+      <div class="screen-bezel">
+        <!-- Camera Punch-Hole (Infinity-O Cutout) -->
+        <div class="camera-notch">
+          <div class="lens"></div>
+        </div>
+
+        <!-- Live Web App Iframe -->
+        <iframe
+          src={url}
+          title="RN UI Interactive Playground Demo"
+          loading="eager"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          class="demo-iframe"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .samsung-frame-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 0;
+    width: 100%;
+  }
+
+  .samsung-device {
+    position: relative;
+    width: 360px;
+    height: 720px;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 480px) {
+    .samsung-device {
+      width: 310px;
+      height: 620px;
+    }
+  }
+
+  /* Phone Shell Body - Hard Clipped */
+  .samsung-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #0f172a;
+    border-radius: 46px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 3px solid #334155;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.1),
+      0 25px 60px -15px rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(99, 102, 241, 0.15);
+  }
+
+  /* Hardware Side Buttons (Positioned outside samsung-body) */
+  .side-btn {
+    position: absolute;
+    background: #475569;
+    border-radius: 2px;
+    z-index: 10;
+  }
+
+  .volume-up {
+    left: -6px;
+    top: 130px;
+    width: 4px;
+    height: 48px;
+  }
+
+  .volume-down {
+    left: -6px;
+    top: 190px;
+    width: 4px;
+    height: 48px;
+  }
+
+  .power {
+    right: -6px;
+    top: 160px;
+    width: 4px;
+    height: 42px;
+  }
+
+  /* Screen Frame Bezel */
+  .screen-bezel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 36px;
+    overflow: hidden;
+    transform: translateZ(0);
+    isolation: isolate;
+  }
+
+  /* Samsung Punch Hole Camera */
+  .camera-notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    background: #000;
+    border-radius: 50%;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+  }
+
+  .camera-notch .lens {
+    width: 5px;
+    height: 5px;
+    background: #1e1b4b;
+    border-radius: 50%;
+    box-shadow: inset 0 0 2px rgba(99, 102, 241, 0.8);
+  }
+
+  /* Absolute Positioned Iframe */
+  .demo-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 36px;
+    background: #ffffff;
+    display: block;
+    overflow: hidden;
+  }
+</style>

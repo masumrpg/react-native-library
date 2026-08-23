@@ -1,8 +1,10 @@
 import { Popover, PopoverTrigger, PopoverContent, Button, Card, Box, Text } from "@masumdev/rn-ui";
+import { Check } from "lucide-react-native";
 import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function PopoverSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
+export function PopoverSection({ ctx }: { ctx: RnUiSectionContext }) {
+  const { icon } = ctx;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -14,16 +16,48 @@ export function PopoverSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
           </Text>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger>
-              <Button variant="outline" tone="secondary">
+              <Button variant="filled" tone="primary">
                 Toggle Popover
               </Button>
             </PopoverTrigger>
-            <PopoverContent>
-              <Box p="sm" gap="xs">
-                <Text variant="title">Popover Card</Text>
+
+            <PopoverContent width={320}>
+              <Box gap="sm">
+                <Box row style={{ justifyContent: "space-between", alignItems: "center" }}>
+                  <Text variant="h3" weight="700">Quick Actions</Text>
+                  <Button
+                    variant="ghost"
+                    tone="secondary"
+                    size="xs"
+                    onPress={() => setOpen(false)}
+                  >
+                    ✕
+                  </Button>
+                </Box>
+
                 <Text variant="bodySmall" color="textMuted">
-                  This is an anchored popover content view.
+                  This popover card provides quick contextual actions and informative overlays with animated entry.
                 </Text>
+
+                <Box row style={{ justifyContent: "flex-end", gap: 8, marginTop: 12 }}>
+                  <Button
+                    variant="outline"
+                    tone="secondary"
+                    size="sm"
+                    onPress={() => setOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="filled"
+                    tone="primary"
+                    size="sm"
+                    leftIcon={icon(Check)}
+                    onPress={() => setOpen(false)}
+                  >
+                    Confirm
+                  </Button>
+                </Box>
               </Box>
             </PopoverContent>
           </Popover>

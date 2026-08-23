@@ -40,6 +40,19 @@ export function SwitchSection({ ctx }: { ctx: RnUiSectionContext }) {
 
           <Box row style={{ alignItems: "center", justifyContent: "space-between" }}>
             <Box flex={1}>
+              <Text variant="label">Disabled Off & Disabled On</Text>
+              <Text variant="bodySmall" color="textMuted">
+                Visually distinct disabled states.
+              </Text>
+            </Box>
+            <Box row gap="sm">
+              <Switch value={false} disabled />
+              <Switch value={true} disabled />
+            </Box>
+          </Box>
+
+          <Box row style={{ alignItems: "center", justifyContent: "space-between" }}>
+            <Box flex={1}>
               <Text variant="label">Invalid Validation State</Text>
               <Text variant="bodySmall" color="textMuted">
                 Danger tone with invalid border highlight.

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   PanResponder,
   Platform,
@@ -13,19 +13,24 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
+  Easing,
+  cancelAnimation,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { Button } from "./Button";
 import { Text } from "./Text";
 import { renderIcon, type RenderIcon } from "./types";
 
 export type ToastTone = "default" | "success" | "warning" | "danger" | "info";
+export type ToastVariant = "outlined" | "flat" | "subtle";
 export type ToastPlacement = "top" | "bottom";
 
 export interface ToastAction {
@@ -38,6 +43,7 @@ export interface ToastOptions {
   title?: React.ReactNode;
   description?: React.ReactNode;
   tone?: ToastTone;
+  variant?: ToastVariant;
   icon?: RenderIcon;
   closeIcon?: RenderIcon;
   action?: ToastAction;
@@ -48,6 +54,7 @@ export interface ToastRecord extends Required<Pick<ToastOptions, "id">> {
   title?: React.ReactNode;
   description?: React.ReactNode;
   tone: ToastTone;
+  variant: ToastVariant;
   icon?: RenderIcon;
   closeIcon?: RenderIcon;
   action?: ToastAction;
@@ -83,7 +90,7 @@ function createToastId() {
 
 export function ToastProvider({
   children,
-  placement = "top",
+  placement = "bottom",
   offset,
   duration = 3500,
   maxToasts = 3,
@@ -136,11 +143,13 @@ export function ToastProvider({
 
   const show = React.useCallback(
     (options: ToastOptions) => {
+      triggerHaptic("medium");
       const id = options.id ?? createToastId();
       const nextToast: ToastRecord = {
         ...options,
         id,
         tone: options.tone ?? "default",
+        variant: options.variant ?? "outlined",
         duration: options.duration ?? duration,
         open: true,
       };
@@ -165,6 +174,7 @@ export function ToastProvider({
 
   const update = React.useCallback(
     (id: string, options: Omit<ToastOptions, "id">) => {
+      triggerHaptic("selection");
       setToasts((current) =>
         current.map((toast) => {
           if (toast.id !== id) return toast;
@@ -241,19 +251,21 @@ export interface ToastViewportProps extends ViewProps {
 }
 
 export function ToastViewport({
-  placement = "top",
+  placement = "bottom",
   offset,
   style,
   ...props
 }: ToastViewportProps) {
   const { spacing } = useTheme();
-  const defaultOffset =
-    Platform.OS === "android"
-      ? placement === "top"
-        ? (StatusBar.currentHeight ?? 0) + spacing.lg
-        : spacing.xxxl + spacing.lg
-      : spacing.xxl;
-  const resolvedOffset = offset ?? defaultOffset;
+  const insets = useSafeAreaInsets();
+
+  const resolvedOffset =
+    offset ??
+    (placement === "top"
+      ? Platform.OS === "android"
+        ? (StatusBar.currentHeight ?? 0) + spacing.md
+        : insets.top + spacing.md
+      : insets.bottom + spacing.md);
 
   return (
     <View
@@ -266,7 +278,7 @@ export function ToastViewport({
           top: placement === "top" ? resolvedOffset : undefined,
           bottom: placement === "bottom" ? resolvedOffset : undefined,
           gap: spacing.sm,
-          zIndex: 1000,
+          zIndex: 9999,
         },
         style,
       ]}
@@ -295,27 +307,94 @@ function getToastTone(
   if (tone === "danger")
     return { base: colors.danger, soft: colors.dangerSoft };
   if (tone === "info") return { base: colors.info, soft: colors.infoSoft };
-  return { base: colors.primary, soft: colors.surface };
+  return { base: colors.primary, soft: colors.surfaceMuted };
+}
+
+function DefaultToastToneIcon({ tone, color }: { tone: ToastTone; color: string }) {
+  if (tone === "success") {
+    return (
+      <View
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: 9,
+          borderWidth: 2,
+          borderColor: color,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View
+          style={{
+            width: 7,
+            height: 4,
+            borderLeftWidth: 2,
+            borderBottomWidth: 2,
+            borderColor: color,
+            transform: [{ rotate: "-45deg" }],
+            marginBottom: 1,
+          }}
+        />
+      </View>
+    );
+  }
+
+  if (tone === "danger" || tone === "warning") {
+    return (
+      <View
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: 9,
+          borderWidth: 2,
+          borderColor: color,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={{ color, fontSize: 11, fontWeight: "900", lineHeight: 13 }}>!</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View
+      style={{
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        borderWidth: 2,
+        borderColor: color,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Text style={{ color, fontSize: 11, fontWeight: "900", lineHeight: 13 }}>i</Text>
+    </View>
+  );
 }
 
 export function Toast({
   toast,
-  placement = "top",
+  placement = "bottom",
   swipeToDismiss = true,
   onDismiss,
   onCloseComplete,
   style,
   ...props
 }: ToastProps) {
-  const { colors, components, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing, isDark } = useTheme();
   const progress = useSharedValue(0);
   const translateX = useSharedValue(0);
-  const tone = getToastTone(toast.tone, colors);
+  const rotateValue = useSharedValue(0);
 
-  React.useEffect(() => {
+  const tone = getToastTone(toast.tone, colors);
+  const isAsyncLoading = toast.duration === 0;
+
+  useEffect(() => {
     progress.value = withTiming(
       toast.open ? 1 : 0,
-      { duration: 180 },
+      { duration: 220, easing: Easing.out(Easing.quad) },
       (finished) => {
         if (finished && !toast.open) {
           if (onCloseComplete) {
@@ -325,6 +404,20 @@ export function Toast({
       },
     );
   }, [onCloseComplete, progress, toast.open]);
+
+  // Smooth continuous icon rotation during async loading
+  useEffect(() => {
+    if (isAsyncLoading) {
+      rotateValue.value = withRepeat(
+        withTiming(360, { duration: 900, easing: Easing.linear }),
+        -1,
+        false,
+      );
+    } else {
+      cancelAnimation(rotateValue);
+      rotateValue.value = withTiming(0, { duration: 180 });
+    }
+  }, [isAsyncLoading, rotateValue]);
 
   const panResponder = React.useMemo(
     () =>
@@ -343,7 +436,7 @@ export function Toast({
           if (Math.abs(gesture.dx) > 72) {
             translateX.value = withTiming(
               gesture.dx > 0 ? 420 : -420,
-              { duration: 160 },
+              { duration: 160, easing: Easing.out(Easing.quad) },
               (finished) => {
                 if (finished && onDismiss) {
                   runOnJS(onDismiss)();
@@ -353,9 +446,9 @@ export function Toast({
             return;
           }
 
-          translateX.value = withSpring(0, {
-            damping: 16,
-            stiffness: 180,
+          translateX.value = withTiming(0, {
+            duration: 180,
+            easing: Easing.out(Easing.quad),
           });
         },
       }),
@@ -365,10 +458,33 @@ export function Toast({
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [
-      { translateY: (placement === "top" ? -14 : 14) * (1 - progress.value) },
+      { translateY: (placement === "top" ? -16 : 16) * (1 - progress.value) },
       { translateX: translateX.value },
     ],
   }));
+
+  const animatedIconStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotateValue.value}deg` }],
+  }));
+
+  const isFlat = toast.variant === "flat";
+  const isSubtle = toast.variant === "subtle";
+
+  const containerBg = isFlat
+    ? tone.soft
+    : isSubtle
+      ? tone.soft
+      : isDark
+        ? "#0A1C26"
+        : colors.surface;
+
+  const borderColor = isFlat
+    ? "transparent"
+    : isSubtle
+      ? colors.border
+      : tone.base;
+
+  const borderWidth = isFlat ? 0 : components.borderWidth.strong;
 
   return (
     <Animated.View
@@ -382,32 +498,43 @@ export function Toast({
           {
             width: "100%",
             borderRadius: radii.xl,
-            borderWidth: components.borderWidth.strong,
-            borderColor: tone.base,
-            backgroundColor: colors.surface,
-            padding: spacing.md,
+            borderWidth,
+            borderColor,
+            backgroundColor: containerBg,
+            paddingVertical: spacing.md,
+            paddingHorizontal: spacing.lg,
             flexDirection: "row",
             gap: spacing.md,
-            alignItems: "flex-start",
+            alignItems: "center",
+            elevation: 0,
           },
           style,
         ]}
         {...props}
       >
-        {toast.icon ? (
-          <View
-            style={{
-              width: 32,
-              height: 32,
+        <Animated.View
+          style={[
+            {
+              width: 34,
+              height: 34,
               borderRadius: radii.lg,
-              backgroundColor: tone.soft,
+              backgroundColor: isFlat
+                ? isDark
+                  ? "rgba(0,0,0,0.2)"
+                  : "rgba(255,255,255,0.7)"
+                : tone.soft,
               alignItems: "center",
               justifyContent: "center",
-            }}
-          >
-            {renderIcon(toast.icon, tone.base, 18)}
-          </View>
-        ) : null}
+            },
+            isAsyncLoading ? animatedIconStyle : undefined,
+          ]}
+        >
+          {toast.icon ? (
+            renderIcon(toast.icon, tone.base, 18)
+          ) : (
+            <DefaultToastToneIcon tone={toast.tone} color={tone.base} />
+          )}
+        </Animated.View>
 
         <ToastContent>
           {toast.title ? <ToastTitle>{toast.title}</ToastTitle> : null}
@@ -420,6 +547,7 @@ export function Toast({
           <ToastAction
             label={toast.action.label}
             onPress={() => {
+              triggerHaptic("selection");
               toast.action?.onPress();
               onDismiss?.();
             }}
@@ -444,7 +572,7 @@ export function ToastContent({ style, ...props }: ToastContentProps) {
       style={[
         {
           flex: 1,
-          gap: spacing.xs,
+          gap: 2,
         },
         style,
       ]}
@@ -462,7 +590,7 @@ export function ToastTitle({ children, style }: ToastTitleProps) {
   if (typeof children !== "string") return <>{children}</>;
 
   return (
-    <Text variant="label" color="text" style={style}>
+    <Text variant="label" weight="700" color="text" style={style}>
       {children}
     </Text>
   );
@@ -477,7 +605,7 @@ export function ToastDescription({ children, style }: ToastDescriptionProps) {
   if (typeof children !== "string") return <>{children}</>;
 
   return (
-    <Text variant="bodySmall" color="textMuted" style={style}>
+    <Text variant="bodySmall" color="textMuted" style={[{ lineHeight: 18 }, style]}>
       {children}
     </Text>
   );
@@ -490,7 +618,7 @@ export interface ToastActionProps {
 
 export function ToastAction({ label, onPress }: ToastActionProps) {
   return (
-    <Button size="xs" variant="outline" tone="secondary" onPress={onPress}>
+    <Button size="xs" variant="outline" tone="primary" onPress={onPress}>
       {label}
     </Button>
   );
@@ -504,25 +632,32 @@ export interface ToastCloseProps {
 export function ToastClose({ onPress, icon }: ToastCloseProps) {
   const { colors } = useTheme();
 
+  const handleClose = () => {
+    triggerHaptic("selection");
+    onPress?.();
+  };
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Close toast"
-      onPress={onPress}
+      onPress={handleClose}
+      hitSlop={8}
       style={({ pressed }) => ({
         width: 28,
         height: 28,
         borderRadius: 14,
         alignItems: "center",
         justifyContent: "center",
-        opacity: pressed ? 0.72 : 1,
+        backgroundColor: pressed ? colors.backgroundMuted : "transparent",
+        opacity: pressed ? 0.72 : 0.8,
       })}
     >
       {icon ? (
         renderIcon(icon, colors.textMuted, 16)
       ) : (
-        <Text variant="label" color="textMuted">
-          x
+        <Text style={{ color: colors.textMuted, fontSize: 14, fontWeight: "600" }}>
+          ✕
         </Text>
       )}
     </Pressable>

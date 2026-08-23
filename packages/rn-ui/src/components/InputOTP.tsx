@@ -20,6 +20,9 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
+import type { BaseGlassProps } from "./types";
+
+export type InputOTPSize = "sm" | "md" | "lg";
 
 export interface InputOTPSlotState {
   char: string;
@@ -29,6 +32,7 @@ export interface InputOTPSlotState {
 
 export interface InputOTPContextValue {
   slots: InputOTPSlotState[];
+  size: InputOTPSize;
   disabled: boolean;
   invalid: boolean;
   focused: boolean;
@@ -39,15 +43,15 @@ export const InputOTPContext = React.createContext<InputOTPContextValue | null>(
   null,
 );
 
-export interface InputOTPProps extends Omit<
-  PressableProps,
-  "children" | "style"
-> {
+export interface InputOTPProps
+  extends Omit<PressableProps, "children" | "style">,
+    BaseGlassProps {
   children: React.ReactNode;
   value?: string;
   defaultValue?: string;
   onChangeText?: (value: string) => void;
   maxLength?: number;
+  size?: InputOTPSize;
   disabled?: boolean;
   invalid?: boolean;
   autoFocus?: boolean;
@@ -68,8 +72,10 @@ export function InputOTP({
   defaultValue = "",
   onChangeText,
   maxLength = 6,
+  size = "md",
   disabled = false,
   invalid = false,
+  glass = false,
   autoFocus,
   textInputProps,
   style,
@@ -117,12 +123,13 @@ export function InputOTP({
   const context = React.useMemo<InputOTPContextValue>(
     () => ({
       slots,
+      size,
       disabled,
       invalid,
       focused,
       focus,
     }),
-    [disabled, focused, invalid, slots],
+    [disabled, focused, invalid, size, slots],
   );
 
   return (
@@ -137,6 +144,9 @@ export function InputOTP({
         }}
         style={[
           {
+            alignSelf: "center",
+            alignItems: "center",
+            justifyContent: "center",
             opacity: disabled ? 0.5 : 1,
           },
           style,
@@ -194,8 +204,9 @@ export function InputOTPGroup({ style, ...props }: InputOTPGroupProps) {
         {
           flexDirection: "row",
           alignItems: "center",
+          justifyContent: "center",
           borderRadius: radii.lg,
-          gap: spacing.xs,
+          gap: spacing.sm,
         },
         style,
       ]}
@@ -204,15 +215,37 @@ export function InputOTPGroup({ style, ...props }: InputOTPGroupProps) {
   );
 }
 
-export interface InputOTPSlotProps extends ViewProps {
+export interface InputOTPSlotProps extends ViewProps, BaseGlassProps {
   index: number;
+  size?: InputOTPSize;
   style?: StyleProp<ViewStyle>;
 }
 
-export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
-  const { colors, components, typography, radii } = useTheme();
+const slotDimensions: Record<
+  InputOTPSize,
+  { width: number; height: number; fontSize: number }
+> = {
+  sm: { width: 38, height: 44, fontSize: 16 },
+  md: { width: 48, height: 54, fontSize: 20 },
+  lg: { width: 56, height: 64, fontSize: 24 },
+};
+
+export function InputOTPSlot({
+  index,
+  size,
+  glass = false,
+  style,
+  ...props
+}: InputOTPSlotProps) {
+  const { colors, components, radii, isDark } = useTheme();
   const context = React.useContext(InputOTPContext);
   const slot = context?.slots[index];
+  const effectiveSize = size ?? context?.size ?? "md";
+  const dims = slotDimensions[effectiveSize];
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.75)";
 
   return (
     <View
@@ -220,8 +253,8 @@ export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
       style={[
         {
           position: "relative",
-          width: 38,
-          height: 42,
+          width: dims.width,
+          height: dims.height,
           alignItems: "center",
           justifyContent: "center",
           borderWidth:
@@ -232,22 +265,25 @@ export function InputOTPSlot({ index, style, ...props }: InputOTPSlotProps) {
             ? colors.danger
             : slot?.isActive
               ? colors.primary
-              : colors.border,
-          borderRadius: radii.lg,
-          backgroundColor: colors.input,
+              : glass
+                ? isDark
+                  ? "rgba(248, 250, 252, 0.20)"
+                  : "rgba(15, 23, 42, 0.14)"
+                : colors.border,
+          borderRadius: radii.xl,
+          backgroundColor: glass ? glassBg : colors.input,
         },
         style,
       ]}
       {...props}
     >
       <Text
-        style={[
-          typography.label,
-          {
-            color: context?.disabled ? colors.disabledText : colors.text,
-            fontVariant: ["tabular-nums"],
-          },
-        ]}
+        style={{
+          fontSize: dims.fontSize,
+          fontWeight: "700",
+          color: context?.disabled ? colors.disabledText : colors.text,
+          fontVariant: ["tabular-nums"],
+        }}
       >
         {slot?.char}
       </Text>
@@ -282,10 +318,10 @@ function InputOTPCaret() {
       style={[
         {
           position: "absolute",
-          width: 1.25,
-          height: 18,
+          width: 2,
+          height: 22,
           borderRadius: 1,
-          backgroundColor: colors.text,
+          backgroundColor: colors.primary,
         },
         caretStyle,
       ]}
@@ -321,7 +357,7 @@ export function InputOTPSeparator({
         <View
           style={{
             width: 10,
-            height: 1.5,
+            height: 2,
             borderRadius: 1,
             backgroundColor: colors.textMuted,
           }}

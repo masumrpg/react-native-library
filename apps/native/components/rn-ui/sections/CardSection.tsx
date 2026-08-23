@@ -15,20 +15,20 @@ export function CardSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
           </Box>
         </Card>
 
+        <Card glass padded>
+          <Box gap="xs">
+            <Text variant="title" color="primary">Glassmorphism Card (Sequoia Style)</Text>
+            <Text variant="bodySmall" color="textMuted">
+              Frosted glass container with translucent background and soft highlight border.
+            </Text>
+          </Box>
+        </Card>
+
         <Card elevated padded>
           <Box gap="xs">
             <Text variant="title">Elevated Card</Text>
             <Text variant="bodySmall" color="textMuted">
               Card with subtle elevation shadow tokens.
-            </Text>
-          </Box>
-        </Card>
-
-        <Card outlined={false} padded style={{ backgroundColor: "rgba(6, 182, 212, 0.08)" }}>
-          <Box gap="xs">
-            <Text variant="title" color="primary">Border-less Tinted Card</Text>
-            <Text variant="bodySmall" color="textMuted">
-              Flat card without outline, using custom background tint.
             </Text>
           </Box>
         </Card>

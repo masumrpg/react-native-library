@@ -1,38 +1,83 @@
 ---
 title: Carousel
-description: Horizontal swipe carousel gallery with item pagination indicators.
+description: Horizontal deck slideshow with 3D scaling, continuous Reanimated interpolated dots, auto-play, and side controls.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Carousel, CarouselContent, CarouselItem, Card, Text } from '@masumdev/rn-ui';
+export const exampleCode = `import React from 'react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  Card,
+  Box,
+  Text,
+  Badge,
+  Button,
+} from '@masumdev/rn-ui';
+import { Sparkles, ArrowRight } from 'lucide-react-native';
 
 export function CarouselExample() {
   return (
-    <Carousel>
-      <CarouselContent>
-        <CarouselItem>
-          <Card><Text>Slide 1</Text></Card>
-        </CarouselItem>
-        <CarouselItem>
-          <Card><Text>Slide 2</Text></Card>
-        </CarouselItem>
-      </CarouselContent>
-    </Carousel>
+    <Box gap="lg">
+      {/* Scaling Deck Carousel */}
+      <Carousel loop itemWidth={260}>
+        <CarouselContent>
+          <CarouselItem>
+            <Card outlined style={{ width: 250, padding: 16, borderRadius: 16 }}>
+              <Box row center style={{ justifyContent: 'space-between' }}>
+                <Sparkles color="#6366F1" size={22} />
+                <Badge tone="primary">FEATURED</Badge>
+              </Box>
+              <Text weight="700" style={{ marginTop: 8 }}>AI Auto-Scaling</Text>
+              <Text color="textMuted" variant="bodySmall">
+                Dynamic layout adjustment for mobile.
+              </Text>
+              <Button size="xs" variant="outline" style={{ marginTop: 12 }}>
+                Explore Feature
+              </Button>
+            </Card>
+          </CarouselItem>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+
+      {/* Auto-Play Carousel */}
+      <Carousel autoPlay autoPlayInterval={3000} loop itemWidth={290}>
+        <CarouselContent>
+          <CarouselItem>
+            <Box style={{ width: 280, padding: 18, borderRadius: 16, backgroundColor: '#EBF5FF' }}>
+              <Text weight="700" color="primary">Version 2.4 Released</Text>
+              <Text color="textMuted" variant="bodySmall">25+ mobile UI components added.</Text>
+            </Box>
+          </CarouselItem>
+        </CarouselContent>
+      </Carousel>
+    </Box>
   );
 }`;
 
-`Carousel` displays horizontal swipeable content slides.
+`Carousel` presents horizontal swipeable slide cards featuring 3D scaling interpolation, ultra-smooth continuous Reanimated pagination dots, optional auto-play infinite loops, and side arrow controls.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="CarouselExample.tsx" mark={['Carousel', 'CarouselContent', 'CarouselItem']} />
+<Code code={exampleCode} lang="tsx" title="CarouselExample.tsx" mark={['Carousel', 'autoPlay', 'autoPlayInterval={3000}', 'loop', 'CarouselPrevious', 'CarouselNext']} />
 
-## Props API
+## Carousel Props
 
 <TypeTable
   type={{
-    children: { type: 'ReactNode', description: 'CarouselContent and items.' },
+    itemWidth: { type: 'number', description: 'Width of each individual slide card in pixels (defaults to 78% container width).' },
+    autoPlay: { type: 'boolean', default: 'false', description: 'Enables automatic slide advance timer.' },
+    autoPlayInterval: { type: 'number', default: '3000', description: 'AutoPlay timer interval in milliseconds.' },
+    loop: { type: 'boolean', default: 'true', description: 'Enables infinite looping from last slide back to slide 0.' },
+    showPagination: { type: 'boolean', default: 'true', description: 'Shows continuous Reanimated interpolated pagination dots at bottom.' },
+    onIndexChange: { type: '(index: number) => void', description: 'Callback triggered when active slide index changes.' },
+    children: { type: 'ReactNode', description: 'CarouselContent and navigation buttons.' },
   }}
 />

@@ -96,6 +96,7 @@ export {
 export type {
   BottomSheetBackdropProps,
   BottomSheetMethods,
+  BottomSheetModalMethods,
   BottomSheetModalProps,
   BottomSheetProps,
   GorhomBottomSheetProps,
@@ -263,8 +264,8 @@ export type {
   PopoverProps,
   PopoverTriggerProps,
 } from "./Popover";
-export { Progress } from "./Progress";
-export type { ProgressProps } from "./Progress";
+export { Progress, CircularProgress } from "./Progress";
+export type { ProgressProps, CircularProgressProps } from "./Progress";
 export { RadioGroup, RadioGroupItem } from "./RadioGroup";
 export type {
   RadioGroupContextValue,
@@ -329,6 +330,7 @@ export type {
 export {
   FormControl,
   FormDescription,
+  FormError,
   FormField,
   FormLabel,
   FormMessage,
@@ -337,6 +339,7 @@ export {
 export type {
   FormControlProps,
   FormDescriptionProps,
+  FormErrorProps,
   FormFieldContextValue,
   FormFieldProps,
   FormLabelProps,
@@ -464,4 +467,3 @@ export type {
   RatingSize,
   RatingTone,
 } from "./Rating";
-

@@ -1,36 +1,84 @@
 ---
 title: Alert
-description: Banner alert notification component with info, success, warning, and danger tones.
+description: Notification banner component supporting semantic tones, glassmorphism, accent bar variants, close actions, and dismissible state.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Alert } from '@masumdev/rn-ui';
+export const exampleCode = `import React from 'react';
+import { Alert, Box } from '@masumdev/rn-ui';
+import { Check, CircleAlert, TriangleAlert, OctagonAlert } from 'lucide-react-native';
 
 export function AlertExample() {
   return (
-    <Alert
-      tone="info"
-      title="System Maintenance"
-      description="Scheduled database optimization will run at midnight UTC."
-    />
+    <Box gap="md">
+      {/* 1. Soft Alert with Action */}
+      <Alert
+        tone="info"
+        variant="soft"
+        title="Information Alert"
+        icon={({ color, size }) => <CircleAlert color={color} size={size} />}
+        action={{
+          label: 'View details',
+          onPress: () => console.log('Details pressed'),
+        }}
+      >
+        Alert uses soft translucent tints, crisp typography, and interactive actions.
+      </Alert>
+
+      {/* 2. Success Accent Bar Variant */}
+      <Alert
+        tone="success"
+        variant="accent"
+        title="System Update Complete"
+        icon={({ color, size }) => <Check color={color} size={size} />}
+        dismissible
+      >
+        Your workspace configuration has been updated successfully.
+      </Alert>
+
+      {/* 3. Warning Glassmorphism Alert */}
+      <Alert
+        tone="warning"
+        variant="glass"
+        title="Storage Limit Warning"
+        icon={({ color, size }) => <TriangleAlert color={color} size={size} />}
+      >
+        You are using 88% of your allocated cloud storage. Consider upgrading.
+      </Alert>
+
+      {/* 4. Solid Danger Alert */}
+      <Alert
+        tone="danger"
+        variant="solid"
+        title="Critical Error Occurred"
+        icon={({ color, size }) => <OctagonAlert color={color} size={size} />}
+        dismissible
+      >
+        Failed to establish database connection. Please check network credentials.
+      </Alert>
+    </Box>
   );
 }`;
 
-`Alert` displays prominent contextual callouts and banner messages.
+`Alert` displays prominent contextual feedback messages, warning notices, and system status banners.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="AlertExample.tsx" mark={['Alert', 'tone="info"', 'title', 'description']} />
+<Code code={exampleCode} lang="tsx" title="AlertExample.tsx" mark={['Alert', 'variant="accent"', 'variant="glass"', 'variant="solid"', 'dismissible']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    title: { type: 'string', description: 'Alert title string.' },
-    description: { type: 'string', description: 'Detailed message body.' },
-    tone: { type: "'info' | 'success' | 'warning' | 'danger'", default: "'info'", description: 'Color tone variant.' },
-    variant: { type: "'soft' | 'filled' | 'outline'", default: "'soft'", description: 'Visual style background.' },
+    title: { type: 'ReactNode', description: 'Headline title string or component.' },
+    children: { type: 'ReactNode', description: 'Body content text or element.' },
+    variant: { type: "'solid' | 'soft' | 'outline' | 'accent' | 'glass'", default: "'soft'", description: 'Visual banner style variant.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'", default: "'info'", description: 'Color tone styling.' },
+    icon: { type: 'RenderIcon', description: 'Left status icon render function.' },
+    dismissible: { type: 'boolean', default: 'false', description: 'Shows close button to dismiss alert.' },
+    action: { type: '{ label: string; onPress: () => void; icon?: RenderIcon }', description: 'Action button config.' },
+    onDismiss: { type: '() => void', description: 'Callback triggered when alert close button is pressed.' },
   }}
 />

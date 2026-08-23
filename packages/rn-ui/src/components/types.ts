@@ -111,3 +111,45 @@ export interface BaseUIComponentProps<
    */
   loading?: boolean;
 }
+
+/**
+ * Base props interface for components that support glassmorphism styling.
+ */
+export interface BaseGlassProps {
+  /**
+   * Enables translucent glassmorphism styling with soft highlight borders.
+   * Default: false
+   */
+  glass?: boolean;
+}
+
+/**
+ * Base props interface for components that support tactile haptic feedback.
+ */
+export interface BaseHapticProps {
+  /**
+   * Enables tactile haptic feedback on press interactions.
+   * Default: true
+   */
+  haptic?: boolean;
+}
+
+/**
+ * Base props interface for components that support micro press scale animations.
+ */
+export interface BaseAnimatedProps {
+  /**
+   * Enables micro spring scale down animation on press.
+   * Default: true
+   */
+  animated?: boolean;
+}
+
+/**
+ * Combined base interface for universal component capabilities.
+ */
+export interface BaseComponentProps
+  extends BaseGlassProps,
+    BaseHapticProps,
+    BaseAnimatedProps {}
+

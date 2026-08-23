@@ -226,12 +226,24 @@ export default function RnUiCatalogScreen() {
         />
 
         {/* Categories Grid */}
-        <Box gap="xl">
+        <Box gap="xxl">
           {filteredCategories.map((category) => (
-            <Box key={category.title} gap="sm">
+            <Box key={category.title} gap="md">
               {/* Category Header */}
-              <Box row style={{ justifyContent: "space-between", alignItems: "center" }}>
-                <Text variant="labelSmall" color="textSubtle" style={{ textTransform: "uppercase", letterSpacing: 1 }}>
+              <Box
+                row
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingHorizontal: spacing.xxs,
+                  marginTop: spacing.xs,
+                }}
+              >
+                <Text
+                  variant="labelSmall"
+                  color="textSubtle"
+                  style={{ textTransform: "uppercase", letterSpacing: 1.2 }}
+                >
                   {category.title}
                 </Text>
                 <Badge tone="secondary" size="sm">
@@ -239,8 +251,8 @@ export default function RnUiCatalogScreen() {
                 </Badge>
               </Box>
 
-              {/* Items List */}
-              <Box gap="xs">
+              {/* Items List with generous gap */}
+              <Box gap="md">
                 {category.items.map((item) => (
                   <Card key={item.id} padded={false}>
                     <Pressable
@@ -295,7 +307,9 @@ function useStyles() {
       gap: theme.spacing.lg,
     },
     itemPressable: {
-      padding: theme.spacing.md,
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderRadius: theme.radii.lg,
     },
   }));
 }

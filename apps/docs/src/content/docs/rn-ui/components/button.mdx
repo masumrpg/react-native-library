@@ -1,85 +1,69 @@
 ---
 title: Button
-description: Interactive button component with variants, sizes, tones, shapes, loading states, and icon renderers.
+description: Interactive button component with variants, semantic tones, glassmorphism, loading state, left/right icons, and haptic feedback.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Button } from '@masumdev/rn-ui';
+export const exampleCode = `import React from 'react';
+import { Button, Box } from '@masumdev/rn-ui';
+import { Sparkles, Heart } from 'lucide-react-native';
 
-export function Example() {
+export function ButtonExample() {
   return (
-    <Button
-      variant="filled"
-      tone="primary"
-      size="md"
-      onPress={() => console.log('Clicked')}
-    >
-      Click Me
-    </Button>
+    <Box gap="md">
+      {/* Variants Showcase */}
+      <Box row gap="sm">
+        <Button variant="filled">Filled</Button>
+        <Button variant="soft">Soft</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button glass leftIcon={({ color, size }) => <Sparkles color={color} size={size} />}>
+          Glassmorphism
+        </Button>
+      </Box>
+
+      {/* Semantic Tones */}
+      <Box row gap="sm">
+        <Button tone="primary" leftIcon={({ color, size }) => <Heart color={color} size={size} />}>
+          Primary
+        </Button>
+        <Button tone="secondary">Secondary</Button>
+        <Button tone="accent">Accent</Button>
+        <Button tone="success">Success</Button>
+        <Button tone="danger">Danger</Button>
+      </Box>
+
+      {/* Loading & Sizes */}
+      <Box row gap="sm">
+        <Button size="sm">Small</Button>
+        <Button size="md" loading>Processing</Button>
+        <Button size="lg" tone="accent">Large</Button>
+      </Box>
+    </Box>
   );
 }`;
 
-export const loadingCode = `<Button loading tone="success">
-  Saving Changes...
-</Button>`;
-
-`Button` is a flexible pressable element styled according to the active theme palette.
+`Button` provides interactive clickables with press-down spring scaling, optional haptic feedback, glassmorphism translucent styling, loading spinner states, and semantic color tones.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="ButtonExample.tsx" mark={['Button', 'tone="primary"']} />
+<Code code={exampleCode} lang="tsx" title="ButtonExample.tsx" mark={['Button', 'glass', 'leftIcon', 'loading', 'tone="primary"']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    children: {
-      type: 'ReactNode',
-      description: 'Button label or nested content.',
-    },
-    variant: {
-      type: "'filled' | 'outline' | 'ghost' | 'soft' | 'danger'",
-      default: "'filled'",
-      description: 'Visual fill style variant.',
-    },
-    size: {
-      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
-      default: "'md'",
-      description: 'Button size scaling padding and font size.',
-    },
-    tone: {
-      type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'",
-      default: "'primary'",
-      description: 'Color scheme tone.',
-    },
-    shape: {
-      type: "'rounded' | 'pill' | 'square'",
-      default: "'rounded'",
-      description: 'Border radius shape style.',
-    },
-    leftIcon: {
-      type: 'ReactNode | ((props: { color: string; size: number }) => ReactNode)',
-      description: 'Icon element or render function positioned to the left.',
-    },
-    rightIcon: {
-      type: 'ReactNode | ((props: { color: string; size: number }) => ReactNode)',
-      description: 'Icon element or render function positioned to the right.',
-    },
-    loading: {
-      type: 'boolean',
-      default: 'false',
-      description: 'Renders an ActivityIndicator and disables press events.',
-    },
-    fullWidth: {
-      type: 'boolean',
-      default: 'false',
-      description: 'Expands button width to 100% of container.',
-    },
+    children: { type: 'ReactNode', description: 'Button label text or element.' },
+    variant: { type: "'filled' | 'soft' | 'outline' | 'ghost'", default: "'filled'", description: 'Visual style variant.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info'", default: "'primary'", description: 'Color tone styling.' },
+    size: { type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Button height & padding scale.' },
+    glass: { type: 'boolean', default: 'false', description: 'Enables translucent frosted glassmorphism background styling.' },
+    loading: { type: 'boolean', default: 'false', description: 'Shows activity spinner indicator and disables touch.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disables user touch interactions and dims opacity.' },
+    leftIcon: { type: 'RenderIcon', description: 'Icon rendered before button text.' },
+    rightIcon: { type: 'RenderIcon', description: 'Icon rendered after button text.' },
+    onPress: { type: '(event: GestureResponderEvent) => void', description: 'Press event callback with optional haptic trigger.' },
   }}
 />
-
-## Loading State Example
-
-<Code code={loadingCode} lang="tsx" title="LoadingButton.tsx" mark={['loading', 'tone="success"']} />

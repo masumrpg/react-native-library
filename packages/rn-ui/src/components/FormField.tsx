@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Animated,
   View,
   type StyleProp,
   type TextStyle,
@@ -8,13 +9,16 @@ import {
 } from "react-native";
 
 import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { Label, type LabelProps } from "./Label";
 import { Text } from "./Text";
+import { renderIcon, type RenderIcon, type BaseGlassProps } from "./types";
 
 export interface FormFieldContextValue {
   invalid: boolean;
   disabled: boolean;
   required: boolean;
+  error?: string;
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue | null>(
@@ -25,33 +29,55 @@ export function useFormField() {
   return React.useContext(FormFieldContext);
 }
 
-export interface FormFieldProps extends ViewProps {
+export interface FormFieldProps extends ViewProps, BaseGlassProps {
   invalid?: boolean;
   disabled?: boolean;
   required?: boolean;
+  error?: string;
+  shakeOnError?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
 export function FormField({
-  invalid = false,
+  invalid: explicitInvalid,
   disabled = false,
   required = false,
+  error,
+  shakeOnError = true,
   style,
   ...props
 }: FormFieldProps) {
   const { spacing } = useTheme();
+  const shakeAnim = React.useRef(new Animated.Value(0)).current;
+
+  const invalid = explicitInvalid ?? Boolean(error);
+
+  React.useEffect(() => {
+    if (invalid && shakeOnError) {
+      triggerHaptic("error");
+      Animated.sequence([
+        Animated.timing(shakeAnim, { toValue: 8, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -8, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 6, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -6, duration: 50, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+      ]).start();
+    }
+  }, [invalid, shakeAnim, shakeOnError]);
+
   const value = React.useMemo(
-    () => ({ invalid, disabled, required }),
-    [disabled, invalid, required],
+    () => ({ invalid, disabled, required, error }),
+    [disabled, invalid, required, error],
   );
 
   return (
     <FormFieldContext.Provider value={value}>
-      <View
+      <Animated.View
         style={[
           {
             width: "100%",
             gap: spacing.xs,
+            transform: [{ translateX: shakeAnim }],
           },
           style,
         ]}
@@ -107,23 +133,32 @@ export function FormDescription({ children, style }: FormDescriptionProps) {
   );
 }
 
-export interface FormMessageProps {
+export interface FormErrorProps {
   children?: React.ReactNode;
+  icon?: RenderIcon;
   style?: StyleProp<TextStyle>;
 }
 
-export function FormMessage({ children, style }: FormMessageProps) {
+export function FormError({ children, icon, style }: FormErrorProps) {
+  const { colors } = useTheme();
   const field = useFormField();
+  const content = children ?? field?.error;
 
-  if (!children) return null;
+  if (!content) return null;
 
   return (
-    <Text
-      variant="bodySmall"
-      color={field?.invalid ? "danger" : "textMuted"}
-      style={style}
-    >
-      {children}
-    </Text>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+      {icon ? renderIcon(icon, colors.danger, 14) : null}
+      <Text
+        variant="bodySmall"
+        color={field?.invalid ? "danger" : "textMuted"}
+        style={style}
+      >
+        {content}
+      </Text>
+    </View>
   );
 }
+
+export interface FormMessageProps extends FormErrorProps {}
+export const FormMessage = FormError;

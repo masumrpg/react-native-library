@@ -2,7 +2,7 @@ import React from "react";
 import GorhomBottomSheet, {
   BottomSheetBackdrop as GorhomBottomSheetBackdrop,
   BottomSheetFlatList,
-  BottomSheetModal,
+  BottomSheetModal as GorhomBottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
   BottomSheetSectionList,
@@ -11,11 +11,14 @@ import GorhomBottomSheet, {
   useBottomSheet,
   useBottomSheetModal,
   type BottomSheetBackdropProps,
-  type BottomSheetModalProps,
+  type BottomSheetModalProps as GorhomBottomSheetModalProps,
   type BottomSheetProps as GorhomBottomSheetProps,
 } from "@gorhom/bottom-sheet";
 import type { StyleProp, ViewStyle } from "react-native";
-import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import type {
+  BottomSheetMethods,
+  BottomSheetModalMethods,
+} from "@gorhom/bottom-sheet/lib/typescript/types";
 
 import { useTheme } from "../theme";
 
@@ -122,8 +125,6 @@ export const BottomSheet = React.forwardRef<
       ]}
       style={[
         {
-          shadowOpacity: 0,
-          shadowRadius: 0,
           elevation: 0,
         },
         style,
@@ -135,9 +136,116 @@ export const BottomSheet = React.forwardRef<
   );
 });
 
+export interface BottomSheetModalProps extends GorhomBottomSheetModalProps {
+  withBackdrop?: boolean;
+  backdropOpacity?: number;
+  backdropAppearsOnIndex?: number;
+  backdropDisappearsOnIndex?: number;
+  backdropPressBehavior?: GorhomBackdropComponentProps["pressBehavior"];
+  backdropStyle?: StyleProp<ViewStyle>;
+}
+
+export const BottomSheetModal = React.forwardRef<
+  BottomSheetModalMethods,
+  BottomSheetModalProps
+>(function BottomSheetModal(
+  {
+    snapPoints = ["45%"],
+    enablePanDownToClose = true,
+    withBackdrop = true,
+    backdropOpacity = 0.5,
+    backdropAppearsOnIndex = 0,
+    backdropDisappearsOnIndex = -1,
+    backdropPressBehavior = "close",
+    backdropStyle,
+    backdropComponent,
+    backgroundStyle,
+    handleStyle,
+    handleIndicatorStyle,
+    style,
+    children,
+    ...props
+  },
+  ref,
+) {
+  const { colors, components, radii, spacing } = useTheme();
+
+  const themedBackdrop = React.useCallback(
+    (backdropProps: BottomSheetBackdropProps) => (
+      <GorhomBottomSheetBackdrop
+        {...backdropProps}
+        appearsOnIndex={backdropAppearsOnIndex}
+        disappearsOnIndex={backdropDisappearsOnIndex}
+        opacity={backdropOpacity}
+        pressBehavior={backdropPressBehavior}
+        style={[
+          {
+            backgroundColor: colors.overlay,
+          },
+          backdropProps.style,
+          backdropStyle,
+        ]}
+      />
+    ),
+    [
+      backdropAppearsOnIndex,
+      backdropDisappearsOnIndex,
+      backdropOpacity,
+      backdropPressBehavior,
+      backdropStyle,
+      colors.overlay,
+    ],
+  );
+
+  return (
+    <GorhomBottomSheetModal
+      ref={ref}
+      snapPoints={snapPoints}
+      enablePanDownToClose={enablePanDownToClose}
+      backdropComponent={
+        backdropComponent ?? (withBackdrop ? themedBackdrop : undefined)
+      }
+      backgroundStyle={[
+        {
+          backgroundColor: colors.surface,
+          borderTopLeftRadius: radii.xxl,
+          borderTopRightRadius: radii.xxl,
+          borderWidth: components.borderWidth.strong,
+          borderColor: colors.border,
+        },
+        backgroundStyle,
+      ]}
+      handleStyle={[
+        {
+          paddingTop: spacing.md,
+          paddingBottom: spacing.sm,
+        },
+        handleStyle,
+      ]}
+      handleIndicatorStyle={[
+        {
+          width: 40,
+          height: 4,
+          borderRadius: radii.full,
+          backgroundColor: colors.border,
+        },
+        handleIndicatorStyle,
+      ]}
+      style={[
+        {
+          elevation: 0,
+        },
+        style,
+      ]}
+      {...props}
+    >
+      {children}
+    </GorhomBottomSheetModal>
+  );
+});
+
 export {
   BottomSheetFlatList,
-  BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
   BottomSheetSectionList,
@@ -150,6 +258,6 @@ export {
 export type {
   BottomSheetBackdropProps,
   BottomSheetMethods,
-  BottomSheetModalProps,
+  BottomSheetModalMethods,
   GorhomBottomSheetProps,
 };

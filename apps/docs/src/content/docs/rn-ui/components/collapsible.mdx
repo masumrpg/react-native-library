@@ -1,40 +1,99 @@
 ---
 title: Collapsible
-description: Single collapsible panel disclosure view.
+description: Expandable container component for showing and hiding section content with glitch-free Reanimated 220ms height scaling.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { useState } from 'react';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent, Button, Text } from '@masumdev/rn-ui';
+export const exampleCode = `import React from 'react';
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  Card,
+  Box,
+  Text,
+} from '@masumdev/rn-ui';
+import { ChevronsUpDown, Package, Truck, CreditCard } from 'lucide-react-native';
 
 export function CollapsibleExample() {
-  const [open, setOpen] = useState(false);
-
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger>
-        <Button variant="outline">{open ? 'Hide Details' : 'Show Details'}</Button>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <Text>Hidden collapsible content disclosed on press.</Text>
-      </CollapsibleContent>
-    </Collapsible>
+    <Card outlined>
+      <Collapsible defaultOpen={false} style={{ width: '100%' }}>
+        <CollapsibleTrigger>
+          <Box
+            row
+            center
+            style={{
+              justifyContent: 'space-between',
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: '#E2E8F0',
+            }}
+          >
+            <Box row center gap="sm">
+              <Package color="#06B6D4" size={20} />
+              <Text weight="700">Order #4189 Details</Text>
+            </Box>
+            <ChevronsUpDown color="#64748B" size={16} />
+          </Box>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <Box gap="sm" style={{ marginTop: 10 }}>
+            <Box row center style={{ padding: 12, backgroundColor: '#F8FAFC', borderRadius: 10 }}>
+              <Text color="textMuted" variant="bodySmall">Status</Text>
+              <Text weight="600" color="success" variant="bodySmall">Shipped (On the way)</Text>
+            </Box>
+
+            <Box style={{ padding: 12, backgroundColor: '#F8FAFC', borderRadius: 10, gap: 2 }}>
+              <Box row center gap="xs">
+                <Truck color="#06B6D4" size={16} />
+                <Text weight="600" variant="bodySmall">Shipping Address</Text>
+              </Box>
+              <Text color="textMuted" variant="bodySmall">100 Market St, San Francisco, CA 94105</Text>
+            </Box>
+          </Box>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 }`;
 
-`Collapsible` toggles the visibility of an element.
+`Collapsible` provides expandable/collapsible disclosure containers with smooth 220ms Reanimated height scaling, unconstrained layout height measurement, and haptic feedback on toggle.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="CollapsibleExample.tsx" mark={['Collapsible', 'CollapsibleTrigger', 'CollapsibleContent']} />
+<Code code={exampleCode} lang="tsx" title="CollapsibleExample.tsx" mark={['Collapsible', 'defaultOpen={false}', 'CollapsibleTrigger', 'CollapsibleContent']} />
 
 ## Props API
 
+### Collapsible
+
 <TypeTable
   type={{
-    open: { type: 'boolean', description: 'Open state.' },
-    onOpenChange: { type: '(open: boolean) => void', description: 'Callback when open state changes.' },
+    open: { type: 'boolean', description: 'Controlled open state.' },
+    defaultOpen: { type: 'boolean', default: 'false', description: 'Uncontrolled initial open state.' },
+    onOpenChange: { type: '(open: boolean) => void', description: 'Callback triggered when open state changes.' },
+    children: { type: 'ReactNode', description: 'CollapsibleTrigger and CollapsibleContent.' },
+  }}
+/>
+
+### CollapsibleTrigger
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode | (() => ReactNode)', description: 'Interactive trigger component or render function.' },
+  }}
+/>
+
+### CollapsibleContent
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode | (() => ReactNode)', description: 'Collapsible content expanded on toggle.' },
   }}
 />

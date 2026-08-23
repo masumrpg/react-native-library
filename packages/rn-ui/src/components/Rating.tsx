@@ -14,13 +14,19 @@ import Animated, {
   useSharedValue,
   withSequence,
   withSpring,
-  withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
-import { useTheme, type ThemeColors } from "../theme";
+import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
-import { renderIcon, type RenderIcon } from "./types";
+import {
+  renderIcon,
+  type RenderIcon,
+  type BaseGlassProps,
+  type BaseHapticProps,
+} from "./types";
 
 export type RatingShape =
   | "star"
@@ -53,65 +59,32 @@ export interface RatingItemInfo {
   size: number;
 }
 
-export interface RatingProps extends Omit<ViewProps, "style"> {
-  /** Controlled value (0 to max) */
+export interface RatingProps
+  extends Omit<ViewProps, "style">,
+    BaseGlassProps,
+    BaseHapticProps {
   value?: number;
-  /** Uncontrolled initial value (default: 0) */
   defaultValue?: number;
-  /** Maximum number of items/stars (default: 5) */
   max?: number;
-  /** Rating step precision: 'full' (1), 'half' (0.5), 'exact' (0.1), or custom float number */
   precision?: RatingPrecision;
-  /** Preset icon shape: 'star' | 'heart' | 'thumb' | 'fire' | 'smile' | 'shield' (default: 'star') */
   shape?: RatingShape;
-  /** Preset size: 'sm' (16) | 'md' (24) | 'lg' (32) | 'xl' (40) or custom pixel number */
   size?: RatingSize;
-  /** Spacing between items (default: 4) */
   gap?: number;
-  /** Tone color when active/filled (default: 'warning' for star, 'danger' for heart, etc.) */
   tone?: RatingTone;
-  /** Custom fill color (overrides tone) */
   color?: string;
-  /** Custom unfilled color (overrides theme textMuted default) */
   emptyColor?: string;
-  /** Read-only display mode without gesture interaction */
   readOnly?: boolean;
-  /** Disabled state */
   disabled?: boolean;
-  /** Allow resetting value to 0 when pressing the current value (default: true) */
   allowClear?: boolean;
-  /** Show numeric label beside rating (default: false) */
   showValue?: boolean;
-  /** Format function for numeric value label */
   valueFormat?: (value: number, max: number) => string;
-  /** Custom item renderer for full custom icons per state */
   renderItem?: (info: RatingItemInfo) => React.ReactNode;
-  /** Custom RenderIcon definition for all items */
   icon?: RenderIcon;
-  /** Callback emitted on rating change */
   onValueChange?: (value: number) => void;
-  /** Callback emitted when sliding/gesturing starts */
   onSlidingStart?: (value: number) => void;
-  /** Callback emitted when sliding/gesturing ends */
   onSlidingComplete?: (value: number) => void;
   style?: StyleProp<ViewStyle>;
   itemStyle?: StyleProp<ViewStyle>;
-}
-
-function getNumericSize(size: RatingSize): number {
-  if (typeof size === "number") return size;
-  switch (size) {
-    case "sm":
-      return 16;
-    case "md":
-      return 24;
-    case "lg":
-      return 32;
-    case "xl":
-      return 40;
-    default:
-      return 24;
-  }
 }
 
 function getDefaultTone(shape: RatingShape): RatingTone {
@@ -150,7 +123,12 @@ function clamp(val: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, val));
 }
 
-function roundToStep(rawVal: number, step: number, max: number, allowZero: boolean): number {
+function roundToStep(
+  rawVal: number,
+  step: number,
+  max: number,
+  allowZero: boolean,
+): number {
   "worklet";
   if (rawVal <= 0) return allowZero ? 0 : step;
   if (rawVal >= max) return max;
@@ -232,6 +210,92 @@ function ShapeSvg({
   }
 }
 
+function RatingItemWrapper({
+  index,
+  itemSize,
+  ratingShared,
+  activeColor,
+  activeEmptyColor,
+  shape,
+  icon,
+  renderItem,
+}: {
+  index: number;
+  itemSize: number;
+  ratingShared: SharedValue<number>;
+  activeColor: string;
+  activeEmptyColor: string;
+  shape: RatingShape;
+  icon?: RenderIcon;
+  renderItem?: (info: RatingItemInfo) => React.ReactNode;
+}) {
+  const itemValue = index + 1;
+
+  const fillOverlayStyle = useAnimatedStyle(() => {
+    const currentVal = ratingShared.value;
+    let fillFraction = 0;
+
+    if (currentVal >= itemValue) {
+      fillFraction = 1;
+    } else if (currentVal > index) {
+      fillFraction = currentVal - index;
+    }
+
+    return {
+      width: `${fillFraction * 100}%`,
+    };
+  });
+
+  if (renderItem) {
+    const currentVal = ratingShared.value;
+    let fillFraction = 0;
+    if (currentVal >= itemValue) fillFraction = 1;
+    else if (currentVal > index) fillFraction = currentVal - index;
+
+    return (
+      <View style={{ width: itemSize, height: itemSize }}>
+        {renderItem({
+          index,
+          value: itemValue,
+          fillFraction,
+          isFilled: fillFraction > 0,
+          color: activeColor,
+          emptyColor: activeEmptyColor,
+          size: itemSize,
+        })}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.iconCenter}>
+      <View style={StyleSheet.absoluteFill}>
+        {icon ? (
+          renderIcon(icon, activeEmptyColor, itemSize)
+        ) : (
+          <ShapeSvg shape={shape} color={activeEmptyColor} size={itemSize} />
+        )}
+      </View>
+
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          { overflow: "hidden" },
+          fillOverlayStyle,
+        ]}
+      >
+        <View style={{ width: itemSize, height: itemSize }}>
+          {icon ? (
+            renderIcon(icon, activeColor, itemSize)
+          ) : (
+            <ShapeSvg shape={shape} color={activeColor} size={itemSize} />
+          )}
+        </View>
+      </Animated.View>
+    </View>
+  );
+}
+
 export function Rating({
   value,
   defaultValue = 0,
@@ -247,6 +311,7 @@ export function Rating({
   disabled = false,
   allowClear = true,
   showValue = false,
+  haptic = true,
   valueFormat,
   renderItem,
   icon,
@@ -263,23 +328,30 @@ export function Rating({
   const activeTone = tone ?? getDefaultTone(shape);
   const activeColor = color ?? colors[activeTone];
   const activeEmptyColor = emptyColor ?? colors.textMuted + "40";
-  const itemSize = typeof size === "number" ? size : (components.rating?.size[size] ?? 24);
+  const itemSize =
+    typeof size === "number" ? size : components.rating?.size[size] ?? 24;
   const step = parsePrecisionStep(precision);
 
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const isControlled = value !== undefined;
-  const currentValue = Math.min(max, Math.max(0, isControlled ? value : internalValue));
+  const currentValue = Math.min(
+    max,
+    Math.max(0, isControlled ? value : internalValue),
+  );
 
   const ratingShared = useSharedValue(currentValue);
   const isInteracting = useSharedValue(false);
   const containerWidth = useSharedValue(max * itemSize + (max - 1) * gap);
   const scaleAnim = useSharedValue(1);
 
+  const [displayVal, setDisplayVal] = React.useState(currentValue);
+
   React.useEffect(() => {
     if (!isInteracting.value) {
       ratingShared.value = currentValue;
+      setDisplayVal(currentValue);
     }
-  }, [currentValue, isInteracting]);
+  }, [currentValue, isInteracting, ratingShared]);
 
   const updateRatingFromX = React.useCallback(
     (xPos: number, isFinal: boolean = false) => {
@@ -290,30 +362,51 @@ export function Rating({
       const rawVal = (xPos / totalW) * max;
       let nextVal = roundToStep(rawVal, step, max, allowClear);
 
-      // Handle tap on current value to toggle zero clear
       if (isFinal && allowClear && nextVal === ratingShared.value && xPos < itemSize) {
         nextVal = 0;
       }
 
       ratingShared.value = nextVal;
+      runOnJS(setDisplayVal)(nextVal);
 
       if (onValueChange) {
         runOnJS(onValueChange)(nextVal);
       }
-      if (!isControlled) {
+      if (isFinal && !isControlled) {
         runOnJS(setInternalValue)(nextVal);
       }
     },
-    [max, step, allowClear, isControlled, onValueChange, ratingShared, containerWidth, itemSize]
+    [
+      allowClear,
+      containerWidth,
+      isControlled,
+      itemSize,
+      max,
+      onValueChange,
+      ratingShared,
+      step,
+    ],
   );
+
+  const triggerHapticFeedback = React.useCallback(() => {
+    if (haptic) triggerHaptic("selection");
+  }, [haptic]);
+
+  const tapGesture = Gesture.Tap()
+    .enabled(!disabled && !readOnly)
+    .onEnd((e) => {
+      "worklet";
+      updateRatingFromX(e.x, true);
+      runOnJS(triggerHapticFeedback)();
+    });
 
   const panGesture = Gesture.Pan()
     .enabled(!disabled && !readOnly)
-    .minDistance(0)
+    .minDistance(2)
     .onBegin((e) => {
       "worklet";
       isInteracting.value = true;
-      scaleAnim.value = withSpring(1.06, { damping: 15, stiffness: 200 });
+      scaleAnim.value = withSpring(1.05, { damping: 15, stiffness: 200 });
       if (onSlidingStart) {
         runOnJS(onSlidingStart)(ratingShared.value);
       }
@@ -328,12 +421,13 @@ export function Rating({
       updateRatingFromX(e.x, true);
       const finalVal = ratingShared.value;
       scaleAnim.value = withSequence(
-        withSpring(1.12, { damping: 10 }),
-        withSpring(1, { damping: 15 })
+        withSpring(1.08, { damping: 10 }),
+        withSpring(1, { damping: 15 }),
       );
       if (onSlidingComplete) {
         runOnJS(onSlidingComplete)(finalVal);
       }
+      runOnJS(triggerHapticFeedback)();
       isInteracting.value = false;
     })
     .onFinalize(() => {
@@ -342,7 +436,7 @@ export function Rating({
       scaleAnim.value = withSpring(1);
     });
 
-  const composedGesture = panGesture;
+  const composedGesture = Gesture.Race(tapGesture, panGesture);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scaleAnim.value }],
@@ -355,107 +449,37 @@ export function Rating({
   };
 
   const defaultFormattedValue = valueFormat
-    ? valueFormat(currentValue, max)
-    : `${currentValue.toFixed(step < 0.5 ? 1 : step === 0.5 ? 1 : 0)} / ${max}`;
+    ? valueFormat(displayVal, max)
+    : `${displayVal.toFixed(step < 0.5 ? 1 : step === 0.5 ? 1 : 0)} / ${max}`;
 
   return (
     <View style={[styles.root, style]} {...props}>
       <GestureDetector gesture={composedGesture}>
         <Animated.View
           onLayout={handleLayout}
-          style={[
-            styles.container,
-            { gap },
-            containerAnimatedStyle,
-          ]}
+          style={[styles.container, { gap }, containerAnimatedStyle]}
         >
-          {Array.from({ length: max }).map((_, index) => {
-            const itemValue = index + 1;
-            let fillFraction = 0;
-
-            if (currentValue >= itemValue) {
-              fillFraction = 1;
-            } else if (currentValue > index) {
-              fillFraction = currentValue - index;
-            }
-
-            const isFilled = fillFraction > 0;
-
-            const itemInfo: RatingItemInfo = {
-              index,
-              value: itemValue,
-              fillFraction,
-              isFilled,
-              color: activeColor,
-              emptyColor: activeEmptyColor,
-              size: itemSize,
-            };
-
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.itemWrapper,
-                  { width: itemSize, height: itemSize },
-                  itemStyle,
-                ]}
-              >
-                {renderItem ? (
-                  renderItem(itemInfo)
-                ) : icon ? (
-                  <View style={styles.iconCenter}>
-                    {/* Layer 1: Background Unfilled */}
-                    <View style={StyleSheet.absoluteFill}>
-                      {renderIcon(icon, activeEmptyColor, itemSize)}
-                    </View>
-                    {/* Layer 2: Filled Overlay */}
-                    <View
-                      style={[
-                        StyleSheet.absoluteFill,
-                        {
-                          width: `${fillFraction * 100}%`,
-                          overflow: "hidden",
-                        },
-                      ]}
-                    >
-                      <View style={{ width: itemSize, height: itemSize }}>
-                        {renderIcon(icon, activeColor, itemSize)}
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <View style={styles.iconCenter}>
-                    {/* Layer 1: Background Unfilled Shape */}
-                    <View style={StyleSheet.absoluteFill}>
-                      <ShapeSvg
-                        shape={shape}
-                        color={activeEmptyColor}
-                        size={itemSize}
-                      />
-                    </View>
-                    {/* Layer 2: Active Filled Shape with Percentage Width Clipping */}
-                    <View
-                      style={[
-                        StyleSheet.absoluteFill,
-                        {
-                          width: `${fillFraction * 100}%`,
-                          overflow: "hidden",
-                        },
-                      ]}
-                    >
-                      <View style={{ width: itemSize, height: itemSize }}>
-                        <ShapeSvg
-                          shape={shape}
-                          color={activeColor}
-                          size={itemSize}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                )}
-              </View>
-            );
-          })}
+          {Array.from({ length: max }).map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.itemWrapper,
+                { width: itemSize, height: itemSize },
+                itemStyle,
+              ]}
+            >
+              <RatingItemWrapper
+                index={index}
+                itemSize={itemSize}
+                ratingShared={ratingShared}
+                activeColor={activeColor}
+                activeEmptyColor={activeEmptyColor}
+                shape={shape}
+                icon={icon}
+                renderItem={renderItem}
+              />
+            </View>
+          ))}
         </Animated.View>
       </GestureDetector>
 

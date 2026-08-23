@@ -1,6 +1,6 @@
 ---
 title: Avatar
-description: User avatar component with image support, initials fallback, status badges, and grouped stack layouts.
+description: User profile image component supporting sizes (sm, default, lg, xl), shape variants (circle, square, rounded), status indicators, and grouped stack layouts.
 ---
 
 import { Code } from '@astrojs/starlight/components';
@@ -10,11 +10,34 @@ export const basicAvatarCode = `import { Avatar, AvatarImage, AvatarFallback, Av
 
 export function AvatarExample() {
   return (
-    <Avatar size="lg">
+    <Avatar size="xl" shape="circle">
       <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
-      <AvatarFallback>MD</AvatarFallback>
-      <AvatarBadge bg="#10B981" />
+      <AvatarFallback>JD</AvatarFallback>
+      <AvatarBadge status="online" />
     </Avatar>
+  );
+}`;
+
+export const shapesAvatarCode = `import { Avatar, AvatarImage, AvatarFallback, Box } from '@masumdev/rn-ui';
+
+export function AvatarShapesExample() {
+  return (
+    <Box row gap="md">
+      <Avatar size="lg" shape="circle">
+        <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+        <AvatarFallback>JD</AvatarFallback>
+      </Avatar>
+
+      <Avatar size="lg" shape="rounded">
+        <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' }} />
+        <AvatarFallback>AM</AvatarFallback>
+      </Avatar>
+
+      <Avatar size="lg" shape="square">
+        <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce' }} />
+        <AvatarFallback>WL</AvatarFallback>
+      </Avatar>
+    </Box>
   );
 }`;
 
@@ -22,31 +45,37 @@ export const avatarGroupCode = `import { AvatarGroup, Avatar, AvatarImage, Avata
 
 export function AvatarStackExample() {
   return (
-    <AvatarGroup size="default">
+    <AvatarGroup size="lg" shape="rounded">
       <Avatar>
         <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
-        <AvatarFallback>A1</AvatarFallback>
+        <AvatarFallback>JD</AvatarFallback>
       </Avatar>
       <Avatar>
         <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' }} />
-        <AvatarFallback>A2</AvatarFallback>
+        <AvatarFallback>AM</AvatarFallback>
       </Avatar>
-      <AvatarGroupCount count={5} />
+      <AvatarGroupCount count={8} />
     </AvatarGroup>
   );
 }`;
 
-`Avatar` renders user profile photos, fallback initial letters, status indicator badges, and stacked avatar group rings.
+`Avatar` renders user profile photos, fallback initial letters, status indicator badges (online, busy, away, offline), shape options, and stacked avatar group rings.
 
 ## Basic Usage
 
-<Code code={basicAvatarCode} lang="tsx" title="AvatarExample.tsx" mark={['Avatar', 'AvatarImage', 'AvatarFallback', 'AvatarBadge']} />
+<Code code={basicAvatarCode} lang="tsx" title="AvatarExample.tsx" mark={['Avatar', 'size="xl"', 'AvatarImage', 'AvatarFallback', 'AvatarBadge', 'status="online"']} />
+
+## Shape Variants
+
+Avatars support three shapes: `circle` (default), `rounded`, and `square`:
+
+<Code code={shapesAvatarCode} lang="tsx" title="AvatarShapesExample.tsx" mark={['shape="circle"', 'shape="rounded"', 'shape="square"']} />
 
 ## Avatar Group Stacks
 
 Group multiple avatars into an overlapping horizontal ring stack with `<AvatarGroup>`:
 
-<Code code={avatarGroupCode} lang="tsx" title="AvatarStackExample.tsx" mark={['AvatarGroup', 'AvatarGroupCount']} />
+<Code code={avatarGroupCode} lang="tsx" title="AvatarStackExample.tsx" mark={['AvatarGroup', 'size="lg"', 'shape="rounded"', 'AvatarGroupCount']} />
 
 ## Props API
 
@@ -54,8 +83,9 @@ Group multiple avatars into an overlapping horizontal ring stack with `<AvatarGr
 
 <TypeTable
   type={{
-    size: { type: "'sm' | 'default' | 'lg'", default: "'default'", description: 'Avatar diameter size.' },
-    children: { type: 'ReactNode', description: 'Compound sub-components (AvatarImage, AvatarFallback, AvatarBadge).' },
+    size: { type: "'sm' | 'default' | 'lg' | 'xl' | number", default: "'default'", description: 'Avatar diameter size (sm=28px, default=36px, lg=44px, xl=56px).' },
+    shape: { type: "'circle' | 'square' | 'rounded'", default: "'circle'", description: 'Border radius shape profile.' },
+    children: { type: 'ReactNode', description: 'Sub-components (AvatarImage, AvatarFallback, AvatarBadge).' },
   }}
 />
 
@@ -63,7 +93,8 @@ Group multiple avatars into an overlapping horizontal ring stack with `<AvatarGr
 
 <TypeTable
   type={{
-    bg: { type: 'string', description: 'Custom background color for status dot (defaults to primary).' },
+    status: { type: "'online' | 'busy' | 'away' | 'offline'", default: "'online'", description: 'Predefined status indicator color (online=success, busy=danger, away=warning, offline=muted).' },
+    bg: { type: 'string', description: 'Custom background color override.' },
   }}
 />
 
@@ -71,14 +102,7 @@ Group multiple avatars into an overlapping horizontal ring stack with `<AvatarGr
 
 <TypeTable
   type={{
-    size: { type: "'sm' | 'default' | 'lg'", default: "'default'", description: 'Uniform size for all child avatars in group.' },
-  }}
-/>
-
-### AvatarGroupCount
-
-<TypeTable
-  type={{
-    count: { type: 'number', description: 'Numeric count of remaining hidden group members (e.g. +5).' },
+    size: { type: "'sm' | 'default' | 'lg' | 'xl' | number", default: "'default'", description: 'Uniform size for all child avatars in group.' },
+    shape: { type: "'circle' | 'square' | 'rounded'", default: "'circle'", description: 'Uniform shape profile for all child avatars in group.' },
   }}
 />

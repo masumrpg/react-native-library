@@ -10,6 +10,7 @@ import {
   EmptyTitle,
 } from "@masumdev/rn-ui";
 import { ChevronRight, FileText } from "lucide-react-native";
+import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function EmptySection({ ctx }: { ctx: RnUiSectionContext }) {
@@ -17,24 +18,24 @@ export function EmptySection({ ctx }: { ctx: RnUiSectionContext }) {
 
   return (
     <Section title="Empty">
-      <Card>
+      <Card outlined>
         <Empty style={styles.emptySample}>
           <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <FileText color={colors.text} size={16} />
+            <EmptyMedia variant="icon" size="md">
+              <FileText color={colors.primary} size={28} />
             </EmptyMedia>
-            <EmptyTitle>Expo React Native</EmptyTitle>
+            <EmptyTitle>No Documents Found</EmptyTitle>
             <EmptyDescription>
-              Expo React Native by Ma'sum. Crafted for consistent mobile UI in
-              2026.
+              There are no documents or files available in this collection yet.
+              Create a new document to get started.
             </EmptyDescription>
           </EmptyHeader>
 
           <EmptyContent>
             <Box row center gap="sm" style={styles.wrap}>
-              <Button size="sm">Explore 2026</Button>
+              <Button size="sm">Create Document</Button>
               <Button size="sm" variant="outline" tone="secondary">
-                by Ma'sum
+                Import File
               </Button>
             </Box>
 
@@ -44,7 +45,7 @@ export function EmptySection({ ctx }: { ctx: RnUiSectionContext }) {
               tone="secondary"
               rightIcon={icon(ChevronRight)}
             >
-              Expo React Native
+              Browse Templates
             </Button>
           </EmptyContent>
         </Empty>

@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
+  Easing,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
@@ -16,9 +17,17 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon, type ToneProps } from "./types";
+import { withAlpha } from "../utils";
+import { triggerHaptic } from "../utils/haptics";
 import { Button } from "./Button";
 import { Text } from "./Text";
+import {
+  renderIcon,
+  type RenderIcon,
+  type BaseGlassProps,
+  type BaseHapticProps,
+  type ToneProps,
+} from "./types";
 
 export type AlertDialogTone =
   | "primary"
@@ -28,8 +37,14 @@ export type AlertDialogTone =
   | "info"
   | "secondary";
 
-export interface AlertDialogProps extends ToneProps<AlertDialogTone> {
+export type AlertDialogAlign = "center" | "left";
+
+export interface AlertDialogProps
+  extends ToneProps<AlertDialogTone>,
+    BaseGlassProps,
+    BaseHapticProps {
   visible: boolean;
+  align?: AlertDialogAlign;
   title?: React.ReactNode;
   description?: React.ReactNode;
   children?: React.ReactNode;
@@ -69,29 +84,15 @@ function getToneColor(
   return colors.secondary;
 }
 
-function renderDialogText(
-  content: React.ReactNode,
-  variant: React.ComponentProps<typeof Text>["variant"],
-  color: React.ComponentProps<typeof Text>["color"],
-  style?: StyleProp<TextStyle>,
-) {
-  if (typeof content === "string") {
-    return (
-      <Text variant={variant} color={color} style={style}>
-        {content}
-      </Text>
-    );
-  }
-
-  return content;
-}
-
 export function AlertDialog({
   visible,
+  align = "center",
   title,
   description,
   children,
   tone = "primary",
+  glass = false,
+  haptic = true,
   icon,
   closeIcon,
   confirmText = "Confirm",
@@ -104,7 +105,7 @@ export function AlertDialog({
   cancelDisabled = false,
   dismissOnBackdropPress = true,
   animated = true,
-  animationDuration = 180,
+  animationDuration = 220,
   modalProps,
   overlayStyle,
   style,
@@ -112,47 +113,60 @@ export function AlertDialog({
   titleStyle,
   descriptionStyle,
 }: AlertDialogProps) {
-  const { colors, components, radii, spacing } = useTheme();
+  const { colors, components, radii, spacing, isDark } = useTheme();
   const [mounted, setMounted] = useState(visible);
   const progress = useSharedValue(visible ? 1 : 0);
   const toneColor = getToneColor(tone, colors);
 
   useEffect(() => {
     if (visible) {
+      if (haptic) triggerHaptic("medium");
       setMounted(true);
-    }
-
-    if (!animated) {
-      if (!visible) {
+      if (animated) {
+        progress.value = withTiming(1, {
+          duration: animationDuration,
+          easing: Easing.out(Easing.cubic),
+        });
+      } else {
+        progress.value = 1;
+      }
+    } else {
+      if (animated) {
+        progress.value = withTiming(
+          0,
+          {
+            duration: Math.max(120, animationDuration - 40),
+            easing: Easing.in(Easing.quad),
+          },
+          (finished) => {
+            if (finished) {
+              runOnJS(setMounted)(false);
+            }
+          },
+        );
+      } else {
+        progress.value = 0;
         setMounted(false);
       }
-      return;
     }
+  }, [animated, animationDuration, haptic, progress, visible]);
 
-    progress.value = withTiming(
-      visible ? 1 : 0,
-      { duration: animationDuration },
-      (finished) => {
-        if (finished && !visible) {
-          runOnJS(setMounted)(false);
-        }
-      },
-    );
-  }, [animated, animationDuration, progress, visible]);
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
     transform: [
-      { scale: 0.96 + progress.value * 0.04 },
-      { translateY: 12 * (1 - progress.value) },
+      { scale: 0.94 + progress.value * 0.06 },
+      { translateY: 10 * (1 - progress.value) },
     ],
   }));
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   const requestClose = () => {
+    if (haptic) triggerHaptic("selection");
     onClose?.();
   };
 
@@ -162,98 +176,166 @@ export function AlertDialog({
     }
   };
 
+  const handleConfirm = () => {
+    if (haptic) triggerHaptic("light");
+    onConfirm?.();
+  };
+
+  const handleCancel = () => {
+    if (haptic) triggerHaptic("selection");
+    onCancel?.();
+  };
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.92)"
+    : "rgba(255, 255, 255, 0.96)";
+
+  const dialogBg = glass ? glassBg : colors.surface;
+  const borderColor = withAlpha(toneColor, isDark ? 0.35 : 0.25);
+  const isCentered = align === "center";
+
   const dialog = (
     <View
       style={[
         {
           width: "100%",
-          maxWidth: 420,
-          backgroundColor: colors.surface,
+          maxWidth: 400,
+          backgroundColor: dialogBg,
           borderRadius: radii.xxl,
           borderWidth: components.borderWidth.strong,
-          borderColor: colors.border,
-          padding: spacing.lg,
+          borderColor,
+          padding: spacing.xl,
           gap: spacing.lg,
+          alignItems: isCentered ? "center" : "stretch",
+          position: "relative",
+          elevation: 0,
         },
         style,
       ]}
     >
+      {/* Top Close Button (✕) */}
+      {onClose ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close dialog"
+          onPress={requestClose}
+          hitSlop={12}
+          style={({ pressed }) => ({
+            position: "absolute",
+            top: spacing.md,
+            right: spacing.md,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: pressed ? colors.backgroundMuted : "transparent",
+            zIndex: 10,
+            opacity: pressed ? 0.8 : 0.7,
+          })}
+        >
+          {closeIcon ? (
+            renderIcon(closeIcon, colors.textMuted, 16)
+          ) : (
+            <Text style={{ color: colors.textMuted, fontSize: 16, fontWeight: "600" }}>
+              ✕
+            </Text>
+          )}
+        </Pressable>
+      ) : null}
+
+      {/* Icon Badge */}
+      {icon ? (
+        <View
+          style={{
+            width: isCentered ? 56 : 44,
+            height: isCentered ? 56 : 44,
+            borderRadius: isCentered ? 28 : radii.lg,
+            backgroundColor: withAlpha(toneColor, 0.14),
+            borderWidth: 1.5,
+            borderColor: withAlpha(toneColor, 0.28),
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf: isCentered ? "center" : "flex-start",
+          }}
+        >
+          {renderIcon(icon, toneColor, isCentered ? 26 : 22)}
+        </View>
+      ) : null}
+
+      {/* Title & Description */}
       <View
-        style={{
-          flexDirection: "row",
-          gap: spacing.md,
-          alignItems: "flex-start",
-        }}
+        style={[
+          {
+            width: "100%",
+            gap: spacing.xs,
+            alignItems: isCentered ? "center" : "flex-start",
+          },
+          contentStyle,
+        ]}
       >
-        {icon ? (
-          <View
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: radii.lg,
-              backgroundColor: colors.backgroundMuted,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {renderIcon(icon, toneColor, 22)}
-          </View>
+        {title ? (
+          typeof title === "string" ? (
+            <Text
+              variant="h3"
+              weight="700"
+              style={[
+                {
+                  textAlign: isCentered ? "center" : "left",
+                  color: colors.text,
+                },
+                titleStyle,
+              ]}
+            >
+              {title}
+            </Text>
+          ) : (
+            title
+          )
         ) : null}
 
-        <View style={[{ flex: 1, gap: spacing.xs }, contentStyle]}>
-          {title ? renderDialogText(title, "title", "text", titleStyle) : null}
-          {description
-            ? renderDialogText(
-                description,
-                "bodySmall",
-                "textMuted",
+        {description ? (
+          typeof description === "string" ? (
+            <Text
+              variant="bodySmall"
+              color="textMuted"
+              style={[
+                {
+                  textAlign: isCentered ? "center" : "left",
+                  lineHeight: 22,
+                },
                 descriptionStyle,
-              )
-            : null}
-        </View>
-
-        {onClose ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Close dialog"
-            onPress={requestClose}
-            style={({ pressed }) => ({
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: pressed ? 0.72 : 1,
-            })}
-          >
-            {closeIcon ? (
-              renderIcon(closeIcon, colors.textMuted, 18)
-            ) : (
-              <Text variant="label" color="textMuted">
-                x
-              </Text>
-            )}
-          </Pressable>
+              ]}
+            >
+              {description}
+            </Text>
+          ) : (
+            description
+          )
         ) : null}
       </View>
 
-      {children ? <View>{children}</View> : null}
+      {children ? <View style={{ width: "100%" }}>{children}</View> : null}
 
+      {/* Action Buttons */}
       {onCancel || onConfirm ? (
         <View
           style={{
+            width: "100%",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: isCentered ? "center" : "flex-end",
             gap: spacing.sm,
+            marginTop: spacing.xs,
           }}
         >
           {onCancel ? (
             <Button
               variant="outline"
               tone="secondary"
-              size="sm"
+              size="md"
+              style={{ flex: isCentered ? 1 : undefined }}
               disabled={cancelDisabled}
-              onPress={onCancel}
+              onPress={handleCancel}
             >
               {cancelText}
             </Button>
@@ -263,10 +345,11 @@ export function AlertDialog({
             <Button
               variant="filled"
               tone={tone}
-              size="sm"
+              size="md"
+              style={{ flex: isCentered ? 1 : undefined }}
               loading={confirmLoading}
               disabled={confirmDisabled}
-              onPress={onConfirm}
+              onPress={handleConfirm}
             >
               {confirmText}
             </Button>
@@ -287,15 +370,16 @@ export function AlertDialog({
       onRequestClose={requestClose}
       {...modalProps}
     >
-      <View
+      <Animated.View
         style={[
           {
             flex: 1,
-            backgroundColor: colors.overlay,
+            backgroundColor: isDark ? "rgba(0, 0, 0, 0.78)" : "rgba(15, 23, 42, 0.65)",
             padding: spacing.xl,
             alignItems: "center",
             justifyContent: "center",
           },
+          backdropAnimatedStyle,
           overlayStyle,
         ]}
       >
@@ -316,9 +400,10 @@ export function AlertDialog({
             style={[
               {
                 width: "100%",
-                maxWidth: 420,
+                maxWidth: 400,
+                alignItems: "center",
               },
-              animatedStyle,
+              cardAnimatedStyle,
             ]}
           >
             {dialog}
@@ -326,7 +411,7 @@ export function AlertDialog({
         ) : (
           dialog
         )}
-      </View>
+      </Animated.View>
     </Modal>
   );
 }

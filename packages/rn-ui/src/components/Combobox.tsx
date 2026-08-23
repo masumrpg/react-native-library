@@ -19,10 +19,22 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme, type ThemeColors } from "../theme";
+import { withAlpha } from "../utils";
+import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
-import { renderIcon, type RenderIcon } from "./types";
+import {
+  renderIcon,
+  type RenderIcon,
+  type BaseGlassProps,
+  type BaseHapticProps,
+  type SizeProps,
+  type VariantProps,
+} from "./types";
 
-export interface ComboboxProps {
+export type ComboboxVariant = "outline" | "filled" | "soft";
+export type ComboboxSize = "sm" | "md" | "lg";
+
+export interface ComboboxProps extends BaseGlassProps, BaseHapticProps {
   value?: string;
   onValueChange?: (value: string) => void;
   open?: boolean;
@@ -44,7 +56,9 @@ export interface ComboboxContextProps {
     width: number;
     height: number;
   };
-  measureTrigger: () => void;
+  measureTrigger: (callback?: () => void) => void;
+  glass: boolean;
+  haptic: boolean;
   colors: ThemeColors;
 }
 
@@ -63,6 +77,8 @@ export function Combobox({
   onValueChange,
   open: controlledOpen,
   onOpenChange,
+  glass = false,
+  haptic = true,
   children,
 }: ComboboxProps) {
   const { colors } = useTheme();
@@ -107,11 +123,12 @@ export function Combobox({
     [controlledValue, onValueChange],
   );
 
-  const measureTrigger = React.useCallback(() => {
+  const measureTrigger = React.useCallback((callback?: () => void) => {
     triggerRef.current?.measureInWindow(
       (x: number, y: number, width: number, height: number) => {
         if (width > 0 && height > 0) {
           setTriggerLayout({ pageX: x, pageY: y, width, height });
+          callback?.();
         }
       },
     );
@@ -129,6 +146,8 @@ export function Combobox({
         triggerRef,
         triggerLayout,
         measureTrigger,
+        glass,
+        haptic,
         colors,
       }}
     >
@@ -137,7 +156,6 @@ export function Combobox({
   );
 }
 
-// Chevron pure arrow down icon
 function ChevronDownIcon({ color }: { color: string }) {
   return (
     <View
@@ -149,26 +167,49 @@ function ChevronDownIcon({ color }: { color: string }) {
         borderColor: color,
         transform: [{ rotate: "45deg" }],
         marginTop: -3,
-        marginRight: 4,
       }}
     />
   );
 }
 
-export interface ComboboxInputProps {
+function ClearIcon({ color }: { color: string }) {
+  return (
+    <Text style={{ color, fontSize: 14, fontWeight: "600", lineHeight: 14 }}>
+      ✕
+    </Text>
+  );
+}
+
+export interface ComboboxInputProps
+  extends BaseGlassProps,
+    BaseHapticProps,
+    VariantProps<ComboboxVariant>,
+    SizeProps<ComboboxSize> {
   placeholder?: string;
   style?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
   chevronIcon?: RenderIcon;
+  searchIcon?: RenderIcon;
 }
+
+const comboboxHeights: Record<ComboboxSize, number> = {
+  sm: 36,
+  md: 44,
+  lg: 52,
+};
 
 export function ComboboxInput({
   placeholder = "Select option...",
+  size = "md",
+  variant = "outline",
+  glass = false,
+  haptic = true,
   style,
   inputStyle,
   disabled = false,
   chevronIcon,
+  searchIcon,
 }: ComboboxInputProps) {
   const {
     inputValue,
@@ -179,21 +220,52 @@ export function ComboboxInput({
     measureTrigger,
     colors,
   } = useCombobox();
-  const { components, radii, spacing, typography } = useTheme();
+  const { components, radii, spacing, typography, isDark } = useTheme();
 
   const handleFocus = () => {
     if (!disabled) {
-      measureTrigger();
-      setOpen(true);
+      if (haptic) triggerHaptic("light");
+      measureTrigger(() => setOpen(true));
     }
   };
 
   const handlePress = () => {
     if (!disabled) {
-      measureTrigger();
-      setOpen(!open);
+      if (haptic) triggerHaptic("light");
+      measureTrigger(() => setOpen(!open));
     }
   };
+
+  const handleClear = () => {
+    if (haptic) triggerHaptic("light");
+    setInputValue("");
+  };
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.70)"
+    : "rgba(255, 255, 255, 0.85)";
+
+  const triggerBg = disabled
+    ? withAlpha(colors.input, 0.55)
+    : glass
+      ? glassBg
+      : variant === "filled"
+        ? colors.surface
+        : variant === "soft"
+          ? withAlpha(colors.primary, 0.08)
+          : colors.input;
+
+  const borderColor = disabled
+    ? colors.border
+    : open
+      ? colors.primary
+      : glass
+        ? isDark
+          ? "rgba(248, 250, 252, 0.20)"
+          : "rgba(15, 23, 42, 0.14)"
+        : colors.border;
+
+  const containerHeight = comboboxHeights[size];
 
   return (
     <Pressable
@@ -204,30 +276,39 @@ export function ComboboxInput({
         {
           flexDirection: "row",
           alignItems: "center",
-          height: 40,
-          borderWidth: components.borderWidth.strong,
-          borderColor: colors.border,
+          height: containerHeight,
+          borderWidth: open
+            ? components.borderWidth.focus
+            : components.borderWidth.strong,
+          borderColor,
           borderRadius: radii.lg,
-          backgroundColor: colors.input,
+          backgroundColor: triggerBg,
           paddingHorizontal: spacing.md,
           width: "100%",
-          opacity: disabled ? 0.5 : 1,
+          gap: spacing.sm,
+          opacity: disabled ? 0.56 : 1,
         },
         style,
       ]}
     >
+      {searchIcon ? renderIcon(searchIcon, colors.textMuted, 16) : null}
+
       <TextInput
         editable={!disabled}
         placeholder={placeholder}
-        placeholderTextColor={colors.textMuted}
+        placeholderTextColor={colors.placeholder}
         value={inputValue}
-        onChangeText={setInputValue}
+        onChangeText={(val) => {
+          setInputValue(val);
+          if (!open) setOpen(true);
+        }}
         onFocus={handleFocus}
         pointerEvents={disabled ? "none" : "auto"}
         style={[
           {
             flex: 1,
-            ...typography.bodySmall,
+            ...typography.body,
+            fontSize: size === "sm" ? 13 : 15,
             color: colors.text,
             padding: 0,
             height: "100%",
@@ -235,6 +316,13 @@ export function ComboboxInput({
           inputStyle,
         ]}
       />
+
+      {!!inputValue && (
+        <Pressable onPress={handleClear} hitSlop={8}>
+          <ClearIcon color={colors.textMuted} />
+        </Pressable>
+      )}
+
       {chevronIcon ? (
         renderIcon(chevronIcon, colors.textMuted, 16)
       ) : (
@@ -260,8 +348,8 @@ export function ComboboxContent({
   overlayStyle,
   modalProps,
 }: ComboboxContentProps) {
-  const { open, setOpen, triggerLayout, colors } = useCombobox();
-  const { components, radii } = useTheme();
+  const { open, setOpen, triggerLayout, colors, glass } = useCombobox();
+  const { components, radii, spacing, isDark } = useTheme();
   const progress = useSharedValue(open ? 1 : 0);
 
   React.useEffect(() => {
@@ -271,25 +359,29 @@ export function ComboboxContent({
   const { height: SCREEN_HEIGHT } = Dimensions.get("window");
   const spaceBelow =
     SCREEN_HEIGHT - (triggerLayout.pageY + triggerLayout.height);
-  const dropdownMaxHeight = 220;
+  const dropdownMaxHeight = 240;
   const renderAbove = spaceBelow < dropdownMaxHeight + 40;
 
   const positionStyle = renderAbove
     ? { bottom: SCREEN_HEIGHT - triggerLayout.pageY + 6 }
-    : { top: triggerLayout.pageY + triggerLayout.height + 6 };
+    : { top: triggerLayout.pageY + triggerLayout.height + 4 };
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [{ translateY: (renderAbove ? 8 : -8) * (1 - progress.value) }],
+    transform: [{ translateY: (renderAbove ? 6 : -6) * (1 - progress.value) }],
   }));
 
-  if (!open) return null;
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.70)"
+    : "rgba(255, 255, 255, 0.85)";
+
+  if (!open || triggerLayout.width === 0) return null;
 
   return (
     <Modal
       transparent
       visible={open}
-      animationType="none"
+      animationType="fade"
       statusBarTranslucent
       navigationBarTranslucent
       hardwareAccelerated
@@ -307,12 +399,22 @@ export function ComboboxContent({
             position: "absolute",
             left: triggerLayout.pageX,
             width: triggerLayout.width,
-            backgroundColor: colors.surface,
+            backgroundColor: glass ? glassBg : colors.surface,
             borderWidth: components.borderWidth.strong,
-            borderColor: colors.border,
-            borderRadius: radii.lg,
+            borderColor: glass
+              ? isDark
+                ? "rgba(248, 250, 252, 0.20)"
+                : "rgba(15, 23, 42, 0.14)"
+              : colors.border,
+            borderRadius: radii.xl,
             maxHeight: dropdownMaxHeight,
+            padding: spacing.xs,
             overflow: "hidden",
+            elevation: 8,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.18,
+            shadowRadius: 12,
           },
           animatedStyle,
           positionStyle,
@@ -331,27 +433,25 @@ export interface ComboboxListProps {
 }
 
 export function ComboboxList({ children, style }: ComboboxListProps) {
-  const { spacing } = useTheme();
-
   return (
     <ScrollView
+      nestedScrollEnabled
       keyboardShouldPersistTaps="handled"
-      style={[{ flex: 1, padding: spacing.xs }, style]}
+      style={[{ flex: 1 }, style]}
     >
-      {children}
+      <View style={{ gap: 2 }}>{children}</View>
     </ScrollView>
   );
 }
 
 export interface ComboboxItemProps {
   value: string;
-  label: string; // Required for automatic text filtering
+  label: string;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   checkIcon?: RenderIcon;
 }
 
-// Chevron checkmark for selected indicator
 function CheckIcon({ color }: { color: string }) {
   return (
     <View
@@ -362,7 +462,7 @@ function CheckIcon({ color }: { color: string }) {
         borderBottomWidth: 1.75,
         borderColor: color,
         transform: [{ rotate: "-45deg" }],
-        marginRight: 6,
+        marginRight: 4,
       }}
     />
   );
@@ -381,11 +481,11 @@ export function ComboboxItem({
     setOpen,
     inputValue,
     setInputValue,
+    haptic,
     colors,
   } = useCombobox();
   const { radii, spacing, typography } = useTheme();
 
-  // Automatic filter matching
   if (inputValue && !label.toLowerCase().includes(inputValue.toLowerCase())) {
     return null;
   }
@@ -393,6 +493,7 @@ export function ComboboxItem({
   const isSelected = selectedValue === value;
 
   const handlePress = () => {
+    if (haptic) triggerHaptic("selection");
     onValueChange(value);
     setInputValue(label);
     setOpen(false);
@@ -403,15 +504,16 @@ export function ComboboxItem({
       onPress={handlePress}
       style={({ pressed }) => [
         {
+          minHeight: 40,
           flexDirection: "row",
           alignItems: "center",
-          paddingVertical: spacing.sm + 1,
+          paddingVertical: spacing.xs,
           paddingHorizontal: spacing.md,
-          borderRadius: radii.md,
+          borderRadius: radii.lg,
           backgroundColor: isSelected
-            ? colors.surfaceMuted
+            ? colors.primarySoft
             : pressed
-              ? colors.surfaceMuted
+              ? colors.backgroundMuted
               : colors.transparent,
           justifyContent: "space-between",
         },
@@ -420,16 +522,16 @@ export function ComboboxItem({
     >
       <Text
         style={{
-          ...typography.bodySmall,
-          color: colors.text,
-          fontWeight: isSelected ? "500" : "400",
+          ...typography.body,
+          color: isSelected ? colors.primary : colors.text,
+          fontWeight: isSelected ? "600" : "400",
         }}
       >
         {children || label}
       </Text>
       {isSelected &&
         (checkIcon ? (
-          renderIcon(checkIcon, colors.primary, 14)
+          renderIcon(checkIcon, colors.primary, 16)
         ) : (
           <CheckIcon color={colors.primary} />
         ))}
