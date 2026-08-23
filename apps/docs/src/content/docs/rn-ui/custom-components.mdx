@@ -1,0 +1,151 @@
+---
+title: Building Custom Components
+sidebar:
+  order: 4
+description: Guidelines and rules for extending @masumdev/rn-ui base interfaces and theme hooks.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const customCardCode = `import React from 'react';
+import { Pressable, View } from 'react-native';
+import {
+  BaseUIComponentProps,
+  Text,
+  useTheme,
+  renderIcon,
+  RenderIcon,
+} from '@masumdev/rn-ui';
+
+export interface CustomCardProps
+  extends BaseUIComponentProps<'filled' | 'outline', 'primary' | 'accent' | 'danger'> {
+  title: string;
+  subtitle?: string;
+  icon?: RenderIcon;
+  onPress?: () => void;
+}
+
+export function CustomCard({
+  variant = 'filled',
+  tone = 'primary',
+  size = 'md',
+  title,
+  subtitle,
+  icon,
+  onPress,
+  disabled,
+  loading,
+}: CustomCardProps) {
+  const { colors, radii, spacing, components } = useTheme();
+
+  // Resolve color palette from tone
+  const toneColor =
+    tone === 'danger'
+      ? colors.danger
+      : tone === 'accent'
+      ? colors.accent
+      : colors.primary;
+
+  const isOutline = variant === 'outline';
+
+  return (
+    <Pressable
+      disabled={disabled || loading}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        padding: size === 'sm' ? spacing.sm : spacing.md,
+        borderRadius: radii.xl,
+        borderWidth: isOutline ? components.borderWidth.strong : 0,
+        borderColor: isOutline ? toneColor : 'transparent',
+        backgroundColor: isOutline ? colors.surface : toneColor,
+        opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+      })}
+    >
+      {icon ? renderIcon(icon, isOutline ? toneColor : colors.surface, 24) : null}
+      <View style={{ flex: 1 }}>
+        <Text
+          variant="label"
+          style={{ color: isOutline ? toneColor : colors.surface }}
+        >
+          {title}
+        </Text>
+        {subtitle ? (
+          <Text
+            variant="bodySmall"
+            style={{ color: isOutline ? colors.textMuted : colors.surface }}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
+    </Pressable>
+  );
+}`;
+
+`@masumdev/rn-ui` exports reusable base TypeScript interfaces and theme hooks (`useTheme`, `useThemeStyles`) so that you can easily build your own custom React Native components while maintaining full visual and type-safe consistency across your design system.
+
+## Design System Architectural Rules
+
+To ensure long-term consistency across the monorepo, all `@masumdev/rn-ui` components follow two strict architectural rules:
+
+### 1. Orthogonal Color (`tone`) vs Structure (`variant`)
+- **`tone`** controls **semantic color intent** (`'primary'`, `'secondary'`, `'accent'`, `'success'`, `'warning'`, `'danger'`, `'info'`, `'default'`).
+- **`variant`** controls **visual fill & structure** (`'filled'`, `'outline'`, `'ghost'`, `'soft'`, `'solid'`).
+- *Never combine color names into variant strings* (e.g. use `tone="danger" variant="outline"` instead of `variant="danger-outline"`).
+
+### 2. Selective Base Interface Extension
+- **Interactive Action Controls** (`Button`, `IconButton`, `Badge`, `Alert`, `Switch`, `Slider`, `Rating`, `FloatingActionButton`) **MUST** extend exported base interfaces (`ToneProps`, `VariantProps`, `SizeProps`, `ShapeProps`, `IconSlotsProps`, `BaseUIComponentProps`).
+- **Layout & Structure Primitives** (`Box`, `Divider`, `AspectRatio`, `Calendar`, `Table`) stay clean and lean without extending irrelevant control props.
+
+### 3. Strict Type Safety (Zero `any` Allowed)
+- **Zero `any` Types**: Using `any` type casting or `any` parameter types is **strictly forbidden**. Always use strict React Native event types (e.g. `NativeSyntheticEvent<ImageLoadEventData>`, `LayoutChangeEvent`) or precise generics (`React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)`).
+
+---
+
+## Extending Base UI Interfaces
+
+<TypeTable
+  type={{
+    BaseUIComponentProps: {
+      type: 'interface BaseUIComponentProps<V, T, S>',
+      description: 'Composite interface combining variant, tone, size, disabled, and loading props.',
+    },
+    ToneProps: {
+      type: 'interface ToneProps<T>',
+      description: 'Accepts tone prop for semantic colors (primary, success, danger, etc.).',
+    },
+    VariantProps: {
+      type: 'interface VariantProps<V>',
+      description: 'Accepts variant prop for visual fill/structure (filled, outline, soft, ghost).',
+    },
+    SizeProps: {
+      type: 'interface SizeProps<S>',
+      description: 'Accepts size prop for dimension scaling (xs, sm, md, lg, xl).',
+    },
+    ShapeProps: {
+      type: 'interface ShapeProps<S>',
+      description: 'Accepts shape prop for border radius styling (rounded, pill, square).',
+    },
+    IconSlotsProps: {
+      type: 'interface IconSlotsProps',
+      description: 'Accepts leftIcon and rightIcon props of type RenderIcon.',
+    },
+  }}
+/>
+
+## Example: Building a Custom Card Component
+
+Here is a complete, production-ready example of creating a `<CustomCard />` component by extending `BaseUIComponentProps`:
+
+<Code code={customCardCode} lang="tsx" title="CustomCard.tsx" mark={['extends BaseUIComponentProps', 'useTheme', 'renderIcon']} />
+
+## Key Best Practices
+
+1. **Use `useTheme()` for Dynamic Tokens**: Always dereference `colors`, `spacing`, `radii`, and `components` inside your component so it automatically adapts to light and dark theme mode toggles.
+2. **Use `renderIcon()` Helper**: Pass icon props through `renderIcon(icon, color, size)` to seamlessly support both JSX icon elements (e.g. `<Search />`) and function renderers (e.g. `({ color, size }) => <Search color={color} size={size} />`).
+3. **Extend `BaseUIComponentProps`**: Generics allow you to restrict acceptable `variant` or `tone` values specifically for your component (e.g. `BaseUIComponentProps<'filled' | 'outline', 'primary' | 'accent'>`).
+4. **Use Exported Theme Types for 100% Type-Safety**: Always import `ThemeInput`, `ThemeColors`, `Theme`, or `ThemeStyleFactory` from `@masumdev/rn-ui` when creating custom themes or component style generators to get full IDE autocompletion and prevent type errors.

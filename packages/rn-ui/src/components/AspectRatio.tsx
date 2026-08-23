@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, type ViewProps, type ViewStyle } from "react-native";
+import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from "react-native";
 
 import { useTheme } from "../theme";
 
@@ -39,10 +39,10 @@ export function AspectRatio({
     <View style={[containerStyle, style]} {...props}>
       <View style={StyleSheet.absoluteFill}>
         {React.Children.map(children, (child) => {
-          if (React.isValidElement(child)) {
+          if (React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)) {
             return React.cloneElement(child, {
               style: [StyleSheet.absoluteFill, child.props.style],
-            } as any);
+            });
           }
           return child;
         })}

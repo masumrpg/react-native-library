@@ -18,7 +18,13 @@ import Animated, {
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
 import { Text } from "./Text";
-import { renderIcon, type RenderIcon } from "./types";
+import {
+  renderIcon,
+  type RenderIcon,
+  type ToneProps,
+  type VariantProps,
+  type SizeProps,
+} from "./types";
 import type { ButtonTone, ButtonVariant } from "./Button";
 
 export type FloatingActionButtonSize = "sm" | "md" | "lg";
@@ -29,16 +35,14 @@ export type FloatingActionButtonPlacement =
   | "top-end"
   | "top-start";
 
-export interface FloatingActionButtonProps extends Omit<
-  PressableProps,
-  "children" | "style"
-> {
+export interface FloatingActionButtonProps
+  extends Omit<PressableProps, "children" | "style">,
+    VariantProps<Exclude<ButtonVariant, "danger">>,
+    ToneProps<ButtonTone>,
+    SizeProps<FloatingActionButtonSize> {
   icon?: RenderIcon;
   label?: React.ReactNode;
   extended?: boolean;
-  size?: FloatingActionButtonSize;
-  tone?: ButtonTone;
-  variant?: Exclude<ButtonVariant, "danger">;
   placement?: FloatingActionButtonPlacement;
   offset?: number;
   visible?: boolean;

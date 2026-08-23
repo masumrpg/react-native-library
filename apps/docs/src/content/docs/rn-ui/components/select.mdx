@@ -1,32 +1,49 @@
 ---
 title: Select
-description: Themed dropdown selection component for React Native.
+description: Dropdown select input picker modal with option descriptions and custom icons.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const selectCode = `import { Select } from '@masumdev/rn-ui';
+export const selectCode = `import { useState } from 'react';
+import { Select } from '@masumdev/rn-ui';
 
-<Select
-  placeholder="Choose a language"
-  options={[
-    { label: 'English', value: 'en' },
-    { label: 'Bahasa Indonesia', value: 'id' },
-    { label: 'Arabic', value: 'ar' },
-  ]}
-  onValueChange={(val) => console.log(val)}
-/>`;
+export function SelectExample() {
+  const [selected, setSelected] = useState('expo');
 
-<Code code={selectCode} lang="tsx" title="SelectExample.tsx" mark={['Select', 'options']} />
+  return (
+    <Select
+      title="Choose Framework"
+      placeholder="Select mobile framework..."
+      value={selected}
+      onValueChange={setSelected}
+      options={[
+        { value: 'expo', label: 'Expo React Native', description: 'Recommended managed workflow.' },
+        { value: 'cli', label: 'React Native CLI', description: 'Bare React Native setup.' },
+        { value: 'web', label: 'React Native Web', description: 'Cross-platform web target.', disabled: true },
+      ]}
+    />
+  );
+}`;
+
+`Select` triggers a modal bottom picker sheet for selecting items from an options list.
+
+## Usage
+
+<Code code={selectCode} lang="tsx" title="SelectExample.tsx" mark={['Select', 'options', 'onValueChange']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    options: { type: '{ label: string; value: string }[]', description: 'Available select items.' },
-    value: { type: 'string', description: 'Selected item value.' },
-    placeholder: { type: 'string', description: 'Placeholder label when nothing is selected.' },
-    onValueChange: { type: '(value: string) => void', description: 'Callback fired on selection.' },
+    options: { type: 'SelectOption[]', description: 'Array of option objects with value, label, description, and optional disabled state.' },
+    value: { type: 'string', description: 'Currently selected option value.' },
+    defaultValue: { type: 'string', description: 'Initial default selected value.' },
+    placeholder: { type: 'string', default: "'Select option'", description: 'Placeholder string when no option is selected.' },
+    title: { type: 'string', default: "'Select'", description: 'Modal sheet header title string.' },
+    onValueChange: { type: '(value: string) => void', description: 'Callback when an option is selected.' },
+    chevronIcon: { type: 'RenderIcon', description: 'Custom trailing dropdown arrow icon renderer.' },
+    checkIcon: { type: 'RenderIcon', description: 'Custom checkmark icon for active item.' },
   }}
 />

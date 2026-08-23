@@ -1,24 +1,84 @@
 ---
 title: Avatar
-description: User avatar component with image support, initials fallback, and status indicator.
+description: User avatar component with image support, initials fallback, status badges, and grouped stack layouts.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const avatarCode = `import { Avatar } from '@masumdev/rn-ui';
+export const basicAvatarCode = `import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from '@masumdev/rn-ui';
 
-<Avatar name="Ma'sum" size="lg" status="online" />`;
+export function AvatarExample() {
+  return (
+    <Avatar size="lg">
+      <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+      <AvatarFallback>MD</AvatarFallback>
+      <AvatarBadge bg="#10B981" />
+    </Avatar>
+  );
+}`;
 
-<Code code={avatarCode} lang="tsx" title="AvatarExample.tsx" mark={['Avatar', 'status="online"']} />
+export const avatarGroupCode = `import { AvatarGroup, Avatar, AvatarImage, AvatarFallback, AvatarGroupCount } from '@masumdev/rn-ui';
+
+export function AvatarStackExample() {
+  return (
+    <AvatarGroup size="default">
+      <Avatar>
+        <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' }} />
+        <AvatarFallback>A1</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarImage source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' }} />
+        <AvatarFallback>A2</AvatarFallback>
+      </Avatar>
+      <AvatarGroupCount count={5} />
+    </AvatarGroup>
+  );
+}`;
+
+`Avatar` renders user profile photos, fallback initial letters, status indicator badges, and stacked avatar group rings.
+
+## Basic Usage
+
+<Code code={basicAvatarCode} lang="tsx" title="AvatarExample.tsx" mark={['Avatar', 'AvatarImage', 'AvatarFallback', 'AvatarBadge']} />
+
+## Avatar Group Stacks
+
+Group multiple avatars into an overlapping horizontal ring stack with `<AvatarGroup>`:
+
+<Code code={avatarGroupCode} lang="tsx" title="AvatarStackExample.tsx" mark={['AvatarGroup', 'AvatarGroupCount']} />
 
 ## Props API
 
+### Avatar
+
 <TypeTable
   type={{
-    source: { type: 'ImageSourcePropType', description: 'Avatar image source.' },
-    name: { type: 'string', description: 'Used to render fallback initials.' },
-    size: { type: "'sm' | 'md' | 'lg' | 'xl'", default: "'md'", description: 'Avatar diameter.' },
-    status: { type: "'online' | 'offline' | 'busy' | 'away'", description: 'Optional status dot indicator.' },
+    size: { type: "'sm' | 'default' | 'lg'", default: "'default'", description: 'Avatar diameter size.' },
+    children: { type: 'ReactNode', description: 'Compound sub-components (AvatarImage, AvatarFallback, AvatarBadge).' },
+  }}
+/>
+
+### AvatarBadge
+
+<TypeTable
+  type={{
+    bg: { type: 'string', description: 'Custom background color for status dot (defaults to primary).' },
+  }}
+/>
+
+### AvatarGroup
+
+<TypeTable
+  type={{
+    size: { type: "'sm' | 'default' | 'lg'", default: "'default'", description: 'Uniform size for all child avatars in group.' },
+  }}
+/>
+
+### AvatarGroupCount
+
+<TypeTable
+  type={{
+    count: { type: 'number', description: 'Numeric count of remaining hidden group members (e.g. +5).' },
   }}
 />

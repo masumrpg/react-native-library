@@ -2,25 +2,25 @@ import React from "react";
 import { View, type StyleProp, type ViewStyle } from "react-native";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon } from "./types";
 import { Text } from "./Text";
+import {
+  renderIcon,
+  type RenderIcon,
+  type ToneProps,
+  type VariantProps,
+  type SizeProps,
+  type ComponentTone,
+} from "./types";
 
-export type BadgeTone =
-  | "primary"
-  | "secondary"
-  | "accent"
-  | "success"
-  | "warning"
-  | "danger"
-  | "info";
+export type BadgeTone = ComponentTone;
 export type BadgeVariant = "solid" | "soft" | "outline";
 export type BadgeSize = "sm" | "md" | "lg";
 
-export interface BadgeProps {
+export interface BadgeProps
+  extends ToneProps<BadgeTone>,
+    VariantProps<BadgeVariant>,
+    SizeProps<BadgeSize> {
   children: string;
-  tone?: BadgeTone;
-  variant?: BadgeVariant;
-  size?: BadgeSize;
   icon?: RenderIcon;
   style?: StyleProp<ViewStyle>;
 }
@@ -61,9 +61,10 @@ function getBadgeColors(
       on: colors.onDanger,
     },
     info: { solid: colors.info, soft: colors.infoSoft, on: colors.onInfo },
+    default: { solid: colors.primary, soft: colors.primarySoft, on: colors.onPrimary },
   };
 
-  return map[tone];
+  return map[tone] ?? map.primary;
 }
 
 export function Badge({

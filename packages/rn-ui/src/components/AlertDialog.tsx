@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon } from "./types";
+import { renderIcon, type RenderIcon, type ToneProps } from "./types";
 import { Button } from "./Button";
 import { Text } from "./Text";
 
@@ -28,12 +28,11 @@ export type AlertDialogTone =
   | "info"
   | "secondary";
 
-export interface AlertDialogProps {
+export interface AlertDialogProps extends ToneProps<AlertDialogTone> {
   visible: boolean;
   title?: React.ReactNode;
   description?: React.ReactNode;
   children?: React.ReactNode;
-  tone?: AlertDialogTone;
   icon?: RenderIcon;
   closeIcon?: RenderIcon;
   confirmText?: string;

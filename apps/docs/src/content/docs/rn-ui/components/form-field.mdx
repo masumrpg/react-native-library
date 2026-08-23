@@ -1,26 +1,53 @@
 ---
 title: FormField
-description: Form field wrapper combining Label, Input, and helper/error text messages.
+description: Accessible form control container with FormLabel, FormControl, FormDescription, and FormMessage error context.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const formFieldCode = `import { FormField, Input } from '@masumdev/rn-ui';
+export const formFieldCode = `import React from 'react';
+import { FormField, FormLabel, FormControl, FormDescription, FormMessage, Input } from '@masumdev/rn-ui';
 
-<FormField label="Email Address" error="Invalid email address">
-  <Input placeholder="user@example.com" />
-</FormField>`;
+export function FormFieldExample() {
+  return (
+    <FormField invalid required>
+      <FormLabel>Username</FormLabel>
+      <FormControl>
+        <Input placeholder="enter_username" error />
+      </FormControl>
+      <FormDescription>Choose a unique public handle.</FormDescription>
+      <FormMessage>Username is already taken.</FormMessage>
+    </FormField>
+  );
+}`;
 
-<Code code={formFieldCode} lang="tsx" title="FormFieldExample.tsx" mark={['FormField', 'error']} />
+`FormField` manages form context (invalid state, required asterisk, disabled) for labels, input controls, helper descriptions, and validation error messages.
+
+## Usage
+
+<Code code={formFieldCode} lang="tsx" title="FormFieldExample.tsx" mark={['FormField', 'FormLabel', 'FormControl', 'FormDescription', 'FormMessage']} />
 
 ## Props API
 
+### FormField
+
 <TypeTable
   type={{
-    label: { type: 'string', description: 'Field label text.' },
-    error: { type: 'string', description: 'Error message text string.' },
-    helperText: { type: 'string', description: 'Helper text displayed below input.' },
-    required: { type: 'boolean', default: 'false', description: 'Appends red asterisk to label.' },
+    invalid: { type: 'boolean', default: 'false', description: 'Highlights error state across child message and label.' },
+    required: { type: 'boolean', default: 'false', description: 'Applies required asterisk (*) to FormLabel.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disables user interaction.' },
+  }}
+/>
+
+### FormLabel
+
+Inherits all props from `<Label />`.
+
+### FormMessage
+
+<TypeTable
+  type={{
+    children: { type: 'ReactNode', description: 'Error or warning validation message text.' },
   }}
 />

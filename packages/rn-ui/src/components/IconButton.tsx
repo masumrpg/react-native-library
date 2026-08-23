@@ -11,27 +11,26 @@ import {
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
 import { Text } from "./Text";
-import { renderIcon, type RenderIcon, type ThemeColorName } from "./types";
+import {
+  renderIcon,
+  type RenderIcon,
+  type ThemeColorName,
+  type ToneProps,
+  type VariantProps,
+  type SizeProps,
+  type ComponentTone,
+} from "./types";
 
 export type IconButtonVariant = "filled" | "outline" | "ghost" | "soft";
 export type IconButtonSize = "sm" | "md" | "lg";
-export type IconButtonTone =
-  | "primary"
-  | "secondary"
-  | "accent"
-  | "success"
-  | "warning"
-  | "danger"
-  | "info";
+export type IconButtonTone = ComponentTone;
 
-export interface IconButtonProps extends Omit<
-  PressableProps,
-  "children" | "style"
-> {
+export interface IconButtonProps
+  extends Omit<PressableProps, "children" | "style">,
+    VariantProps<IconButtonVariant>,
+    ToneProps<IconButtonTone>,
+    SizeProps<IconButtonSize> {
   icon: RenderIcon;
-  variant?: IconButtonVariant;
-  size?: IconButtonSize;
-  tone?: IconButtonTone;
   color?: ThemeColorName | string;
   loading?: boolean;
   badge?: number;

@@ -1,6 +1,6 @@
 ---
 title: Card
-description: Themed container card with border, shadow, and padding variants.
+description: Content container card component with padding, elevation shadows, and outlined borders.
 ---
 
 import { Code } from '@astrojs/starlight/components';
@@ -8,18 +8,29 @@ import TypeTable from '@/components/TypeTable.astro';
 
 export const cardCode = `import { Card, Text } from '@masumdev/rn-ui';
 
-<Card variant="outlined">
-  <Text variant="headline">Card Title</Text>
-  <Text variant="body">Card content description goes here.</Text>
-</Card>`;
+export function CardExample() {
+  return (
+    <Card elevated outlined padded>
+      <Text variant="h3">Card Heading</Text>
+      <Text variant="body" color="textMuted">
+        Cards group related content and actions about a single subject.
+      </Text>
+    </Card>
+  );
+}`;
 
-<Code code={cardCode} lang="tsx" title="CardExample.tsx" mark={['Card', 'variant="outlined"']} />
+`Card` is a versatile layout container for grouping content with theme border radius, borders, and shadows.
+
+## Usage
+
+<Code code={cardCode} lang="tsx" title="CardExample.tsx" mark={['Card', 'elevated', 'outlined', 'padded']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    children: { type: 'ReactNode', description: 'Card body content.' },
-    variant: { type: "'elevated' | 'outlined' | 'filled'", default: "'outlined'" },
+    padded: { type: 'boolean', default: 'true', description: 'Applies default theme padding inside container.' },
+    elevated: { type: 'boolean', default: 'false', description: 'Applies medium theme shadow elevation.' },
+    outlined: { type: 'boolean', default: 'true', description: 'Applies theme border ring around card.' },
   }}
 />

@@ -12,8 +12,9 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
+import type { ComponentTone, ToneProps } from "./types";
 
-export interface ProgressProps extends ViewProps {
+export interface ProgressProps extends ViewProps, ToneProps<ComponentTone> {
   value?: number;
   max?: number;
   animated?: boolean;
@@ -24,12 +25,23 @@ export interface ProgressProps extends ViewProps {
 export function Progress({
   value = 0,
   max = 100,
+  tone = "primary",
   animated = true,
   style,
   indicatorStyle,
   ...props
 }: ProgressProps) {
   const { colors, radii } = useTheme();
+  const toneColor =
+    tone === "success"
+      ? colors.success
+      : tone === "warning"
+      ? colors.warning
+      : tone === "danger"
+      ? colors.danger
+      : tone === "accent"
+      ? colors.accent
+      : colors.primary;
   const progress = Math.max(0, Math.min(1, max <= 0 ? 0 : value / max));
   const width = useSharedValue(progress);
 
@@ -66,7 +78,7 @@ export function Progress({
           {
             height: "100%",
             borderRadius: radii.full,
-            backgroundColor: colors.primary,
+            backgroundColor: toneColor,
           },
           indicatorAnimatedStyle,
           indicatorStyle,

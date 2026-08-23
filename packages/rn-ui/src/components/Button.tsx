@@ -11,31 +11,31 @@ import {
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
-import { renderIcon, type RenderIcon } from "./types";
+import {
+  renderIcon,
+  type ToneProps,
+  type VariantProps,
+  type SizeProps,
+  type ShapeProps,
+  type IconSlotsProps,
+  type ComponentTone,
+  type ComponentSize,
+  type ComponentShape,
+} from "./types";
 
 export type ButtonVariant = "filled" | "outline" | "ghost" | "soft" | "danger";
-export type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
-export type ButtonTone =
-  | "primary"
-  | "secondary"
-  | "accent"
-  | "success"
-  | "warning"
-  | "danger"
-  | "info";
-export type ButtonShape = "rounded" | "pill" | "square";
+export type ButtonSize = ComponentSize;
+export type ButtonTone = ComponentTone;
+export type ButtonShape = ComponentShape;
 
-export interface ButtonProps extends Omit<
-  PressableProps,
-  "children" | "style"
-> {
+export interface ButtonProps
+  extends Omit<PressableProps, "children" | "style">,
+    VariantProps<ButtonVariant>,
+    ToneProps<ButtonTone>,
+    SizeProps<ButtonSize>,
+    ShapeProps<ButtonShape>,
+    IconSlotsProps {
   children: React.ReactNode;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  tone?: ButtonTone;
-  shape?: ButtonShape;
-  leftIcon?: RenderIcon;
-  rightIcon?: RenderIcon;
   loading?: boolean;
   fullWidth?: boolean;
   style?: StyleProp<ViewStyle>;

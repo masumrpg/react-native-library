@@ -14,6 +14,7 @@ Reusable React Native UI kit with typed theme tokens, flat light/dark mode, plug
 - Pluggable icons through render functions or React nodes.
 - Reanimated-powered component interactions.
 - Mobile-first primitives for forms, feedback, overlays, data display, and local navigation UI.
+- Strict design system rules and base interfaces (see [RULES.md](./RULES.md)).
 
 ## Requirements
 
