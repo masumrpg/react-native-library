@@ -6,22 +6,32 @@ import {
   ButtonGroupText,
   Card,
   Text,
+  useTheme,
 } from "@masumdev/rn-ui";
+import React from "react";
 import { Animated, type LayoutChangeEvent } from "react-native";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function ButtonGroupsSection({ ctx }: { ctx: RnUiSectionContext }) {
-  const {
-    colors,
-    radii,
-    activeSegment,
-    setActiveSegment,
-    containerWidth,
-    setContainerWidth,
-    padding,
-    activeBlockWidth,
-    translateX,
-  } = ctx;
+  const { colors, radii } = useTheme();
+  const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("weekly");
+  const [containerWidth, setContainerWidth] = React.useState(0);
+  const padding = 4;
+  const activeBlockWidth = containerWidth > 0 ? (containerWidth - padding * 2) / 3 : 0;
+  const translateX = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    let index = 0;
+    if (activeSegment === "monthly") index = 1;
+    if (activeSegment === "yearly") index = 2;
+
+    Animated.spring(translateX, {
+      toValue: index * activeBlockWidth,
+      useNativeDriver: true,
+      damping: 18,
+      stiffness: 180,
+    }).start();
+  }, [activeSegment, activeBlockWidth, translateX]);
 
   return (
     <Section title="Button Groups">
@@ -59,7 +69,7 @@ export function ButtonGroupsSection({ ctx }: { ctx: RnUiSectionContext }) {
               style={{
                 backgroundColor: colors.backgroundMuted,
                 borderRadius: radii.lg,
-                borderWidth: 1.25,
+                borderWidth: 1,
                 borderColor: colors.border,
                 position: "relative",
                 overflow: "hidden",

@@ -71,12 +71,11 @@ export default function QRCodeScreen() {
             <Text variant="labelSmall" color="primary">
               @masumdev/react-native-qr-code-gen
             </Text>
-            <Text variant="h3">QR Code Generator</Text>
+            <Text variant="h2">QR Code Generator</Text>
           </Box>
-          <View style={styles.headerSpacer} />
         </Box>
 
-        <Text color="textMuted" align="center">
+        <Text color="textMuted">
           Modern custom QR components with presets, states, and gallery preview.
         </Text>
 

@@ -13,10 +13,13 @@ import {
 import { useTheme } from "../theme";
 import { Text } from "./Text";
 
-export type AvatarSize = "default" | "sm" | "lg";
+export type AvatarSize = "sm" | "default" | "lg" | "xl" | number;
+export type AvatarShape = "circle" | "square" | "rounded";
+export type AvatarStatus = "online" | "offline" | "busy" | "away";
 
 interface AvatarContextType {
   size: AvatarSize;
+  shape: AvatarShape;
   hasLoaded: boolean;
   setHasLoaded: (value: boolean) => void;
   hasError: boolean;
@@ -39,18 +42,21 @@ function useAvatarContext() {
 const GroupContext = createContext<{
   inGroup: boolean;
   size: AvatarSize;
+  shape: AvatarShape;
 } | null>(null);
 
 export interface AvatarProps extends React.ComponentPropsWithoutRef<
   typeof View
 > {
   size?: AvatarSize;
+  shape?: AvatarShape;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
 export function Avatar({
   size = "default",
+  shape = "circle",
   style,
   children,
   ...props
@@ -62,24 +68,41 @@ export function Avatar({
   // Check if rendered inside an AvatarGroup
   const group = useContext(GroupContext);
   const finalSize = group ? group.size : size;
+  const finalShape = group ? group.shape : shape;
   const inGroup = !!group;
 
   // Determine width and height based on size
-  const dimension = finalSize === "lg" ? 40 : finalSize === "sm" ? 24 : 32;
+  const dimension =
+    typeof finalSize === "number"
+      ? finalSize
+      : finalSize === "xl"
+      ? 56
+      : finalSize === "lg"
+      ? 44
+      : finalSize === "sm"
+      ? 28
+      : 36;
+
+  const borderRadius =
+    finalShape === "circle"
+      ? radii.full
+      : finalShape === "square"
+      ? radii.xs
+      : radii.md;
 
   const rootStyle: ViewStyle = {
     position: "relative",
     width: dimension,
     height: dimension,
-    borderRadius: radii.full,
+    borderRadius,
     backgroundColor: colors.backgroundMuted,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "visible", // Let the badge sit outside or on the edge
+    overflow: "visible",
     ...(inGroup
       ? {
           borderWidth: components.borderWidth.ring,
-          borderColor: colors.background, // ring-2 ring-background
+          borderColor: colors.background,
         }
       : {}),
   };
@@ -88,6 +111,7 @@ export function Avatar({
     <AvatarContext.Provider
       value={{
         size: finalSize,
+        shape: finalShape,
         hasLoaded,
         setHasLoaded,
         hasError,
@@ -113,7 +137,7 @@ export function AvatarImage({
   onError,
   ...props
 }: AvatarImageProps) {
-  const { setHasLoaded, setHasError, hasError } = useAvatarContext();
+  const { setHasLoaded, setHasError, hasError, shape } = useAvatarContext();
   const { radii } = useTheme();
 
   useEffect(() => {
@@ -135,13 +159,20 @@ export function AvatarImage({
     onError?.(e);
   };
 
+  const borderRadius =
+    shape === "circle"
+      ? radii.full
+      : shape === "square"
+      ? radii.xs
+      : radii.md;
+
   return (
     <Image
       source={source}
       style={[
         StyleSheet.absoluteFill,
         {
-          borderRadius: radii.full,
+          borderRadius,
         },
         style,
       ]}
@@ -166,23 +197,37 @@ export function AvatarFallback({
   children,
   ...props
 }: AvatarFallbackProps) {
-  const { hasLoaded, hasError, size } = useAvatarContext();
+  const { hasLoaded, hasError, size, shape } = useAvatarContext();
   const { colors, radii } = useTheme();
 
-  // Show fallback only if not loaded yet OR if load failed
   if (hasLoaded && !hasError) {
     return null;
   }
 
+  const borderRadius =
+    shape === "circle"
+      ? radii.full
+      : shape === "square"
+      ? radii.xs
+      : radii.md;
+
   const fallbackStyle: ViewStyle = {
-    borderRadius: radii.full,
+    borderRadius,
     backgroundColor: colors.backgroundMuted,
     alignItems: "center",
     justifyContent: "center",
   };
 
-  // Determine text size based on size
-  const fontSize = size === "lg" ? 16 : size === "sm" ? 10 : 12;
+  const fontSize =
+    typeof size === "number"
+      ? size * 0.4
+      : size === "xl"
+      ? 20
+      : size === "lg"
+      ? 16
+      : size === "sm"
+      ? 11
+      : 13;
 
   return (
     <View style={[StyleSheet.absoluteFill, fallbackStyle, style]} {...props}>
@@ -206,16 +251,46 @@ export interface AvatarBadgeProps extends React.ComponentPropsWithoutRef<
   typeof View
 > {
   style?: StyleProp<ViewStyle>;
-  bg?: string; // Custom background color override
+  bg?: string;
+  status?: AvatarStatus;
 }
 
-export function AvatarBadge({ style, bg, ...props }: AvatarBadgeProps) {
+export function AvatarBadge({ style, bg, status, ...props }: AvatarBadgeProps) {
   const { size } = useAvatarContext();
   const { colors, components } = useTheme();
 
-  // Determine badge dimensions based on parent size
-  const badgeSize = size === "lg" ? 12 : size === "sm" ? 8 : 10;
-  const offset = size === "lg" ? 0 : size === "sm" ? -1 : -0.5;
+  const statusColor =
+    status === "online"
+      ? colors.success
+      : status === "busy"
+      ? colors.danger
+      : status === "away"
+      ? colors.warning
+      : status === "offline"
+      ? colors.textMuted
+      : bg || colors.success;
+
+  const badgeSize =
+    typeof size === "number"
+      ? size * 0.28
+      : size === "xl"
+      ? 14
+      : size === "lg"
+      ? 12
+      : size === "sm"
+      ? 8
+      : 10;
+
+  const offset =
+    typeof size === "number"
+      ? 0
+      : size === "xl"
+      ? 1
+      : size === "lg"
+      ? 0
+      : size === "sm"
+      ? -1
+      : -0.5;
 
   const badgeStyle: ViewStyle = {
     position: "absolute",
@@ -224,9 +299,9 @@ export function AvatarBadge({ style, bg, ...props }: AvatarBadgeProps) {
     width: badgeSize,
     height: badgeSize,
     borderRadius: badgeSize / 2,
-    backgroundColor: bg || colors.primary,
+    backgroundColor: statusColor,
     borderWidth: components.borderWidth.focus,
-    borderColor: colors.background, // ring-2 ring-background
+    borderColor: colors.background,
     zIndex: 10,
   };
 
@@ -237,12 +312,14 @@ export interface AvatarGroupProps extends React.ComponentPropsWithoutRef<
   typeof View
 > {
   size?: AvatarSize;
+  shape?: AvatarShape;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
 export function AvatarGroup({
   size = "default",
+  shape = "circle",
   style,
   children,
   ...props
@@ -252,11 +329,19 @@ export function AvatarGroup({
     alignItems: "center",
   };
 
-  // Spacing values mapped to negative margins
-  const spacing = size === "lg" ? -10 : size === "sm" ? -6 : -8;
+  const spacing =
+    typeof size === "number"
+      ? -size * 0.25
+      : size === "xl"
+      ? -14
+      : size === "lg"
+      ? -10
+      : size === "sm"
+      ? -6
+      : -8;
 
   return (
-    <GroupContext.Provider value={{ inGroup: true, size }}>
+    <GroupContext.Provider value={{ inGroup: true, size, shape }}>
       <View style={[groupStyle, style]} {...props}>
         {React.Children.map(children, (child, index) => {
           if (!React.isValidElement<{ style?: StyleProp<ViewStyle> }>(child)) return child;
@@ -292,20 +377,57 @@ export function AvatarGroupCount({
   const { colors, components, radii } = useTheme();
   const group = useContext(GroupContext);
   const size = group ? group.size : "default";
+  const shape = group ? group.shape : "circle";
 
-  const dimension = size === "lg" ? 40 : size === "sm" ? 24 : 32;
-  const spacing = size === "lg" ? -10 : size === "sm" ? -6 : -8;
-  const fontSize = size === "lg" ? 14 : size === "sm" ? 10 : 12;
+  const dimension =
+    typeof size === "number"
+      ? size
+      : size === "xl"
+      ? 56
+      : size === "lg"
+      ? 44
+      : size === "sm"
+      ? 28
+      : 36;
+
+  const spacing =
+    typeof size === "number"
+      ? -size * 0.25
+      : size === "xl"
+      ? -14
+      : size === "lg"
+      ? -10
+      : size === "sm"
+      ? -6
+      : -8;
+
+  const fontSize =
+    typeof size === "number"
+      ? size * 0.35
+      : size === "xl"
+      ? 16
+      : size === "lg"
+      ? 14
+      : size === "sm"
+      ? 10
+      : 12;
+
+  const borderRadius =
+    shape === "circle"
+      ? radii.full
+      : shape === "square"
+      ? radii.xs
+      : radii.md;
 
   const countStyle: ViewStyle = {
     width: dimension,
     height: dimension,
-    borderRadius: radii.full,
+    borderRadius,
     backgroundColor: colors.backgroundMuted,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: components.borderWidth.ring,
-    borderColor: colors.background, // ring-2 ring-background
+    borderColor: colors.background,
     marginLeft: spacing,
   };
 

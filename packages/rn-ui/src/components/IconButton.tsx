@@ -10,6 +10,7 @@ import {
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
+import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
 import {
   renderIcon,
@@ -18,6 +19,9 @@ import {
   type ToneProps,
   type VariantProps,
   type SizeProps,
+  type BaseGlassProps,
+  type BaseHapticProps,
+  type BaseAnimatedProps,
   type ComponentTone,
 } from "./types";
 
@@ -29,7 +33,10 @@ export interface IconButtonProps
   extends Omit<PressableProps, "children" | "style">,
     VariantProps<IconButtonVariant>,
     ToneProps<IconButtonTone>,
-    SizeProps<IconButtonSize> {
+    SizeProps<IconButtonSize>,
+    BaseGlassProps,
+    BaseHapticProps,
+    BaseAnimatedProps {
   icon: RenderIcon;
   color?: ThemeColorName | string;
   loading?: boolean;
@@ -65,40 +72,59 @@ export function IconButton({
   tone = "primary",
   color,
   loading,
+  glass = false,
+  haptic = true,
+  animated = true,
   disabled,
   badge,
+  onPress,
   style,
   ...props
 }: IconButtonProps) {
-  const { colors, components } = useTheme();
+  const { colors, components, isDark } = useTheme();
   const base = resolveColor(color, colors) ?? getToneColor(tone, colors);
   const isDisabled = disabled || loading;
   const containerSize = components.iconButton.size[size];
   const iconSize = components.iconButton.iconSize[size];
   const badgeTokens = components.iconButton.badge;
 
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.65)"
+    : "rgba(255, 255, 255, 0.78)";
+
   const backgroundColor = isDisabled
     ? colors.disabled
-    : variant === "filled"
-      ? base
-      : variant === "soft"
-        ? withAlpha(base, 0.12)
-        : variant === "outline"
-          ? colors.surface
-          : colors.transparent;
+    : glass
+      ? glassBg
+      : variant === "filled"
+        ? base
+        : variant === "soft"
+          ? withAlpha(base, 0.12)
+          : variant === "outline"
+            ? colors.surface
+            : colors.transparent;
 
   const iconColor = isDisabled
     ? colors.disabledText
-    : variant === "filled"
-      ? colors.onPrimary
-      : variant === "ghost"
-        ? colors.text
-        : base;
+    : glass
+      ? base
+      : variant === "filled"
+        ? colors.onPrimary
+        : variant === "ghost"
+          ? colors.text
+          : base;
+
+  const handlePress = (e: any) => {
+    if (isDisabled) return;
+    if (haptic) triggerHaptic("light");
+    onPress?.(e);
+  };
 
   return (
     <Pressable
       accessibilityRole="button"
       disabled={isDisabled}
+      onPress={handlePress}
       style={({ pressed }) => [
         {
           width: containerSize,
@@ -106,12 +132,15 @@ export function IconButton({
           borderRadius: containerSize / 2,
           backgroundColor,
           borderColor:
-            variant === "outline" ? colors.border : colors.transparent,
+            glass || variant === "outline" ? colors.border : colors.transparent,
           borderWidth:
-            variant === "outline" ? components.borderWidth.strong : 0,
+            glass || variant === "outline"
+              ? components.borderWidth.strong
+              : 0,
           alignItems: "center",
           justifyContent: "center",
-          opacity: pressed && !isDisabled ? 0.72 : 1,
+          opacity: pressed && !isDisabled ? 0.76 : 1,
+          transform: [{ scale: pressed && animated && !isDisabled ? 0.96 : 1 }],
         },
         style,
       ]}

@@ -6,7 +6,8 @@ import {
   CollapsibleTrigger,
   Text,
 } from "@masumdev/rn-ui";
-import { ChevronsUpDown } from "lucide-react-native";
+import { ChevronsUpDown, Package, Truck, CreditCard } from "lucide-react-native";
+import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
@@ -15,41 +16,41 @@ export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
   return (
     <Section title="Collapsible">
       <Card outlined>
-        <Box gap="md">
+        <Box gap="lg">
           <Text color="textMuted">
-            A simple accordion-like container to show/hide expandable sections
-            with smooth animated height scaling.
+            A lightweight expandable container component to show/hide detailed section content with smooth height scaling.
           </Text>
 
-          <Collapsible style={{ width: "100%", marginTop: 8 }}>
+          {/* Order Details Demo */}
+          <Collapsible defaultOpen={false} style={{ width: "100%" }}>
             <CollapsibleTrigger>
               <Box
                 row
                 center
                 style={{
                   justifyContent: "space-between",
-                  paddingVertical: 4,
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: colors.surface,
                   width: "100%",
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "700",
-                    color: colors.text,
-                  }}
-                >
-                  Order #4189
-                </Text>
+                <Box row center gap="sm">
+                  <Package color={colors.primary} size={20} />
+                  <Text weight="700" color="text">
+                    Order #4189 Details
+                  </Text>
+                </Box>
                 <Box
                   center
                   style={{
-                    width: 32,
-                    height: 32,
+                    width: 30,
+                    height: 30,
                     borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.backgroundMuted,
                   }}
                 >
                   <ChevronsUpDown color={colors.textMuted} size={16} />
@@ -58,8 +59,8 @@ export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
             </CollapsibleTrigger>
 
             <CollapsibleContent>
-              <Box gap="sm" style={{ marginTop: 12 }}>
-                {/* Box 1: Status */}
+              <Box gap="sm" style={{ marginTop: 10 }}>
+                {/* Status Card */}
                 <Box
                   row
                   center
@@ -69,25 +70,19 @@ export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
                     borderWidth: 1,
                     borderColor: colors.border,
                     borderRadius: 10,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.surfaceMuted,
                     justifyContent: "space-between",
                   }}
                 >
-                  <Text style={{ color: colors.textMuted, fontSize: 14 }}>
+                  <Text color="textMuted" variant="bodySmall">
                     Status
                   </Text>
-                  <Text
-                    style={{
-                      fontWeight: "600",
-                      color: colors.text,
-                      fontSize: 14,
-                    }}
-                  >
-                    Shipped
+                  <Text weight="600" color="success" variant="bodySmall">
+                    Shipped (On the way)
                   </Text>
                 </Box>
 
-                {/* Box 2: Shipping address */}
+                {/* Shipping address */}
                 <Box
                   style={{
                     paddingHorizontal: 16,
@@ -95,25 +90,22 @@ export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
                     borderWidth: 1,
                     borderColor: colors.border,
                     borderRadius: 10,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.surfaceMuted,
                     gap: 2,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontWeight: "600",
-                      color: colors.text,
-                      fontSize: 14,
-                    }}
-                  >
-                    Shipping address
-                  </Text>
-                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>
-                    100 Market St, San Francisco
+                  <Box row center gap="xs">
+                    <Truck color={colors.primary} size={16} />
+                    <Text weight="600" color="text" variant="bodySmall">
+                      Shipping Address
+                    </Text>
+                  </Box>
+                  <Text color="textMuted" variant="bodySmall">
+                    100 Market St, San Francisco, CA 94105
                   </Text>
                 </Box>
 
-                {/* Box 3: Items */}
+                {/* Items & Payment */}
                 <Box
                   style={{
                     paddingHorizontal: 16,
@@ -121,21 +113,18 @@ export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {
                     borderWidth: 1,
                     borderColor: colors.border,
                     borderRadius: 10,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.surfaceMuted,
                     gap: 2,
                   }}
                 >
-                  <Text
-                    style={{
-                      fontWeight: "600",
-                      color: colors.text,
-                      fontSize: 14,
-                    }}
-                  >
-                    Items
-                  </Text>
-                  <Text style={{ color: colors.textMuted, fontSize: 13 }}>
-                    2x Studio Headphones
+                  <Box row center gap="xs">
+                    <CreditCard color={colors.primary} size={16} />
+                    <Text weight="600" color="text" variant="bodySmall">
+                      Items Purchased
+                    </Text>
+                  </Box>
+                  <Text color="textMuted" variant="bodySmall">
+                    2x Studio Pro Wireless Headphones ($299.00)
                   </Text>
                 </Box>
               </Box>

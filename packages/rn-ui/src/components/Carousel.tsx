@@ -17,6 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { renderIcon, type RenderIcon } from "./types";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -25,6 +26,9 @@ export interface CarouselProps {
   itemWidth?: number;
   onIndexChange?: (index: number) => void;
   showPagination?: boolean;
+  autoPlay?: boolean;
+  autoPlayInterval?: number;
+  loop?: boolean;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
@@ -53,15 +57,75 @@ export function useCarousel() {
   return context;
 }
 
+function CarouselDot({ index }: { index: number }) {
+  const { colors } = useTheme();
+  const { scrollX, itemWidth, scrollViewRef, setActiveIndex } = useCarousel();
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const inputRange = [
+      (index - 1) * itemWidth,
+      index * itemWidth,
+      (index + 1) * itemWidth,
+    ];
+
+    const width = interpolate(
+      scrollX.value,
+      inputRange,
+      [6, 22, 6],
+      Extrapolation.CLAMP,
+    );
+
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.35, 1, 0.35],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      width,
+      opacity,
+    };
+  });
+
+  return (
+    <Pressable
+      onPress={() => {
+        triggerHaptic("selection");
+        scrollViewRef.current?.scrollTo({
+          x: index * itemWidth,
+          animated: true,
+        });
+        setActiveIndex(index);
+      }}
+      hitSlop={8}
+    >
+      <Animated.View
+        style={[
+          {
+            height: 6,
+            borderRadius: 999,
+            backgroundColor: colors.primary,
+          },
+          animatedStyle,
+        ]}
+      />
+    </Pressable>
+  );
+}
+
 export function Carousel({
   itemWidth,
   onIndexChange,
   showPagination = true,
+  autoPlay = false,
+  autoPlayInterval = 3000,
+  loop = true,
   style,
   children,
   ...props
 }: CarouselProps) {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
 
   const [containerWidth, setContainerWidth] = React.useState(SCREEN_WIDTH);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -73,25 +137,38 @@ export function Carousel({
   const resolvedItemWidth = itemWidth || containerWidth * 0.78;
 
   const scrollPrev = React.useCallback(() => {
-    const nextIndex = Math.max(0, activeIndex - 1);
+    triggerHaptic("selection");
+    const nextIndex = activeIndex > 0 ? activeIndex - 1 : loop ? totalItems - 1 : 0;
     scrollViewRef.current?.scrollTo({
       x: nextIndex * resolvedItemWidth,
       animated: true,
     });
     setActiveIndex(nextIndex);
-  }, [activeIndex, resolvedItemWidth]);
+  }, [activeIndex, loop, resolvedItemWidth, totalItems]);
 
   const scrollNext = React.useCallback(() => {
-    const nextIndex = Math.min(totalItems - 1, activeIndex + 1);
+    triggerHaptic("selection");
+    const nextIndex = activeIndex < totalItems - 1 ? activeIndex + 1 : loop ? 0 : totalItems - 1;
     scrollViewRef.current?.scrollTo({
       x: nextIndex * resolvedItemWidth,
       animated: true,
     });
     setActiveIndex(nextIndex);
-  }, [activeIndex, totalItems, resolvedItemWidth]);
+  }, [activeIndex, loop, resolvedItemWidth, totalItems]);
 
-  const canScrollPrev = activeIndex > 0;
-  const canScrollNext = activeIndex < totalItems - 1;
+  const canScrollPrev = loop || activeIndex > 0;
+  const canScrollNext = loop || activeIndex < totalItems - 1;
+
+  // AutoPlay timer
+  React.useEffect(() => {
+    if (!autoPlay || totalItems <= 1) return;
+
+    const timer = setInterval(() => {
+      scrollNext();
+    }, autoPlayInterval);
+
+    return () => clearInterval(timer);
+  }, [autoPlay, autoPlayInterval, totalItems, scrollNext]);
 
   const handleLayout = (e: any) => {
     const { width } = e.nativeEvent.layout;
@@ -143,20 +220,9 @@ export function Carousel({
               gap: spacing.xs,
             }}
           >
-            {Array.from({ length: totalItems }).map((_, i) => {
-              const isActive = activeIndex === i;
-              return (
-                <View
-                  key={i}
-                  style={{
-                    width: isActive ? 16 : 6,
-                    height: 6,
-                    borderRadius: 999,
-                    backgroundColor: isActive ? colors.primary : colors.border,
-                  }}
-                />
-              );
-            })}
+            {Array.from({ length: totalItems }).map((_, i) => (
+              <CarouselDot key={i} index={i} />
+            ))}
           </View>
         )}
       </View>
@@ -211,7 +277,7 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
     }
   };
 
-  const sidePadding = (containerWidth - itemWidth) / 2;
+  const sidePadding = Math.max(0, (containerWidth - itemWidth) / 2);
 
   // Automatically inject index prop into CarouselItem children
   const renderedChildren = childrenArray.map((child, index) => {
@@ -273,7 +339,7 @@ export function CarouselItem({
       opacity: interpolate(
         scrollX.value,
         inputRange,
-        [0.55, 1, 0.55],
+        [0.6, 1, 0.6],
         Extrapolation.CLAMP,
       ),
       transform: [
@@ -281,7 +347,7 @@ export function CarouselItem({
           scale: interpolate(
             scrollX.value,
             inputRange,
-            [0.9, 1, 0.9],
+            [0.92, 1, 0.92],
             Extrapolation.CLAMP,
           ),
         },

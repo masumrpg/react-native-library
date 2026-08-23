@@ -220,12 +220,11 @@ export default function TajweedVerseScreen() {
             <Text variant="labelSmall" color="primary">
               @masumdev/rn-tajweed-verse
             </Text>
-            <Text variant="h3">Tajweed Verse Renderer</Text>
+            <Text variant="h2">Tajweed Verse Renderer</Text>
           </Box>
-          <View style={styles.headerSpacer} />
         </Box>
 
-        <Text color="textMuted" align="center">
+        <Text color="textMuted">
           Quranic text parsing, coloring, and interactive rule previews.
         </Text>
 

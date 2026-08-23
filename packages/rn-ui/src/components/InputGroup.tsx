@@ -18,6 +18,7 @@ import {
   type ButtonVariant,
 } from "./Button";
 import { Input, type InputProps } from "./Input";
+import type { BaseGlassProps } from "./types";
 
 export type InputGroupAddonAlign =
   | "inline-start"
@@ -44,7 +45,7 @@ function useInputGroupContext() {
   return React.useContext(InputGroupContext);
 }
 
-export interface InputGroupProps extends ViewProps {
+export interface InputGroupProps extends ViewProps, BaseGlassProps {
   orientation?: InputGroupOrientation;
   invalid?: boolean;
   disabled?: boolean;
@@ -55,11 +56,12 @@ export function InputGroup({
   orientation = "inline",
   invalid = false,
   disabled = false,
+  glass = false,
   style,
   children,
   ...props
 }: InputGroupProps) {
-  const { colors, radii } = useTheme();
+  const { colors, radii, isDark } = useTheme();
   const [focused, setFocused] = React.useState(false);
   const [controlState, setControlState] = React.useState({
     invalid: false,
@@ -68,11 +70,20 @@ export function InputGroup({
 
   const isInvalid = invalid || controlState.invalid;
   const isDisabled = disabled || controlState.disabled;
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.75)";
+
   const borderColor = isInvalid
     ? colors.danger
     : focused
       ? colors.primary
-      : colors.border;
+      : glass
+        ? isDark
+          ? "rgba(248, 250, 252, 0.20)"
+          : "rgba(15, 23, 42, 0.14)"
+        : colors.border;
 
   const value = React.useMemo<InputGroupContextValue>(
     () => ({
@@ -99,12 +110,14 @@ export function InputGroup({
           {
             width: "100%",
             minHeight: 44,
-            borderRadius: radii.lg,
+            borderRadius: radii.xl,
             borderWidth: focused || isInvalid ? 1.5 : 1.25,
             borderColor,
             backgroundColor: isDisabled
               ? withAlpha(colors.input, 0.55)
-              : colors.input,
+              : glass
+                ? glassBg
+                : colors.input,
             flexDirection: orientation === "block" ? "column" : "row",
             alignItems: orientation === "block" ? "stretch" : "center",
             overflow: "hidden",
@@ -131,7 +144,7 @@ export function InputGroupAddon({
   children,
   ...props
 }: InputGroupAddonProps) {
-  const { spacing } = useTheme();
+  const { colors, spacing } = useTheme();
   const isBlock = align === "block-start" || align === "block-end";
 
   return (
@@ -139,13 +152,17 @@ export function InputGroupAddon({
       style={[
         {
           width: isBlock ? "100%" : undefined,
-          minHeight: isBlock ? undefined : 44,
+          minHeight: isBlock ? 40 : 44,
           paddingHorizontal: isBlock ? spacing.md : spacing.sm,
-          paddingVertical: isBlock ? spacing.sm : 0,
-          alignItems: isBlock ? "flex-start" : "center",
-          justifyContent: "center",
+          paddingVertical: isBlock ? spacing.xs : 0,
+          alignItems: "center",
+          justifyContent: isBlock ? "space-between" : "center",
           flexDirection: "row",
           gap: spacing.sm,
+          borderTopWidth: align === "block-end" ? 1 : 0,
+          borderBottomWidth: align === "block-start" ? 1 : 0,
+          borderColor: colors.borderMuted,
+          backgroundColor: isBlock ? colors.backgroundMuted : "transparent",
         },
         style,
       ]}
@@ -314,7 +331,8 @@ export const InputGroupTextarea = React.forwardRef<
       textAlignVertical="top"
       style={[
         {
-          minHeight: 96,
+          minHeight: 104,
+          paddingHorizontal: 12,
           paddingVertical: 10,
         },
         style,

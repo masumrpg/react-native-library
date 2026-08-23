@@ -11,6 +11,7 @@ import {
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
+import { triggerHaptic } from "../utils/haptics";
 import {
   renderIcon,
   type ToneProps,
@@ -18,6 +19,9 @@ import {
   type SizeProps,
   type ShapeProps,
   type IconSlotsProps,
+  type BaseGlassProps,
+  type BaseHapticProps,
+  type BaseAnimatedProps,
   type ComponentTone,
   type ComponentSize,
   type ComponentShape,
@@ -34,7 +38,10 @@ export interface ButtonProps
     ToneProps<ButtonTone>,
     SizeProps<ButtonSize>,
     ShapeProps<ButtonShape>,
-    IconSlotsProps {
+    IconSlotsProps,
+    BaseGlassProps,
+    BaseHapticProps,
+    BaseAnimatedProps {
   children: React.ReactNode;
   loading?: boolean;
   fullWidth?: boolean;
@@ -94,47 +101,70 @@ export function Button({
   leftIcon,
   rightIcon,
   loading = false,
+  glass = false,
+  haptic = true,
+  animated = true,
   fullWidth,
   disabled,
+  onPress,
   style,
   textStyle,
   ...props
 }: ButtonProps) {
-  const { colors, typography, radii, components, spacing } = useTheme();
+  const { colors, typography, radii, components, spacing, isDark } = useTheme();
   const isDisabled = disabled || loading;
   const visualVariant = variant === "danger" ? "filled" : variant;
   const resolvedTone = variant === "danger" ? "danger" : tone;
   const toneColors = getToneColors(resolvedTone, colors);
 
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.65)"
+    : "rgba(255, 255, 255, 0.78)";
+
   const backgroundColor = isDisabled
     ? colors.disabled
-    : visualVariant === "filled"
-      ? toneColors.base
-      : visualVariant === "soft"
-        ? toneColors.soft
-        : colors.transparent;
+    : glass
+      ? glassBg
+      : visualVariant === "filled"
+        ? toneColors.base
+        : visualVariant === "soft"
+          ? toneColors.soft
+          : colors.transparent;
 
   const foregroundColor = isDisabled
     ? colors.disabledText
-    : visualVariant === "filled"
-      ? toneColors.on
-      : toneColors.base;
+    : glass
+      ? toneColors.base
+      : visualVariant === "filled"
+        ? toneColors.on
+        : toneColors.base;
 
   const borderColor = isDisabled
     ? colors.disabled
-    : visualVariant === "outline"
-      ? withAlpha(toneColors.base, 0.42)
-      : colors.transparent;
+    : glass
+      ? isDark
+        ? "rgba(248, 250, 252, 0.20)"
+        : "rgba(15, 23, 42, 0.14)"
+      : visualVariant === "outline"
+        ? withAlpha(toneColors.base, 0.42)
+        : colors.transparent;
 
   const height = components.button.height[size];
   const iconSize = components.button.iconSize[size];
   const borderRadius =
     shape === "pill" ? radii.full : shape === "square" ? radii.sm : radii.lg;
 
+  const handlePress = (e: any) => {
+    if (isDisabled) return;
+    if (haptic) triggerHaptic("light");
+    onPress?.(e);
+  };
+
   return (
     <Pressable
       accessibilityRole="button"
       disabled={isDisabled}
+      onPress={handlePress}
       style={({ pressed }) => [
         {
           minHeight: height,
@@ -143,12 +173,15 @@ export function Button({
           backgroundColor,
           borderColor,
           borderWidth:
-            visualVariant === "outline" ? components.borderWidth.strong : 0,
+            glass || visualVariant === "outline"
+              ? components.borderWidth.strong
+              : 0,
           alignItems: "center",
           justifyContent: "center",
           flexDirection: "row",
           gap: spacing.sm,
-          opacity: pressed && !isDisabled ? 0.78 : 1,
+          opacity: pressed && !isDisabled ? 0.82 : 1,
+          transform: [{ scale: pressed && animated && !isDisabled ? 0.97 : 1 }],
           width: fullWidth ? "100%" : undefined,
         },
         style,

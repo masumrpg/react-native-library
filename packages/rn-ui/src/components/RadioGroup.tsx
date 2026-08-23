@@ -7,9 +7,18 @@ import {
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
+import type { BaseGlassProps, BaseHapticProps, BaseAnimatedProps } from "./types";
 
 export interface RadioGroupContextValue {
   value?: string;
@@ -63,7 +72,11 @@ export function RadioGroup({
   );
 }
 
-export interface RadioGroupItemProps extends Omit<PressableProps, "style"> {
+export interface RadioGroupItemProps
+  extends Omit<PressableProps, "style">,
+    BaseGlassProps,
+    BaseHapticProps,
+    BaseAnimatedProps {
   value: string;
   label?: React.ReactNode;
   description?: React.ReactNode;
@@ -76,76 +89,158 @@ export function RadioGroupItem({
   label,
   description,
   disabled = false,
+  glass = false,
+  haptic = true,
+  animated = true,
   style,
+  onPress,
   ...props
 }: RadioGroupItemProps) {
   const context = React.useContext(RadioGroupContext);
-  const { colors, components, radii, spacing, typography } = useTheme();
+  const { colors, components, radii, spacing, typography, isDark } = useTheme();
   const checked = context?.value === value;
   const isDisabled = disabled || Boolean(context?.disabled);
+
+  const checkedProgress = useSharedValue(checked ? 1 : 0);
+  const pressedProgress = useSharedValue(0);
+
+  React.useEffect(() => {
+    checkedProgress.value = withSpring(checked ? 1 : 0, {
+      damping: 15,
+      stiffness: 220,
+      mass: 0.7,
+    });
+  }, [checked, checkedProgress]);
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.75)";
+
+  const inactiveBg = glass ? glassBg : colors.surface;
+  const activeBg = colors.primarySoft;
+
+  const inactiveBorder = glass
+    ? isDark
+      ? "rgba(248, 250, 252, 0.20)"
+      : "rgba(15, 23, 42, 0.14)"
+    : colors.border;
+  const activeBorder = colors.primary;
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      checkedProgress.value,
+      [0, 1],
+      [inactiveBg, activeBg],
+    ),
+    borderColor: interpolateColor(
+      checkedProgress.value,
+      [0, 1],
+      [inactiveBorder, activeBorder],
+    ),
+    transform: [
+      { scale: animated ? 1 - pressedProgress.value * 0.02 : 1 },
+    ],
+  }));
+
+  const dotAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: checkedProgress.value }],
+    opacity: checkedProgress.value,
+  }));
+
+  const radioCircleAnimatedStyle = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(
+      checkedProgress.value,
+      [0, 1],
+      [colors.border, colors.primary],
+    ),
+  }));
+
+  const handlePress = (e: any) => {
+    if (isDisabled) return;
+    if (haptic) triggerHaptic("selection");
+    context?.onValueChange?.(value);
+    onPress?.(e);
+  };
 
   return (
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ checked, disabled: isDisabled }}
       disabled={isDisabled}
-      onPress={() => context?.onValueChange?.(value)}
-      style={({ pressed }) => [
-        {
-          width: "100%",
-          flexDirection: "row",
-          alignItems: "flex-start",
-          gap: spacing.md,
-          padding: spacing.md,
-          borderWidth: components.borderWidth.strong,
-          borderColor: checked ? colors.primary : colors.border,
-          borderRadius: radii.lg,
-          backgroundColor: checked ? colors.primarySoft : colors.surface,
-          opacity: isDisabled ? 0.5 : pressed ? 0.78 : 1,
-        },
-        style,
-      ]}
+      onPress={handlePress}
+      onPressIn={() => {
+        if (!isDisabled && animated) {
+          pressedProgress.value = withTiming(1, { duration: 100 });
+        }
+      }}
+      onPressOut={() => {
+        if (!isDisabled && animated) {
+          pressedProgress.value = withTiming(0, { duration: 120 });
+        }
+      }}
+      style={{ width: "100%" }}
       {...props}
     >
-      <View
-        style={{
-          width: 18,
-          height: 18,
-          borderRadius: 9,
-          borderWidth: components.borderWidth.focus,
-          borderColor: checked ? colors.primary : colors.border,
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 1,
-        }}
+      <Animated.View
+        style={[
+          {
+            width: "100%",
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: spacing.md,
+            padding: spacing.md,
+            borderWidth: components.borderWidth.strong,
+            borderRadius: radii.xl,
+            opacity: isDisabled ? 0.5 : 1,
+          },
+          containerAnimatedStyle,
+          style,
+        ]}
       >
-        {checked ? (
-          <View
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: colors.primary,
-            }}
+        <Animated.View
+          style={[
+            {
+              width: 20,
+              height: 20,
+              borderRadius: 10,
+              borderWidth: components.borderWidth.focus,
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 2,
+            },
+            radioCircleAnimatedStyle,
+          ]}
+        >
+          <Animated.View
+            style={[
+              {
+                width: 10,
+                height: 10,
+                borderRadius: 5,
+                backgroundColor: colors.primary,
+              },
+              dotAnimatedStyle,
+            ]}
           />
-        ) : null}
-      </View>
-      <View style={{ flex: 1, gap: spacing.xs }}>
-        {typeof label === "string" ? (
-          <Text variant="label" color="text">
-            {label}
-          </Text>
-        ) : (
-          label
-        )}
-        {typeof description === "string" ? (
-          <Text style={[typography.bodySmall, { color: colors.textMuted }]}>
-            {description}
-          </Text>
-        ) : (
-          description
-        )}
-      </View>
+        </Animated.View>
+
+        <View style={{ flex: 1, gap: spacing.xs }}>
+          {typeof label === "string" ? (
+            <Text variant="label" color="text">
+              {label}
+            </Text>
+          ) : (
+            label
+          )}
+          {typeof description === "string" ? (
+            <Text style={[typography.bodySmall, { color: colors.textMuted }]}>
+              {description}
+            </Text>
+          ) : (
+            description
+          )}
+        </View>
+      </Animated.View>
     </Pressable>
   );
 }

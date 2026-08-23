@@ -14,6 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
+import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
 
 export interface CalendarDayData {
@@ -32,6 +33,9 @@ export interface CalendarDayMarking {
   textColor?: string;
   disabled?: boolean;
   isMiddle?: boolean;
+  marked?: boolean;
+  dotColor?: string;
+  dots?: Array<{ key?: string; color?: string }>;
 }
 
 export interface CalendarProps extends Omit<
@@ -41,6 +45,8 @@ export interface CalendarProps extends Omit<
   style?: StyleProp<ViewStyle>;
   current?: string; // Controlled current date string (YYYY-MM-DD)
   enableYearMonthPicker?: boolean;
+  showTodayButton?: boolean;
+  onTodayPress?: () => void;
 }
 
 interface CustomDayProps {
@@ -81,7 +87,6 @@ const MONTH_SHORTS = [
   "Dec",
 ];
 
-// Pure component chevrons to avoid external icon dependencies
 function ChevronLeft({ color }: { color: string }) {
   return (
     <View
@@ -144,30 +149,34 @@ function CalendarDayButton({
   let borderBottomLeftRadius = 0;
   let borderTopRightRadius = 0;
   let borderBottomRightRadius = 0;
+  let borderWidth = 0;
+  let borderColor = "transparent";
 
   if (isStart) {
-    bg = colors.primary;
-    textColor = colors.onPrimary;
+    bg = marking.color || colors.primary;
+    textColor = marking.textColor || colors.onPrimary;
     borderTopLeftRadius = radii.md;
     borderBottomLeftRadius = radii.md;
   } else if (isEnd) {
-    bg = colors.primary;
-    textColor = colors.onPrimary;
+    bg = marking.color || colors.primary;
+    textColor = marking.textColor || colors.onPrimary;
     borderTopRightRadius = radii.md;
     borderBottomRightRadius = radii.md;
   } else if (isMiddle) {
-    bg = colors.backgroundMuted;
-    textColor = colors.primary;
+    bg = marking.color || colors.backgroundMuted;
+    textColor = marking.textColor || colors.primary;
   } else if (isSelected) {
-    bg = colors.primary;
-    textColor = colors.onPrimary;
+    bg = marking.color || colors.primary;
+    textColor = marking.textColor || colors.onPrimary;
     borderTopLeftRadius = radii.full;
     borderBottomLeftRadius = radii.full;
     borderTopRightRadius = radii.full;
     borderBottomRightRadius = radii.full;
   } else if (isToday) {
     bg = colors.backgroundMuted;
-    textColor = colors.text;
+    textColor = colors.primary;
+    borderWidth = 1.5;
+    borderColor = colors.primary;
     borderTopLeftRadius = radii.full;
     borderBottomLeftRadius = radii.full;
     borderTopRightRadius = radii.full;
@@ -180,8 +189,18 @@ function CalendarDayButton({
 
   return (
     <Pressable
-      onPress={() => !isDisabled && onPress && onPress(date)}
-      onLongPress={() => !isDisabled && onLongPress && onLongPress(date)}
+      onPress={() => {
+        if (!isDisabled && onPress) {
+          triggerHaptic("selection");
+          onPress(date);
+        }
+      }}
+      onLongPress={() => {
+        if (!isDisabled && onLongPress) {
+          triggerHaptic("selection");
+          onLongPress(date);
+        }
+      }}
       style={({ pressed }) => [
         cellStyle,
         {
@@ -190,6 +209,8 @@ function CalendarDayButton({
           borderBottomLeftRadius,
           borderTopRightRadius,
           borderBottomRightRadius,
+          borderWidth,
+          borderColor,
           opacity: pressed && !isDisabled ? 0.78 : 1,
         },
       ]}
@@ -198,11 +219,43 @@ function CalendarDayButton({
         style={{
           color: textColor,
           fontSize: 14,
-          fontWeight: isSelected || isToday ? "600" : "400",
+          fontWeight: isSelected || isToday ? "700" : "400",
         }}
       >
         {date.day}
       </Text>
+
+      {/* Event Dots */}
+      {marking.dots && marking.dots.length > 0 ? (
+        <View style={{ flexDirection: "row", gap: 3, marginTop: 2 }}>
+          {marking.dots.map((dot, idx) => (
+            <View
+              key={idx}
+              style={{
+                width: 4,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: isSelected
+                  ? colors.onPrimary
+                  : dot.color || colors.primary,
+              }}
+            />
+          ))}
+        </View>
+      ) : marking.marked ? (
+        <View style={{ marginTop: 2 }}>
+          <View
+            style={{
+              width: 4,
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: isSelected
+                ? colors.onPrimary
+                : marking.dotColor || colors.primary,
+            }}
+          />
+        </View>
+      ) : null}
     </Pressable>
   );
 }
@@ -214,6 +267,8 @@ export function Calendar({
   markedDates,
   current,
   enableYearMonthPicker = true,
+  showTodayButton = true,
+  onTodayPress,
   ...props
 }: CalendarProps) {
   const { colors, components, radii } = useTheme();
@@ -274,6 +329,7 @@ export function Calendar({
   const visibleMonthStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`;
 
   const handlePrevMonth = () => {
+    triggerHaptic("selection");
     if (currentMonth === 1) {
       setCurrentMonth(12);
       setCurrentYear(currentYear - 1);
@@ -284,6 +340,7 @@ export function Calendar({
   };
 
   const handleNextMonth = () => {
+    triggerHaptic("selection");
     if (currentMonth === 12) {
       setCurrentMonth(1);
       setCurrentYear(currentYear + 1);
@@ -291,6 +348,17 @@ export function Calendar({
       setCurrentMonth(currentMonth + 1);
     }
     setCalendarKey((prev) => prev + 1);
+  };
+
+  const handleTodayClick = () => {
+    triggerHaptic("selection");
+    const today = new Date();
+    setCurrentMonth(today.getMonth() + 1);
+    setCurrentYear(today.getFullYear());
+    setCalendarKey((prev) => prev + 1);
+    setShowMonthSelector(false);
+    setShowYearSelector(false);
+    onTodayPress?.();
   };
 
   const handleMonthChange = (dateData: CalendarDayData) => {
@@ -314,7 +382,6 @@ export function Calendar({
     ...theme,
   };
 
-  // Generate years: from 100 years ago to 10 years ahead
   const endYear = new Date().getFullYear() + 5;
   const startYear = endYear - 100;
   const years = Array.from(
@@ -336,7 +403,7 @@ export function Calendar({
         style,
       ]}
     >
-      {/* Custom header with month and year navigation. */}
+      {/* Custom header with month and year navigation */}
       <View
         style={{
           flexDirection: "row",
@@ -367,6 +434,7 @@ export function Calendar({
               {/* Month Trigger */}
               <Pressable
                 onPress={() => {
+                  triggerHaptic("selection");
                   setShowMonthSelector(!showMonthSelector);
                   setShowYearSelector(false);
                 }}
@@ -395,6 +463,7 @@ export function Calendar({
               {/* Year Trigger */}
               <Pressable
                 onPress={() => {
+                  triggerHaptic("selection");
                   setShowYearSelector(!showYearSelector);
                   setShowMonthSelector(false);
                 }}
@@ -429,18 +498,40 @@ export function Calendar({
           )}
         </View>
 
-        <Pressable
-          onPress={handleNextMonth}
-          style={({ pressed }) => ({
-            padding: 8,
-            borderRadius: radii.md,
-            backgroundColor: pressed
-              ? colors.backgroundMuted
-              : colors.transparent,
-          })}
-        >
-          <ChevronRight color={colors.text} />
-        </Pressable>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          {showTodayButton && (
+            <Pressable
+              onPress={handleTodayClick}
+              style={({ pressed }) => ({
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: radii.sm,
+                backgroundColor: pressed
+                  ? colors.backgroundMuted
+                  : colors.surfaceMuted,
+                borderWidth: 1,
+                borderColor: colors.border,
+              })}
+            >
+              <Text variant="caption" weight="600" color="primary">
+                Today
+              </Text>
+            </Pressable>
+          )}
+
+          <Pressable
+            onPress={handleNextMonth}
+            style={({ pressed }) => ({
+              padding: 8,
+              borderRadius: radii.md,
+              backgroundColor: pressed
+                ? colors.backgroundMuted
+                : colors.transparent,
+            })}
+          >
+            <ChevronRight color={colors.text} />
+          </Pressable>
+        </View>
       </View>
 
       {/* Animated Month Fast Selector Overlay */}
@@ -474,6 +565,7 @@ export function Calendar({
               <Pressable
                 key={m}
                 onPress={() => {
+                  triggerHaptic("selection");
                   setCurrentMonth(idx + 1);
                   setShowMonthSelector(false);
                   setCalendarKey((prev) => prev + 1);
@@ -549,6 +641,7 @@ export function Calendar({
               <Pressable
                 key={y}
                 onPress={() => {
+                  triggerHaptic("selection");
                   setCurrentYear(y);
                   setShowYearSelector(false);
                   setCalendarKey((prev) => prev + 1);

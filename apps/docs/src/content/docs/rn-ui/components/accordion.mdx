@@ -1,42 +1,57 @@
 ---
 title: Accordion
-description: Expandable accordion panel sections with smooth animation.
+description: Expandable accordion panel sections with variants (outlined, flat, ghost, glass), Reanimated height scaling, and indicator rotation.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const exampleCode = `import { Accordion } from '@masumdev/rn-ui';
+export const exampleCode = `import React from 'react';
+import { Accordion, Box, Text } from '@masumdev/rn-ui';
 
 export function AccordionExample() {
+  const items = [
+    {
+      id: '1',
+      title: 'Is @masumdev/rn-ui open source?',
+      content: 'Yes, it is 100% open source under the MIT license.',
+    },
+    {
+      id: '2',
+      title: 'Does it support dark mode?',
+      content: 'Yes, dark mode is supported out of the box with ThemeProvider.',
+    },
+  ];
+
   return (
-    <Accordion
-      items={[
-        {
-          id: '1',
-          title: 'Is @masumdev/rn-ui open source?',
-          content: 'Yes, it is 100% open source under the MIT license.',
-        },
-        {
-          id: '2',
-          title: 'Does it support dark mode?',
-          content: 'Yes, dark mode is supported out of the box with ThemeProvider.',
-        },
-      ]}
-    />
+    <Box gap="lg">
+      {/* Outlined Variant */}
+      <Accordion items={items} variant="outlined" />
+
+      {/* Glassmorphism Variant */}
+      <Accordion items={items} variant="glass" />
+
+      {/* Flat Borderless Variant */}
+      <Accordion items={items} variant="flat" />
+    </Box>
   );
 }`;
 
-`Accordion` renders expandable panels for FAQ sections and collapsible lists.
+`Accordion` renders vertical stacks of interactive collapsible panels ideal for FAQs, product specifications, and settings menus.
 
 ## Usage
 
-<Code code={exampleCode} lang="tsx" title="AccordionExample.tsx" mark={['Accordion', 'items={[']} />
+<Code code={exampleCode} lang="tsx" title="AccordionExample.tsx" mark={['Accordion', 'variant="outlined"', 'variant="glass"', 'variant="flat"']} />
 
 ## Props API
 
 <TypeTable
   type={{
     items: { type: 'AccordionItem[]', description: 'Array of accordion panel objects containing id, title, and content.' },
+    variant: { type: "'outlined' | 'flat' | 'ghost' | 'glass'", default: "'outlined'", description: 'Visual container style variant.' },
+    type: { type: "'single' | 'multiple'", default: "'single'", description: 'Determines whether one or multiple panels can be expanded at once.' },
+    value: { type: 'string | string[]', description: 'Controlled value array or string of open panel IDs.' },
+    defaultValue: { type: 'string | string[]', description: 'Uncontrolled initial open panel IDs.' },
+    onValueChange: { type: '(value: any) => void', description: 'Callback triggered when open panel selection changes.' },
   }}
 />

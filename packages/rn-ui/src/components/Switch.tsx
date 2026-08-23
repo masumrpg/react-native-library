@@ -15,7 +15,13 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon } from "./types";
+import { triggerHaptic } from "../utils/haptics";
+import {
+  renderIcon,
+  type RenderIcon,
+  type BaseGlassProps,
+  type BaseHapticProps,
+} from "./types";
 
 export type SwitchSize = "sm" | "md" | "lg";
 export type SwitchTone =
@@ -39,10 +45,10 @@ export type SwitchThumbContent =
   | React.ReactNode
   | ((params: SwitchRenderThumbParams) => React.ReactNode);
 
-export interface SwitchProps extends Omit<
-  PressableProps,
-  "onPress" | "style" | "children"
-> {
+export interface SwitchProps
+  extends Omit<PressableProps, "onPress" | "style" | "children">,
+    BaseGlassProps,
+    BaseHapticProps {
   value?: boolean;
   defaultValue?: boolean;
   onValueChange?: (value: boolean) => void;
@@ -70,6 +76,8 @@ export function Switch({
   invalid = false,
   size = "md",
   tone = "primary",
+  glass = false,
+  haptic = true,
   style,
   trackStyle,
   thumbStyle,
@@ -85,7 +93,7 @@ export function Switch({
   accessibilityLabel,
   ...props
 }: SwitchProps) {
-  const { colors, components, radii } = useTheme();
+  const { colors, components, radii, isDark } = useTheme();
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] =
     React.useState(defaultValue);
@@ -102,21 +110,6 @@ export function Switch({
   }, [checked, progress]);
 
   const activeColor = invalid ? colors.danger : colors[tone];
-  const activeSoftColor = invalid
-    ? colors.dangerSoft
-    : tone === "primary"
-      ? colors.primarySoft
-      : tone === "secondary"
-        ? colors.secondarySoft
-        : tone === "accent"
-          ? colors.accentSoft
-          : tone === "success"
-            ? colors.successSoft
-            : tone === "warning"
-              ? colors.warningSoft
-              : tone === "danger"
-                ? colors.dangerSoft
-                : colors.infoSoft;
   const thumbIcon = checked ? activeIcon : inactiveIcon;
   const selectedThumbContent =
     (checked ? activeThumbContent : inactiveThumbContent) ?? thumbContent;
@@ -127,16 +120,47 @@ export function Switch({
   const borderWidth = components.borderWidth.focus;
   const inset = (height - thumbSize) / 2;
   const travel = width - thumbSize - (inset + borderWidth) * 2;
-  const thumbColor = disabled ? colors.disabledText : colors.surface;
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.70)";
+
   const inactiveTrackColor = disabled
     ? colors.disabled
-    : colors.backgroundMuted;
-  const inactiveBorderColor = invalid ? colors.danger : colors.border;
+    : glass
+      ? glassBg
+      : isDark
+        ? "rgba(30, 41, 59, 0.90)"
+        : colors.backgroundMuted;
+
+  const activeTrackColor = disabled ? colors.disabled : activeColor;
+
+  const inactiveBorderColor = invalid
+    ? colors.danger
+    : glass
+      ? isDark
+        ? "rgba(248, 250, 252, 0.20)"
+        : "rgba(15, 23, 42, 0.14)"
+      : isDark
+        ? "rgba(148, 163, 184, 0.30)"
+        : colors.border;
+
+  const activeBorderColor = invalid ? colors.danger : activeColor;
+
+  // Crisp white/light-slate knob for OFF state in both dark & light mode
+  const inactiveThumbColor = disabled
+    ? colors.disabledText
+    : isDark
+      ? "#e2e8f0"
+      : "#ffffff";
+
+  const activeThumbColor = disabled ? colors.disabledText : "#ffffff";
 
   const handlePress = (event: GestureResponderEvent) => {
     onPress?.(event);
     if (disabled) return;
 
+    if (haptic) triggerHaptic("selection");
     const nextValue = !checked;
     if (!isControlled) {
       setUncontrolledValue(nextValue);
@@ -158,12 +182,12 @@ export function Switch({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      [inactiveTrackColor, activeSoftColor],
+      [inactiveTrackColor, activeTrackColor],
     ),
     borderColor: interpolateColor(
       progress.value,
       [0, 1],
-      [inactiveBorderColor, activeColor],
+      [inactiveBorderColor, activeBorderColor],
     ),
   }));
 
@@ -175,27 +199,16 @@ export function Switch({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      [thumbColor, activeColor],
+      [inactiveThumbColor, activeThumbColor],
     ),
   }));
 
   const iconColor = checked
     ? invalid
-      ? colors.onDanger
-      : tone === "primary"
-        ? colors.onPrimary
-        : tone === "secondary"
-          ? colors.onSecondary
-          : tone === "accent"
-            ? colors.onAccent
-            : tone === "success"
-              ? colors.onSuccess
-              : tone === "warning"
-                ? colors.onWarning
-                : tone === "danger"
-                  ? colors.onDanger
-                  : colors.onInfo
+      ? colors.danger
+      : activeColor
     : colors.textSubtle;
+
   const thumbContentParams: SwitchRenderThumbParams = {
     checked,
     disabled,
@@ -219,7 +232,7 @@ export function Switch({
       onPressOut={handlePressOut}
       style={({ pressed: isPressed }) => [
         {
-          opacity: disabled ? 0.56 : isPressed ? 0.9 : 1,
+          opacity: disabled ? 0.45 : isPressed ? 0.9 : 1,
           alignSelf: "flex-start",
         },
         style,
@@ -249,7 +262,7 @@ export function Switch({
               alignItems: "center",
               justifyContent: "center",
               borderWidth: components.borderWidth.default,
-              borderColor: checked ? activeColor : colors.borderMuted,
+              borderColor: checked ? activeColor : "transparent",
             },
             thumbAnimatedStyle,
             thumbStyle,

@@ -51,7 +51,18 @@ export default defineConfig({
         },
         {
           label: 'RN UI',
-          autogenerate: { directory: 'rn-ui' },
+          items: [
+            { label: 'Overview', slug: 'rn-ui' },
+            { label: 'Interactive Demo', slug: 'rn-ui/demo' },
+            { label: 'Installation', slug: 'rn-ui/installation' },
+            { label: 'Theming & Dark Mode', slug: 'rn-ui/theming' },
+            { label: 'Building Custom Components', slug: 'rn-ui/custom-components' },
+            { label: 'Changelog', slug: 'rn-ui/changelog' },
+            {
+              label: 'Components',
+              autogenerate: { directory: 'rn-ui/components' },
+            },
+          ],
         },
         {
           label: 'RN Tajweed Verse',

@@ -7,9 +7,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon } from "./types";
+import { triggerHaptic } from "../utils/haptics";
+import { renderIcon, type RenderIcon, type BaseGlassProps, type BaseHapticProps } from "./types";
 
-export interface CheckboxProps {
+export interface CheckboxProps extends BaseGlassProps, BaseHapticProps {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
@@ -18,7 +19,6 @@ export interface CheckboxProps {
   icon?: RenderIcon;
 }
 
-// Pure SVG/Vector checkmark to avoid external dependencies
 function CheckIcon({ color }: { color: string }) {
   return (
     <View
@@ -40,11 +40,13 @@ export function Checkbox({
   onCheckedChange,
   disabled = false,
   invalid = false,
+  glass = false,
+  haptic = true,
   style,
   icon,
   ...props
 }: CheckboxProps) {
-  const { colors, components } = useTheme();
+  const { colors, components, isDark } = useTheme();
   const progress = useSharedValue(checked ? 1 : 0);
 
   React.useEffect(() => {
@@ -56,15 +58,24 @@ export function Checkbox({
 
   const handlePress = () => {
     if (!disabled && onCheckedChange) {
+      if (haptic) triggerHaptic("selection");
       onCheckedChange(!checked);
     }
   };
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.75)";
 
   const borderColor = invalid
     ? colors.danger
     : checked
       ? colors.primary
-      : colors.border;
+      : glass
+        ? isDark
+          ? "rgba(248, 250, 252, 0.20)"
+          : "rgba(15, 23, 42, 0.14)"
+        : colors.border;
 
   const overlayStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
@@ -79,12 +90,12 @@ export function Checkbox({
       disabled={disabled}
       style={({ pressed }) => [
         {
-          width: 18,
-          height: 18,
-          borderRadius: 4,
+          width: 20,
+          height: 20,
+          borderRadius: 5,
           borderWidth: components.borderWidth.focus,
           borderColor,
-          backgroundColor: colors.transparent,
+          backgroundColor: glass ? glassBg : colors.transparent,
           justifyContent: "center",
           alignItems: "center",
           overflow: "hidden",

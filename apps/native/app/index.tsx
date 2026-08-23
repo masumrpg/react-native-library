@@ -195,10 +195,12 @@ function useStyles() {
   return useThemeStyles((theme) => ({
     safeArea: {
       flex: 1,
+      minHeight: "100%",
     },
     container: {
       padding: theme.spacing.xl,
       gap: theme.spacing.xl,
+      flexGrow: 1,
     },
     headerContainer: {
       marginTop: theme.spacing.lg,

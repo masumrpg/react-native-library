@@ -1,10 +1,12 @@
 import React from "react";
 import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { triggerHaptic } from "../utils/haptics";
 
 export interface CollapsibleProps {
   open?: boolean;
@@ -75,9 +77,14 @@ export function CollapsibleTrigger({
 }: CollapsibleTriggerProps) {
   const { toggle } = useCollapsible();
 
+  const handlePress = () => {
+    triggerHaptic("selection");
+    toggle();
+  };
+
   return (
-    <Pressable onPress={toggle} style={style} {...props}>
-      {children}
+    <Pressable onPress={handlePress} style={style} {...props}>
+      {typeof children === "function" ? (children as any)() : children}
     </Pressable>
   );
 }
@@ -93,55 +100,60 @@ export function CollapsibleContent({
   ...props
 }: CollapsibleContentProps) {
   const { open } = useCollapsible();
-  const [measuredHeight, setMeasuredHeight] = React.useState(0);
-  const heightAnim = useSharedValue(open ? measuredHeight : 0);
-
-  // Track if we have completed our first height layout measurement
-  const hasMeasured = measuredHeight > 0;
+  const [contentHeight, setContentHeight] = React.useState<number>(0);
+  const progress = useSharedValue(open ? 1 : 0);
 
   React.useEffect(() => {
-    if (hasMeasured) {
-      heightAnim.value = withTiming(open ? measuredHeight : 0, {
-        duration: 220,
-      });
-    } else {
-      // Set initial value immediately without animating during initial layout
-      heightAnim.value = open ? measuredHeight : 0;
-    }
-  }, [open, measuredHeight, hasMeasured, heightAnim]);
+    progress.value = withTiming(open ? 1 : 0, {
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [open, progress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: progress.value * contentHeight,
+    opacity: progress.value,
+  }));
 
   const handleLayout = (e: any) => {
-    const { height } = e.nativeEvent.layout;
-    if (height > 0 && height !== measuredHeight) {
-      setMeasuredHeight(height);
+    const h = e.nativeEvent.layout.height;
+    if (h > 0 && Math.abs(h - contentHeight) > 1) {
+      setContentHeight(h);
     }
   };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    height: hasMeasured ? heightAnim.value : open ? undefined : 0,
-    opacity: hasMeasured
-      ? Math.min(1, heightAnim.value / Math.max(1, measuredHeight))
-      : open
-        ? 1
-        : 0,
-  }));
+  const childContent = typeof children === "function" ? (children as any)() : children;
 
   return (
-    <Animated.View
-      pointerEvents={open ? "auto" : "none"}
-      style={[
-        {
-          overflow: "hidden",
-        },
-        animatedStyle,
-        style,
-      ]}
-      {...props}
-    >
-      {/* Nested inner view is required to measure natural scroll height boundary */}
-      <View onLayout={handleLayout} style={{ width: "100%" }}>
-        {children}
+    <View style={{ overflow: "hidden" }}>
+      {/* Off-screen unconstrained measurement view to guarantee contentHeight is always valid */}
+      <View
+        style={[
+          style,
+          {
+            position: "absolute",
+            opacity: 0,
+            top: -9999,
+            left: 0,
+            right: 0,
+            zIndex: -1,
+          },
+        ]}
+        onLayout={handleLayout}
+        pointerEvents="none"
+      >
+        {childContent}
       </View>
-    </Animated.View>
+
+      {/* Animated Collapsible Container */}
+      <Animated.View
+        pointerEvents={open ? "auto" : "none"}
+        style={[{ overflow: "hidden" }, animatedStyle]}
+      >
+        <View style={style} {...props}>
+          {childContent}
+        </View>
+      </Animated.View>
+    </View>
   );
 }

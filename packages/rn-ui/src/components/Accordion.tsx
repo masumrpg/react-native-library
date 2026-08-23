@@ -15,7 +15,10 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
-import { renderIcon, type RenderIcon } from "./types";
+import { triggerHaptic } from "../utils/haptics";
+import { renderIcon, type RenderIcon, type BaseGlassProps } from "./types";
+
+export type AccordionVariant = "outlined" | "flat" | "ghost" | "glass";
 
 export interface AccordionItem {
   id: string;
@@ -55,14 +58,16 @@ export type AccordionIndicator =
   | React.ReactNode
   | ((props: AccordionIndicatorProps) => React.ReactNode);
 
-export interface AccordionProps {
+export interface AccordionProps extends BaseGlassProps {
   items: AccordionItem[];
+  variant?: AccordionVariant;
   allowMultiple?: boolean;
   defaultOpenIds?: string[];
   openIds?: string[];
   onOpenChange?: (openIds: string[]) => void;
   disabled?: boolean;
   animated?: boolean;
+  haptic?: boolean;
   animationDuration?: number;
   animationComponents?: AccordionAnimationComponents;
   indicator?: AccordionIndicator;
@@ -170,12 +175,15 @@ function DefaultAccordionIndicator({
 
 export function Accordion({
   items,
+  variant = "outlined",
   allowMultiple = false,
   defaultOpenIds = [],
   openIds,
   onOpenChange,
   disabled = false,
   animated = true,
+  glass = false,
+  haptic = true,
   animationDuration = 180,
   animationComponents,
   indicator,
@@ -186,7 +194,7 @@ export function Accordion({
   contentStyle,
   style,
 }: AccordionProps) {
-  const { colors, components, radii, spacing, typography } = useTheme();
+  const { colors, components, radii, spacing, typography, isDark } = useTheme();
   const [internalOpenIds, setInternalOpenIds] = useState(defaultOpenIds);
   const activeOpenIds = openIds ?? internalOpenIds;
 
@@ -208,10 +216,19 @@ export function Accordion({
   const AnimatedIndicator =
     animationComponents?.Indicator ?? DefaultAccordionIndicator;
 
+  const isGlass = glass || variant === "glass";
+  const isFlat = variant === "flat";
+  const isGhost = variant === "ghost";
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.75)";
+
   const toggleItem = useCallback(
     (item: AccordionItem) => {
       if (disabled || item.disabled) return;
 
+      if (haptic) triggerHaptic("selection");
       const expanded = openSet.has(item.id);
       const nextOpenIds = expanded
         ? activeOpenIds.filter((id) => id !== item.id)
@@ -221,24 +238,55 @@ export function Accordion({
 
       setNextOpenIds(nextOpenIds);
     },
-    [activeOpenIds, allowMultiple, disabled, openSet, setNextOpenIds],
+    [activeOpenIds, allowMultiple, disabled, haptic, openSet, setNextOpenIds],
   );
 
   return (
-    <View style={[{ gap: spacing.sm }, style]}>
-      {items.map((item) => {
+    <View style={[{ gap: isGhost ? 0 : spacing.sm }, style]}>
+      {items.map((item, index) => {
         const expanded = openSet.has(item.id);
         const itemDisabled = disabled || item.disabled;
+
+        const itemBg = isGlass
+          ? glassBg
+          : isGhost
+            ? colors.transparent
+            : isFlat
+              ? isDark
+                ? "rgba(15, 28, 38, 0.6)"
+                : colors.backgroundMuted
+              : colors.surface;
+
+        const itemBorderColor = isGlass
+          ? isDark
+            ? "rgba(248, 250, 252, 0.20)"
+            : "rgba(15, 23, 42, 0.14)"
+          : isGhost
+            ? colors.border
+            : isFlat
+              ? "transparent"
+              : expanded
+                ? colors.primary
+                : colors.border;
+
+        const borderWidth = isGhost
+          ? 0
+          : isFlat
+            ? 0
+            : components.borderWidth.strong;
+
+        const borderBottomWidth = isGhost && index < items.length - 1 ? 1 : borderWidth;
 
         return (
           <View
             key={item.id}
             style={[
               {
-                backgroundColor: colors.surface,
-                borderRadius: radii.xl,
-                borderWidth: components.borderWidth.strong,
-                borderColor: expanded ? colors.primary : colors.border,
+                backgroundColor: itemBg,
+                borderRadius: isGhost ? 0 : radii.xl,
+                borderWidth,
+                borderBottomWidth,
+                borderColor: itemBorderColor,
                 overflow: "hidden",
                 opacity: itemDisabled ? 0.58 : 1,
               },
@@ -259,7 +307,7 @@ export function Accordion({
                   backgroundColor:
                     pressed && !itemDisabled
                       ? colors.backgroundMuted
-                      : colors.surface,
+                      : colors.transparent,
                 },
                 headerStyle,
               ]}
@@ -337,10 +385,10 @@ export function Accordion({
                 duration={animationDuration}
                 style={[
                   {
-                    borderTopWidth: 1,
+                    borderTopWidth: isGhost ? 0 : 1,
                     borderTopColor: colors.border,
                     padding: spacing.lg,
-                    backgroundColor: colors.surface,
+                    backgroundColor: colors.transparent,
                   },
                   contentStyle,
                 ]}
@@ -360,10 +408,10 @@ export function Accordion({
                 <View
                   style={[
                     {
-                      borderTopWidth: 1,
+                      borderTopWidth: isGhost ? 0 : 1,
                       borderTopColor: colors.border,
                       padding: spacing.lg,
-                      backgroundColor: colors.surface,
+                      backgroundColor: colors.transparent,
                     },
                     contentStyle,
                   ]}

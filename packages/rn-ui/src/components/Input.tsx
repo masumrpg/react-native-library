@@ -9,6 +9,7 @@ import {
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
+import type { BaseGlassProps } from "./types";
 
 export type InputSize = "sm" | "md" | "lg";
 export type InputType =
@@ -19,7 +20,7 @@ export type InputType =
   | "tel"
   | "url";
 
-export interface InputProps extends Omit<TextInputProps, "style"> {
+export interface InputProps extends Omit<TextInputProps, "style">, BaseGlassProps {
   type?: InputType;
   size?: InputSize;
   invalid?: boolean;
@@ -48,6 +49,8 @@ function getKeyboardType(type: InputType): KeyboardTypeOptions {
   return "default";
 }
 
+import { useFormField } from "./FormField";
+
 export const Input = React.forwardRef<TextInput, InputProps>(function Input(
   {
     type = "text",
@@ -55,6 +58,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
     invalid = false,
     disabled = false,
     fullWidth = true,
+    glass = false,
     editable,
     multiline,
     onFocus,
@@ -67,15 +71,27 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
   },
   ref,
 ) {
-  const { colors, components, typography, radii } = useTheme();
+  const { colors, components, typography, radii, isDark } = useTheme();
+  const field = useFormField();
   const [focused, setFocused] = React.useState(false);
-  const isEditable = editable ?? !disabled;
 
-  const borderColor = invalid
+  const isInvalid = invalid || Boolean(field?.invalid);
+  const isDisabled = disabled || Boolean(field?.disabled);
+  const isEditable = editable ?? !isDisabled;
+
+  const glassBg = isDark
+    ? "rgba(15, 27, 45, 0.60)"
+    : "rgba(255, 255, 255, 0.70)";
+
+  const borderColor = isInvalid
     ? colors.danger
     : focused
       ? colors.primary
-      : colors.border;
+      : glass
+        ? isDark
+          ? "rgba(248, 250, 252, 0.20)"
+          : "rgba(15, 23, 42, 0.14)"
+        : colors.border;
 
   return (
     <TextInput
@@ -106,18 +122,13 @@ export const Input = React.forwardRef<TextInput, InputProps>(function Input(
               : components.borderWidth.strong,
           borderColor,
           backgroundColor: isEditable
-            ? colors.input
+            ? glass
+              ? glassBg
+              : colors.input
             : withAlpha(colors.input, 0.55),
           color: isEditable ? colors.text : colors.disabledText,
           opacity: isEditable ? 1 : 0.72,
           textAlignVertical: multiline ? "top" : "center",
-        },
-        focused && {
-          shadowColor: invalid ? colors.danger : colors.primary,
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0,
-          shadowRadius: 0,
-          elevation: 0,
         },
         style,
       ]}
