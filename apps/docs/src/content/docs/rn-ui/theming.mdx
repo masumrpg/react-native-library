@@ -2,7 +2,7 @@
 title: Theming & Dark Mode
 sidebar:
   order: 3
-description: ThemeProvider props, custom color palettes, useTheme hook, and persistent storage hydration.
+description: ThemeProvider props, custom color palettes, useTheme, useThemeStyles hooks, and persistent storage hydration.
 ---
 
 import { Code } from '@astrojs/starlight/components';
@@ -12,36 +12,92 @@ export const useThemeCode = `import React from 'react';
 import { useTheme, Button, Text, Box } from '@masumdev/rn-ui';
 
 export function ThemeToggleExample() {
-  const { colors, isDark, colorScheme, setColorScheme, toggleColorScheme } = useTheme();
+  const { colors, colorScheme, isDark, toggleColorScheme, setColorScheme } = useTheme();
 
   return (
     <Box style={{ backgroundColor: colors.background, padding: 16 }}>
       <Text style={{ color: colors.text }}>
         Current Mode: {colorScheme} (Active: {isDark ? 'Dark' : 'Light'})
       </Text>
-      <Button tone="secondary" onPress={toggleColorScheme}>
-        Toggle Theme
-      </Button>
+      <Box row gap="sm" style={{ marginTop: 12 }}>
+        <Button size="sm" tone="primary" onPress={toggleColorScheme}>
+          Toggle Dark Mode
+        </Button>
+        <Button size="sm" variant="outline" onPress={() => setColorScheme('system')}>
+          Use System
+        </Button>
+      </Box>
     </Box>
   );
 }`;
 
-export const storageCode = `import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ThemeProvider } from '@masumdev/rn-ui';
+export const useThemeStylesCode = `import React from 'react';
+import { View, Text } from 'react-native';
+import { useThemeStyles } from '@masumdev/rn-ui';
+
+export function CustomStyledCard() {
+  const styles = useStyles();
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>Type-Safe Theme Stylesheet</Text>
+    </View>
+  );
+}
+
+function useStyles() {
+  return useThemeStyles((theme) => ({
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radii.xl,
+      padding: theme.spacing.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    title: {
+      color: theme.colors.text,
+      fontFamily: theme.fonts.bold,
+      fontSize: 18,
+    },
+  }));
+}`;
+
+export const customThemesCode = `import { ThemeProvider, type ThemeInput } from '@masumdev/rn-ui';
+
+const customLight: ThemeInput = {
+  colors: {
+    primary: '#06B6D4',
+    background: '#F6FBFC',
+    surface: '#FFFFFF',
+    text: '#06202A',
+    border: '#B8D4DD',
+  },
+  fonts: {
+    regular: 'OutfitRegular',
+    medium: 'OutfitMedium',
+    bold: 'OutfitBold',
+  },
+};
+
+const customDark: ThemeInput = {
+  colors: {
+    primary: '#67E8F9',
+    background: '#06141B',
+    surface: '#0B202A',
+    text: '#F2FBFD',
+    border: '#2A5260',
+  },
+};
 
 export default function App() {
   return (
-    <ThemeProvider
-      defaultColorScheme="system"
-      storage={AsyncStorage}
-      storageKey="user-theme-pref"
-    >
+    <ThemeProvider themes={{ light: customLight, dark: customDark }}>
       <RootNavigation />
     </ThemeProvider>
   );
 }`;
 
-`@masumdev/rn-ui` provides a robust theme engine supporting light mode, dark mode, and system preference sync, with optional async storage persistence.
+`@masumdev/rn-ui` features a typed theme engine with built-in dark mode support, reactive hooks, dynamic style resolution, and storage hydration.
 
 ## ThemeProvider API
 
@@ -60,31 +116,40 @@ export default function App() {
       default: "'system'",
       description: 'Uncontrolled initial color scheme preference.',
     },
+    themes: {
+      type: '{ light?: ThemeInput; dark?: ThemeInput }',
+      description: 'Custom light and dark theme object overrides.',
+    },
     storage: {
       type: '{ getItem: (key: string) => Promise<string | null>; setItem: (key: string, val: string) => Promise<void> }',
-      description: 'Storage instance for persisting color scheme (e.g. AsyncStorage).',
+      description: 'Storage instance for persisting color scheme (e.g., SecureStore or AsyncStorage).',
     },
     storageKey: {
       type: 'string',
       default: "'rn-ui-color-scheme'",
       description: 'Key name used in persistent storage.',
     },
-    fallback: {
-      type: 'ReactNode',
-      default: 'null',
-      description: 'Fallback component displayed while loading storage preference.',
+    onColorSchemeChange: {
+      type: '(colorScheme: ColorSchemePreference) => void',
+      description: 'Callback triggered whenever the user updates the color scheme.',
     },
   }}
 />
 
 ## Using the `useTheme` Hook
 
-Access theme colors, mode state, and toggle functions from any child component:
+Access active theme colors, mode state, and toggle functions from any component:
 
-<Code code={useThemeCode} lang="tsx" title="ThemeToggleExample.tsx" mark={['useTheme', 'toggleColorScheme']} />
+<Code code={useThemeCode} lang="tsx" title="ThemeToggleExample.tsx" mark={['useTheme', 'toggleColorScheme', 'setColorScheme']} />
 
-## Persistent Storage Integration
+## Using the `useThemeStyles` Hook
 
-Pass `@react-native-async-storage/async-storage` or `expo-secure-store` to automatically persist user theme choices across app reboots:
+Create type-safe, performance-optimized style objects driven by active theme tokens:
 
-<Code code={storageCode} lang="tsx" title="App.tsx" mark={['storage={AsyncStorage}', 'storageKey']} />
+<Code code={useThemeStylesCode} lang="tsx" title="CustomStyledCard.tsx" mark={['useThemeStyles', 'theme.colors', 'theme.spacing']} />
+
+## Custom Themes & Font Customization
+
+Pass custom `ThemeInput` definitions to `ThemeProvider` to change colors, fonts, spacing, or border radii:
+
+<Code code={customThemesCode} lang="tsx" title="App.tsx" mark={['ThemeInput', 'themes={{ light: customLight, dark: customDark }}']} />

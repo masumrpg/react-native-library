@@ -2,24 +2,52 @@
 title: RN QR Code Gen
 sidebar:
   label: Overview
-description: SVG QR code generator with custom eye shapes and presets.
+  order: 1
+description: Feature-rich SVG QR code generator with presets, custom eye shapes, and linear/radial gradients for React Native & Expo.
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
 
-`@masumdev/react-native-qr-code-gen` is a feature-rich QR code generator for React Native.
+`@masumdev/react-native-qr-code-gen` is a vector SVG QR code generator for React Native and Expo projects. It provides built-in design presets, custom corner eye shapes, module piece styling, linear & radial gradients, center logo masking, and image background clips.
+
+## Features
 
 <CardGrid>
-  <Card title="Quick Installation" icon="rocket">
-    Learn how to install `@masumdev/react-native-qr-code-gen`.
-    [Installation →](/react-native-qr-code-gen/installation/)
+  <Card title="Vector SVG Rendering" icon="laptop">
+    Renders high-resolution vector QR codes using `react-native-svg` without canvas pixelation.
   </Card>
-  <Card title="Usage Guide" icon="setting">
-    Learn how to generate QR codes with custom styling.
-    [Usage →](/react-native-qr-code-gen/usage/)
+  <Card title="Built-in Design Presets" icon="star">
+    Includes pre-configured presets like `BASIC`, `HEART`, `DOT`, `TRIANGLE`, `RAIN`, `WITH_LOGO`, `LINEAR_GRADIENT`, and `RADIAL_GRADIENT`.
   </Card>
-  <Card title="Presets & Customization" icon="star">
-    Explore pre-built design presets and eye customization.
-    [Presets →](/react-native-qr-code-gen/presets/)
+  <Card title="Custom Eye & Piece Shapes" icon="setting">
+    Configure corner eye shapes (`square`, `circle`, `dot`, `triangle`, `heart`) and cell piece shapes (`square`, `dot`, `rounded`, `rain`).
   </Card>
+  <Card title="Loading States & Logos" icon="rocket">
+    Support center logo embedding with automatic background masking, custom loading placeholders, and clip masks.
+  </Card>
+</CardGrid>
+
+## Getting Started
+
+<CardGrid>
+  <LinkCard
+    title="Installation"
+    href="/react-native-qr-code-gen/installation/"
+    description="Learn how to install @masumdev/react-native-qr-code-gen and react-native-svg."
+  />
+  <LinkCard
+    title="Usage Guide"
+    href="/react-native-qr-code-gen/usage/"
+    description="Render QR codes with presets, loading placeholders, and Props API reference."
+  />
+  <LinkCard
+    title="Presets Gallery"
+    href="/react-native-qr-code-gen/presets/"
+    description="Explore all pre-configured design presets in QR_CODE_CONFIGS."
+  />
+  <LinkCard
+    title="Advanced Customization"
+    href="/react-native-qr-code-gen/customization/"
+    description="Configure corner eye radii, linear/radial gradients, logos, and image clips."
+  />
 </CardGrid>

@@ -8,15 +8,15 @@ description: How to install @masumdev/rn-ui and configure peer dependencies in R
 import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
 import Callout from '@/components/Callout.astro';
 
-export const npmInstall = `npm i @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
-export const pnpmInstall = `pnpm add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
-export const yarnInstall = `yarn add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
-export const bunInstall = `bun add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets`;
+export const npmInstall = `npm i @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
+export const pnpmInstall = `pnpm add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
+export const yarnInstall = `yarn add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
+export const bunInstall = `bun add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
 
-export const npmOptional = `npm i @gorhom/bottom-sheet react-native-calendars`;
-export const pnpmOptional = `pnpm add @gorhom/bottom-sheet react-native-calendars`;
-export const yarnOptional = `yarn add @gorhom/bottom-sheet react-native-calendars`;
-export const bunOptional = `bun add @gorhom/bottom-sheet react-native-calendars`;
+export const npmOptional = `npm i @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
+export const pnpmOptional = `pnpm add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
+export const yarnOptional = `yarn add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
+export const bunOptional = `bun add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
 
 export const babelCode = `module.exports = {
   presets: ['babel-preset-expo'],
@@ -26,19 +26,30 @@ export const babelCode = `module.exports = {
   ],
 };`;
 
-export const appCode = `import React from 'react';
-import { ThemeProvider, Button, Box, Text } from '@masumdev/rn-ui';
+export const rootLayoutCode = `import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ThemeProvider, ToastProvider } from '@masumdev/rn-ui';
+import * as SecureStore from 'expo-secure-store';
+import { Stack } from 'expo-router';
 
-export default function App() {
+const themeStorage = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+};
+
+export default function RootLayout() {
   return (
-    <ThemeProvider defaultColorScheme="system">
-      <Box style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text variant="title1">Welcome to @masumdev/rn-ui</Text>
-        <Button tone="primary" onPress={() => console.log('Pressed')}>
-          Get Started
-        </Button>
-      </Box>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider
+        defaultColorScheme="system"
+        storage={themeStorage}
+        storageKey="app-color-scheme"
+      >
+        <ToastProvider placement="bottom">
+          <Stack screenOptions={{ headerShown: false }} />
+        </ToastProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }`;
 
@@ -61,7 +72,7 @@ Install `@masumdev/rn-ui` along with required peer dependencies using your prefe
   </TabItem>
 </Tabs>
 
-If you plan to use `BottomSheet` or `Calendar`, also install optional dependencies:
+If you plan to use `BottomSheet`, `Calendar`, or persistent theme storage (`SecureStore`), install optional dependencies:
 
 <Tabs syncKey="pkg">
   <TabItem label="npm" icon="seti:npm">
@@ -78,18 +89,18 @@ If you plan to use `BottomSheet` or `Calendar`, also install optional dependenci
   </TabItem>
 </Tabs>
 
-## Step 2: Add Reanimated Plugin
+## Step 2: Configure Babel Plugin
 
-Add `react-native-reanimated/plugin` to your project's `babel.config.js`:
+Add `react-native-reanimated/plugin` to `babel.config.js`:
 
 <Code code={babelCode} lang="js" title="babel.config.js" mark={['react-native-reanimated/plugin']} />
 
 <Callout type="info">
-`@masumdev/rn-ui` components come pre-compiled with Reanimated worklets, but your app still needs the Reanimated Babel plugin for runtime worklet execution.
+Reanimated plugin must always be placed as the last plugin in your `babel.config.js`.
 </Callout>
 
-## Step 3: Wrap App with ThemeProvider
+## Step 3: Set Up Root Providers
 
-Wrap your root application component with `ThemeProvider`:
+Wrap your root navigation container with `GestureHandlerRootView`, `ThemeProvider`, and `ToastProvider`:
 
-<Code code={appCode} lang="tsx" title="App.tsx" mark={['ThemeProvider', '@masumdev/rn-ui']} />
+<Code code={rootLayoutCode} lang="tsx" title="_layout.tsx" mark={['GestureHandlerRootView', 'ThemeProvider', 'ToastProvider']} />

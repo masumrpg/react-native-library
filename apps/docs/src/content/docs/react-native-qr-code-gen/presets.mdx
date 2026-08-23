@@ -2,7 +2,63 @@
 title: Presets
 sidebar:
   order: 4
-description: Built-in design presets for QRCodeGen.
+description: Complete gallery reference table for built-in QR_CODE_CONFIGS presets.
 ---
 
-Explore pre-configured eye and module piece shape presets.
+import TypeTable from '@/components/TypeTable.astro';
+import { Code } from '@astrojs/starlight/components';
+
+export const presetUsageCode = `import { QRCode, QR_CODE_CONFIGS } from '@masumdev/react-native-qr-code-gen';
+
+// Inspect preset keys programmatically
+console.log(Object.keys(QR_CODE_CONFIGS));
+
+// Render with preset
+<QRCode value="Preset Demo" variant="LINEAR_GRADIENT" size={200} />`;
+
+`@masumdev/react-native-qr-code-gen` includes 9 pre-configured design presets exported via `QR_CODE_CONFIGS`:
+
+<TypeTable
+  type={{
+    BASIC: {
+      type: 'PresetConfig',
+      description: 'Standard black & white square QR code with default 250dp size.',
+    },
+    TRIANGLE: {
+      type: 'PresetConfig',
+      description: 'Golden yellow (#DAA520) QR code with triangle corner eyes and triangle data modules.',
+    },
+    HEART: {
+      type: 'PresetConfig',
+      description: 'Pink QR code with heart-shaped corner eyes and heart data modules.',
+    },
+    DOT: {
+      type: 'PresetConfig',
+      description: 'Dark slate (#483D8B) QR code with circular dot eyes and dot modules.',
+    },
+    WITH_LOGO: {
+      type: 'PresetConfig',
+      description: 'Center embedded logo with custom blue square corner eye radii and dot modules.',
+    },
+    RAIN: {
+      type: 'PresetConfig',
+      description: 'Blue (#2074a7) QR code with raindrop-shaped modules and rounded corner eyes.',
+    },
+    LINEAR_GRADIENT: {
+      type: 'PresetConfig',
+      description: 'Multi-stop Indigo / Pink / Purple / Blue linear gradient mask with center logo.',
+    },
+    RADIAL_GRADIENT: {
+      type: 'PresetConfig',
+      description: 'Yellow to Forest Green radial gradient fill with rounded modules.',
+    },
+    IMAGE_BACKGROUND: {
+      type: 'PresetConfig',
+      description: 'Circle eye shapes with error correction Level H and custom image background clip.',
+    },
+  }}
+/>
+
+## Using Presets Programmatically
+
+<Code code={presetUsageCode} lang="tsx" title="PresetProgrammaticUsage.tsx" mark={['QR_CODE_CONFIGS', 'variant="LINEAR_GRADIENT"']} />

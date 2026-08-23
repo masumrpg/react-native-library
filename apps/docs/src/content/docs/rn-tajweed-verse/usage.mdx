@@ -2,46 +2,101 @@
 title: Usage
 sidebar:
   order: 3
-description: Basic usage guide and interactive press handler examples for TajweedVerse.
+description: Code examples, interactive press handlers, theme presets, and Props API reference for TajweedVerse.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
-export const tajweedUsageCode = `import React from 'react';
-import { Alert } from 'react-native';
+export const basicUsageCode = `import React from 'react';
 import TajweedVerse from '@masumdev/rn-tajweed-verse';
 
-const sampleVerse = "[h[bi[s[m[i [l[al[l[h[i [n[al[r[n[h[n[m[n[n[i [n[al[r[n[h[i[m[i";
+const verseText = "بِسْمِ [h:1[ٱ]للَّهِ [h:2[ٱ][l[ل]رَّحْمَ[n[ـٰ]نِ [h:3[ٱ][l[ل]رَّح[p[ِي]مِ";
 
-export function VerseExample() {
+export function BasicVerseExample() {
   return (
     <TajweedVerse
-      text={sampleVerse}
-      style={{ fontSize: 24, textAlign: 'right', fontFamily: 'Amiri' }}
+      verse={verseText}
+      colored={true}
+      interactive={true}
+    />
+  );
+}`;
+
+export const interactiveThemeCode = `import React, { useState } from 'react';
+import { Alert } from 'react-native';
+import TajweedVerse, { TajweedThemes } from '@masumdev/rn-tajweed-verse';
+
+const verseText = "صِرَ[n[َٰ]طَ [h:8[ٱ]لَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ [h:9[ٱ]لْمَغْضُوبِ عَلَيْهِمْ وَلَا [h:10[ٱ][l[ل]ضَّ[m[َا]ٓلّ[p[ِي]نَ";
+
+export function InteractiveVerseExample() {
+  const [info, setInfo] = useState('');
+
+  return (
+    <TajweedVerse
+      verse={verseText}
+      colored={true}
+      interactive={true}
       config={{
-        qlq: {
-          style: { color: '#2b6cb0', fontWeight: 'bold' },
-          onPress: (matchedText) => Alert.alert('Qalqalah Rule', matchedText),
+        style: {
+          fontSize: 28,
+          lineHeight: 56,
+          color: '#1E293B',
+          direction: 'rtl',
         },
-        madda_normal: {
-          style: { color: '#c53030' },
-        },
+        tajweed: TajweedThemes.pastel,
+      }}
+      onRulePress={(ruleName, description, matchedText) => {
+        Alert.alert(
+          ruleName,
+          \`Matched Word: "\${matchedText}"\\n\\n\${description}\`
+        );
       }}
     />
   );
 }`;
 
-Pass raw verse text with markup tags to `<TajweedVerse />`:
+## Basic Usage
 
-<Code code={tajweedUsageCode} lang="tsx" title="VerseExample.tsx" mark={['TajweedVerse', 'config']} />
+Pass a raw Quranic verse string annotated with Tajweed tags to `<TajweedVerse />`:
+
+<Code code={basicUsageCode} lang="tsx" title="BasicVerseExample.tsx" mark={['TajweedVerse', 'verse', 'colored', 'interactive']} />
+
+## Interactive Touch Guides & Theme Presets
+
+Pass `TajweedThemes.pastel` or `TajweedThemes.dark` in `config.tajweed` and handle `onRulePress`:
+
+<Code code={interactiveThemeCode} lang="tsx" title="InteractiveVerseExample.tsx" mark={['TajweedThemes.pastel', 'onRulePress']} />
 
 ## Props API
 
 <TypeTable
   type={{
-    text: { type: 'string', description: 'Raw verse string containing bracketed Tajweed tags.' },
-    config: { type: 'TajweedConfig', description: 'Rule configurations mapping rule keys to custom style and onPress.' },
-    style: { type: 'StyleProp<TextStyle>', description: 'Base text style applied to the container.' },
+    verse: {
+      type: 'string',
+      description: 'Raw Quranic verse text containing bracketed Tajweed tags (e.g. `[q[خَلَقَ]]`).',
+    },
+    colored: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Whether to parse and apply Tajweed rule color-coding.',
+    },
+    interactive: {
+      type: 'boolean',
+      default: 'false',
+      description: 'Enables press interaction handlers on colored Tajweed words.',
+    },
+    config: {
+      type: 'TajweedVerseConfig',
+      description: 'Styling config containing base text `style` and `tajweed` rule overrides.',
+    },
+    onRulePress: {
+      type: '(ruleName: string, description: string, matchedText: string) => void',
+      description: 'Callback invoked when a colored Tajweed word is pressed when `interactive={true}`.',
+    },
+    customRules: {
+      type: 'ParseShape[]',
+      description: 'Optional array of custom regex pattern objects to prepended to parser rules.',
+    },
   }}
 />

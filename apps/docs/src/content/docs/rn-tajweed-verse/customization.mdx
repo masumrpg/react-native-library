@@ -2,7 +2,61 @@
 title: Customization
 sidebar:
   order: 5
-description: Customizing colors, fonts, and tooltips in @masumdev/rn-tajweed-verse.
+description: Customizing Arabic fonts, custom regex rules, and memoization in @masumdev/rn-tajweed-verse.
 ---
 
-Customizing Tajweed colors and style options is simple: pass a custom `config` object matching any rule keys.
+import { Code } from '@astrojs/starlight/components';
+
+export const customFontCode = `<TajweedVerse
+  verse="بِسْمِ [h:1[ٱ]للَّهِ [h:2[ٱ][l[ل]رَّحْمَ[n[ـٰ]نِ [h:3[ٱ][l[ل]رَّح[p[ِي]مِ"
+  config={{
+    style: {
+      fontFamily: 'Amiri-Regular',
+      fontSize: 32,
+      lineHeight: 64,
+      direction: 'rtl',
+    },
+  }}
+/>`;
+
+export const customRegexCode = `<TajweedVerse
+  verse="This is a [custom[special word] inside Arabic script [q[خَلَقَ] with custom rules."
+  colored={true}
+  interactive={true}
+  customRules={[
+    {
+      pattern: /\\[custom\\[([^\\]]+)\\]/,
+      style: {
+        color: '#06B6D4',
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
+      },
+      renderText: (text) => text.replace(/\\[custom\\[/, '').replace(/\\]/, ''),
+      onPress: (text) => console.log('Tapped custom word:', text),
+    },
+  ]}
+/>`;
+
+## Custom Arabic Fonts
+
+Specify custom fonts like `Amiri`, `AmiriQuran`, `NotoNaskhArabic`, or `ScheherazadeNew` in `config.style`:
+
+<Code code={customFontCode} lang="tsx" title="CustomFontExample.tsx" mark={["fontFamily: 'Amiri-Regular'", 'lineHeight: 64']} />
+
+## Custom Regex Rule Injection
+
+Inject custom highlights for arbitrary bracket patterns alongside standard Tajweed rule patterns using `customRules`:
+
+<Code code={customRegexCode} lang="tsx" title="CustomRegexExample.tsx" mark={['customRules', 'pattern', 'renderText']} />
+
+## Performance Memoization
+
+`TajweedVerse` utilizes memoization to prevent heavy regex parsing during parent component re-renders:
+
+```tsx
+import React from 'react';
+import TajweedVerse from '@masumdev/rn-tajweed-verse';
+
+// Re-renders on parent state changes do not trigger parser runs if verse & config props remain unchanged.
+export const MemoizedVerse = React.memo(TajweedVerse);
+```
