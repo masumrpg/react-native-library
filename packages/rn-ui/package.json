@@ -38,6 +38,15 @@
   ],
   "author": "Ma'sum",
   "license": "MIT",
+  "homepage": "https://react-native-library-docs.netlify.app/rn-ui/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "directory": "packages/rn-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/masumrpg/react-native-library/issues"
+  },
   "devDependencies": {
     "@babel/core": "^7.25.0",
     "@babel/preset-env": "^7.25.0",

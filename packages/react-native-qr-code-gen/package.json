@@ -34,6 +34,15 @@
   ],
   "author": "Ma'sum",
   "license": "MIT",
+  "homepage": "https://react-native-library-docs.netlify.app/react-native-qr-code-gen/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "directory": "packages/react-native-qr-code-gen"
+  },
+  "bugs": {
+    "url": "https://github.com/masumrpg/react-native-library/issues"
+  },
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/qrcode": "^1.5.5",
