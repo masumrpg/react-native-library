@@ -1,0 +1,311 @@
+---
+export interface ChangeItem {
+  type?: 'feat' | 'fix' | 'refactor' | 'docs' | 'perf' | 'breaking' | 'style';
+  text: string;
+}
+
+export interface ReleaseEntry {
+  version: string;
+  date?: string;
+  tag?: string;
+  isLatest?: boolean;
+  changes: (string | ChangeItem)[];
+}
+
+export interface Props {
+  releases: ReleaseEntry[];
+}
+
+const { releases = [] } = Astro.props;
+
+function getBadgeStyle(type?: string) {
+  switch (type) {
+    case 'feat':
+      return { label: 'FEAT', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.12)', border: 'rgba(22, 163, 74, 0.3)' };
+    case 'fix':
+      return { label: 'FIX', color: '#d97706', bg: 'rgba(217, 119, 6, 0.12)', border: 'rgba(217, 119, 6, 0.3)' };
+    case 'refactor':
+      return { label: 'REFACTOR', color: '#9333ea', bg: 'rgba(147, 51, 234, 0.12)', border: 'rgba(147, 51, 234, 0.3)' };
+    case 'docs':
+      return { label: 'DOCS', color: '#0891b2', bg: 'rgba(8, 145, 178, 0.12)', border: 'rgba(8, 145, 178, 0.3)' };
+    case 'breaking':
+      return { label: 'BREAKING', color: '#dc2626', bg: 'rgba(220, 38, 38, 0.12)', border: 'rgba(220, 38, 38, 0.3)' };
+    case 'perf':
+      return { label: 'PERF', color: '#2563eb', bg: 'rgba(37, 99, 235, 0.12)', border: 'rgba(37, 99, 235, 0.3)' };
+    default:
+      return { label: 'CHORE', color: '#4b5563', bg: 'rgba(75, 85, 99, 0.12)', border: 'rgba(75, 85, 99, 0.3)' };
+  }
+}
+---
+
+<div class="changelog-timeline">
+  {releases.map((release, releaseIdx) => {
+    const isLatest = release.isLatest ?? releaseIdx === 0;
+    return (
+      <div class={`timeline-item ${isLatest ? 'is-latest' : ''}`}>
+        <!-- Vertical connector stem node -->
+        <div class="timeline-node">
+          <div class="node-dot"></div>
+          {releaseIdx < releases.length - 1 && <div class="node-line"></div>}
+        </div>
+
+        <!-- Release Card Content -->
+        <div class="timeline-card">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="version-badge">
+              <span class="version-number">{release.version}</span>
+              {isLatest && <span class="latest-tag">{release.tag || 'Latest Release'}</span>}
+              {!isLatest && release.tag && <span class="custom-tag">{release.tag}</span>}
+            </div>
+            {release.date && <div class="release-date">{release.date}</div>}
+          </div>
+
+          <!-- Changes List -->
+          <ul class="changes-list">
+            {release.changes.map((item) => {
+              const isObject = typeof item === 'object' && item !== null;
+              const type = isObject ? item.type : undefined;
+              const text = isObject ? item.text : String(item);
+              const badge = getBadgeStyle(type);
+
+              return (
+                <li class="change-entry">
+                  {type && (
+                    <span
+                      class="type-pill"
+                      style={`color: ${badge.color}; background-color: ${badge.bg}; border-color: ${badge.border};`}
+                    >
+                      {badge.label}
+                    </span>
+                  )}
+                  <span class="change-text" set:html={text} />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+<style is:global>
+  .changelog-timeline {
+    position: relative;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1.5rem;
+    position: relative;
+  }
+
+  /* Vertical stem node indicator */
+  .timeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .node-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--sl-color-gray-4);
+    border: 3px solid var(--sl-color-bg);
+    box-shadow: 0 0 0 2px var(--sl-color-gray-5);
+    z-index: 2;
+    margin-top: 6px;
+    transition: all 0.25s ease;
+  }
+
+  .timeline-item.is-latest .node-dot {
+    background-color: #3da441;
+    box-shadow: 0 0 0 3px rgba(61, 164, 65, 0.25), 0 0 12px rgba(61, 164, 65, 0.4);
+  }
+
+  .node-line {
+    position: absolute;
+    top: 24px;
+    bottom: -2rem;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--sl-color-gray-5) 0%,
+      var(--sl-color-gray-6) 100%
+    );
+    z-index: 1;
+  }
+
+  .timeline-item.is-latest .node-line {
+    background: linear-gradient(
+      to bottom,
+      #3da441 0%,
+      var(--sl-color-gray-5) 100%
+    );
+  }
+
+  /* Timeline Card Wrapper */
+  .timeline-card {
+    flex: 1;
+    background-color: var(--sl-color-bg-nav, var(--sl-color-gray-6));
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .timeline-card:hover {
+    border-color: var(--sl-color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .timeline-item.is-latest .timeline-card {
+    border-color: rgba(61, 164, 65, 0.4);
+    background: linear-gradient(
+      135deg,
+      var(--sl-color-bg-nav, var(--sl-color-gray-6)) 0%,
+      rgba(61, 164, 65, 0.03) 100%
+    );
+  }
+
+  /* Header Section */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 0.875rem;
+    margin-bottom: 0.875rem;
+    border-bottom: 1px dashed var(--sl-color-gray-5);
+  }
+
+  .version-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .version-number {
+    font-family: var(--__sl-font-mono, monospace);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--sl-color-text);
+    letter-spacing: -0.02em;
+  }
+
+  .latest-tag {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    background-color: rgba(61, 164, 65, 0.12);
+    color: #2e7d32;
+    border: 1px solid rgba(61, 164, 65, 0.35);
+  }
+
+  :root[data-theme='dark'] .latest-tag {
+    background-color: rgba(61, 164, 65, 0.2);
+    color: #4ade80;
+    border-color: rgba(61, 164, 65, 0.4);
+  }
+
+  .custom-tag {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.375rem;
+    background-color: var(--sl-color-gray-5);
+    color: var(--sl-color-gray-2);
+  }
+
+  .release-date {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+    font-family: var(--__sl-font-mono, monospace);
+  }
+
+  /* Changes List */
+  .changes-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .change-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--sl-color-gray-2);
+    margin: 0 !important;
+  }
+
+  .type-pill {
+    font-family: var(--__sl-font-mono, monospace);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.25rem;
+    border: 1px solid;
+    line-height: 1.3;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    letter-spacing: 0.03em;
+  }
+
+  .change-text {
+    flex: 1;
+    color: var(--sl-color-text);
+  }
+
+  .change-text strong {
+    color: var(--sl-color-text);
+    font-weight: 600;
+  }
+
+  /* High contrast inline code blocks in Light & Dark modes */
+  .change-text code {
+    font-size: 0.85em !important;
+    font-family: var(--__sl-font-mono, monospace) !important;
+    font-weight: 600 !important;
+    padding: 0.18rem 0.42rem !important;
+    border-radius: 0.25rem !important;
+    color: #166534 !important; /* High contrast dark green text in light mode */
+    background-color: #f0fdf4 !important; /* Soft mint background in light mode */
+    border: 1px solid #bbf7d0 !important;
+  }
+
+  :root[data-theme='dark'] .change-text code {
+    color: #4ade80 !important; /* Vibrant neon green in dark mode */
+    background-color: rgba(61, 164, 65, 0.16) !important;
+    border-color: rgba(61, 164, 65, 0.38) !important;
+  }
+
+  .change-text a {
+    color: var(--sl-color-accent-high, #3da441) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+    font-weight: 500 !important;
+  }
+</style>
