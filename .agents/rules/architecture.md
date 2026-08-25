@@ -11,7 +11,8 @@ Welcome to the **Masum Dev** React Native & Expo Library Workspace. This project
 ├── packages/                  # Open-source React Native & Expo libraries (@masumdev/*)
 │   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
 │   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with interactive tooltips
-│   └── react-native-qr-code-gen/ # SVG QR code generator with custom eye shapes & presets
+│   ├── react-native-qr-code-gen/ # SVG QR code generator with custom eye shapes & presets
+│   └── tscheck/               # TypeScript & AST checking module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
 │   └── docs/                  # Astro 5 + Starlight documentation portal (https://masum.dev)

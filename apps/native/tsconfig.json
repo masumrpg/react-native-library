@@ -9,7 +9,8 @@
         "../../packages/react-native-qr-code-gen/src"
       ],
       "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"],
-      "@masumdev/rn-ui": ["../../packages/rn-ui/src"]
+      "@masumdev/rn-ui": ["../../packages/rn-ui/src"],
+      "@masumdev/tscheck": ["../../packages/tscheck/src"]
     }
   }
 }

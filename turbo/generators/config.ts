@@ -47,17 +47,27 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         path: "packages/{{kebabCase name}}/src/index.tsx",
         templateFile: "templates/index.ts.hbs",
       },
+      {
+        type: "add",
+        path: "packages/{{kebabCase name}}/README.md",
+        templateFile: "templates/README.md.hbs",
+      },
+      {
+        type: "add",
+        path: "packages/{{kebabCase name}}/LICENSE",
+        templateFile: "templates/LICENSE.hbs",
+      },
       // Install package ke native app
       {
         type: "modify",
         path: "apps/native/package.json",
-        pattern: /(\"dependencies\": \{[^}]*)(})/,
+        pattern: /("dependencies":\s*\{[\s\S]*?)(\n\s*\})/,
         template: '$1,\n    "@masumdev/{{kebabCase name}}": "workspace:*"$2',
       },
       {
         type: "modify",
         path: "apps/native/tsconfig.json",
-        pattern: /(\"paths\": \{[^}]*)(})/,
+        pattern: /("paths":\s*\{[\s\S]*?)(\n\s*\})/,
         template: '$1,\n      "@masumdev/{{kebabCase name}}": ["../../packages/{{kebabCase name}}/src"]$2',
       },
     ],

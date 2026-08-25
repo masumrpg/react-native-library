@@ -1,7 +1,7 @@
 {
-  "name": "@masumdev/{{kebabCase name}}",
+  "name": "@masumdev/tscheck",
   "version": "0.1.0",
-  "description": "A React Native and Expo package for {{kebabCase name}}.",
+  "description": "A React Native and Expo package for tscheck.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -26,15 +26,15 @@
   "keywords": [
     "react-native",
     "expo",
-    "{{kebabCase name}}"
+    "tscheck"
   ],
   "author": "Ma'sum",
   "license": "MIT",
-  "homepage": "https://react-native-library-docs.netlify.app/{{kebabCase name}}/",
+  "homepage": "https://react-native-library-docs.netlify.app/tscheck/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/masumrpg/react-native-library.git",
-    "directory": "packages/{{kebabCase name}}"
+    "directory": "packages/tscheck"
   },
   "bugs": {
     "url": "https://github.com/masumrpg/react-native-library/issues"
