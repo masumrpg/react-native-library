@@ -38,3 +38,4 @@ The following runbooks are available in `.agents/skills/`:
 
 - [Component Workflow](file:///.agents/skills/component-workflow/SKILL.md): 3-step standard pipeline for implementing, showcasing, and documenting new UI components.
 - [Codebase Audit](file:///.agents/skills/audit-codebase/SKILL.md): Procedure for executing AST checks and remediating typing or unused item violations.
+- [Package Publishing](file:///.agents/skills/publish-package/SKILL.md): Workflow for dynamic builds, version bumps, and publishing packages to npm.

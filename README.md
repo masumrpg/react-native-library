@@ -49,6 +49,37 @@ bun run build
 
 ---
 
+## 📦 Publishing Packages to NPM
+
+This monorepo includes a dynamic package publisher script (`scripts/publish-package.ts`) that automatically builds, optionally bumps versions, and publishes packages to the npm registry.
+
+### Basic Publish Command
+```bash
+bun run publish <package-name> [patch|minor|major]
+```
+
+### Examples
+```bash
+# 1. Publish @masumdev/rn-qr-code with current version
+bun run publish rn-qr-code
+
+# 2. Bump patch version (e.g. 0.2.0 -> 0.2.1) and publish
+bun run publish rn-qr-code patch
+
+# 3. Bump minor version (e.g. 0.3.0 -> 0.4.0) and publish
+bun run publish rn-ui minor
+
+# 4. Bump patch version and publish @masumdev/rn-tajweed-verse
+bun run publish rn-tajweed-verse patch
+
+# 5. Show help & list all publishable packages in the monorepo
+bun run publish --help
+```
+
+> **Note:** Any new package created inside `packages/<name>` will be automatically discovered by `bun run publish` without needing configuration updates in `package.json`.
+
+---
+
 ## 📄 Documentation
 
 Visit our official documentation portal at **[https://masum.dev](https://masum.dev)** for guides, component API references, and interactive code samples.
