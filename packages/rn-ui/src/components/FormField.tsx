@@ -1,12 +1,17 @@
 import React from "react";
 import {
-  Animated,
   View,
   type StyleProp,
   type TextStyle,
   type ViewProps,
   type ViewStyle,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { triggerHaptic } from "../utils/haptics";
@@ -48,22 +53,26 @@ export function FormField({
   ...props
 }: FormFieldProps) {
   const { spacing } = useTheme();
-  const shakeAnim = React.useRef(new Animated.Value(0)).current;
+  const shakeX = useSharedValue(0);
 
   const invalid = explicitInvalid ?? Boolean(error);
 
   React.useEffect(() => {
     if (invalid && shakeOnError) {
       triggerHaptic("error");
-      Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: 8, duration: 50, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -8, duration: 50, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 6, duration: 50, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -6, duration: 50, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
-      ]).start();
+      shakeX.value = withSequence(
+        withTiming(8, { duration: 50 }),
+        withTiming(-8, { duration: 50 }),
+        withTiming(6, { duration: 50 }),
+        withTiming(-6, { duration: 50 }),
+        withTiming(0, { duration: 50 }),
+      );
     }
-  }, [invalid, shakeAnim, shakeOnError]);
+  }, [invalid, shakeOnError, shakeX]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shakeX.value }],
+  }));
 
   const value = React.useMemo(
     () => ({ invalid, disabled, required, error }),
@@ -77,8 +86,8 @@ export function FormField({
           {
             width: "100%",
             gap: spacing.xs,
-            transform: [{ translateX: shakeAnim }],
           },
+          animatedStyle,
           style,
         ]}
         {...props}

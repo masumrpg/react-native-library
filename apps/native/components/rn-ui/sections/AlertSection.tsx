@@ -1,6 +1,5 @@
 import { Alert, Box, Text } from "@masumdev/rn-ui";
 import { Check, CircleAlert, TriangleAlert, OctagonAlert, X } from "lucide-react-native";
-import React from "react";
 import {
   AnimatedDetail,
   AnimatedToggleIcon,

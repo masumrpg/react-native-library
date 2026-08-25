@@ -1,5 +1,4 @@
 import { DataList, DataListItem, DataListLabel, DataListValue, Card, Box } from "@masumdev/rn-ui";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function DataListSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {

@@ -1,10 +1,8 @@
 import React from "react";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
-import Animated from "react-native-reanimated";
+import { StyleProp, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { BlurView } from "expo-blur";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Moon, Sun } from "lucide-react-native";
 import {
   Box,
   IconButton,
@@ -24,10 +22,14 @@ export interface ScreenHeaderProps {
   eyebrow?: string;
   showBack?: boolean;
   onBack?: () => void;
-  rightAction?: React.ReactNode;
+  /**
+   * Custom right action component.
+   * If not provided (`undefined`), a dark/light mode toggle button is rendered by default.
+   * Pass `null` to render no right action.
+   */
+  rightAction?: React.ReactNode | null;
   headerStyle?: StyleProp<ViewStyle>;
   sticky?: boolean;
-  blurIntensity?: number;
 }
 
 export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
@@ -38,12 +40,11 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
   onBack,
   rightAction,
   headerStyle,
-  sticky = true,
-  blurIntensity = 100,
+  sticky = false,
 }) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { isDark } = useTheme();
+  const { colors, isDark, setColorScheme } = useTheme();
   const styles = useStyles();
 
   const handleBack = () => {
@@ -54,29 +55,40 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     }
   };
 
+  const toggleTheme = () => {
+    setColorScheme(isDark ? "light" : "dark");
+  };
+
   const topPadding = insets.top + 8;
 
+  const renderRightAction = () => {
+    if (rightAction === null) {
+      return null;
+    }
+    if (rightAction !== undefined) {
+      return rightAction;
+    }
+    return (
+      <IconButton
+        icon={icon(isDark ? Sun : Moon)}
+        variant="outline"
+        size="md"
+        onPress={toggleTheme}
+      />
+    );
+  };
+
   return (
-    <Animated.View
+    <View
       style={[
         sticky ? styles.stickyContainer : styles.staticContainer,
-        { paddingTop: topPadding },
+        {
+          paddingTop: topPadding,
+          backgroundColor: colors.surface,
+        },
         headerStyle,
       ]}
     >
-      <BlurView
-        intensity={blurIntensity}
-        tint={isDark ? "dark" : "light"}
-        style={[
-          styles.blurOverlay,
-          {
-            backgroundColor: isDark
-              ? "rgba(5, 22, 30, 0.40)"
-              : "rgba(255, 255, 255, 0.40)",
-          },
-        ]}
-      />
-
       <Box row center gap="md" style={styles.contentRow}>
         {showBack && (
           <IconButton
@@ -112,9 +124,11 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
           )}
         </Box>
 
-        {rightAction && <Box row center gap="xs">{rightAction}</Box>}
+        <Box row center gap="xs">
+          {renderRightAction()}
+        </Box>
       </Box>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -126,25 +140,20 @@ function useStyles() {
       left: 0,
       right: 0,
       zIndex: 999,
-      overflow: "hidden",
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.borderMuted,
     },
     staticContainer: {
-      overflow: "hidden",
+      position: "relative",
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.md,
-    },
-    blurOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.borderMuted,
     },
     contentRow: {
       minHeight: 48,
-      zIndex: 1,
     },
     subtitle: {
       marginTop: 2,

@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import Animated, {
   Easing,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
@@ -140,7 +140,7 @@ export function AlertDialog({
           },
           (finished) => {
             if (finished) {
-              runOnJS(setMounted)(false);
+              scheduleOnRN(setMounted, false);
             }
           },
         );

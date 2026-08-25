@@ -34,7 +34,12 @@ export interface ContextMenuContextProps {
     width: number;
     height: number;
   };
-  setTriggerLayout: (layout: any) => void;
+  setTriggerLayout: (layout: {
+    pageX: number;
+    pageY: number;
+    width: number;
+    height: number;
+  }) => void;
   colors: ThemeColors;
 }
 
@@ -87,7 +92,7 @@ export function ContextMenuTrigger({
   disabled = false,
 }: ContextMenuTriggerProps) {
   const { setOpen, setTriggerLayout } = useContextMenu();
-  const triggerRef = React.useRef<any>(null);
+  const triggerRef = React.useRef<View | null>(null);
 
   const handleLongPress = () => {
     if (!disabled) {

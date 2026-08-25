@@ -143,7 +143,7 @@ const AppLayout = () => {
         storageKey={THEME_STORAGE_KEY}
         onColorSchemeChange={handleColorSchemeChange}
       >
-        <ToastProvider placement="bottom">
+        <ToastProvider placement="top" maxToasts={7} duration={5000}>
           <BottomSheetModalProvider>
             <Stack screenOptions={{ headerShown: false }} />
           </BottomSheetModalProvider>

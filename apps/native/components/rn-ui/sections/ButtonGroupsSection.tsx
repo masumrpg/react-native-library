@@ -9,29 +9,35 @@ import {
   useTheme,
 } from "@masumdev/rn-ui";
 import React from "react";
-import { Animated, type LayoutChangeEvent } from "react-native";
+import { type LayoutChangeEvent } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function ButtonGroupsSection({ ctx }: { ctx: RnUiSectionContext }) {
+export function ButtonGroupsSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
   const { colors, radii } = useTheme();
   const [activeSegment, setActiveSegment] = React.useState<"weekly" | "monthly" | "yearly">("weekly");
   const [containerWidth, setContainerWidth] = React.useState(0);
   const padding = 4;
   const activeBlockWidth = containerWidth > 0 ? (containerWidth - padding * 2) / 3 : 0;
-  const translateX = React.useRef(new Animated.Value(0)).current;
+  const translateX = useSharedValue(0);
 
   React.useEffect(() => {
     let index = 0;
     if (activeSegment === "monthly") index = 1;
     if (activeSegment === "yearly") index = 2;
 
-    Animated.spring(translateX, {
-      toValue: index * activeBlockWidth,
-      useNativeDriver: true,
-      damping: 18,
-      stiffness: 180,
-    }).start();
+    translateX.value = withTiming(index * activeBlockWidth, {
+      duration: 160,
+    });
   }, [activeSegment, activeBlockWidth, translateX]);
+
+  const animatedIndicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   return (
     <Section title="Button Groups">
@@ -91,9 +97,7 @@ export function ButtonGroupsSection({ ctx }: { ctx: RnUiSectionContext }) {
                       backgroundColor: colors.primary,
                       borderRadius: radii.md,
                     },
-                    {
-                      transform: [{ translateX }],
-                    },
+                    animatedIndicatorStyle,
                   ]}
                 />
               )}

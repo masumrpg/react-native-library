@@ -1,10 +1,9 @@
 import { Box, Card, Text } from "@masumdev/rn-ui";
 import { Palette } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function BoxSection({ ctx }: { ctx: RnUiSectionContext }) {
-  const { colors, styles } = ctx;
+  const { colors } = ctx;
 
   return (
     <Section title="Box">

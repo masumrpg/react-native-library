@@ -5,10 +5,8 @@ import { useRouter } from "expo-router";
 import {
   BookOpen,
   ChevronRight,
-  Moon,
   Palette,
   QrCode,
-  Sun,
 } from "lucide-react-native";
 import {
   Badge,
@@ -60,14 +58,14 @@ const showcases = [
 
 export default function Native() {
   const router = useRouter();
-  const { colors, isDark, setColorScheme, spacing } = useTheme();
+  const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const [navigatingRoute, setNavigatingRoute] = React.useState<string | null>(
     null,
   );
 
-  const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
+  const { onScroll, scrollEventThrottle } = useHeaderScroll({
     headerHeight: 220,
   });
 
@@ -95,19 +93,6 @@ export default function Native() {
         eyebrow="MasumDev Mobile"
         title="Component Libraries"
         subtitle="Interact with custom React Native packages using one flat visual system."
-        headerStyle={headerStyle}
-        rightAction={
-          <Button
-            size="sm"
-            variant="outline"
-            tone={isDark ? "warning" : "secondary"}
-            leftIcon={icon(isDark ? Sun : Moon)}
-            disabled={isAnyNavigating}
-            onPress={() => setColorScheme(isDark ? "light" : "dark")}
-          >
-            {isDark ? "Light" : "Dark"}
-          </Button>
-        }
       />
 
       <ScrollView
@@ -117,7 +102,7 @@ export default function Native() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 95,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xl,
           },
         ]}

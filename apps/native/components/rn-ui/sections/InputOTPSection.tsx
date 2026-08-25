@@ -7,7 +7,6 @@ import {
   InputOTPSlot,
   Text,
 } from "@masumdev/rn-ui";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function InputOTPSection({ ctx }: { ctx: RnUiSectionContext }) {

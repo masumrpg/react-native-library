@@ -1,6 +1,5 @@
 import { Select, Card, Box, Text } from "@masumdev/rn-ui";
 import { Check, ChevronsUpDown } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function SelectSection({ ctx }: { ctx: RnUiSectionContext }) {

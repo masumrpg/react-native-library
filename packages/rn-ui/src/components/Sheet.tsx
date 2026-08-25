@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import Animated, {
   Easing,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "../theme";
@@ -98,7 +98,7 @@ export function Sheet({
           },
           (finished) => {
             if (finished) {
-              runOnJS(setMounted)(false);
+              scheduleOnRN(setMounted, false);
             }
           },
         );

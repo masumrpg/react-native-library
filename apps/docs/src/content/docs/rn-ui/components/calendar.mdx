@@ -1,61 +1,9 @@
 ---
 title: Calendar
 description: Full month calendar picker with Event Dots indicators, Today quick jump, fast month/year selector overlays, and range period marking.
+sidebar:
+  badge:
+    text: Updated
+    variant: note
 ---
 
-import { Code } from '@astrojs/starlight/components';
-import TypeTable from '@/components/TypeTable.astro';
-
-export const exampleCode = `import React, { useState } from 'react';
-import { Calendar, Box, Text, Badge } from '@masumdev/rn-ui';
-
-export function CalendarExample() {
-  const [selected, setSelected] = useState('2026-07-12');
-
-  // Sample event markings with colored dots
-  const markedEvents = {
-    [selected]: { selected: true },
-    '2026-07-05': { marked: true, dotColor: '#06B6D4' },
-    '2026-07-12': {
-      dots: [
-        { key: 'meeting', color: '#06B6D4' },
-        { key: 'task', color: '#F59E0B' },
-      ],
-    },
-    '2026-07-15': { marked: true, dotColor: '#10B981' },
-  };
-
-  return (
-    <Box gap="md">
-      <Calendar
-        current={selected}
-        markedDates={markedEvents}
-        onDayPress={(day) => setSelected(day.dateString)}
-        showTodayButton
-        enableYearMonthPicker
-      />
-      <Text color="textMuted" variant="bodySmall">
-        Selected Date: <Text color="primary" weight="600">{selected}</Text>
-      </Text>
-    </Box>
-  );
-}`;
-
-`Calendar` provides interactive month view date selection with event dot indicators, quick "Today" navigation, fast month/year overlay selectors, and period range selection.
-
-## Usage
-
-<Code code={exampleCode} lang="tsx" title="CalendarExample.tsx" mark={['Calendar', 'markedDates', 'showTodayButton', 'enableYearMonthPicker', 'dots']} />
-
-## Props API
-
-<TypeTable
-  type={{
-    current: { type: 'string', description: 'Currently active ISO date string (YYYY-MM-DD).' },
-    markedDates: { type: 'Record<string, CalendarDayMarking>', description: 'Object map of marked date strings, event dots, and selection colors.' },
-    onDayPress: { type: '(day: { dateString: string }) => void', description: 'Callback triggered when a calendar day cell is pressed.' },
-    showTodayButton: { type: 'boolean', default: 'true', description: 'Shows the quick jump "Today" pill button in top header.' },
-    enableYearMonthPicker: { type: 'boolean', default: 'true', description: 'Enables interactive header triggers for fast month and year overlay selectors.' },
-    onTodayPress: { type: '() => void', description: 'Optional callback triggered when the "Today" button is pressed.' },
-  }}
-/>

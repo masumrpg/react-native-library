@@ -91,6 +91,12 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
         tone: "secondary",
       },
       {
+        id: "swipeable-item",
+        name: "SwipeableItem",
+        description: "Swipeable list row with Reanimated spring actions.",
+        tone: "secondary",
+      },
+      {
         id: "bubble",
         name: "Bubble",
         description: "Chat message bubble with sent/received styling.",
@@ -160,13 +166,13 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
       {
         id: "floating-action-button",
         name: "FloatingActionButton",
-        description: "Elevated primary action button.",
+        description: "Corner floating action button.",
         tone: "accent",
       },
       {
         id: "badge",
         name: "Badge",
-        description: "Status badge pill with semantic color intents.",
+        description: "Small status label pill with tone colors.",
         tone: "accent",
       },
     ],
@@ -174,25 +180,25 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
   {
     title: "Form & Selection Inputs",
     description:
-      "Form inputs, textareas, sliders, switches, ratings, and pickers.",
-    iconName: "Sliders",
+      "Text inputs, OTP boxes, checkboxes, switches, and date pickers.",
+    iconName: "CheckSquare",
     items: [
       {
         id: "input",
         name: "Input",
-        description: "Theme-aware text input field.",
+        description: "Single-line text input with prefix/suffix icons.",
         tone: "success",
       },
       {
         id: "input-group",
         name: "InputGroup",
-        description: "Input container with prefix and suffix addons.",
+        description: "Composite input with attached buttons and add-ons.",
         tone: "success",
       },
       {
         id: "input-otp",
         name: "InputOTP",
-        description: "One-time password PIN verification input.",
+        description: "One-time passcode pin digits field.",
         tone: "success",
       },
       {
@@ -216,13 +222,25 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
       {
         id: "switch",
         name: "Switch",
-        description: "Toggle switch with smooth Reanimated motion.",
+        description: "Toggle switch with iOS 26 oval and round variants.",
         tone: "success",
       },
       {
         id: "slider",
-        name: "Slider",
-        description: "Range slider with gesture handler thumb.",
+        name: "Slider & RangeSlider",
+        description: "Single & dual-thumb price range slider.",
+        tone: "success",
+      },
+      {
+        id: "chip",
+        name: "Chip & Tag",
+        description: "Filter chips and removable keyword tags.",
+        tone: "success",
+      },
+      {
+        id: "signature-pad",
+        name: "SignaturePad",
+        description: "Digital signature drawing canvas with SVG export.",
         tone: "success",
       },
       {
@@ -244,6 +262,12 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
         tone: "success",
       },
       {
+        id: "date-picker",
+        name: "DatePicker & TimePicker",
+        description: "Wheel date, 12h/24h time & birthday picker.",
+        tone: "success",
+      },
+      {
         id: "form-field",
         name: "FormField",
         description:
@@ -255,9 +279,15 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
   {
     title: "Navigation & Indicators",
     description:
-      "Tab navigation, breadcrumbs, pagination, and multi-step steppers.",
+      "Tab navigation, segmented control, breadcrumbs, and steppers.",
     iconName: "Layers",
     items: [
+      {
+        id: "segmented-control",
+        name: "SegmentedControl",
+        description: "Cupertino sliding pill tab switcher with haptics.",
+        tone: "warning",
+      },
       {
         id: "tabs",
         name: "Tabs",
@@ -461,7 +491,7 @@ export default function RnUiCatalogScreen() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 95,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xxl,
           },
         ]}

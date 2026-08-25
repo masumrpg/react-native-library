@@ -1,0 +1,102 @@
+---
+title: DatePicker
+description: Full-featured date picker with wheel, calendar, card, modal, dialog, and input variants.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const wheelExample = `import { useState } from 'react';
+import { DatePickerInput } from '@masumdev/rn-ui';
+
+export function DatePickerExample() {
+  const [date, setDate] = useState<Date | undefined>();
+
+  return (
+    <DatePickerInput
+      title="SELECT DATE"
+      placeholder="Choose a date"
+      value={date}
+      onChange={setDate}
+    />
+  );
+}`;
+
+export const cardExample = `import { useState } from 'react';
+import { DatePickerCard } from '@masumdev/rn-ui';
+
+export function DatePickerCardExample() {
+  const [date, setDate] = useState(new Date());
+
+  return (
+    <DatePickerCard
+      value={date}
+      onChange={setDate}
+      variant="wheel"
+      mode="date"
+    />
+  );
+}`;
+
+The DatePicker suite provides a complete date selection system with multiple presentation styles.
+
+## Components
+
+| Component | Description |
+|---|---|
+| `DatePicker` | Core picker with wheel or calendar variant |
+| `DatePickerCard` | Inline card with confirm/cancel actions |
+| `DatePickerModal` | Full-screen modal presentation |
+| `DatePickerDialog` | Alert-style dialog presentation |
+| `DatePickerInput` | Pressable input field that opens a modal |
+
+## Usage
+
+### DatePickerInput (Most Common)
+
+<Code code={wheelExample} lang="tsx" title="DatePickerInputExample.tsx" mark={['DatePickerInput', 'onChange']} />
+
+### DatePickerCard (Inline)
+
+<Code code={cardExample} lang="tsx" title="DatePickerCardExample.tsx" mark={['DatePickerCard', 'variant', 'mode']} />
+
+## Variants & Modes
+
+- **Variants**: `"wheel"` (iOS-style scroll columns) | `"calendar"` (month grid)
+- **Modes**: `"date"` | `"month-year"` | `"month"` | `"year"`
+
+## Props API
+
+### DatePickerInput
+
+<TypeTable
+  type={{
+    value: { type: 'Date | undefined', description: 'Selected date value.' },
+    onChange: { type: '(date: Date) => void', description: 'Callback when date is confirmed.' },
+    placeholder: { type: 'string', description: 'Placeholder text when no date selected.' },
+    title: { type: 'string', description: 'Title shown in the modal header.' },
+    variant: { type: '"wheel" | "calendar"', default: '"wheel"', description: 'Picker presentation style.' },
+    mode: { type: 'DatePickerMode', default: '"date"', description: 'Date granularity mode.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable the input.' },
+  }}
+/>
+
+### DatePicker (Core)
+
+<TypeTable
+  type={{
+    value: { type: 'Date', description: 'Currently selected date.' },
+    onChange: { type: '(date: Date) => void', description: 'Callback on date change.' },
+    variant: { type: '"wheel" | "calendar"', default: '"wheel"', description: 'Picker type.' },
+    mode: { type: 'DatePickerMode', default: '"date"', description: 'Selection mode.' },
+    minDate: { type: 'Date', description: 'Minimum selectable date.' },
+    maxDate: { type: 'Date', description: 'Maximum selectable date.' },
+    locale: { type: 'LocaleInput', description: 'Locale configuration for month/day names.' },
+    order: { type: 'DatePickerOrder', description: 'Column order for wheel variant.' },
+    monthFormat: { type: '"short" | "full" | "numeric"', default: '"short"', description: 'Month label format.' },
+  }}
+/>

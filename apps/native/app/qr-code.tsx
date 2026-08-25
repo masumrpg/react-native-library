@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { RefreshCw } from "lucide-react-native";
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
 import {
@@ -33,7 +32,6 @@ const bareVariants = [
 ] as const;
 
 export default function QRCodeScreen() {
-  const router = useRouter();
   const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
@@ -71,7 +69,7 @@ export default function QRCodeScreen() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 95,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xl,
           },
         ]}

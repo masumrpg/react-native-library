@@ -37,6 +37,12 @@ export function useSectionContext() {
   const [otpValue, setOtpValue] = React.useState("1234");
   const [activeSegment, setActiveSegment] = React.useState("weekly");
 
+  const themeOptions = [
+    { label: "Light", value: "light" },
+    { label: "Dark", value: "dark" },
+    { label: "System", value: "system" },
+  ];
+
   const styles = React.useMemo(
     () =>
       StyleSheet.create({
@@ -49,6 +55,11 @@ export function useSectionContext() {
         bareCard: { flex: 1, minWidth: 140 },
         contentScroll: { flex: 1 },
         container: { padding: 16 },
+        alertDetailsBox: { marginTop: 8 },
+        emptySample: { paddingVertical: 24 },
+        hoverCardTrigger: { padding: 8 },
+        inputGroupRowAddon: { alignSelf: "center" },
+        sampleTile: { padding: 16 },
       }),
     []
   );
@@ -60,6 +71,8 @@ export function useSectionContext() {
   return {
     colors,
     colorScheme,
+    resolvedColorScheme: theme.resolvedColorScheme,
+    themeOptions,
     isDark,
     setColorScheme,
     radii,

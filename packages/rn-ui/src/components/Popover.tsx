@@ -2,7 +2,7 @@ import React from "react";
 import {
   Modal,
   Pressable,
-  View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
@@ -62,29 +62,43 @@ export function PopoverTrigger({
 }: PopoverTriggerProps) {
   const context = React.useContext(PopoverContext);
 
-  const handlePress = (event: any) => {
+  const handlePress = (event: GestureResponderEvent) => {
     triggerHaptic("selection");
     context?.setOpen(!context.open);
     onPress?.(event);
   };
 
-  const handleLongPress = (event: any) => {
+  const handleLongPress = (event: GestureResponderEvent) => {
     triggerHaptic("selection");
     context?.setOpen(!context.open);
     onLongPress?.(event);
   };
 
   if (React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
-      onPress: (e: any) => {
-        handlePress(e);
-        (children.props as any)?.onPress?.(e);
+    return React.cloneElement(
+      children as React.ReactElement<{
+        onPress?: (e: GestureResponderEvent) => void;
+        onLongPress?: (e: GestureResponderEvent) => void;
+      }>,
+      {
+        onPress: (e: GestureResponderEvent) => {
+          handlePress(e);
+          (
+            children.props as {
+              onPress?: (e: GestureResponderEvent) => void;
+            }
+          )?.onPress?.(e);
+        },
+        onLongPress: (e: GestureResponderEvent) => {
+          handleLongPress(e);
+          (
+            children.props as {
+              onLongPress?: (e: GestureResponderEvent) => void;
+            }
+          )?.onLongPress?.(e);
+        },
       },
-      onLongPress: (e: any) => {
-        handleLongPress(e);
-        (children.props as any)?.onLongPress?.(e);
-      },
-    });
+    );
   }
 
   return (

@@ -1,6 +1,5 @@
-import { Badge, Box, Card, Divider, Text } from "@masumdev/rn-ui";
+import { Badge, Box, Card, Text } from "@masumdev/rn-ui";
 import { Check, Sparkles, ShieldCheck, AlertTriangle, Bell, Flame, Zap } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function BadgesSection({ ctx }: { ctx: RnUiSectionContext }) {

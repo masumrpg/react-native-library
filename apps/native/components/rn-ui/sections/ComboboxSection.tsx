@@ -10,7 +10,6 @@ import {
   Text,
 } from "@masumdev/rn-ui";
 import { Check, ChevronsUpDown, Search } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function ComboboxSection({ ctx }: { ctx: RnUiSectionContext }) {

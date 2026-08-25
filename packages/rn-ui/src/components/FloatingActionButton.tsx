@@ -8,12 +8,12 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
@@ -145,7 +145,7 @@ export function FloatingActionButton({
       { duration: 180 },
       (finished) => {
         if (finished && !visible) {
-          runOnJS(setMounted)(false);
+          scheduleOnRN(setMounted, false);
         }
       },
     );

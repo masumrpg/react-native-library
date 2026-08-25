@@ -1,7 +1,6 @@
-import React from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useTheme, useThemeStyles } from "@masumdev/rn-ui";
 import { SystemUIOverlay } from "../../components/system-ui-overlay";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -60,11 +59,15 @@ import {
   MetricCardSection,
   TextSection,
   ToastSection,
+  DatePickerSection,
+  SwipeableItemSection,
+  SegmentedControlSection,
+  ChipSection,
+  SignaturePadSection,
 } from "../../components/rn-ui";
 
 export default function RnUiComponentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
@@ -143,6 +146,8 @@ export default function RnUiComponentDetailScreen() {
         return <SelectSection ctx={ctx} />;
       case "combobox":
         return <ComboboxSection ctx={ctx} />;
+      case "date-picker":
+        return <DatePickerSection ctx={ctx} />;
       case "form-field":
         return <FormSection ctx={ctx} />;
 
@@ -195,6 +200,16 @@ export default function RnUiComponentDetailScreen() {
         return <SkeletonSection ctx={ctx} />;
       case "avatar":
         return <AvatarSection ctx={ctx} />;
+      case "swipeable":
+      case "swipeable-item":
+        return <SwipeableItemSection ctx={ctx} />;
+      case "segmented-control":
+        return <SegmentedControlSection ctx={ctx} />;
+      case "chip":
+      case "tag":
+        return <ChipSection ctx={ctx} />;
+      case "signature-pad":
+        return <SignaturePadSection ctx={ctx} />;
 
       default:
         return <ButtonsSection ctx={ctx} />;
@@ -223,7 +238,7 @@ export default function RnUiComponentDetailScreen() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 95,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xxl,
           },
         ]}

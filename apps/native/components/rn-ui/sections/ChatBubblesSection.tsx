@@ -10,7 +10,7 @@ import {
   Card,
   Text,
 } from "@masumdev/rn-ui";
-import { Section, type RnUiSectionContext } from "../shared";
+import { SAMPLE_ASSETS, Section, type RnUiSectionContext } from "../shared";
 
 export function ChatBubblesSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
   return (
@@ -32,10 +32,10 @@ export function ChatBubblesSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
               <Avatar size="sm">
                 <AvatarImage
                   source={{
-                    uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80",
+                    uri: SAMPLE_ASSETS.avatarUrl,
                   }}
                 />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>{SAMPLE_ASSETS.avatarInitials}</AvatarFallback>
               </Avatar>
               <Bubble align="start" variant="secondary">
                 <BubbleContent>

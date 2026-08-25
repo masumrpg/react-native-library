@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Pressable,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
@@ -114,7 +115,7 @@ export function IconButton({
           ? colors.text
           : base;
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     if (isDisabled) return;
     if (haptic) triggerHaptic("light");
     onPress?.(e);

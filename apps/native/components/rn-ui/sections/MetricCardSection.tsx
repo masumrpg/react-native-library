@@ -1,6 +1,5 @@
 import { MetricCard, Card, Box } from "@masumdev/rn-ui";
 import { BarChart3, TrendingUp, Users } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function MetricCardSection({ ctx }: { ctx: RnUiSectionContext }) {

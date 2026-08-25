@@ -2,6 +2,7 @@ import React from "react";
 import {
   Pressable,
   View,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewProps,
@@ -11,7 +12,6 @@ import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
@@ -20,9 +20,13 @@ import { triggerHaptic } from "../utils/haptics";
 import { Text } from "./Text";
 import type { BaseGlassProps, BaseHapticProps, BaseAnimatedProps } from "./types";
 
+export type RadioGroupVariant = "card" | "plain";
+
 export interface RadioGroupContextValue {
   value?: string;
   disabled: boolean;
+  orientation: "horizontal" | "vertical";
+  variant: RadioGroupVariant;
   onValueChange?: (value: string) => void;
 }
 
@@ -34,6 +38,8 @@ export interface RadioGroupProps extends ViewProps {
   value?: string;
   defaultValue?: string;
   disabled?: boolean;
+  orientation?: "horizontal" | "vertical";
+  variant?: RadioGroupVariant;
   onValueChange?: (value: string) => void;
   style?: StyleProp<ViewStyle>;
 }
@@ -42,6 +48,8 @@ export function RadioGroup({
   value,
   defaultValue,
   disabled = false,
+  orientation = "vertical",
+  variant = "card",
   onValueChange,
   style,
   ...props
@@ -57,15 +65,28 @@ export function RadioGroup({
     [onValueChange, value],
   );
   const context = React.useMemo(
-    () => ({ value: currentValue, disabled, onValueChange: handleValueChange }),
-    [currentValue, disabled, handleValueChange],
+    () => ({
+      value: currentValue,
+      disabled,
+      orientation,
+      variant,
+      onValueChange: handleValueChange,
+    }),
+    [currentValue, disabled, orientation, variant, handleValueChange],
   );
 
   return (
     <RadioGroupContext.Provider value={context}>
       <View
         accessibilityRole="radiogroup"
-        style={[{ gap: spacing.sm, width: "100%" }, style]}
+        style={[
+          {
+            flexDirection: orientation === "horizontal" ? "row" : "column",
+            gap: orientation === "horizontal" ? spacing.md : spacing.sm,
+            width: "100%",
+          },
+          style,
+        ]}
         {...props}
       />
     </RadioGroupContext.Provider>
@@ -81,7 +102,9 @@ export interface RadioGroupItemProps
   label?: React.ReactNode;
   description?: React.ReactNode;
   disabled?: boolean;
+  variant?: RadioGroupVariant;
   style?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export function RadioGroupItem({
@@ -92,36 +115,42 @@ export function RadioGroupItem({
   glass = false,
   haptic = true,
   animated = true,
+  variant,
   style,
+  containerStyle,
   onPress,
   ...props
 }: RadioGroupItemProps) {
   const context = React.useContext(RadioGroupContext);
-  const { colors, components, radii, spacing, typography, isDark } = useTheme();
+  const { colors, components, radii, spacing, isDark } = useTheme();
   const checked = context?.value === value;
   const isDisabled = disabled || Boolean(context?.disabled);
+  const isHorizontal = context?.orientation === "horizontal";
+  const itemVariant = variant ?? context?.variant ?? "card";
+  const isPlain = itemVariant === "plain";
 
   const checkedProgress = useSharedValue(checked ? 1 : 0);
   const pressedProgress = useSharedValue(0);
 
   React.useEffect(() => {
-    checkedProgress.value = withSpring(checked ? 1 : 0, {
-      damping: 15,
-      stiffness: 220,
-      mass: 0.7,
-    });
-  }, [checked, checkedProgress]);
+    checkedProgress.value = animated
+      ? withTiming(checked ? 1 : 0, { duration: 140 })
+      : checked
+        ? 1
+        : 0;
+  }, [animated, checked, checkedProgress]);
 
-  const glassBg = isDark
-    ? "rgba(15, 27, 45, 0.60)"
-    : "rgba(255, 255, 255, 0.75)";
-
-  const inactiveBg = glass ? glassBg : colors.surface;
-  const activeBg = colors.primarySoft;
-
+  const inactiveBg = glass
+    ? isDark
+      ? "rgba(15, 23, 42, 0.4)"
+      : "rgba(255, 255, 255, 0.4)"
+    : colors.surface;
+  const activeBg = isDark
+    ? "rgba(99, 102, 241, 0.18)"
+    : "rgba(99, 102, 241, 0.08)";
   const inactiveBorder = glass
     ? isDark
-      ? "rgba(248, 250, 252, 0.20)"
+      ? "rgba(255, 255, 255, 0.1)"
       : "rgba(15, 23, 42, 0.14)"
     : colors.border;
   const activeBorder = colors.primary;
@@ -138,7 +167,7 @@ export function RadioGroupItem({
       [inactiveBorder, activeBorder],
     ),
     transform: [
-      { scale: animated ? 1 - pressedProgress.value * 0.02 : 1 },
+      { scale: animated ? 1 - pressedProgress.value * 0.015 : 1 },
     ],
   }));
 
@@ -155,7 +184,7 @@ export function RadioGroupItem({
     ),
   }));
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     if (isDisabled) return;
     if (haptic) triggerHaptic("selection");
     context?.onValueChange?.(value);
@@ -170,31 +199,44 @@ export function RadioGroupItem({
       onPress={handlePress}
       onPressIn={() => {
         if (!isDisabled && animated) {
-          pressedProgress.value = withTiming(1, { duration: 100 });
+          pressedProgress.value = withTiming(1, { duration: 80 });
         }
       }}
       onPressOut={() => {
         if (!isDisabled && animated) {
-          pressedProgress.value = withTiming(0, { duration: 120 });
+          pressedProgress.value = withTiming(0, { duration: 100 });
         }
       }}
-      style={{ width: "100%" }}
+      style={[
+        isHorizontal ? { flex: 1 } : { width: "100%" },
+        isPlain && isHorizontal ? { flex: 1 } : null,
+        style,
+      ]}
       {...props}
     >
       <Animated.View
         style={[
-          {
-            width: "100%",
-            flexDirection: "row",
-            alignItems: "flex-start",
-            gap: spacing.md,
-            padding: spacing.md,
-            borderWidth: components.borderWidth.strong,
-            borderRadius: radii.xl,
-            opacity: isDisabled ? 0.5 : 1,
-          },
-          containerAnimatedStyle,
-          style,
+          isPlain
+            ? {
+                flexDirection: "row",
+                alignItems: description ? "flex-start" : "center",
+                gap: spacing.sm,
+                paddingVertical: spacing.xs,
+                paddingHorizontal: spacing.xs,
+                opacity: isDisabled ? 0.5 : 1,
+              }
+            : {
+                width: "100%",
+                flexDirection: "row",
+                alignItems: description ? "flex-start" : "center",
+                gap: spacing.md,
+                padding: spacing.md,
+                borderWidth: components.borderWidth.strong,
+                borderRadius: radii.xl,
+                opacity: isDisabled ? 0.5 : 1,
+              },
+          !isPlain ? containerAnimatedStyle : null,
+          containerStyle,
         ]}
       >
         <Animated.View
@@ -206,7 +248,7 @@ export function RadioGroupItem({
               borderWidth: components.borderWidth.focus,
               alignItems: "center",
               justifyContent: "center",
-              marginTop: 2,
+              marginTop: description ? 2 : 0,
             },
             radioCircleAnimatedStyle,
           ]}
@@ -232,8 +274,9 @@ export function RadioGroupItem({
           ) : (
             label
           )}
+
           {typeof description === "string" ? (
-            <Text style={[typography.bodySmall, { color: colors.textMuted }]}>
+            <Text variant="bodySmall" color="textMuted">
               {description}
             </Text>
           ) : (

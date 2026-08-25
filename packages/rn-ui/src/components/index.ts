@@ -25,6 +25,7 @@ export {
   AvatarImage,
   AvatarFallback,
   AvatarBadge,
+  AvatarFrame,
   AvatarGroup,
   AvatarGroupCount,
 } from "./Avatar";
@@ -33,6 +34,11 @@ export type {
   AvatarImageProps,
   AvatarFallbackProps,
   AvatarBadgeProps,
+  AvatarBadgeTone,
+  AvatarBadgePosition,
+  AvatarFrameProps,
+  AvatarVariant,
+  AvatarTone,
   AvatarGroupProps,
   AvatarGroupCountProps,
   AvatarSize,
@@ -57,12 +63,67 @@ export type {
   ButtonGroupSeparatorProps,
   ButtonGroupOrientation,
 } from "./ButtonGroup";
-export { Calendar } from "./Calendar";
+export { Calendar, CalendarDayButton, CalendarArrow } from "./Calendar";
 export type {
   CalendarProps,
   CalendarDayData,
   CalendarDayMarking,
 } from "./Calendar";
+export {
+  DatePicker,
+  DatePickerCard,
+  DatePickerModal,
+  DatePickerDialog,
+  DatePickerInput,
+  WheelPickerColumn,
+  TimePicker,
+  TimePickerCard,
+  TimePickerModal,
+  TimePickerDialog,
+  TimePickerInput,
+  formatTime,
+  LocaleConfig,
+  getLocaleData,
+} from "./DatePicker";
+export type {
+  DatePickerProps,
+  DatePickerCardProps,
+  DatePickerModalProps,
+  DatePickerInputProps,
+  DatePickerVariant,
+  DatePickerMode,
+  DatePickerOrder,
+  MonthFormat,
+  WheelPickerItem,
+  WheelPickerColumnProps,
+} from "./DatePicker";
+export type { LocaleData, LocaleInput } from "../utils/locale";
+export {
+  ExpandableCalendar,
+  CalendarProvider,
+  CalendarPositions,
+  AgendaList,
+  WeekCalendar,
+} from "./ExpandableCalendar";
+export type {
+  ExpandableCalendarProps,
+  CalendarProviderProps,
+  ExpandableCalendarRef,
+  AgendaListProps,
+  WeekCalendarProps,
+} from "./ExpandableCalendar";
+export {
+  TimelineCalendar,
+  TimelineList,
+  CalendarUtils,
+} from "./TimelineCalendar";
+export type {
+  TimelineCalendarProps,
+  TimelineListProps,
+  TimelineEventProps,
+  TimelinePackedEventProps,
+  TimelineListRenderItemInfo,
+} from "./TimelineCalendar";
 export { Badge } from "./Badge";
 export type { BadgeProps, BadgeSize, BadgeTone, BadgeVariant } from "./Badge";
 export { Box } from "./Box";
@@ -271,6 +332,7 @@ export type {
   RadioGroupContextValue,
   RadioGroupItemProps,
   RadioGroupProps,
+  RadioGroupVariant,
 } from "./RadioGroup";
 export {
   Sheet,
@@ -293,7 +355,7 @@ export type { SliderProps, SliderTone } from "./Slider";
 export { Stepper } from "./Stepper";
 export type { StepperProps } from "./Stepper";
 export { Switch } from "./Switch";
-export type { SwitchProps } from "./Switch";
+export type { SwitchProps, SwitchSize, SwitchTone, SwitchVariant } from "./Switch";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./Tabs";
 export type {
   TabsContentProps,
@@ -455,6 +517,10 @@ export type {
   SizeProps,
   ShapeProps,
   IconSlotsProps,
+  BaseGlassProps,
+  BaseHapticProps,
+  BaseAnimatedProps,
+  BaseComponentProps,
   BaseUIComponentProps,
 } from "./types";
 export { renderIcon } from "./types";
@@ -467,3 +533,21 @@ export type {
   RatingSize,
   RatingTone,
 } from "./Rating";
+export { SwipeableItem, SwipeableRow } from "./SwipeableItem";
+export type {
+  SwipeableAction,
+  SwipeableItemProps,
+  SwipeableItemRef,
+} from "./SwipeableItem";
+export { SegmentedControl } from "./SegmentedControl";
+export type {
+  SegmentedOption,
+  SegmentedControlProps,
+} from "./SegmentedControl";
+export { Chip, Tag } from "./Chip";
+export type { ChipProps, TagProps, ChipVariant } from "./Chip";
+export { RangeSlider } from "./RangeSlider";
+export type { RangeSliderProps } from "./RangeSlider";
+export { SignaturePad } from "./SignaturePad";
+export type { SignaturePadProps, SignaturePadRef } from "./SignaturePad";
+

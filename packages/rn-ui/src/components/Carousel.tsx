@@ -2,19 +2,21 @@ import React from "react";
 import {
   Dimensions,
   Pressable,
+  ScrollView,
   View,
+  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
-  runOnJS,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   type SharedValue,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme } from "../theme";
 import { triggerHaptic } from "../utils/haptics";
@@ -43,7 +45,7 @@ export interface CarouselContextProps {
   scrollNext: () => void;
   canScrollPrev: boolean;
   canScrollNext: boolean;
-  scrollViewRef: React.RefObject<any>;
+  scrollViewRef: React.RefObject<ScrollView | null>;
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -132,7 +134,7 @@ export function Carousel({
   const [totalItems, setTotalItems] = React.useState(0);
 
   const scrollX = useSharedValue(0);
-  const scrollViewRef = React.useRef<any>(null);
+  const scrollViewRef = React.useRef<ScrollView | null>(null);
 
   const resolvedItemWidth = itemWidth || containerWidth * 0.78;
 
@@ -170,7 +172,7 @@ export function Carousel({
     return () => clearInterval(timer);
   }, [autoPlay, autoPlayInterval, totalItems, scrollNext]);
 
-  const handleLayout = (e: any) => {
+  const handleLayout = (e: LayoutChangeEvent) => {
     const { width } = e.nativeEvent.layout;
     if (width > 0) {
       setContainerWidth(width);
@@ -265,12 +267,12 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
       scrollX.value = event.contentOffset.x;
       const index = Math.round(event.contentOffset.x / itemWidth);
       if (index >= 0 && index < total) {
-        runOnJS(updateActiveIndex)(index);
+        scheduleOnRN(updateActiveIndex, index);
       }
     },
   });
 
-  const handleLayout = (e: any) => {
+  const handleLayout = (e: LayoutChangeEvent) => {
     const { width } = e.nativeEvent.layout;
     if (width > 0) {
       setContainerWidth(width);
@@ -282,7 +284,7 @@ export function CarouselContent({ style, children }: CarouselContentProps) {
   // Automatically inject index prop into CarouselItem children
   const renderedChildren = childrenArray.map((child, index) => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child as React.ReactElement<any>, {
+      return React.cloneElement(child as React.ReactElement<{ index?: number }>, {
         index,
       });
     }

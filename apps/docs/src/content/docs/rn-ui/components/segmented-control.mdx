@@ -1,0 +1,73 @@
+---
+title: SegmentedControl
+description: iOS-style segmented tabs with fluid sliding pill animation.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { SegmentedControl } from '@masumdev/rn-ui';
+
+export function SegmentedExample() {
+  const [index, setIndex] = useState(0);
+
+  return (
+    <SegmentedControl
+      values={['Day', 'Week', 'Month']}
+      selectedIndex={index}
+      onChange={(i) => setIndex(i)}
+    />
+  );
+}`;
+
+export const advancedExample = `import { SegmentedControl } from '@masumdev/rn-ui';
+import { List, Grid } from 'lucide-react-native';
+
+const options = [
+  { label: 'List', value: 'list', icon: (p) => <List {...p} /> },
+  { label: 'Grid', value: 'grid', icon: (p) => <Grid {...p} /> },
+];
+
+<SegmentedControl values={options} tone="primary" size="sm" />`;
+
+`SegmentedControl` provides an iOS-style segmented tab switcher with a fluid sliding pill indicator animation.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SegmentedExample.tsx" mark={['SegmentedControl', 'values', 'onChange']} />
+
+### With Icons & Badges
+
+<Code code={advancedExample} lang="tsx" title="SegmentedAdvanced.tsx" mark={['icon', 'badge']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    values: { type: '(string | SegmentedOption)[]', required: true, description: 'Segment labels or option objects.' },
+    selectedIndex: { type: 'number', description: 'Controlled selected index.' },
+    defaultIndex: { type: 'number', default: '0', description: 'Initial uncontrolled index.' },
+    onChange: { type: '(index: number, value: string) => void', description: 'Callback when segment changes.' },
+    size: { type: 'ComponentSize', default: '"md"', description: 'Size preset (sm, md, lg).' },
+    tone: { type: 'ComponentTone', default: '"primary"', description: 'Color tone.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable all segments.' },
+    hapticFeedback: { type: 'boolean', default: 'true', description: 'Enable haptic feedback.' },
+  }}
+/>
+
+### SegmentedOption
+
+<TypeTable
+  type={{
+    label: { type: 'string', required: true, description: 'Segment label text.' },
+    value: { type: 'string', required: true, description: 'Segment value identifier.' },
+    icon: { type: 'RenderIcon', description: 'Leading icon.' },
+    badge: { type: 'string | number', description: 'Badge indicator.' },
+    disabled: { type: 'boolean', description: 'Disable this specific segment.' },
+  }}
+/>

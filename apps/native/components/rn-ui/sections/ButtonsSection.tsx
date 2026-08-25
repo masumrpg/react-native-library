@@ -1,6 +1,5 @@
 import { Box, Button, Card, Text } from "@masumdev/rn-ui";
 import { Sparkles, Heart } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function ButtonsSection({ ctx }: { ctx: RnUiSectionContext }) {

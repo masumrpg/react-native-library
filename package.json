@@ -16,7 +16,8 @@
     "publish:rn-ui:patch": "npm version patch --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
     "publish:rn-ui:minor": "npm version minor --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
     "publish:rn-ui:major": "npm version major --prefix packages/rn-ui --no-git-tag-version && turbo run build --filter=@masumdev/rn-ui && (cd packages/rn-ui && bun publish --access public)",
-    "publish:all": "turbo run build && bun publish --access public"
+    "publish:all": "turbo run build && bun publish --access public",
+    "audit": "bun scripts/audit-codebase.ts"
   },
   "devDependencies": {
     "@turbo/gen": "^2.9.8",

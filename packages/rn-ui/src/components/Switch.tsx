@@ -24,6 +24,7 @@ import {
 } from "./types";
 
 export type SwitchSize = "sm" | "md" | "lg";
+export type SwitchVariant = "round" | "oval";
 export type SwitchTone =
   | "primary"
   | "secondary"
@@ -55,6 +56,7 @@ export interface SwitchProps
   disabled?: boolean;
   invalid?: boolean;
   size?: SwitchSize;
+  variant?: SwitchVariant;
   tone?: SwitchTone;
   style?: StyleProp<ViewStyle>;
   trackStyle?: StyleProp<ViewStyle>;
@@ -75,6 +77,7 @@ export function Switch({
   disabled = false,
   invalid = false,
   size = "md",
+  variant = "round",
   tone = "primary",
   glass = false,
   haptic = true,
@@ -113,13 +116,17 @@ export function Switch({
   const thumbIcon = checked ? activeIcon : inactiveIcon;
   const selectedThumbContent =
     (checked ? activeThumbContent : inactiveThumbContent) ?? thumbContent;
-  const width = components.switch.width[size];
+  const isOval = variant === "oval";
+  const baseWidth = components.switch.width[size];
+  const width = isOval ? Math.round(baseWidth * 1.14) : baseWidth;
   const height = components.switch.height[size];
-  const thumbSize = components.switch.thumbSize[size];
+  const baseThumbSize = components.switch.thumbSize[size];
+  const thumbWidth = isOval ? Math.round(baseThumbSize * 1.18) : baseThumbSize;
+  const thumbHeight = baseThumbSize;
   const iconSize = components.switch.iconSize[size];
   const borderWidth = components.borderWidth.focus;
-  const inset = (height - thumbSize) / 2;
-  const travel = width - thumbSize - (inset + borderWidth) * 2;
+  const inset = (height - thumbHeight) / 2;
+  const travel = width - thumbWidth - (inset + borderWidth) * 2;
 
   const glassBg = isDark
     ? "rgba(15, 27, 45, 0.60)"
@@ -194,7 +201,8 @@ export function Switch({
   const thumbAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: progress.value * travel },
-      { scale: 1 + pressed.value * 0.06 },
+      { scaleX: isOval ? 1 + pressed.value * 0.12 : 1 + pressed.value * 0.06 },
+      { scaleY: 1 - pressed.value * 0.04 },
     ],
     backgroundColor: interpolateColor(
       progress.value,
@@ -256,8 +264,8 @@ export function Switch({
         <Animated.View
           style={[
             {
-              width: thumbSize,
-              height: thumbSize,
+              width: thumbWidth,
+              height: thumbHeight,
               borderRadius: radii.full,
               alignItems: "center",
               justifyContent: "center",

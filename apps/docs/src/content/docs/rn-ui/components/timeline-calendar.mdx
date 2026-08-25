@@ -1,0 +1,61 @@
+---
+title: TimelineCalendar
+description: Day/week timeline view with packed events for scheduling interfaces.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { TimelineCalendar, CalendarProvider } from '@masumdev/rn-ui';
+
+const events = [
+  {
+    start: '2026-08-25 09:00',
+    end: '2026-08-25 10:30',
+    title: 'Team Standup',
+    summary: 'Daily sync meeting',
+    color: '#6366F1',
+  },
+];
+
+export function TimelineExample() {
+  return (
+    <CalendarProvider date="2026-08-25">
+      <TimelineCalendar events={events} />
+    </CalendarProvider>
+  );
+}`;
+
+`TimelineCalendar` renders a day/week schedule timeline with hour lanes and packed event blocks. Ideal for scheduling and calendar app interfaces.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TimelineExample.tsx" mark={['TimelineCalendar', 'events']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    events: { type: 'TimelineEventProps[]', required: true, description: 'Array of events to display on the timeline.' },
+    start: { type: 'number', default: '0', description: 'Start hour of the timeline (0-23).' },
+    end: { type: 'number', default: '24', description: 'End hour of the timeline (0-24).' },
+    onEventPress: { type: '(event: TimelineEventProps) => void', description: 'Callback when an event is pressed.' },
+    onBackgroundLongPress: { type: '(time: string) => void', description: 'Long press on empty time slot.' },
+  }}
+/>
+
+### TimelineEventProps
+
+<TypeTable
+  type={{
+    start: { type: 'string', required: true, description: 'Event start datetime (YYYY-MM-DD HH:mm).' },
+    end: { type: 'string', required: true, description: 'Event end datetime (YYYY-MM-DD HH:mm).' },
+    title: { type: 'string', required: true, description: 'Event title.' },
+    summary: { type: 'string', description: 'Event description.' },
+    color: { type: 'string', description: 'Event background color.' },
+  }}
+/>

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import TajweedVerse, { TajweedThemes } from "@masumdev/rn-tajweed-verse";
 import {
   BookOpen,
@@ -100,7 +99,6 @@ const tajweedThemeOptions: TajweedThemeKey[] = [
 ];
 
 export default function TajweedVerseScreen() {
-  const router = useRouter();
   const toast = useToast();
   const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
@@ -219,7 +217,7 @@ export default function TajweedVerseScreen() {
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 95,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xl,
           },
         ]}

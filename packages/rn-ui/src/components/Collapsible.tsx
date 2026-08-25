@@ -1,5 +1,11 @@
 import React from "react";
-import { Pressable, View, type StyleProp, type ViewStyle } from "react-native";
+import {
+  Pressable,
+  View,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -84,7 +90,9 @@ export function CollapsibleTrigger({
 
   return (
     <Pressable onPress={handlePress} style={style} {...props}>
-      {typeof children === "function" ? (children as any)() : children}
+      {typeof children === "function"
+        ? (children as () => React.ReactNode)()
+        : children}
     </Pressable>
   );
 }
@@ -115,14 +123,17 @@ export function CollapsibleContent({
     opacity: progress.value,
   }));
 
-  const handleLayout = (e: any) => {
+  const handleLayout = (e: LayoutChangeEvent) => {
     const h = e.nativeEvent.layout.height;
     if (h > 0 && Math.abs(h - contentHeight) > 1) {
       setContentHeight(h);
     }
   };
 
-  const childContent = typeof children === "function" ? (children as any)() : children;
+  const childContent =
+    typeof children === "function"
+      ? (children as () => React.ReactNode)()
+      : children;
 
   return (
     <View style={{ overflow: "hidden" }}>

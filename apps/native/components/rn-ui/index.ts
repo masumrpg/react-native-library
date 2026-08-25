@@ -51,3 +51,9 @@ export { TimelineSection } from './sections/TimelineSection';
 export { MetricCardSection } from './sections/MetricCardSection';
 export { FloatingActionButtonSection } from './sections/FloatingActionButtonSection';
 export { RatingSection } from './sections/RatingSection';
+export { DatePickerSection } from './sections/DatePickerSection';
+export { SwipeableItemSection } from './sections/SwipeableItemSection';
+export { SegmentedControlSection } from './sections/SegmentedControlSection';
+export { ChipSection } from './sections/ChipSection';
+export { SignaturePadSection } from './sections/SignaturePadSection';
+

@@ -1,5 +1,4 @@
 import { Timeline, TimelineDescription, TimelineItem, TimelineTitle, Card, Box } from "@masumdev/rn-ui";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function TimelineSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {

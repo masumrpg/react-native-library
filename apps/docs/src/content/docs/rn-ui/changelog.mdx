@@ -9,10 +9,94 @@ import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
 
 export const releases = [
   {
-    version: 'v0.2.0',
-    date: '2026-08-23',
+    version: 'v0.3.0',
+    date: '2026-08-25',
     tag: 'Latest Feature Release',
     isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: '<strong>Chip & Tag Components</strong>: New selection chips with <code>filled</code>, <code>outline</code>, and <code>soft</code> variants. Supports toggle selection, close buttons, icons, and tone theming.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>DatePicker & TimePicker Suite</strong>: Full date/time picker system including <code>DatePicker</code>, <code>DatePickerCard</code>, <code>DatePickerModal</code>, <code>DatePickerDialog</code>, <code>DatePickerInput</code>, <code>TimePicker</code>, <code>TimePickerCard</code>, <code>TimePickerModal</code>, <code>TimePickerDialog</code>, <code>TimePickerInput</code> with wheel and calendar variants, locale support, and <code>WheelPickerColumn</code>.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>ExpandableCalendar & AgendaList</strong>: Week/month expandable calendar with agenda list, powered by react-native-calendars. Includes <code>CalendarProvider</code>, <code>WeekCalendar</code>, and <code>AgendaList</code>.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>TimelineCalendar</strong>: Day/week timeline view with packed events, powered by react-native-calendars. Includes <code>TimelineList</code> and <code>CalendarUtils</code>.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>RangeSlider (Dual-Thumb)</strong>: New dual-thumb range selection slider with direct 1:1 gesture tracking, snap-to-step, tone theming, and haptic feedback.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>SegmentedControl</strong>: iOS-style segmented tabs with fluid sliding pill animation, icon/badge support, and size/tone theming.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>SignaturePad</strong>: SVG-based drawing canvas for digital signatures with undo, clear, guide line, and <code>getSvg()</code> export via ref.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>SwipeableItem</strong>: Swipeable list rows with configurable left/right actions, full-swipe support, collapse-dismiss animation, and haptic feedback.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>RadioGroup Plain Variant</strong>: New <code>variant="plain"</code> without container border for cleaner inline radio layouts.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Locale System</strong>: New <code>LocaleConfig</code> and <code>getLocaleData</code> utilities for DatePicker, Calendar, and ExpandableCalendar i18n support.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Avatar Revamp</strong>: Added editable badge, profile editor patterns, and improved AvatarGroup with count indicators.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Calendar Overhaul</strong>: Swipe navigation, locale system integration, event dots markers, fast month/year overlay selectors.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Slider Direct Gesture Tracking</strong>: Replaced spring/timing animations with 1:1 touch tracking. Standardized thumb (24px, white, colored border).',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Switch Oval Variant</strong>: New <code>variant="oval"</code> with rounded capsule styling and haptic integration.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Toast Variants & Promise Updates</strong>: Added <code>outlined</code>, <code>flat</code>, <code>subtle</code> variants, safe area inset, and async <code>toast.update()</code> in-place updates.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>FormField 17-Primitive Showcase</strong>: Integrated all 17 form primitives (Input, InputGroup, RadioGroup, DatePicker, TimePicker, Chip, Slider, RangeSlider, Select, Combobox, InputOTP, Textarea, Rating, Switch, SignaturePad, Checkbox, FormField) with full Zod validation.',
+      },
+      {
+        type: 'improve',
+        text: '<strong>Rating Gesture Improvements</strong>: Improved half-star precision tracking and gesture handling.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Zero-Bounce Animation Policy</strong>: Established monorepo-wide rule prohibiting bouncy spring animations on interactive controls. All controls now use <code>withTiming</code> (100-160ms) or direct gesture tracking.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Audit Script Upgrade</strong>: Added explicit <code>any</code> type detection to <code>bun run audit</code>. Output moved to <code>.temp/tscheck/</code>.',
+      },
+    ],
+  },
+  {
+    version: 'v0.2.0',
+    date: '2026-08-23',
+    tag: 'Previous Release',
+    isLatest: false,
     changes: [
       {
         type: 'feat',

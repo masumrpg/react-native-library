@@ -8,11 +8,11 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme } from "../theme";
 import { triggerHaptic } from "../utils/haptics";
@@ -124,7 +124,7 @@ function DefaultAccordionContent({
 
     progress.value = withTiming(expanded ? 1 : 0, { duration }, (finished) => {
       if (finished && !expanded) {
-        runOnJS(setShouldRender)(false);
+        scheduleOnRN(setShouldRender, false);
       }
     });
   }, [duration, expanded, progress]);

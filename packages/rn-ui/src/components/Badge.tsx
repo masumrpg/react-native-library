@@ -83,7 +83,6 @@ export function Badge({
   const isSolid = variant === "solid";
   const isSoft = variant === "soft";
   const isSubtle = variant === "subtle";
-  const isGhost = variant === "ghost";
   const isOutline = variant === "outline";
   const iconSize = size === "lg" ? 14 : size === "sm" ? 10 : 12;
 

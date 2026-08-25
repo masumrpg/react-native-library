@@ -12,7 +12,7 @@ import { Play, RotateCcw } from "lucide-react-native";
 import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function ProgressSection({ ctx }: { ctx: RnUiSectionContext }) {
+export function ProgressSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
   const [liveProgress, setLiveProgress] = React.useState(65);
   const [isSimulating, setIsSimulating] = React.useState(false);
 

@@ -9,13 +9,13 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
   withSpring,
   type SharedValue,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 import Svg, { Path } from "react-native-svg";
 
 import { useTheme } from "../theme";
@@ -367,13 +367,13 @@ export function Rating({
       }
 
       ratingShared.value = nextVal;
-      runOnJS(setDisplayVal)(nextVal);
+      scheduleOnRN(setDisplayVal, nextVal);
 
       if (onValueChange) {
-        runOnJS(onValueChange)(nextVal);
+        scheduleOnRN(onValueChange, nextVal);
       }
       if (isFinal && !isControlled) {
-        runOnJS(setInternalValue)(nextVal);
+        scheduleOnRN(setInternalValue, nextVal);
       }
     },
     [
@@ -397,7 +397,7 @@ export function Rating({
     .onEnd((e) => {
       "worklet";
       updateRatingFromX(e.x, true);
-      runOnJS(triggerHapticFeedback)();
+      scheduleOnRN(triggerHapticFeedback);
     });
 
   const panGesture = Gesture.Pan()
@@ -408,7 +408,7 @@ export function Rating({
       isInteracting.value = true;
       scaleAnim.value = withSpring(1.05, { damping: 15, stiffness: 200 });
       if (onSlidingStart) {
-        runOnJS(onSlidingStart)(ratingShared.value);
+        scheduleOnRN(onSlidingStart, ratingShared.value);
       }
       updateRatingFromX(e.x, false);
     })
@@ -425,9 +425,9 @@ export function Rating({
         withSpring(1, { damping: 15 }),
       );
       if (onSlidingComplete) {
-        runOnJS(onSlidingComplete)(finalVal);
+        scheduleOnRN(onSlidingComplete, finalVal);
       }
-      runOnJS(triggerHapticFeedback)();
+      scheduleOnRN(triggerHapticFeedback);
       isInteracting.value = false;
     })
     .onFinalize(() => {
