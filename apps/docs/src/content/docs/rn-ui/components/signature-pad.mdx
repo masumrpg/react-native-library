@@ -1,0 +1,66 @@
+---
+title: SignaturePad
+description: SVG-based drawing canvas for capturing digital signatures.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useRef } from 'react';
+import { SignaturePad, type SignaturePadRef } from '@masumdev/rn-ui';
+
+export function SignatureExample() {
+  const ref = useRef<SignaturePadRef>(null);
+
+  return (
+    <>
+      <SignaturePad
+        ref={ref}
+        height={200}
+        strokeWidth={3}
+        strokeColor="#6366F1"
+        showGuideLine
+        guideLineText="SIGN ABOVE THIS LINE"
+      />
+      <Button onPress={() => ref.current?.clear()}>Clear</Button>
+      <Button onPress={() => ref.current?.undo()}>Undo</Button>
+    </>
+  );
+}`;
+
+`SignaturePad` provides an SVG-based touch drawing canvas for capturing digital signatures. Supports undo, clear, and SVG export via ref methods.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SignatureExample.tsx" mark={['SignaturePad', 'ref', 'showGuideLine']} />
+
+## Ref Methods
+
+| Method | Return | Description |
+|---|---|---|
+| `clear()` | `void` | Clear all strokes |
+| `undo()` | `void` | Remove the last stroke |
+| `getPaths()` | `string[]` | Get SVG path data strings |
+| `getSvg()` | `string` | Export as complete SVG markup |
+| `isEmpty()` | `boolean` | Check if canvas has strokes |
+
+## Props API
+
+<TypeTable
+  type={{
+    strokeColor: { type: 'string', description: 'Stroke color for drawing.' },
+    strokeWidth: { type: 'number', default: '2', description: 'Stroke width in pixels.' },
+    backgroundColor: { type: 'string', description: 'Canvas background color.' },
+    showGuideLine: { type: 'boolean', default: 'true', description: 'Show the dashed guide line.' },
+    guideLineText: { type: 'string', default: '"SIGN ABOVE THIS LINE"', description: 'Text below the guide line.' },
+    onBegin: { type: '() => void', description: 'Callback when drawing starts.' },
+    onEnd: { type: '() => void', description: 'Callback when a stroke ends.' },
+    onChange: { type: '(paths: string[]) => void', description: 'Callback when paths change.' },
+    height: { type: 'number', default: '200', description: 'Canvas height in pixels.' },
+    hapticFeedback: { type: 'boolean', default: 'true', description: 'Enable haptic feedback on stroke start.' },
+  }}
+/>

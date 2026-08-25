@@ -1,6 +1,6 @@
 import { AspectRatio, Box, Card, Text } from "@masumdev/rn-ui";
 import { Image } from "react-native";
-import { Section, type RnUiSectionContext } from "../shared";
+import { SAMPLE_ASSETS, Section, type RnUiSectionContext } from "../shared";
 
 export function AspectRatioSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
   return (
@@ -18,7 +18,7 @@ export function AspectRatioSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
             <AspectRatio ratio={16 / 9} radius="lg">
               <Image
                 source={{
-                  uri: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+                  uri: SAMPLE_ASSETS.bannerImageUrl,
                 }}
                 style={{ resizeMode: "cover" }}
               />
@@ -50,7 +50,7 @@ export function AspectRatioSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
             <AspectRatio ratio={1} radius="lg" style={{ width: 120 }}>
               <Image
                 source={{
-                  uri: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+                  uri: SAMPLE_ASSETS.avatarUrl,
                 }}
                 style={{ resizeMode: "cover" }}
               />

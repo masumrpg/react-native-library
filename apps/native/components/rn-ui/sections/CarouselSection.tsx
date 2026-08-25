@@ -11,7 +11,6 @@ import {
   Text,
 } from "@masumdev/rn-ui";
 import { Sparkles, ShieldCheck, Zap, Rocket, ArrowRight } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function CarouselSection({ ctx }: { ctx: RnUiSectionContext }) {

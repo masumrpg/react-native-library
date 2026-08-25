@@ -1,6 +1,5 @@
-import { Accordion, Box, Card, Text } from "@masumdev/rn-ui";
+import { Accordion, Box, Text } from "@masumdev/rn-ui";
 import { HelpCircle, Palette, Settings, Sparkles, Layers, ShieldCheck } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function AccordionSection({ ctx }: { ctx: RnUiSectionContext }) {

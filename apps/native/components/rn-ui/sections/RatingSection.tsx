@@ -3,13 +3,12 @@ import {
   Card,
   Rating,
   Text,
-  type RatingShape,
 } from "@masumdev/rn-ui";
 import { Sparkles } from "lucide-react-native";
 import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
-export function RatingSection({ ctx }: { ctx: RnUiSectionContext }) {
+export function RatingSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
   const [starRating, setStarRating] = React.useState(4);
   const [halfRating, setHalfRating] = React.useState(3.5);
   const [heartRating, setHeartRating] = React.useState(5);

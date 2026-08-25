@@ -1,38 +1,9 @@
 ---
 title: Switch
 description: Animated toggle switch with active/inactive track colors.
+sidebar:
+  badge:
+    text: Updated
+    variant: note
 ---
 
-import { Code } from '@astrojs/starlight/components';
-import TypeTable from '@/components/TypeTable.astro';
-
-export const exampleCode = `import { useState } from 'react';
-import { Switch } from '@masumdev/rn-ui';
-
-export function SwitchExample() {
-  const [enabled, setEnabled] = useState(true);
-
-  return (
-    <Switch
-      value={enabled}
-      onValueChange={setEnabled}
-      tone="primary"
-    />
-  );
-}`;
-
-`Switch` toggles the state of a single setting on or off.
-
-## Usage
-
-<Code code={exampleCode} lang="tsx" title="SwitchExample.tsx" mark={['Switch', 'value={enabled}', 'onValueChange']} />
-
-## Props API
-
-<TypeTable
-  type={{
-    value: { type: 'boolean', description: 'Active toggle state.' },
-    onValueChange: { type: '(value: boolean) => void', description: 'Callback on toggle state change.' },
-    tone: { type: "'primary' | 'success' | 'accent'", default: "'primary'", description: 'Active track color tone.' },
-  }}
-/>

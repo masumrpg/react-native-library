@@ -8,13 +8,15 @@ import {
 } from "react-native";
 import { Calendar as WixCalendar } from "react-native-calendars";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
 import { triggerHaptic } from "../utils/haptics";
+import { getLocaleData, type LocaleInput } from "../utils/locale";
 import { Text } from "./Text";
 
 export interface CalendarDayData {
@@ -40,12 +42,14 @@ export interface CalendarDayMarking {
 
 export interface CalendarProps extends Omit<
   React.ComponentProps<typeof WixCalendar>,
-  "current"
+  "current" | "markedDates"
 > {
   style?: StyleProp<ViewStyle>;
   current?: string; // Controlled current date string (YYYY-MM-DD)
+  markedDates?: Record<string, CalendarDayMarking>;
   enableYearMonthPicker?: boolean;
   showTodayButton?: boolean;
+  locale?: LocaleInput;
   onTodayPress?: () => void;
 }
 
@@ -56,36 +60,6 @@ interface CustomDayProps {
   onPress: (date: CalendarDayData) => void;
   onLongPress: (date: CalendarDayData) => void;
 }
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const MONTH_SHORTS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 function ChevronLeft({ color }: { color: string }) {
   return (
@@ -119,72 +93,68 @@ function ChevronRight({ color }: { color: string }) {
   );
 }
 
-function CalendarDayButton({
+export function CalendarArrow({
+  direction,
+  color,
+}: {
+  direction: "left" | "right";
+  color?: string;
+}) {
+  const { colors, isDark } = useTheme();
+  const arrowColor = color || colors.text;
+
+  return (
+    <View
+      style={{
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: isDark
+          ? "rgba(255, 255, 255, 0.07)"
+          : "rgba(0, 0, 0, 0.05)",
+      }}
+    >
+      {direction === "left" ? (
+        <ChevronLeft color={arrowColor} />
+      ) : (
+        <ChevronRight color={arrowColor} />
+      )}
+    </View>
+  );
+}
+
+export function CalendarDayButton({
   date,
   state,
   marking = {},
   onPress,
   onLongPress,
 }: CustomDayProps) {
-  const { colors, radii } = useTheme();
+  const { colors, radii, isDark } = useTheme();
 
   const isSelected = marking.selected || state === "selected";
-  const isStart = marking.startingDay;
-  const isEnd = marking.endingDay;
-  const isMiddle = marking.isMiddle;
+  const isStart = Boolean(marking.startingDay);
+  const isEnd = Boolean(marking.endingDay);
+  const isMiddle = Boolean(marking.isMiddle);
   const isToday = state === "today";
   const isDisabled = state === "disabled" || marking.disabled;
 
-  const cellStyle: ViewStyle = {
-    aspectRatio: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 1,
-  };
+  const activeColor = marking.color || colors.primary;
+  const activeTextColor = marking.textColor || colors.onPrimary;
+  const middleBg = isDark ? "rgba(99, 102, 241, 0.28)" : colors.primarySoft;
+  const middleTextColor = isDark ? colors.onPrimary : colors.primary;
 
-  let bg = "transparent";
   let textColor = colors.text;
-  let borderTopLeftRadius = 0;
-  let borderBottomLeftRadius = 0;
-  let borderTopRightRadius = 0;
-  let borderBottomRightRadius = 0;
-  let borderWidth = 0;
-  let borderColor = "transparent";
-
-  if (isStart) {
-    bg = marking.color || colors.primary;
-    textColor = marking.textColor || colors.onPrimary;
-    borderTopLeftRadius = radii.md;
-    borderBottomLeftRadius = radii.md;
-  } else if (isEnd) {
-    bg = marking.color || colors.primary;
-    textColor = marking.textColor || colors.onPrimary;
-    borderTopRightRadius = radii.md;
-    borderBottomRightRadius = radii.md;
-  } else if (isMiddle) {
-    bg = marking.color || colors.backgroundMuted;
-    textColor = marking.textColor || colors.primary;
-  } else if (isSelected) {
-    bg = marking.color || colors.primary;
-    textColor = marking.textColor || colors.onPrimary;
-    borderTopLeftRadius = radii.full;
-    borderBottomLeftRadius = radii.full;
-    borderTopRightRadius = radii.full;
-    borderBottomRightRadius = radii.full;
-  } else if (isToday) {
-    bg = colors.backgroundMuted;
-    textColor = colors.primary;
-    borderWidth = 1.5;
-    borderColor = colors.primary;
-    borderTopLeftRadius = radii.full;
-    borderBottomLeftRadius = radii.full;
-    borderTopRightRadius = radii.full;
-    borderBottomRightRadius = radii.full;
-  }
-
   if (isDisabled) {
     textColor = colors.disabledText;
+  } else if ((isStart || isEnd || isSelected) && !isMiddle) {
+    textColor = activeTextColor;
+  } else if (isMiddle) {
+    textColor = marking.textColor || middleTextColor;
+  } else if (isToday) {
+    textColor = colors.primary;
   }
 
   return (
@@ -201,25 +171,88 @@ function CalendarDayButton({
           onLongPress(date);
         }
       }}
-      style={({ pressed }) => [
-        cellStyle,
-        {
-          backgroundColor: bg,
-          borderTopLeftRadius,
-          borderBottomLeftRadius,
-          borderTopRightRadius,
-          borderBottomRightRadius,
-          borderWidth,
-          borderColor,
-          opacity: pressed && !isDisabled ? 0.78 : 1,
-        },
-      ]}
+      style={({ pressed }) => ({
+        width: "100%",
+        height: 38,
+        justifyContent: "center",
+        alignItems: "center",
+        opacity: isDisabled ? 0.35 : pressed ? 0.78 : 1,
+      })}
     >
+      {/* 1. Range connector strips */}
+      {isMiddle && (
+        <View
+          style={{
+            position: "absolute",
+            top: 3,
+            bottom: 3,
+            left: 0,
+            right: 0,
+            backgroundColor: marking.color || middleBg,
+          }}
+        />
+      )}
+      {isStart && !isEnd && (
+        <View
+          style={{
+            position: "absolute",
+            top: 3,
+            bottom: 3,
+            left: "50%",
+            right: 0,
+            backgroundColor: middleBg,
+          }}
+        />
+      )}
+      {isEnd && !isStart && (
+        <View
+          style={{
+            position: "absolute",
+            top: 3,
+            bottom: 3,
+            left: 0,
+            right: "50%",
+            backgroundColor: middleBg,
+          }}
+        />
+      )}
+
+      {/* 2. Endpoint Circle (Start, End, Selected, or Today) */}
+      {(isStart || isEnd || isSelected) ? (
+        <View
+          style={{
+            position: "absolute",
+            width: 32,
+            height: 32,
+            borderRadius: radii.full,
+            backgroundColor: activeColor,
+          }}
+        />
+      ) : isToday ? (
+        <View
+          style={{
+            position: "absolute",
+            width: 32,
+            height: 32,
+            borderRadius: radii.full,
+            backgroundColor: colors.backgroundMuted,
+            borderWidth: 1.5,
+            borderColor: colors.primary,
+          }}
+        />
+      ) : null}
+
+      {/* Date text */}
       <Text
         style={{
           color: textColor,
-          fontSize: 14,
-          fontWeight: isSelected || isToday ? "700" : "400",
+          fontSize: 13,
+          fontWeight: isStart || isEnd || isSelected || isToday ? "700" : "400",
+          includeFontPadding: false,
+          marginTop:
+            marking.dots && marking.dots.length > 0 && (isStart || isEnd || isSelected || isToday)
+              ? -4
+              : 0,
         }}
       >
         {date.day}
@@ -227,31 +260,49 @@ function CalendarDayButton({
 
       {/* Event Dots */}
       {marking.dots && marking.dots.length > 0 ? (
-        <View style={{ flexDirection: "row", gap: 3, marginTop: 2 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 2,
+            position: "absolute",
+            bottom: isStart || isEnd || isSelected || isToday ? 5 : 2,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           {marking.dots.map((dot, idx) => (
             <View
               key={idx}
               style={{
-                width: 4,
-                height: 4,
+                width: 3.5,
+                height: 3.5,
                 borderRadius: 2,
-                backgroundColor: isSelected
-                  ? colors.onPrimary
-                  : dot.color || colors.primary,
+                backgroundColor:
+                  isStart || isEnd || isSelected
+                    ? colors.onPrimary
+                    : dot.color || colors.primary,
               }}
             />
           ))}
         </View>
       ) : marking.marked ? (
-        <View style={{ marginTop: 2 }}>
+        <View
+          style={{
+            position: "absolute",
+            bottom: isStart || isEnd || isSelected || isToday ? 5 : 2,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <View
             style={{
               width: 4,
               height: 4,
               borderRadius: 2,
-              backgroundColor: isSelected
-                ? colors.onPrimary
-                : marking.dotColor || colors.primary,
+              backgroundColor:
+                isStart || isEnd || isSelected
+                  ? colors.onPrimary
+                  : marking.dotColor || colors.primary,
             }}
           />
         </View>
@@ -268,10 +319,15 @@ export function Calendar({
   current,
   enableYearMonthPicker = true,
   showTodayButton = true,
+  locale,
   onTodayPress,
   ...props
 }: CalendarProps) {
   const { colors, components, radii } = useTheme();
+  const activeLocaleData = React.useMemo(
+    () => getLocaleData(locale),
+    [locale],
+  );
 
   // Parsing initial month/year
   const initialDate = current ? new Date(current) : new Date();
@@ -291,16 +347,16 @@ export function Calendar({
   const yearProgress = useSharedValue(showYearSelector ? 1 : 0);
 
   React.useEffect(() => {
-    monthProgress.value = withSpring(showMonthSelector ? 1 : 0, {
-      damping: 16,
-      stiffness: 180,
+    monthProgress.value = withTiming(showMonthSelector ? 1 : 0, {
+      duration: 200,
+      easing: Easing.out(Easing.quad),
     });
   }, [monthProgress, showMonthSelector]);
 
   React.useEffect(() => {
-    yearProgress.value = withSpring(showYearSelector ? 1 : 0, {
-      damping: 16,
-      stiffness: 180,
+    yearProgress.value = withTiming(showYearSelector ? 1 : 0, {
+      duration: 200,
+      easing: Easing.out(Easing.quad),
     });
   }, [showYearSelector, yearProgress]);
 
@@ -456,7 +512,7 @@ export function Calendar({
                     color: colors.text,
                   }}
                 >
-                  {MONTHS[currentMonth - 1]}
+                  {activeLocaleData.monthNames[currentMonth - 1]}
                 </Text>
               </Pressable>
 
@@ -493,7 +549,7 @@ export function Calendar({
             <Text
               style={{ fontSize: 15, fontWeight: "600", color: colors.text }}
             >
-              {MONTHS[currentMonth - 1]} {currentYear}
+              {activeLocaleData.monthNames[currentMonth - 1]} {currentYear}
             </Text>
           )}
         </View>
@@ -514,7 +570,7 @@ export function Calendar({
               })}
             >
               <Text variant="caption" weight="600" color="primary">
-                Today
+                {activeLocaleData.today || "Today"}
               </Text>
             </Pressable>
           )}
@@ -559,7 +615,7 @@ export function Calendar({
             justifyContent: "center",
           }}
         >
-          {MONTH_SHORTS.map((m, idx) => {
+          {activeLocaleData.monthNamesShort.map((m, idx) => {
             const isSel = currentMonth === idx + 1;
             return (
               <Pressable
@@ -679,18 +735,33 @@ export function Calendar({
         style={{ padding: 8 }}
         theme={customTheme}
         markingType={markingType}
-        markedDates={markedDates}
+        markedDates={
+          markedDates as unknown as React.ComponentProps<
+            typeof WixCalendar
+          >["markedDates"]
+        }
         hideArrows={true}
         renderHeader={() => null}
         current={visibleMonthStr}
-        onMonthChange={handleMonthChange as any}
+        onMonthChange={
+          handleMonthChange as unknown as (date: CalendarDayData) => void
+        }
         dayComponent={({ date, state, marking, onPress, onLongPress }) => (
           <CalendarDayButton
             date={date as unknown as CalendarDayData}
             state={state as "selected" | "disabled" | "today" | ""}
             marking={marking as unknown as CalendarDayMarking}
-            onPress={onPress as unknown as (date: CalendarDayData) => void}
-            onLongPress={onLongPress as unknown as (date: CalendarDayData) => void}
+            onPress={(day) => {
+              if (onPress) {
+                onPress(day);
+              }
+              if (props.onDayPress) {
+                props.onDayPress(day as unknown as React.ComponentProps<typeof WixCalendar>["onDayPress"] extends ((date: infer D) => void) | undefined ? D : never);
+              }
+            }}
+            onLongPress={
+              onLongPress as unknown as (date: CalendarDayData) => void
+            }
           />
         )}
         {...props}

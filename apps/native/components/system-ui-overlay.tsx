@@ -44,17 +44,17 @@ export function SystemUIOverlay({
         </View>
       ) : null}
 
-      {/* {bottom ? (
+      {bottom ? (
         <View
           pointerEvents="none"
-          style={[styles.bottomGradient, { height: insets.bottom + 60 }]}
+          style={[styles.bottomGradient, { height: insets.bottom + 40 }]}
         >
           <LinearGradient
             colors={["transparent", colors.background]}
             style={StyleSheet.absoluteFill}
           />
         </View>
-      ) : null} */}
+      ) : null}
     </>
   );
 }

@@ -1,5 +1,4 @@
 import { Box, Card, Text } from "@masumdev/rn-ui";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function CardSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {

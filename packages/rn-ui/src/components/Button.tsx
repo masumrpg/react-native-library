@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Pressable,
   Text,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type TextStyle,
@@ -154,7 +155,7 @@ export function Button({
   const borderRadius =
     shape === "pill" ? radii.full : shape === "square" ? radii.sm : radii.lg;
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     if (isDisabled) return;
     if (haptic) triggerHaptic("light");
     onPress?.(e);

@@ -1,0 +1,58 @@
+---
+title: Chip
+description: Interactive selection chip and tag component with toggle, close, and icon support.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { Chip } from '@masumdev/rn-ui';
+
+export function ChipExample() {
+  const [selected, setSelected] = useState(false);
+
+  return (
+    <Chip
+      label="React Native"
+      selected={selected}
+      onSelect={setSelected}
+      variant="soft"
+      tone="primary"
+    />
+  );
+}`;
+
+`Chip` provides interactive filter, selection, and action chips with animated check state and close button support. Also exported as `Tag` alias.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ChipExample.tsx" mark={['Chip', 'selected', 'onSelect']} />
+
+## Variants
+
+- **`filled`** - Solid background when selected
+- **`outline`** - Border-only chip
+- **`soft`** - Subtle tinted background (default)
+
+## Props API
+
+<TypeTable
+  type={{
+    label: { type: 'string', required: true, description: 'Text label displayed inside the chip.' },
+    selected: { type: 'boolean', default: 'false', description: 'Controlled selection state.' },
+    onSelect: { type: '(selected: boolean) => void', description: 'Toggle callback when chip is pressed.' },
+    onClose: { type: '() => void', description: 'Close/dismiss callback. Renders an X button when provided.' },
+    icon: { type: 'RenderIcon', description: 'Leading icon element.' },
+    rightIcon: { type: 'RenderIcon', description: 'Trailing icon element.' },
+    variant: { type: '"filled" | "outline" | "soft"', default: '"soft"', description: 'Visual style variant.' },
+    size: { type: 'ComponentSize', default: '"md"', description: 'Chip size (sm, md, lg).' },
+    tone: { type: 'ComponentTone', default: '"primary"', description: 'Color tone.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable interaction.' },
+    hapticFeedback: { type: 'boolean', default: 'true', description: 'Enable haptic feedback on press.' },
+  }}
+/>

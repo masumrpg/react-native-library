@@ -7,7 +7,6 @@ import {
   Text,
 } from "@masumdev/rn-ui";
 import { ChevronsUpDown, Package, Truck, CreditCard } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function CollapsibleSection({ ctx }: { ctx: RnUiSectionContext }) {

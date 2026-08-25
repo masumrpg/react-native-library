@@ -1,37 +1,9 @@
 ---
 title: Radio Group
 description: Radio button group selection component with context value state.
+sidebar:
+  badge:
+    text: Updated
+    variant: note
 ---
 
-import { Code } from '@astrojs/starlight/components';
-import TypeTable from '@/components/TypeTable.astro';
-
-export const exampleCode = `import { useState } from 'react';
-import { RadioGroup, RadioGroupItem } from '@masumdev/rn-ui';
-
-export function RadioExample() {
-  const [value, setValue] = useState('expo');
-
-  return (
-    <RadioGroup value={value} onValueChange={setValue}>
-      <RadioGroupItem value="expo" label="Expo Framework" />
-      <RadioGroupItem value="cli" label="React Native CLI" />
-    </RadioGroup>
-  );
-}`;
-
-`RadioGroup` allows users to select a single option from a set.
-
-## Usage
-
-<Code code={exampleCode} lang="tsx" title="RadioExample.tsx" mark={['RadioGroup', 'RadioGroupItem', 'value={value}', 'onValueChange']} />
-
-## Props API
-
-<TypeTable
-  type={{
-    value: { type: 'string', description: 'Selected radio item value.' },
-    onValueChange: { type: '(value: string) => void', description: 'Callback when selection changes.' },
-    children: { type: 'ReactNode', description: 'RadioGroupItem elements.' },
-  }}
-/>

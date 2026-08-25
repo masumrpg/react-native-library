@@ -10,7 +10,6 @@ import {
   EmptyTitle,
 } from "@masumdev/rn-ui";
 import { ChevronRight, FileText } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function EmptySection({ ctx }: { ctx: RnUiSectionContext }) {

@@ -5,10 +5,8 @@ import { useRouter } from "expo-router";
 import {
   BookOpen,
   ChevronRight,
-  Moon,
   Palette,
   QrCode,
-  Sun,
 } from "lucide-react-native";
 import {
   Badge,
@@ -21,6 +19,8 @@ import {
   type RenderIcon,
 } from "@masumdev/rn-ui";
 import { SystemUIOverlay } from "../components/system-ui-overlay";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { useHeaderScroll } from "../components/useHeaderScroll";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
@@ -58,15 +58,22 @@ const showcases = [
 
 export default function Native() {
   const router = useRouter();
-  const { colors, isDark, setColorScheme, spacing } = useTheme();
+  const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const [navigatingRoute, setNavigatingRoute] = React.useState<string | null>(
     null,
   );
 
+  const { onScroll, scrollEventThrottle } = useHeaderScroll({
+    headerHeight: 220,
+  });
+
+  const isAnyNavigating = navigatingRoute !== null;
+
   const handleNavigate = React.useCallback(
     (route: string) => {
+      if (isAnyNavigating) return;
       setNavigatingRoute(route);
       requestAnimationFrame(() => {
         setTimeout(() => {
@@ -75,45 +82,31 @@ export default function Native() {
         }, 30);
       });
     },
-    [router],
+    [isAnyNavigating, router],
   );
 
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <SystemUIOverlay />
+
+      <ScreenHeader
+        eyebrow="MasumDev Mobile"
+        title="Component Libraries"
+        subtitle="Interact with custom React Native packages using one flat visual system."
+      />
+
       <ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + spacing.xl,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xl,
           },
         ]}
       >
-        <Box gap="lg" style={styles.headerContainer}>
-          <Box row center gap="md">
-            <Box flex={1} gap="sm">
-              <Text variant="labelSmall" color="primary" style={styles.eyebrow}>
-                MasumDev Mobile
-              </Text>
-              <Text variant="h1">Component Libraries</Text>
-            </Box>
-            <Button
-              size="sm"
-              variant="outline"
-              tone={isDark ? "warning" : "secondary"}
-              leftIcon={icon(isDark ? Sun : Moon)}
-              onPress={() => setColorScheme(isDark ? "light" : "dark")}
-            >
-              {isDark ? "Light" : "Dark"}
-            </Button>
-          </Box>
-          <Text color="textMuted">
-            Interact with custom React Native packages using one flat,
-            token-driven visual system.
-          </Text>
-        </Box>
-
         <Box gap="md">
           <Text
             variant="labelSmall"
@@ -140,42 +133,48 @@ export default function Native() {
             const isNavigating = navigatingRoute === item.route;
 
             return (
-              <Card key={item.route} padded={false}>
-                <Box p="lg" gap="md">
-                  <Box row center gap="md">
-                    <Box
-                      center
-                      radius="lg"
-                      style={[
-                        styles.iconContainer,
-                        { backgroundColor: softColor },
-                      ]}
-                    >
-                      <Icon color={toneColor} size={24} />
-                    </Box>
-                    <Box flex={1}>
-                      <Badge tone={item.tone} size="sm">
-                        {item.badge}
-                      </Badge>
-                      <Text variant="title" style={styles.cardTitle}>
-                        {item.title}
-                      </Text>
-                    </Box>
-                  </Box>
-
-                  <Text color="textMuted">{item.description}</Text>
-
-                  <Button
-                    variant="outline"
-                    tone={item.tone}
-                    rightIcon={icon(ChevronRight)}
-                    loading={isNavigating}
-                    disabled={navigatingRoute !== null}
-                    onPress={() => handleNavigate(item.route)}
+              <Card
+                key={item.route}
+                style={styles.card}
+              >
+                <Box row center gap="md">
+                  <Box
+                    center
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor: softColor,
+                        borderRadius: 14,
+                      },
+                    ]}
                   >
-                    {isNavigating ? "Opening..." : "Explore Screen"}
-                  </Button>
+                    <Icon color={toneColor} size={24} />
+                  </Box>
+                  <Box flex={1} gap="xs">
+                    <Badge tone={item.tone} size="sm">
+                      {item.badge}
+                    </Badge>
+                    <Text variant="h3" style={styles.cardTitle}>
+                      {item.title}
+                    </Text>
+                  </Box>
                 </Box>
+
+                <Text variant="bodySmall" color="textMuted">
+                  {item.description}
+                </Text>
+
+                <Button
+                  tone={item.tone}
+                  variant="soft"
+                  size="md"
+                  rightIcon={icon(ChevronRight)}
+                  loading={isNavigating}
+                  disabled={isAnyNavigating && !isNavigating}
+                  onPress={() => handleNavigate(item.route)}
+                >
+                  Explore Screen
+                </Button>
               </Card>
             );
           })}
@@ -198,17 +197,10 @@ function useStyles() {
       minHeight: "100%",
     },
     container: {
-      padding: theme.spacing.xl,
+      paddingHorizontal: theme.spacing.xl,
+      paddingBottom: theme.spacing.xl,
       gap: theme.spacing.xl,
       flexGrow: 1,
-    },
-    headerContainer: {
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
-    },
-    eyebrow: {
-      textTransform: "uppercase",
-      letterSpacing: 1,
     },
     sectionLabel: {
       textTransform: "uppercase",
@@ -220,6 +212,9 @@ function useStyles() {
     },
     cardTitle: {
       marginTop: theme.spacing.xs,
+    },
+    card: {
+      gap: theme.spacing.md,
     },
     footer: {
       marginTop: theme.spacing.lg,

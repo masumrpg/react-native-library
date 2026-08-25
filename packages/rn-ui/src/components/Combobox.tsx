@@ -49,7 +49,7 @@ export interface ComboboxContextProps {
   setOpen: (open: boolean) => void;
   inputValue: string;
   setInputValue: (val: string) => void;
-  triggerRef: React.RefObject<any>;
+  triggerRef: React.RefObject<View | null>;
   triggerLayout: {
     pageX: number;
     pageY: number;
@@ -93,7 +93,7 @@ export function Combobox({
     height: 0,
   });
 
-  const triggerRef = React.useRef<any>(null);
+  const triggerRef = React.useRef<View | null>(null);
 
   const value =
     controlledValue !== undefined ? controlledValue : uncontrolledValue;

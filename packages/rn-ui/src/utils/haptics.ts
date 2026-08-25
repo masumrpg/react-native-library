@@ -3,7 +3,16 @@
  * Attempts to invoke expo-haptics if available in runtime, gracefully falling back to a no-op if absent.
  */
 export function triggerHaptic(
-  type: "light" | "medium" | "heavy" | "selection" | "success" | "warning" | "error" = "light"
+  type:
+    | "light"
+    | "medium"
+    | "heavy"
+    | "soft"
+    | "rigid"
+    | "selection"
+    | "success"
+    | "warning"
+    | "error" = "light"
 ) {
   try {
     const Haptic = require("expo-haptics");
@@ -18,6 +27,12 @@ export function triggerHaptic(
         break;
       case "heavy":
         Haptic.impactAsync?.(Haptic.ImpactFeedbackStyle?.Heavy);
+        break;
+      case "soft":
+        Haptic.impactAsync?.(Haptic.ImpactFeedbackStyle?.Soft ?? Haptic.ImpactFeedbackStyle?.Light);
+        break;
+      case "rigid":
+        Haptic.impactAsync?.(Haptic.ImpactFeedbackStyle?.Rigid ?? Haptic.ImpactFeedbackStyle?.Medium);
         break;
       case "selection":
         Haptic.selectionAsync?.();

@@ -8,7 +8,6 @@ import {
   Text,
 } from "@masumdev/rn-ui";
 import { CreditCard, Settings, User } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function TabsSection({ ctx }: { ctx: RnUiSectionContext }) {

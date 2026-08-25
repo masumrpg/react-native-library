@@ -7,11 +7,11 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme } from "../theme";
 import { withAlpha } from "../utils";
@@ -236,7 +236,7 @@ export function Alert({
         { duration: animationDuration },
         (finished) => {
           if (finished) {
-            runOnJS(setVisible)(false);
+            scheduleOnRN(setVisible, false);
           }
         },
       );

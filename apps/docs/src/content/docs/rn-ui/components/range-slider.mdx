@@ -1,0 +1,53 @@
+---
+title: RangeSlider
+description: Dual-thumb range selection slider with snap-to-step and tone theming.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { RangeSlider } from '@masumdev/rn-ui';
+
+export function RangeSliderExample() {
+  const [range, setRange] = useState<[number, number]>([200, 800]);
+
+  return (
+    <RangeSlider
+      min={0}
+      max={1000}
+      step={50}
+      value={range}
+      onValueChange={setRange}
+      tone="primary"
+    />
+  );
+}`;
+
+`RangeSlider` provides a dual-thumb slider for selecting a value range. Built with React Native Gesture Handler and Reanimated for direct 1:1 gesture tracking.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="RangeSliderExample.tsx" mark={['RangeSlider', 'value={range}', 'onValueChange']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    min: { type: 'number', default: '0', description: 'Minimum bounds.' },
+    max: { type: 'number', default: '100', description: 'Maximum bounds.' },
+    step: { type: 'number', default: '1', description: 'Step increment for snapping.' },
+    value: { type: '[number, number]', description: 'Controlled range value [low, high].' },
+    defaultValue: { type: '[number, number]', description: 'Initial uncontrolled range.' },
+    onValueChange: { type: '(values: [number, number]) => void', description: 'Callback during drag.' },
+    tone: { type: 'ComponentTone', default: '"primary"', description: 'Color tone for track and thumbs.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable interaction.' },
+    hapticFeedback: { type: 'boolean', default: 'true', description: 'Enable haptic feedback on step snap.' },
+    trackHeight: { type: 'number', default: '6', description: 'Track height in pixels.' },
+    thumbSize: { type: 'number', default: '24', description: 'Thumb diameter in pixels.' },
+  }}
+/>

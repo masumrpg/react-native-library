@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { ChevronLeft, RefreshCw } from "lucide-react-native";
+import { RefreshCw } from "lucide-react-native";
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
 import {
   Box,
   Button,
   Card,
-  IconButton,
   Text,
   useTheme,
   useThemeStyles,
   type RenderIcon,
 } from "@masumdev/rn-ui";
 import { SystemUIOverlay } from "../components/system-ui-overlay";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { useHeaderScroll } from "../components/useHeaderScroll";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
@@ -32,11 +32,14 @@ const bareVariants = [
 ] as const;
 
 export default function QRCodeScreen() {
-  const router = useRouter();
   const { colors, spacing } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const [demoLoading, setDemoLoading] = useState(true);
+
+  const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
+    headerHeight: 220,
+  });
 
   const refreshLoading = () => {
     setDemoLoading(true);
@@ -50,35 +53,28 @@ export default function QRCodeScreen() {
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <SystemUIOverlay />
+
+      <ScreenHeader
+        showBack
+        eyebrow="@masumdev/react-native-qr-code-gen"
+        title="QR Code Generator"
+        subtitle="Modern custom QR components with presets, states, and gallery preview."
+        headerStyle={headerStyle}
+      />
+
       <ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
         style={styles.contentScroll}
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + spacing.xl,
+            paddingTop: spacing.md,
             paddingBottom: insets.bottom + spacing.xl,
           },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Box row center gap="md" style={styles.topBar}>
-          <IconButton
-            icon={icon(ChevronLeft)}
-            variant="outline"
-            onPress={() => router.back()}
-          />
-          <Box flex={1}>
-            <Text variant="labelSmall" color="primary">
-              @masumdev/react-native-qr-code-gen
-            </Text>
-            <Text variant="h2">QR Code Generator</Text>
-          </Box>
-        </Box>
-
-        <Text color="textMuted">
-          Modern custom QR components with presets, states, and gallery preview.
-        </Text>
-
         <Section title="Featured Variants">
           {featuredVariants.map((item) => (
             <PreviewCard key={item.variant} label={item.label}>
@@ -235,18 +231,13 @@ function useStyles() {
     safeArea: {
       flex: 1,
     },
-    topBar: {
-      minHeight: 48,
-    },
-    headerSpacer: {
-      width: theme.components.iconButton.size.md,
-    },
     contentScroll: {
       flex: 1,
       backgroundColor: theme.colors.background,
     },
     container: {
-      padding: theme.spacing.xl,
+      paddingHorizontal: theme.spacing.xl,
+      paddingBottom: theme.spacing.xl,
       gap: theme.spacing.xl,
       alignItems: "stretch",
     },

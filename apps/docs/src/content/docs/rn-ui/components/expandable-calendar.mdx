@@ -1,0 +1,66 @@
+---
+title: ExpandableCalendar
+description: Week/month expandable calendar with agenda list, powered by react-native-calendars.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { ExpandableCalendar, CalendarProvider, AgendaList } from '@masumdev/rn-ui';
+
+const agendaItems = [
+  { title: '2026-08-25', data: [{ name: 'Meeting', hour: '10:00' }] },
+];
+
+export function ExpandableCalendarExample() {
+  return (
+    <CalendarProvider date="2026-08-25">
+      <ExpandableCalendar />
+      <AgendaList
+        sections={agendaItems}
+        renderItem={({ item }) => <Text>{item.name}</Text>}
+      />
+    </CalendarProvider>
+  );
+}`;
+
+`ExpandableCalendar` provides a collapsible week/month calendar view with an integrated agenda list. Powered by `react-native-calendars` with theme integration.
+
+## Components
+
+| Component | Description |
+|---|---|
+| `CalendarProvider` | Context provider for calendar state |
+| `ExpandableCalendar` | Collapsible calendar (week/month toggle) |
+| `AgendaList` | Section list synced to calendar selection |
+| `WeekCalendar` | Standalone week strip calendar |
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="ExpandableCalendarExample.tsx" mark={['CalendarProvider', 'ExpandableCalendar', 'AgendaList']} />
+
+## Props API
+
+### ExpandableCalendar
+
+<TypeTable
+  type={{
+    initialPosition: { type: '"open" | "closed"', default: '"closed"', description: 'Initial calendar position (month or week view).' },
+    markedDates: { type: 'Record<string, CalendarDayMarking>', description: 'Dates with markers/dots.' },
+    onDayPress: { type: '(date: DateData) => void', description: 'Callback when a day is pressed.' },
+    hideKnob: { type: 'boolean', default: 'false', description: 'Hide the expand/collapse knob.' },
+  }}
+/>
+
+### CalendarProvider
+
+<TypeTable
+  type={{
+    date: { type: 'string', required: true, description: 'Initial selected date (YYYY-MM-DD format).' },
+    onDateChanged: { type: '(date: string) => void', description: 'Callback when the active date changes.' },
+  }}
+/>

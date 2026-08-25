@@ -1,6 +1,5 @@
 import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import {
   Outfit_400Regular,
@@ -104,14 +103,13 @@ const AppLayout = () => {
   }, []);
 
   React.useEffect(() => {
-    themeStorage
-      .getItem(THEME_STORAGE_KEY)
+    Promise.resolve(themeStorage.getItem(THEME_STORAGE_KEY))
       .then((saved) => {
         if (isColorSchemePreference(saved)) {
           setColorSchemeState(saved);
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error("Theme load error:", err);
       })
       .finally(() => {
@@ -122,9 +120,11 @@ const AppLayout = () => {
   const handleColorSchemeChange = React.useCallback(
     (next: ColorSchemePreference) => {
       setColorSchemeState(next);
-      themeStorage.setItem(THEME_STORAGE_KEY, next).catch((err) => {
-        console.error("Theme save error:", err);
-      });
+      Promise.resolve(themeStorage.setItem(THEME_STORAGE_KEY, next)).catch(
+        (err: unknown) => {
+          console.error("Theme save error:", err);
+        },
+      );
     },
     [],
   );
@@ -143,7 +143,7 @@ const AppLayout = () => {
         storageKey={THEME_STORAGE_KEY}
         onColorSchemeChange={handleColorSchemeChange}
       >
-        <ToastProvider placement="bottom">
+        <ToastProvider placement="top" maxToasts={7} duration={5000}>
           <BottomSheetModalProvider>
             <Stack screenOptions={{ headerShown: false }} />
           </BottomSheetModalProvider>

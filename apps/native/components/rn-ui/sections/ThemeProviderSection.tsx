@@ -19,7 +19,13 @@ export function ThemeProviderSection({ ctx }: { ctx: RnUiSectionContext }) {
           </Text>
 
           <Box row gap="sm" style={styles.wrap}>
-            {themeOptions.map((item: any) => {
+            {(
+              (themeOptions as Array<{
+                label: string;
+                value: string;
+                icon?: (props: { size: number; color: string }) => React.ReactNode;
+              }>) || []
+            ).map((item) => {
               const active = colorScheme === item.value;
 
               return (
@@ -27,8 +33,8 @@ export function ThemeProviderSection({ ctx }: { ctx: RnUiSectionContext }) {
                   key={item.value}
                   size="sm"
                   variant={active ? "filled" : "outline"}
-                  leftIcon={item.icon}
-                  onPress={() => setColorScheme(item.value)}
+                  leftIcon={item.icon as never}
+                  onPress={() => (setColorScheme as (val: string) => void)(item.value)}
                 >
                   {item.label}
                 </Button>

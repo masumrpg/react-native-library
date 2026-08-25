@@ -1,0 +1,89 @@
+---
+title: SwipeableItem
+description: Swipeable list rows with configurable left/right actions and full-swipe support.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { SwipeableItem } from '@masumdev/rn-ui';
+import { Trash2, Archive } from 'lucide-react-native';
+
+export function SwipeableExample() {
+  return (
+    <SwipeableItem
+      leftActions={[
+        {
+          label: 'Archive',
+          icon: (p) => <Archive {...p} />,
+          tone: 'primary',
+          onPress: () => console.log('Archived'),
+        },
+      ]}
+      rightActions={[
+        {
+          label: 'Delete',
+          icon: (p) => <Trash2 {...p} />,
+          tone: 'danger',
+          isDestructive: true,
+          onPress: () => console.log('Deleted'),
+        },
+      ]}
+    >
+      <Item>
+        <ItemContent>
+          <ItemTitle>Swipe me left or right</ItemTitle>
+        </ItemContent>
+      </Item>
+    </SwipeableItem>
+  );
+}`;
+
+`SwipeableItem` wraps any content to enable horizontal swipe gestures revealing action buttons. Supports left and right actions, full-swipe triggers, collapse-dismiss animation, and haptic feedback.
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="SwipeableExample.tsx" mark={['SwipeableItem', 'leftActions', 'rightActions']} />
+
+## Ref Methods
+
+| Method | Description |
+|---|---|
+| `close()` | Close revealed actions |
+| `openLeft()` | Programmatically reveal left actions |
+| `openRight()` | Programmatically reveal right actions |
+| `dismiss(callback?)` | Collapse-dismiss the row with animation |
+
+## Props API
+
+<TypeTable
+  type={{
+    children: { type: 'React.ReactNode', required: true, description: 'Row content to render.' },
+    leftActions: { type: 'SwipeableAction[]', description: 'Actions revealed on right swipe.' },
+    rightActions: { type: 'SwipeableAction[]', description: 'Actions revealed on left swipe.' },
+    actionWidth: { type: 'number', default: '72', description: 'Width of each action button.' },
+    fullSwipeThreshold: { type: 'number', default: '0.6', description: 'Threshold (0-1) to trigger full swipe.' },
+    onFullSwipeLeft: { type: '() => void', description: 'Callback on full left swipe.' },
+    onFullSwipeRight: { type: '() => void', description: 'Callback on full right swipe.' },
+    hapticFeedback: { type: 'boolean', default: 'true', description: 'Enable haptic feedback.' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable swipe gestures.' },
+  }}
+/>
+
+### SwipeableAction
+
+<TypeTable
+  type={{
+    label: { type: 'string', description: 'Action button label.' },
+    icon: { type: 'RenderIcon', description: 'Action button icon.' },
+    tone: { type: 'ComponentTone', description: 'Color tone for the action.' },
+    backgroundColor: { type: 'string', description: 'Custom background color override.' },
+    isDestructive: { type: 'boolean', description: 'Mark as destructive (enables full-swipe delete).' },
+    onPress: { type: '() => void', description: 'Action press callback.' },
+    closeOnPress: { type: 'boolean', default: 'true', description: 'Auto-close after press.' },
+  }}
+/>

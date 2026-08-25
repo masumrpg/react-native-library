@@ -9,7 +9,6 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react-native";
-import React from "react";
 import { Section, type RnUiSectionContext } from "../shared";
 
 export function CommandSection({ ctx }: { ctx: RnUiSectionContext }) {

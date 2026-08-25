@@ -1,0 +1,66 @@
+---
+title: TimePicker
+description: Time selection picker with wheel, card, modal, dialog, and input variants.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Code } from '@astrojs/starlight/components';
+import TypeTable from '@/components/TypeTable.astro';
+
+export const exampleCode = `import { useState } from 'react';
+import { TimePickerInput } from '@masumdev/rn-ui';
+
+export function TimePickerExample() {
+  const [time, setTime] = useState<Date | undefined>();
+
+  return (
+    <TimePickerInput
+      title="SET TIME"
+      placeholder="Select time"
+      value={time}
+      onChange={setTime}
+    />
+  );
+}`;
+
+The TimePicker suite mirrors the DatePicker API for time selection, offering consistent wheel-based time picking across multiple presentation styles.
+
+## Components
+
+| Component | Description |
+|---|---|
+| `TimePicker` | Core time picker with hour/minute/period columns |
+| `TimePickerCard` | Inline card with confirm/cancel actions |
+| `TimePickerModal` | Full-screen modal presentation |
+| `TimePickerDialog` | Alert-style dialog presentation |
+| `TimePickerInput` | Pressable input field that opens a modal |
+
+## Usage
+
+<Code code={exampleCode} lang="tsx" title="TimePickerExample.tsx" mark={['TimePickerInput', 'onChange']} />
+
+## Props API
+
+<TypeTable
+  type={{
+    value: { type: 'Date | undefined', description: 'Selected time value.' },
+    onChange: { type: '(time: Date) => void', description: 'Callback when time is confirmed.' },
+    placeholder: { type: 'string', description: 'Placeholder text when no time selected.' },
+    title: { type: 'string', description: 'Title shown in the modal header.' },
+    use24Hour: { type: 'boolean', default: 'false', description: 'Use 24-hour format instead of AM/PM.' },
+    minuteInterval: { type: 'number', default: '1', description: 'Minute step interval (1, 5, 10, 15, 30).' },
+    disabled: { type: 'boolean', default: 'false', description: 'Disable the input.' },
+  }}
+/>
+
+## Utilities
+
+```tsx
+import { formatTime } from '@masumdev/rn-ui';
+
+// Format a Date to display string
+formatTime(new Date(), { use24Hour: false }); // "2:30 PM"
+```

@@ -8,12 +8,10 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  withTiming,
 } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useTheme, type ThemeColors } from "../theme";
 
@@ -76,32 +74,25 @@ export function Slider({
   onLayout,
   ...props
 }: SliderProps) {
-  const { colors, components, radii } = useTheme();
+  const { colors, components, radii, isDark } = useTheme();
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const currentValue = clamp(value ?? internalValue, min, max);
   const range = max - min;
   const initialProgress = range === 0 ? 0 : (currentValue - min) / range;
   const progress = useSharedValue(initialProgress);
   const trackWidth = useSharedValue(0);
-  const isPressed = useSharedValue(0);
   const lastEmittedValue = useSharedValue(currentValue);
   const isInteractingRef = React.useRef(false);
   const isControlled = value !== undefined;
   const activeColor = getToneColor(colors, tone);
-  const thumbSize = components.slider.thumbSize;
-  const activeThumbSize = components.slider.activeThumbSize;
-  const thumbTravelInset = activeThumbSize / 2;
+  const thumbSize = 24;
 
   React.useEffect(() => {
     if (isInteractingRef.current) return;
 
     const nextProgress = range === 0 ? 0 : (currentValue - min) / range;
     lastEmittedValue.value = currentValue;
-    progress.value = withSpring(clamp(nextProgress, 0, 1), {
-      damping: 18,
-      stiffness: 260,
-      mass: 0.85,
-    });
+    progress.value = clamp(nextProgress, 0, 1);
   }, [currentValue, lastEmittedValue, min, progress, range]);
 
   const setInteractionActive = React.useCallback((active: boolean) => {
@@ -148,10 +139,9 @@ export function Slider({
           const nextValue = clamp(snap(rawValue, step, min), min, max);
 
           lastEmittedValue.value = nextValue;
-          progress.value = withTiming(nextProgress, { duration: 110 });
-          isPressed.value = withSpring(1, { damping: 16, stiffness: 260 });
-          runOnJS(setInteractionActive)(true);
-          runOnJS(commitValue)(nextValue, false, true);
+          progress.value = nextProgress;
+          scheduleOnRN(setInteractionActive, true);
+          scheduleOnRN(commitValue, nextValue, false, true);
         })
         .onUpdate((event) => {
           const width = trackWidth.value;
@@ -164,7 +154,7 @@ export function Slider({
           progress.value = nextProgress;
           if (nextValue !== lastEmittedValue.value) {
             lastEmittedValue.value = nextValue;
-            runOnJS(commitValue)(nextValue, false, false);
+            scheduleOnRN(commitValue, nextValue, false, false);
           }
         })
         .onFinalize((event) => {
@@ -175,25 +165,18 @@ export function Slider({
             const nextValue = clamp(snap(rawValue, step, min), min, max);
             const snappedProgress = range === 0 ? 0 : (nextValue - min) / range;
 
-            progress.value = withSpring(snappedProgress, {
-              damping: 18,
-              stiffness: 260,
-              mass: 0.85,
-            });
+            progress.value = snappedProgress;
             lastEmittedValue.value = nextValue;
-            runOnJS(setInteractionActive)(false);
-            runOnJS(commitValue)(nextValue, true, false);
+            scheduleOnRN(setInteractionActive, false);
+            scheduleOnRN(commitValue, nextValue, true, false);
           } else {
-            runOnJS(setInteractionActive)(false);
+            scheduleOnRN(setInteractionActive, false);
           }
-
-          isPressed.value = withSpring(0, { damping: 16, stiffness: 260 });
         }),
     [
       commitValue,
       components.slider.hitSlop,
       disabled,
-      isPressed,
       lastEmittedValue,
       max,
       min,
@@ -206,22 +189,19 @@ export function Slider({
   );
 
   const activeTrackAnimatedStyle = useAnimatedStyle(() => ({
-    width: Math.max(0, progress.value * trackWidth.value),
+    width: Math.max(0, progress.value * (trackWidth.value - thumbSize) + thumbSize / 2),
     backgroundColor: activeColor,
   }));
 
   const thumbAnimatedStyle = useAnimatedStyle(() => {
-    const size =
-      thumbSize + (activeThumbSize - thumbSize) * Math.min(isPressed.value, 1);
-    const travel = Math.max(0, trackWidth.value - thumbTravelInset * 2);
+    const travel = Math.max(0, trackWidth.value - thumbSize);
 
     return {
-      width: size,
-      height: size,
-      borderRadius: size / 2,
+      width: thumbSize,
+      height: thumbSize,
+      borderRadius: radii.full,
       transform: [
-        { translateX: thumbTravelInset + progress.value * travel - size / 2 },
-        { scale: 1 + isPressed.value * 0.02 },
+        { translateX: progress.value * travel },
       ],
     };
   });
@@ -235,48 +215,65 @@ export function Slider({
         style={[
           {
             width: "100%",
-            height: components.slider.height,
+            height: thumbSize,
             justifyContent: "center",
-            opacity: disabled ? 0.5 : 1,
+            position: "relative",
+            opacity: disabled ? 0.45 : 1,
           },
           style,
         ]}
         {...props}
       >
+        {/* Background Track */}
         <View
           pointerEvents="none"
           style={[
             {
-              height: components.slider.trackHeight,
+              height: 6,
               borderRadius: radii.full,
-              borderWidth: components.borderWidth.strong,
-              borderColor: colors.border,
-              backgroundColor: colors.backgroundSubtle,
-              overflow: "hidden",
+              backgroundColor: isDark
+                ? "rgba(51, 65, 85, 0.8)"
+                : colors.backgroundMuted,
+              width: "100%",
             },
             trackStyle,
           ]}
-        >
-          <Animated.View
-            style={[
-              {
-                height: "100%",
-                borderRadius: radii.full,
-              },
-              activeTrackAnimatedStyle,
-              activeTrackStyle,
-            ]}
-          />
-        </View>
+        />
 
+        {/* Active Highlight Track */}
         <Animated.View
           pointerEvents="none"
           style={[
             {
               position: "absolute",
-              borderWidth: components.borderWidth.ring,
+              height: 6,
+              borderRadius: radii.full,
+              backgroundColor: activeColor,
+            },
+            activeTrackAnimatedStyle,
+            activeTrackStyle,
+          ]}
+        />
+
+        {/* Thumb */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            {
+              position: "absolute",
+              width: thumbSize,
+              height: thumbSize,
+              borderRadius: radii.full,
+              backgroundColor: "#FFFFFF",
+              borderWidth: 2,
               borderColor: activeColor,
-              backgroundColor: colors.surface,
+              shadowColor: "#000000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.18,
+              shadowRadius: 3,
+              elevation: 4,
+              alignItems: "center",
+              justifyContent: "center",
             },
             thumbAnimatedStyle,
             thumbStyle,

@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  type GestureResponderEvent,
   type ModalProps,
   type StyleProp,
   type TextStyle,
@@ -130,14 +131,21 @@ export function DropdownMenuTrigger({
   };
 
   if (React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
-      ref: triggerRef,
-      disabled,
-      onPress: (e: any) => {
-        handlePress();
-        (children.props as any)?.onPress?.(e);
+    return React.cloneElement(
+      children as React.ReactElement<Record<string, unknown>>,
+      {
+        ref: triggerRef,
+        disabled,
+        onPress: (e: GestureResponderEvent) => {
+          handlePress();
+          (
+            children.props as {
+              onPress?: (e: GestureResponderEvent) => void;
+            }
+          )?.onPress?.(e);
+        },
       },
-    });
+    );
   }
 
   return (
