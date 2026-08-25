@@ -1,0 +1,55 @@
+---
+title: Changelog
+sidebar:
+  order: 99
+description: Release notes and version history for @masumdev/rn-qr-code.
+---
+
+import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
+
+export const releases = [
+  {
+    version: 'v0.2.0',
+    date: '2026-08-25',
+    tag: 'Latest Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'perf',
+        text: 'Merged module pieces into unified single-path SVG rendering (50x-100x speedup).',
+      },
+      {
+        type: 'feat',
+        text: 'Added <code>isAsync</code> non-blocking asynchronous matrix calculation support.',
+      },
+      {
+        type: 'feat',
+        text: 'Package renamed to <code>@masumdev/rn-qr-code</code> for monorepo consistency.',
+      },
+      {
+        type: 'fix',
+        text: 'Added automatic dynamic fallback to minimum required version for arbitrary length payloads.',
+      },
+      {
+        type: 'fix',
+        text: 'Fixed SVG eye corner radius clamping to prevent visual crossing spikes.',
+      },
+    ],
+  },
+  {
+    version: 'v0.1.0',
+    date: '2026-08-22',
+    changes: [
+      {
+        type: 'feat',
+        text: 'Initial release of vector SVG QR generator for React Native & Expo.',
+      },
+      {
+        type: 'feat',
+        text: 'Custom eye shapes, piece shapes, logo embedding, and SVG gradients.',
+      },
+    ],
+  },
+];
+
+<ChangelogTimeline releases={releases} />

@@ -2,19 +2,19 @@
 title: Usage
 sidebar:
   order: 3
-description: Code examples, preset variants, loading states, and Props API reference for QRCode.
+description: Code examples, preset variants, async loading states, and Props API reference for QRCode.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 import TypeTable from '@/components/TypeTable.astro';
 
 export const basicUsageCode = `import React from 'react';
-import { QRCode } from '@masumdev/react-native-qr-code-gen';
+import { QRCode } from '@masumdev/rn-qr-code';
 
 export function BasicQRCodeExample() {
   return (
     <QRCode
-      value="https://masum.dev"
+      value="https://react-native-library-docs.netlify.app/rn-qr-code/"
       size={200}
       variant="BASIC"
     />
@@ -22,7 +22,7 @@ export function BasicQRCodeExample() {
 }`;
 
 export const presetVariantCode = `import React from 'react';
-import { QRCode } from '@masumdev/react-native-qr-code-gen';
+import { QRCode } from '@masumdev/rn-qr-code';
 
 export function PresetVariantsExample() {
   return (
@@ -39,22 +39,18 @@ export function PresetVariantsExample() {
   );
 }`;
 
-export const loadingStateCode = `import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-import { QRCode } from '@masumdev/react-native-qr-code-gen';
+export const asyncStateCode = `import React from 'react';
+import { QRCode } from '@masumdev/rn-qr-code';
+import { Skeleton } from '@masumdev/rn-ui';
 
-export function LoadingQRCodeExample() {
-  const [loading, setLoading] = useState(true);
-
+export function AsyncQRCodeExample() {
   return (
     <QRCode
-      value="https://masum.dev"
+      value="https://react-native-library-docs.netlify.app/rn-qr-code/"
       size={180}
-      isLoading={loading}
+      isAsync
       renderLoading={() => (
-        <View style={{ width: 180, height: 180, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Generating QR Code...</Text>
-        </View>
+        <Skeleton style={{ width: 180, height: 180 }} radius="md" />
       )}
     />
   );
@@ -72,11 +68,11 @@ Use the `variant` prop to apply pre-configured design styles:
 
 <Code code={presetVariantCode} lang="tsx" title="PresetVariantsExample.tsx" mark={['variant="HEART"', 'variant="LINEAR_GRADIENT"', 'variant="TRIANGLE"']} />
 
-## Loading Placeholder States
+## Non-Blocking Async Rendering
 
-Provide `isLoading` and `renderLoading` to render fallback UI during async generator runs:
+Set `isAsync` to generate the QR matrix off the synchronous render path, preventing UI frame drops during screen transitions:
 
-<Code code={loadingStateCode} lang="tsx" title="LoadingQRCodeExample.tsx" mark={['isLoading={loading}', 'renderLoading']} />
+<Code code={asyncStateCode} lang="tsx" title="AsyncQRCodeExample.tsx" mark={['isAsync', 'renderLoading']} />
 
 ## Props API
 
@@ -92,7 +88,7 @@ Provide `isLoading` and `renderLoading` to render fallback UI during async gener
       description: 'Width and height of the rendered SVG container in dp.',
     },
     variant: {
-      type: "'BASIC' | 'TRIANGLE' | 'HEART' | 'DOT' | 'WITH_LOGO' | 'RAIN' | 'LINEAR_GRADIENT' | 'RADIAL_GRADIENT' | 'IMAGE_BACKGROUND'",
+      type: 'keyof typeof QR_CODE_CONFIGS',
       default: "'BASIC'",
       description: 'Pre-configured design preset key from QR_CODE_CONFIGS.',
     },
@@ -103,7 +99,7 @@ Provide `isLoading` and `renderLoading` to render fallback UI during async gener
     },
     backgroundColor: {
       type: 'string',
-      default: "'#ffffff'",
+      default: "'transparent'",
       description: 'Background canvas color.',
     },
     piece: {
@@ -125,6 +121,11 @@ Provide `isLoading` and `renderLoading` to render fallback UI during async gener
     imageClip: {
       type: 'ImageProps',
       description: 'Image href background clip fill for data modules.',
+    },
+    isAsync: {
+      type: 'boolean',
+      default: 'false',
+      description: 'Enables non-blocking asynchronous calculation using setTimeout(..., 0).',
     },
     errorCorrectionLevel: {
       type: "'L' | 'M' | 'Q' | 'H'",

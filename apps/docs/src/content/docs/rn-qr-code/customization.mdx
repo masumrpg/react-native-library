@@ -2,13 +2,13 @@
 title: Customization
 sidebar:
   order: 5
-description: Custom eye corner radii, linear & radial gradients, logos, and image background clips in @masumdev/react-native-qr-code-gen.
+description: Custom eye corner radii, linear & radial gradients, logos, and image background clips in @masumdev/rn-qr-code.
 ---
 
 import { Code } from '@astrojs/starlight/components';
 
 export const customEyeCode = `<QRCode
-  value="Custom Eyes"
+  value="https://react-native-library-docs.netlify.app/rn-qr-code/"
   size={200}
   eye={{
     topLeft: {
@@ -33,7 +33,7 @@ export const customEyeCode = `<QRCode
 />`;
 
 export const gradientCode = `<QRCode
-  value="Custom Gradient"
+  value="https://react-native-library-docs.netlify.app/rn-qr-code/"
   size={240}
   gradient={{
     type: 'linear',
@@ -51,7 +51,7 @@ export const gradientCode = `<QRCode
 />`;
 
 export const logoCode = `<QRCode
-  value="Logo QR Code"
+  value="https://react-native-library-docs.netlify.app/rn-qr-code/"
   size={240}
   errorCorrectionLevel="H"
   logo={{

@@ -1,0 +1,39 @@
+---
+title: Installation
+sidebar:
+  order: 2
+description: How to install @masumdev/rn-qr-code in Expo and React Native projects.
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
+
+export const npmInstall = `npm i @masumdev/rn-qr-code react-native-svg`;
+export const pnpmInstall = `pnpm add @masumdev/rn-qr-code react-native-svg`;
+export const yarnInstall = `yarn add @masumdev/rn-qr-code react-native-svg`;
+export const bunInstall = `bun add @masumdev/rn-qr-code react-native-svg`;
+
+Install `@masumdev/rn-qr-code` and its peer dependency `react-native-svg` using your preferred package manager:
+
+<Tabs syncKey="pkg">
+  <TabItem label="npm" icon="seti:npm">
+    <Code code={npmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="pnpm" icon="pnpm">
+    <Code code={pnpmInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="yarn" icon="seti:yarn">
+    <Code code={yarnInstall} lang="bash" />
+  </TabItem>
+  <TabItem label="bun" icon="bun">
+    <Code code={bunInstall} lang="bash" />
+  </TabItem>
+</Tabs>
+
+### Expo Projects
+
+For managed Expo projects, run:
+
+```bash
+npx expo install react-native-svg
+bun add @masumdev/rn-qr-code
+```

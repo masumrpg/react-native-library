@@ -23,8 +23,8 @@ export function TableSection({ ctx: _ctx }: { ctx: RnUiSectionContext }) {
               <TableCell>Active</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>@masumdev/react-native-qr-code-gen</TableCell>
-              <TableCell>0.1.3</TableCell>
+              <TableCell>@masumdev/rn-qr-code</TableCell>
+              <TableCell>0.2.0</TableCell>
               <TableCell>Active</TableCell>
             </TableRow>
           </Table>

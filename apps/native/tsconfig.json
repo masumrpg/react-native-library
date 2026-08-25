@@ -5,11 +5,12 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@masumdev/react-native-qr-code-gen": [
-        "../../packages/react-native-qr-code-gen/src"
+      "@masumdev/rn-qr-code": [
+        "../../packages/rn-qr-code/src"
       ],
       "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"],
-      "@masumdev/rn-ui": ["../../packages/rn-ui/src"]
+      "@masumdev/rn-ui": ["../../packages/rn-ui/src"],
+      "@masumdev/tscheck": ["../../packages/tscheck/src"]
     }
   }
 }
