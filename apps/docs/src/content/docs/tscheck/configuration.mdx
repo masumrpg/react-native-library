@@ -1,0 +1,156 @@
+---
+title: Configuration Guide
+sidebar:
+  label: Configuration
+  order: 4
+description: Complete reference for configuring tscheck via JSON, YAML, or TypeScript with JSON Schema autocompletion.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+`@masumdev/tscheck` automatically searches for a configuration file in your current working directory. You can configure your audit rules using **JSON**, **YAML**, or **TypeScript/JavaScript**.
+
+---
+
+## Supported Config Formats & Priority
+
+The CLI searches for configuration files in the following order of priority:
+
+1. `tscheck.config.json`
+2. `.tscheckrc.json`
+3. `tscheck.config.yaml` / `tscheck.config.yml`
+4. `.tscheckrc.yaml` / `.tscheckrc.yml`
+5. `.tscheckrc` (JSON)
+6. `tscheck.config.ts` / `tscheck.config.js` / `tscheck.config.mjs`
+
+---
+
+## Configuration Examples
+
+<Tabs>
+  <TabItem label="JSON (.tscheckrc.json)">
+    Use the official `$schema` from GitHub (or local `node_modules`) to get **instant autocompletion, type validation, and hover tooltips** in VS Code, Cursor, and WebStorm:
+
+    ```json
+    {
+      "$schema": "https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/tscheck/schema.json",
+      "rootDir": ".",
+      "workspaces": ["packages/*", "apps/*"],
+      "exclude": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
+      "rules": {
+        "deprecated": true,
+        "unused": true,
+        "noExplicitAny": true
+      },
+      "reporters": {
+        "outputDir": ".temp/tscheck",
+        "json": true,
+        "markdown": true,
+        "jsonFileName": "audit-report.json",
+        "markdownFileName": "audit-report.md"
+      },
+      "failOnWarning": false
+    }
+    ```
+
+    > **Tip**: You can also use the local package path: `"$schema": "node_modules/@masumdev/tscheck/schema.json"`.
+  </TabItem>
+
+  <TabItem label="YAML (tscheck.config.yaml)">
+    Configure cleanly with YAML syntax and yaml-language-server schema integration:
+
+    ```yaml
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/tscheck/schema.json
+    rootDir: .
+    workspaces:
+      - packages/*
+      - apps/*
+    exclude:
+      - node_modules
+      - dist
+      - build
+      - .expo
+      - .turbo
+      - .temp
+    rules:
+      deprecated: true
+      unused: true
+      noExplicitAny: true
+    reporters:
+      outputDir: .temp/tscheck
+      json: true
+      markdown: true
+      jsonFileName: audit-report.json
+      markdownFileName: audit-report.md
+    failOnWarning: false
+    ```
+  </TabItem>
+
+  <TabItem label="TypeScript (tscheck.config.ts)">
+    Use `defineConfig()` for type-safety and JSDoc metadata in TypeScript:
+
+    ```typescript
+    import { defineConfig } from "@masumdev/tscheck";
+
+    export default defineConfig({
+      rootDir: process.cwd(),
+      workspaces: ["packages/*", "apps/*"],
+      exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
+      rules: {
+        deprecated: true,
+        unused: true,
+        noExplicitAny: true,
+      },
+      reporters: {
+        outputDir: ".temp/tscheck",
+        json: true,
+        markdown: true,
+      },
+      failOnWarning: false,
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## Configuration Options Reference
+
+### `rootDir`
+- **Type**: `string`
+- **Default**: `"."` (resolved to `process.cwd()`)
+- Base directory where the audit engine executes.
+
+### `workspaces`
+- **Type**: `string[]`
+- **Default**: `["packages/*", "apps/*"]` (or fallback to root `tsconfig.json`)
+- Glob patterns or relative directory paths to scan.
+
+### `exclude`
+- **Type**: `string[]`
+- **Default**: `["node_modules", "dist", "build", ".expo", ".turbo", ".temp"]`
+- Directory names and path patterns to ignore during file discovery.
+
+### `rules`
+- **Type**: `object`
+  - `deprecated?: boolean` (Default: `true`): Checks for functions, classes, and properties tagged with JSDoc `@deprecated`.
+  - `unused?: boolean` (Default: `true`): Checks for unused variables, parameters, and imports.
+  - `noExplicitAny?: boolean` (Default: `true`): Checks for explicit `any` type annotations, assertions (`as any`), and generics.
+
+### `reporters`
+- **Type**: `object`
+  - `outputDir?: string` (Default: `".temp/tscheck"`): Destination folder for generated reports.
+  - `json?: boolean` (Default: `true`): Generates `audit-report.json`.
+  - `markdown?: boolean` (Default: `true`): Generates `audit-report.md`.
+  - `jsonFileName?: string` (Default: `"audit-report.json"`).
+  - `markdownFileName?: string` (Default: `"audit-report.md"`).
+
+### `failOnWarning`
+- **Type**: `boolean`
+- **Default**: `false`
+- If set to `true`, the CLI will exit with code `1` whenever any violations are found.
+
+### `tsconfigName`
+- **Type**: `string`
+- **Default**: `"tsconfig.json"`
+- Custom project tsconfig file name to search for across workspaces.

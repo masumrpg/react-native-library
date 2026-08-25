@@ -1,0 +1,407 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as ts from "typescript";
+import type {
+  TsCheckConfig,
+  AuditReport,
+  DeprecatedUsage,
+  UnusedItem,
+  AnyTypeUsage,
+  WorkspaceScanResult,
+} from "../config/types.js";
+import { checkNodeDeprecation } from "./rules/deprecated.js";
+import { checkUnusedDiagnostics } from "./rules/unused.js";
+import { checkExplicitAnyUsages } from "./rules/anyType.js";
+
+export interface EngineProject {
+  name: string;
+  tsconfig: string;
+  rootDir: string;
+}
+
+export type EngineProgressEvent =
+  | {
+      type: "start";
+      totalWorkspaces: number;
+      completedWorkspaces: number;
+    }
+  | {
+      type: "workspace-start";
+      workspace: WorkspaceScanResult;
+      totalWorkspaces: number;
+      completedWorkspaces: number;
+    }
+  | {
+      type: "file-progress";
+      workspaceName: string;
+      currentFile: string;
+      fileIndex: number;
+      totalFiles: number;
+      phase: string;
+    }
+  | {
+      type: "log";
+      message: string;
+      level?: "info" | "warn" | "error";
+    }
+  | {
+      type: "workspace-done";
+      workspace: WorkspaceScanResult;
+      totalWorkspaces: number;
+      completedWorkspaces: number;
+    }
+  | {
+      type: "complete";
+      report: AuditReport;
+    };
+
+export type EngineProgressCallback = (event: EngineProgressEvent) => void;
+
+function findSourceFilesRecursively(dir: string, exclude: string[]): string[] {
+  const results: string[] = [];
+  try {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (exclude.includes(entry.name)) continue;
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        results.push(...findSourceFilesRecursively(fullPath, exclude));
+      } else if (/\.(tsx?|jsx?|mts|cts)$/.test(entry.name) && !entry.name.endsWith(".d.ts")) {
+        results.push(fullPath);
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return results;
+}
+
+/**
+ * Discovers TypeScript projects based on configuration.
+ */
+export function discoverProjects(config: TsCheckConfig): EngineProject[] {
+  const rootDir = config.rootDir || process.cwd();
+  const projects: EngineProject[] = [];
+  const tsconfigName = config.tsconfigName || "tsconfig.json";
+
+  const searchDirs: string[] = [];
+  if (config.workspaces && config.workspaces.length > 0) {
+    for (const ws of config.workspaces) {
+      if (ws.endsWith("/*")) {
+        const parentDir = path.resolve(rootDir, ws.slice(0, -2));
+        if (fs.existsSync(parentDir)) {
+          const entries = fs.readdirSync(parentDir, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.isDirectory()) {
+              searchDirs.push(path.join(parentDir, entry.name));
+            }
+          }
+        }
+      } else {
+        searchDirs.push(path.resolve(rootDir, ws));
+      }
+    }
+  } else {
+    // If no workspaces specified, check root tsconfig
+    const rootTsconfig = path.resolve(rootDir, tsconfigName);
+    if (fs.existsSync(rootTsconfig)) {
+      searchDirs.push(rootDir);
+    }
+  }
+
+  for (const dir of searchDirs) {
+    const tsconfigPath = path.resolve(dir, tsconfigName);
+    if (fs.existsSync(tsconfigPath)) {
+      let pkgName = path.basename(dir);
+      const pkgJsonPath = path.resolve(dir, "package.json");
+      if (fs.existsSync(pkgJsonPath)) {
+        try {
+          const pkgData = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8")) as { name?: string };
+          if (pkgData.name) {
+            pkgName = pkgData.name;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      projects.push({
+        name: pkgName,
+        tsconfig: tsconfigPath,
+        rootDir: dir,
+      });
+    }
+  }
+
+  // Fallback: If no tsconfig.json exists, discover raw TypeScript source files
+  if (projects.length === 0) {
+    const excludePatterns = config.exclude || ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"];
+    const tsFiles = findSourceFilesRecursively(rootDir, excludePatterns);
+    if (tsFiles.length > 0) {
+      let pkgName = path.basename(rootDir);
+      const pkgJsonPath = path.resolve(rootDir, "package.json");
+      if (fs.existsSync(pkgJsonPath)) {
+        try {
+          const pkgData = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8")) as { name?: string };
+          if (pkgData.name) {
+            pkgName = pkgData.name;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      projects.push({
+        name: pkgName,
+        tsconfig: "",
+        rootDir,
+      });
+    }
+  }
+
+  return projects;
+}
+
+/**
+ * Runs the TypeScript AST audit engine.
+ */
+export async function runAuditEngine(
+  config: TsCheckConfig,
+  onProgress?: EngineProgressCallback
+): Promise<AuditReport> {
+  const startTime = Date.now();
+  const projects = discoverProjects(config);
+
+  const rules = {
+    deprecated: config.rules?.deprecated !== false,
+    unused: config.rules?.unused !== false,
+    noExplicitAny: config.rules?.noExplicitAny !== false,
+  };
+
+  const excludePatterns = config.exclude || ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"];
+
+  const allDeprecatedUsages: DeprecatedUsage[] = [];
+  const allUnusedItems: UnusedItem[] = [];
+  const allAnyUsages: AnyTypeUsage[] = [];
+  const workspaceResults: WorkspaceScanResult[] = [];
+  let totalFilesScanned = 0;
+  const cleanFiles = new Set<string>();
+
+  onProgress?.({
+    type: "start",
+    totalWorkspaces: projects.length,
+    completedWorkspaces: 0,
+  });
+
+  for (let i = 0; i < projects.length; i++) {
+    const proj = projects[i];
+
+    onProgress?.({
+      type: "workspace-start",
+      workspace: {
+        name: proj.name,
+        tsconfig: proj.tsconfig,
+        filesScanned: 0,
+        deprecatedCount: 0,
+        unusedCount: 0,
+        anyCount: 0,
+      },
+      totalWorkspaces: projects.length,
+      completedWorkspaces: i,
+    });
+
+    onProgress?.({
+      type: "log",
+      message: `Loading TypeScript program for ${proj.name}...`,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    let program: ts.Program | undefined;
+    if (proj.tsconfig && fs.existsSync(proj.tsconfig)) {
+      const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
+        proj.tsconfig,
+        {
+          noUnusedLocals: true,
+          noUnusedParameters: true,
+        },
+        {
+          ...ts.sys,
+          onUnRecoverableConfigFileDiagnostic: () => {},
+        }
+      );
+
+      if (!parsedCommandLine) {
+        continue;
+      }
+
+      const host = ts.createCompilerHost(parsedCommandLine.options);
+      program = ts.createProgram(
+        parsedCommandLine.fileNames,
+        parsedCommandLine.options,
+        host
+      );
+    } else {
+      // Fallback: in-memory compiler options for projects without tsconfig.json
+      const rawFiles = findSourceFilesRecursively(proj.rootDir, excludePatterns);
+      if (rawFiles.length === 0) {
+        continue;
+      }
+      const defaultOptions: ts.CompilerOptions = {
+        target: ts.ScriptTarget.ES2022,
+        module: ts.ModuleKind.ESNext,
+        moduleResolution: ts.ModuleResolutionKind.Bundler,
+        jsx: ts.JsxEmit.ReactJSX,
+        allowJs: true,
+        strict: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        skipLibCheck: true,
+        esModuleInterop: true,
+      };
+      const host = ts.createCompilerHost(defaultOptions);
+      program = ts.createProgram(rawFiles, defaultOptions, host);
+    }
+
+    if (!program) {
+      continue;
+    }
+
+    const checker = program.getTypeChecker();
+    const allSourceFiles = program.getSourceFiles();
+
+    // Filter valid files first to accurately compute total progress
+    const workspaceFiles = allSourceFiles.filter((file) => {
+      if (file.isDeclarationFile) return false;
+      const normPath = path.normalize(file.fileName);
+      const isExcluded = excludePatterns.some((pattern) => normPath.includes(`/${pattern}/`) || normPath.includes(`\\${pattern}\\`));
+      if (isExcluded) return false;
+      return normPath.startsWith(path.normalize(proj.rootDir));
+    });
+
+    let projFilesScanned = 0;
+    let projDeprecated = 0;
+    let projUnused = 0;
+    let projAny = 0;
+
+    for (const sourceFile of workspaceFiles) {
+      projFilesScanned++;
+      totalFilesScanned++;
+      let fileHasViolations = false;
+      const relPath = path.relative(proj.rootDir, sourceFile.fileName);
+
+      onProgress?.({
+        type: "file-progress",
+        workspaceName: proj.name,
+        currentFile: relPath,
+        fileIndex: projFilesScanned,
+        totalFiles: workspaceFiles.length,
+        phase: "AST Analysis",
+      });
+
+      // Yield to the event loop so ink-spinner and terminal rendering can tick smoothly
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // 1. Deprecation check
+      if (rules.deprecated) {
+        const checkNode = (node: ts.Node) => {
+          if (
+            ts.isIdentifier(node) ||
+            ts.isPropertyAccessExpression(node) ||
+            ts.isJsxOpeningElement(node) ||
+            ts.isJsxSelfClosingElement(node) ||
+            ts.isTypeReferenceNode(node)
+          ) {
+            const result = checkNodeDeprecation(node, checker);
+            if (result.deprecated) {
+              const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+              const lineStart = sourceFile.getPositionOfLineAndCharacter(line, 0);
+              const lineEnd = sourceFile.getLineEndOfPosition(node.getStart());
+              const lineText = sourceFile.text.substring(lineStart, lineEnd).trim();
+
+              allDeprecatedUsages.push({
+                file: sourceFile.fileName,
+                line: line + 1,
+                column: character + 1,
+                symbol: node.getText(sourceFile),
+                reason: result.reason,
+                codeSnippet: lineText,
+                package: proj.name,
+              });
+              projDeprecated++;
+              fileHasViolations = true;
+            }
+          }
+          ts.forEachChild(node, checkNode);
+        };
+        checkNode(sourceFile);
+      }
+
+      // 2. Unused items check
+      if (rules.unused) {
+        const unused = checkUnusedDiagnostics(program, sourceFile, proj.name);
+        if (unused.length > 0) {
+          allUnusedItems.push(...unused);
+          projUnused += unused.length;
+          fileHasViolations = true;
+        }
+      }
+
+      // 3. Explicit any type check
+      if (rules.noExplicitAny) {
+        const anyUsages = checkExplicitAnyUsages(sourceFile, proj.name);
+        if (anyUsages.length > 0) {
+          allAnyUsages.push(...anyUsages);
+          projAny += anyUsages.length;
+          fileHasViolations = true;
+        }
+      }
+
+      if (!fileHasViolations) {
+        cleanFiles.add(sourceFile.fileName);
+      }
+    }
+
+    const wsResult: WorkspaceScanResult = {
+      name: proj.name,
+      tsconfig: proj.tsconfig,
+      filesScanned: projFilesScanned,
+      deprecatedCount: projDeprecated,
+      unusedCount: projUnused,
+      anyCount: projAny,
+    };
+    workspaceResults.push(wsResult);
+
+    onProgress?.({
+      type: "workspace-done",
+      workspace: wsResult,
+      totalWorkspaces: projects.length,
+      completedWorkspaces: i + 1,
+    });
+  }
+
+  const durationMs = Date.now() - startTime;
+
+  const report: AuditReport = {
+    timestamp: new Date().toISOString(),
+    durationMs,
+    summary: {
+      totalDeprecatedUsages: allDeprecatedUsages.length,
+      totalUnusedItems: allUnusedItems.length,
+      totalAnyUsages: allAnyUsages.length,
+      filesScanned: totalFilesScanned,
+      cleanFilesCount: cleanFiles.size,
+      workspacesScanned: workspaceResults.length,
+    },
+    deprecatedUsages: allDeprecatedUsages,
+    unusedItems: allUnusedItems,
+    anyUsages: allAnyUsages,
+    workspaces: workspaceResults,
+  };
+
+  onProgress?.({
+    type: "complete",
+    report,
+  });
+
+  return report;
+}

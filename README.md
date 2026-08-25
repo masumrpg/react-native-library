@@ -80,6 +80,29 @@ bun run publish --help
 
 ---
 
+## 🔍 TypeScript AST Code Audit (`@masumdev/tscheck`)
+
+This monorepo includes `@masumdev/tscheck`, a modern TypeScript AST audit CLI with interactive terminal UI (powered by Ink) and type-safe configuration.
+
+### Run Codebase Audit
+```bash
+bun run audit
+```
+
+### Interactive Explorer Mode
+```bash
+bun packages/tscheck/dist/cli.mjs -i
+```
+
+### JSON / YAML Schema URL
+Use the official JSON Schema for autocompletion in `.tscheckrc.json` or `tscheck.config.yaml`:
+```
+https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/tscheck/schema.json
+```
+
+---
+
 ## 📄 Documentation
 
 Visit our official documentation portal at **[https://masum.dev](https://masum.dev)** for guides, component API references, and interactive code samples.
+

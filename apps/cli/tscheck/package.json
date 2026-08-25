@@ -1,0 +1,20 @@
+{
+  "name": "tscheck-playground",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "audit": "bun ../../../packages/tscheck/dist/cli.mjs",
+    "audit:json": "bun ../../../packages/tscheck/dist/cli.mjs --json",
+    "audit:custom": "bun ../../../packages/tscheck/dist/cli.mjs -c ./tscheck.config.ts -o .temp/custom-reports",
+    "audit:no-deprecated": "bun ../../../packages/tscheck/dist/cli.mjs --no-deprecated",
+    "audit:no-unused": "bun ../../../packages/tscheck/dist/cli.mjs --no-unused",
+    "audit:no-any": "bun ../../../packages/tscheck/dist/cli.mjs --no-any"
+  },
+  "dependencies": {
+    "@masumdev/tscheck": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

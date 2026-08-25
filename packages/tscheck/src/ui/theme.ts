@@ -1,0 +1,25 @@
+export const symbols = {
+  bullet: "●",
+  bulletEmpty: "○",
+  arrow: "›",
+  pointer: "❯",
+  check: "✓",
+  cross: "✕",
+  box: {
+    tl: "┌",
+    tr: "┐",
+    bl: "└",
+    br: "┘",
+    h: "─",
+    v: "│",
+    divider: "├",
+  },
+  badges: {
+    pass: "[PASSED]",
+    ok: "[OK]",
+    warn: "[WARN]",
+    fail: "[FAILED]",
+    info: "[INFO]",
+    scan: "[SCANNING]",
+  },
+};
