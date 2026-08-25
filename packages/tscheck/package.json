@@ -1,20 +1,25 @@
 {
   "name": "@masumdev/tscheck",
   "version": "0.1.0",
-  "description": "A React Native and Expo package for tscheck.",
+  "description": "Modern, high-performance TypeScript AST code audit CLI and engine with beautiful Ink terminal UI and type-safe config.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "tscheck": "./dist/cli.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./schema.json": "./schema.json"
   },
   "files": [
     "dist",
+    "schema.json",
     "README.md",
     "LICENSE"
   ],
@@ -24,8 +29,14 @@
     "clean": "rm -rf dist"
   },
   "keywords": [
-    "react-native",
-    "expo",
+    "typescript",
+    "ast",
+    "cli",
+    "audit",
+    "linter",
+    "deprecated",
+    "type-safety",
+    "ink",
     "tscheck"
   ],
   "author": "Ma'sum",
@@ -39,15 +50,21 @@
   "bugs": {
     "url": "https://github.com/masumrpg/react-native-library/issues"
   },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "ink": "^6.1.0",
+    "ink-spinner": "^5.0.0",
+    "ink-table": "^3.1.0",
+    "ink-text-input": "^6.0.0",
+    "picocolors": "^1.1.1",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3",
+    "yaml": "^2.9.0"
+  },
   "devDependencies": {
     "@types/react": "^19.0.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
-  },
-  "peerDependencies": {
-    "react": ">=16",
-    "react-native": "*",
-    "expo": "*"
+    "ink-testing-library": "^4.0.0",
+    "tsup": "^8.3.6"
   },
   "publishConfig": {
     "access": "public"

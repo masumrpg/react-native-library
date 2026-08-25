@@ -1,0 +1,98 @@
+---
+title: Installation
+sidebar:
+  label: Installation
+  order: 2
+description: How to install and run @masumdev/tscheck globally or locally in your project.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+`@masumdev/tscheck` can be installed globally as a command-line tool or locally inside your TypeScript project or monorepo.
+
+---
+
+## Global Installation (CLI)
+
+Install `@masumdev/tscheck` globally to audit any project from your terminal:
+
+<Tabs>
+  <TabItem label="bun">
+    ```bash
+    bun add -g @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -g @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn global add @masumdev/tscheck
+    ```
+  </TabItem>
+</Tabs>
+
+After installing globally, run:
+
+```bash
+tscheck --help
+```
+
+---
+
+## Local Project Installation
+
+To use `tscheck` in your project scripts and CI pipelines:
+
+<Tabs>
+  <TabItem label="bun">
+    ```bash
+    bun add -D @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="npm">
+    ```bash
+    npm install --save-dev @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -D @masumdev/tscheck
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add -D @masumdev/tscheck
+    ```
+  </TabItem>
+</Tabs>
+
+### Adding to `package.json`
+
+```json
+{
+  "scripts": {
+    "audit": "tscheck",
+    "audit:ci": "tscheck --fail-on-warning"
+  }
+}
+```
+
+---
+
+## Run with `npx` or `bunx` (No Install)
+
+You can run `tscheck` on-demand without installing:
+
+```bash
+npx @masumdev/tscheck
+# or
+bunx @masumdev/tscheck
+```

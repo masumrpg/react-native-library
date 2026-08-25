@@ -12,5 +12,6 @@
       "@masumdev/rn-ui": ["../../packages/rn-ui/src"],
       "@masumdev/tscheck": ["../../packages/tscheck/src"]
     }
-  }
+  },
+  "exclude": ["dist", "build", "node_modules", ".expo"]
 }

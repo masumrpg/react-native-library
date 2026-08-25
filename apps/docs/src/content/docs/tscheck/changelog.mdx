@@ -1,0 +1,15 @@
+---
+title: Changelog
+sidebar:
+  label: Changelog
+  order: 5
+description: Release history and version notes for @masumdev/tscheck.
+---
+
+### v0.1.0 — Initial Release
+
+- **Standalone TypeScript AST Audit CLI**: Complete AST scanner detecting deprecated API usages, unused variables/imports/parameters, and explicit `any` types.
+- **Interactive Terminal UI with Ink**: Built using React & Ink with zero-emoji minimalism and real-time workspace scanning progress.
+- **Type-Safe Configuration**: Added `defineConfig()` helper with auto-discovery from `tscheck.config.ts`, `tscheck.config.js`, and `.tscheckrc.json`.
+- **Customizable Reporting**: Automated output of `audit-report.json` and clean formatted `audit-report.md`.
+- **Global & Local Executable**: Added binary support via `npx tscheck` or global installation.

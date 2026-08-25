@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../../packages/tscheck/schema.json
+rootDir: .
+workspaces:
+  - .
+exclude:
+  - node_modules
+  - dist
+  - .temp
+rules:
+  deprecated: true
+  unused: true
+  noExplicitAny: true
+reporters:
+  outputDir: .temp/yaml-config-reports
+  json: true
+  markdown: true
+failOnWarning: false

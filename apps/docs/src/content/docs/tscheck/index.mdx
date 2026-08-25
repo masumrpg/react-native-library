@@ -1,0 +1,77 @@
+---
+title: TSCheck
+sidebar:
+  label: Overview
+  order: 1
+description: Modern, high-performance TypeScript AST code audit CLI and engine with Ink React terminal UI, JSON/YAML configuration, and zero emojis.
+---
+
+import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
+
+`@masumdev/tscheck` is a high-performance TypeScript AST auditing CLI tool and engine. It inspects single projects or monorepos for deprecated API usages, unused variables/imports, and explicit `any` types, rendering a terminal interface powered by **Ink (React in Terminal)** with zero emojis.
+
+## NPM Package Stats
+
+<div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '16px 0' }}>
+  <a href="https://www.npmjs.com/package/@masumdev/tscheck">
+    <img src="https://img.shields.io/npm/dt/%40masumdev%2Ftscheck?style=for-the-badge&logo=npm&color=06B6D4&label=Total%20Downloads" alt="total downloads" />
+  </a>
+  <a href="https://www.npmjs.com/package/@masumdev/tscheck">
+    <img src="https://img.shields.io/npm/v/%40masumdev%2Ftscheck?style=for-the-badge&logo=npm&color=06B6D4&label=Version" alt="npm version" />
+  </a>
+  <a href="https://github.com/masumrpg/react-native-library/blob/main/LICENSE">
+    <img src="https://img.shields.io/npm/l/%40masumdev%2Ftscheck?style=for-the-badge&color=F59E0B&label=License" alt="license" />
+  </a>
+</div>
+
+---
+
+## Core Capabilities
+
+<CardGrid>
+  <Card title="AST Deprecation Analysis" icon="warning">
+    Detects usages of functions, methods, classes, properties, and types tagged with JSDoc `@deprecated`, displaying the deprecation reason and exact call sites.
+  </Card>
+  <Card title="Unused Diagnostic Scanner" icon="close">
+    Analyzes TypeScript compiler diagnostics to catch unused variables, imports, parameters, and destructured items across all packages.
+  </Card>
+  <Card title="Strict Any-Type Policy" icon="seti:typescript">
+    Flags explicit `any` type annotations, assertions (`as any`), and generic type arguments to uphold strict type safety standards.
+  </Card>
+  <Card title="Interactive Ink React UI" icon="laptop">
+    Renders real-time scan progress with animated spinners, progress bars, and ASCII summary tables using React & Ink with a strict zero-emoji aesthetic.
+  </Card>
+  <Card title="JSON & YAML Config with Schema" icon="setting">
+    Configure audits using `.tscheckrc.json`, `tscheck.config.json`, or `tscheck.config.yaml` with instant IDE schema autocompletion.
+  </Card>
+  <Card title="Interactive Live Search Dashboard" icon="magnifier">
+    Launch with `tscheck -i` to filter violations, workspaces, and code issues in real-time right in your terminal.
+  </Card>
+</CardGrid>
+
+---
+
+## Getting Started
+
+<CardGrid>
+  <LinkCard
+    title="Installation"
+    href="/tscheck/installation/"
+    description="Install @masumdev/tscheck globally or as a project devDependency."
+  />
+  <LinkCard
+    title="CLI & API Usage"
+    href="/tscheck/usage/"
+    description="Explore CLI commands, interactive explorer mode (-i), and programmatic API."
+  />
+  <LinkCard
+    title="Configuration Guide"
+    href="/tscheck/configuration/"
+    description="Configure tscheck using JSON, YAML, or TypeScript with full JSON Schema validation."
+  />
+  <LinkCard
+    title="Changelog"
+    href="/tscheck/changelog/"
+    description="Check the latest version updates and release history."
+  />
+</CardGrid>

@@ -72,6 +72,10 @@ export default defineConfig({
           label: 'RN QR Code',
           autogenerate: { directory: 'rn-qr-code' },
         },
+        {
+          label: 'TSCheck',
+          autogenerate: { directory: 'tscheck' },
+        },
       ],
     }),
   ],

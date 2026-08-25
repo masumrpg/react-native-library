@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TsCheckConfig",
+  "description": "Configuration schema for @masumdev/tscheck code audit engine",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL or relative path to the tscheck JSON Schema for IDE autocomplete and validation."
+    },
+    "rootDir": {
+      "type": "string",
+      "description": "Root directory for auditing. Defaults to current working directory (process.cwd()).",
+      "default": "."
+    },
+    "workspaces": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of workspace glob patterns or directory paths (e.g. [\"packages/*\", \"apps/*\"])."
+    },
+    "exclude": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of directory patterns to ignore during file discovery.",
+      "default": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"]
+    },
+    "rules": {
+      "type": "object",
+      "description": "Audit rules configuration to enable or disable specific checks.",
+      "properties": {
+        "deprecated": {
+          "type": "boolean",
+          "description": "Detects usages of functions, methods, classes, and properties tagged with JSDoc @deprecated.",
+          "default": true
+        },
+        "unused": {
+          "type": "boolean",
+          "description": "Detects unused variables, parameters, and imports.",
+          "default": true
+        },
+        "noExplicitAny": {
+          "type": "boolean",
+          "description": "Flags explicit any type annotations, assertions (as any), and generics.",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "reporters": {
+      "type": "object",
+      "description": "Report output settings for JSON and Markdown artifacts.",
+      "properties": {
+        "outputDir": {
+          "type": "string",
+          "description": "Output directory for audit report files.",
+          "default": ".temp/tscheck"
+        },
+        "json": {
+          "type": "boolean",
+          "description": "Generate audit-report.json file.",
+          "default": true
+        },
+        "markdown": {
+          "type": "boolean",
+          "description": "Generate audit-report.md file.",
+          "default": true
+        },
+        "jsonFileName": {
+          "type": "string",
+          "description": "Custom filename for JSON report.",
+          "default": "audit-report.json"
+        },
+        "markdownFileName": {
+          "type": "string",
+          "description": "Custom filename for Markdown report.",
+          "default": "audit-report.md"
+        }
+      },
+      "additionalProperties": false
+    },
+    "failOnWarning": {
+      "type": "boolean",
+      "description": "Exit CLI process with non-zero exit code if any violations are found (recommended for CI).",
+      "default": false
+    },
+    "tsconfigName": {
+      "type": "string",
+      "description": "Name of the TypeScript config file in each workspace.",
+      "default": "tsconfig.json"
+    }
+  },
+  "additionalProperties": false
+}

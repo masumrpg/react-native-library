@@ -30,6 +30,7 @@ Whenever a new package (`packages/<name>`) or a new component/API is added or mo
   - The package's `README.md` (`packages/<name>/README.md`).
   - The docs changelog (`apps/docs/src/content/docs/<package>/changelog.mdx`).
 - Update feature lists, version history, and usage examples.
+- When ready to release, publish using `bun run publish <package-name> [patch|minor|major]`.
 
 ---
 
