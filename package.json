@@ -47,6 +47,8 @@
     "@babel/core": "^7.25.0",
     "@babel/preset-env": "^7.25.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "css-tree": "^3.0.1",
+    "ws": "^8.18.0"
   }
 }
