@@ -2,16 +2,10 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
-import {
-  Box,
-  IconButton,
-  Text,
-  useTheme,
-  useThemeStyles,
-  type RenderIcon,
-} from "@masumdev/rn-ui";
+import { useTheme, useThemeStyles } from "@masumdev/rn-ui";
 import { SystemUIOverlay } from "../../components/system-ui-overlay";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useHeaderScroll } from "../../components/useHeaderScroll";
 import { useSectionContext } from "../../components/rn-ui/useSectionContext";
 import {
   AccordionSection,
@@ -68,10 +62,6 @@ import {
   ToastSection,
 } from "../../components/rn-ui";
 
-const icon =
-  (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
-  ({ color, size }) => <Icon color={color} size={size} />;
-
 export default function RnUiComponentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -79,6 +69,10 @@ export default function RnUiComponentDetailScreen() {
   const insets = useSafeAreaInsets();
   const styles = useStyles();
   const ctx = useSectionContext();
+
+  const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
+    headerHeight: 90,
+  });
 
   const renderComponentShowcase = () => {
     switch (id) {
@@ -216,31 +210,25 @@ export default function RnUiComponentDetailScreen() {
     <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <SystemUIOverlay />
 
+      <ScreenHeader
+        showBack
+        eyebrow={`@masumdev/rn-ui/${id || "component"}`}
+        title={formattedTitle}
+        headerStyle={headerStyle}
+      />
+
       <ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + spacing.xl,
+            paddingTop: insets.top + 95,
             paddingBottom: insets.bottom + spacing.xxl,
           },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header matching exact layout screenshot */}
-        <Box row center gap="md">
-          <IconButton
-            icon={icon(ChevronLeft)}
-            variant="outline"
-            onPress={() => router.back()}
-          />
-          <Box flex={1}>
-            <Text variant="labelSmall" color="primary">
-              {`@masumdev/rn-ui/${id || "component"}`}
-            </Text>
-            <Text variant="h2">{formattedTitle}</Text>
-          </Box>
-        </Box>
-
         {/* Component Showcase Body */}
         {renderComponentShowcase()}
       </ScrollView>
@@ -254,7 +242,8 @@ function useStyles() {
       flex: 1,
     },
     container: {
-      padding: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.lg,
+      paddingBottom: theme.spacing.xxl,
       gap: theme.spacing.xl,
     },
   }));
