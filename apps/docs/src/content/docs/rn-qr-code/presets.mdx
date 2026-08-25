@@ -8,7 +8,7 @@ description: Complete gallery reference table for built-in QR_CODE_CONFIGS prese
 import TypeTable from '@/components/TypeTable.astro';
 import { Code } from '@astrojs/starlight/components';
 
-export const presetUsageCode = `import { QRCode, QR_CODE_CONFIGS } from '@masumdev/react-native-qr-code-gen';
+export const presetUsageCode = `import { QRCode, QR_CODE_CONFIGS } from '@masumdev/rn-qr-code';
 
 // Inspect preset keys programmatically
 console.log(Object.keys(QR_CODE_CONFIGS));
@@ -16,13 +16,13 @@ console.log(Object.keys(QR_CODE_CONFIGS));
 // Render with preset
 <QRCode value="Preset Demo" variant="LINEAR_GRADIENT" size={200} />`;
 
-`@masumdev/react-native-qr-code-gen` includes 9 pre-configured design presets exported via `QR_CODE_CONFIGS`:
+`@masumdev/rn-qr-code` includes 16+ pre-configured design presets exported via `QR_CODE_CONFIGS`:
 
 <TypeTable
   type={{
     BASIC: {
       type: 'PresetConfig',
-      description: 'Standard black & white square QR code with default 250dp size.',
+      description: 'Standard black & white square QR code with default size.',
     },
     TRIANGLE: {
       type: 'PresetConfig',

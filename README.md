@@ -9,9 +9,10 @@ Welcome to **Masum Dev** monorepo repository. This project contains high-perform
 ```
 .
 ├── packages/                  # Open-source React Native / Expo libraries (@masumdev/*)
-│   ├── rn-ui/                 # Typed flat UI kit (55+ components, design tokens, light/dark mode)
+│   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
 │   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with tooltips
-│   └── react-native-qr-code-gen/ # SVG QR code generator with custom eye shapes & presets
+│   ├── rn-qr-code/            # Single-path SVG QR code generator with presets & async mode
+│   └── tscheck/               # TypeScript & AST auditing module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
 │   └── docs/                  # Astro 5 + Starlight documentation portal (https://masum.dev)

@@ -69,8 +69,8 @@ export default defineConfig({
           autogenerate: { directory: 'rn-tajweed-verse' },
         },
         {
-          label: 'RN QR Code Gen',
-          autogenerate: { directory: 'react-native-qr-code-gen' },
+          label: 'RN QR Code',
+          autogenerate: { directory: 'rn-qr-code' },
         },
       ],
     }),

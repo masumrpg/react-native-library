@@ -11,7 +11,7 @@ This workspace is a **Turborepo** monorepo using **Bun** workspaces for high-per
 ├── packages/                  # Open-source React Native & Expo libraries (@masumdev/*)
 │   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
 │   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with interactive tooltips
-│   ├── react-native-qr-code-gen/ # SVG QR code generator with custom eye shapes & presets
+│   ├── rn-qr-code/            # SVG QR code generator with custom eye shapes & presets
 │   └── tscheck/               # TypeScript & AST checking module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)

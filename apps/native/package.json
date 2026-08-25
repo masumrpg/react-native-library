@@ -13,7 +13,7 @@
   "dependencies": {
     "@expo-google-fonts/outfit": "^0.4.3",
     "@gorhom/bottom-sheet": "^5.2.14",
-    "@masumdev/react-native-qr-code-gen": "workspace:*",
+    "@masumdev/rn-qr-code": "workspace:*",
     "@masumdev/rn-tajweed-verse": "workspace:*",
     "@masumdev/rn-ui": "workspace:*",
     "@types/qrcode": "^1.5.6",

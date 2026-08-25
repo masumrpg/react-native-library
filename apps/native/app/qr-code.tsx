@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RefreshCw } from "lucide-react-native";
-import { QRCode, QR_CODE_CONFIGS } from "@masumdev/react-native-qr-code-gen";
+import { QRCode, QR_CODE_CONFIGS } from "@masumdev/rn-qr-code";
 import {
   Box,
   Button,
   Card,
+  Progress,
+  Skeleton,
   Text,
   useTheme,
   useThemeStyles,
@@ -20,15 +22,37 @@ const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
   ({ color, size }) => <Icon color={color} size={size} />;
 
+const DOCS_URL = "https://react-native-library-docs.netlify.app/";
+
 const featuredVariants = [
-  { label: "Basic Variant", value: "https://google.com", variant: "BASIC" },
-  { label: "Heart Variant", value: "Love QR", variant: "HEART" },
-  { label: "Linear Gradient", value: "Gradients", variant: "LINEAR_GRADIENT" },
+  {
+    label: "Basic Variant",
+    value: DOCS_URL,
+    variant: "BASIC",
+  },
+  {
+    label: "Heart Variant",
+    value: DOCS_URL,
+    variant: "HEART",
+  },
+  {
+    label: "Linear Gradient",
+    value: DOCS_URL,
+    variant: "LINEAR_GRADIENT",
+  },
 ] as const;
 
 const bareVariants = [
-  { label: "Triangle", value: "Triangle", variant: "TRIANGLE" },
-  { label: "Dot", value: "Dots", variant: "DOT" },
+  {
+    label: "Triangle",
+    value: DOCS_URL,
+    variant: "TRIANGLE",
+  },
+  {
+    label: "Dot",
+    value: DOCS_URL,
+    variant: "DOT",
+  },
 ] as const;
 
 export default function QRCodeScreen() {
@@ -56,7 +80,7 @@ export default function QRCodeScreen() {
 
       <ScreenHeader
         showBack
-        eyebrow="@masumdev/react-native-qr-code-gen"
+        eyebrow="@masumdev/rn-qr-code"
         title="QR Code Generator"
         subtitle="Modern custom QR components with presets, states, and gallery preview."
         headerStyle={headerStyle}
@@ -117,28 +141,41 @@ export default function QRCodeScreen() {
               disabled={demoLoading}
               onPress={refreshLoading}
             >
-              {demoLoading ? "Loading" : "Simulate"}
+              {demoLoading ? "Loading..." : "Simulate Async"}
             </Button>
           }
         >
-          <PreviewCard label="Default Loading">
-            <QRCode value="loading" size={180} isLoading={demoLoading} />
-          </PreviewCard>
-
-          <PreviewCard label="Custom Loading Renderer">
+          <PreviewCard label="Skeleton Shimmer Fallback">
             <QRCode
-              value="loading-custom"
+              value={DOCS_URL}
               size={180}
               isLoading={demoLoading}
               renderLoading={() => (
-                <Box center style={styles.loadingPlaceholder}>
-                  <RefreshCw color={colors.primary} size={28} />
+                <Skeleton
+                  style={{ width: 180, height: 180 }}
+                  radius="lg"
+                />
+              )}
+            />
+          </PreviewCard>
+
+          <PreviewCard label="Progress & Shimmer Fallback">
+            <QRCode
+              value={DOCS_URL}
+              size={180}
+              isLoading={demoLoading}
+              renderLoading={() => (
+                <Box center gap="sm" style={styles.loadingPlaceholder}>
+                  <Skeleton style={{ width: 120, height: 120 }} radius="md" />
+                  <Box style={{ width: 160, marginTop: 8 }}>
+                    <Progress indeterminate tone="primary" size="sm" />
+                  </Box>
                   <Text
                     variant="caption"
                     color="textMuted"
                     style={styles.loadingText}
                   >
-                    Generating...
+                    Fetching dynamic QR payload...
                   </Text>
                 </Box>
               )}
@@ -155,7 +192,7 @@ export default function QRCodeScreen() {
             {Object.keys(QR_CODE_CONFIGS).map((variantKey) => (
               <Card key={variantKey} style={styles.gridItem}>
                 <QRCode
-                  value={variantKey}
+                  value={DOCS_URL}
                   size={110}
                   variant={variantKey as keyof typeof QR_CODE_CONFIGS}
                 />
