@@ -118,7 +118,7 @@ export default function TajweedVerseScreen() {
   const [renderCount, setRenderCount] = useState(0);
 
   const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
-    headerHeight: 90,
+    headerHeight: 220,
   });
 
   const getThemeConfig = () => {

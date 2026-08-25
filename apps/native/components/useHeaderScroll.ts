@@ -33,7 +33,7 @@ export interface UseHeaderScrollResult {
 export function useHeaderScroll(
   options: UseHeaderScrollOptions = {},
 ): UseHeaderScrollResult {
-  const { headerHeight = 170, threshold = 6 } = options;
+  const { headerHeight = 220, threshold = 6 } = options;
 
   // Reanimated shared value for smooth GPU/UI thread animation
   const translateY = useSharedValue(0);

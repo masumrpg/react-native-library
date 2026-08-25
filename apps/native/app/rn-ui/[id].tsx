@@ -71,7 +71,7 @@ export default function RnUiComponentDetailScreen() {
   const ctx = useSectionContext();
 
   const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
-    headerHeight: 90,
+    headerHeight: 220,
   });
 
   const renderComponentShowcase = () => {

@@ -40,7 +40,7 @@ export default function QRCodeScreen() {
   const [demoLoading, setDemoLoading] = useState(true);
 
   const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
-    headerHeight: 90,
+    headerHeight: 220,
   });
 
   const refreshLoading = () => {

@@ -68,7 +68,7 @@ export default function Native() {
   );
 
   const { onScroll, headerStyle, scrollEventThrottle } = useHeaderScroll({
-    headerHeight: 90,
+    headerHeight: 220,
   });
 
   const isAnyNavigating = navigatingRoute !== null;
