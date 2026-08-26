@@ -4,9 +4,10 @@ import { loadConfig } from "./config/loadConfig.js";
 import type { TsCheckConfig, AuditReport } from "./config/types.js";
 import { App } from "./ui/App.js";
 import { runAuditEngine } from "./core/engine.js";
-import { writeAuditReports } from "./core/reporter.js";
+import { writeAuditReports, emitGitHubAnnotations } from "./core/reporter.js";
+import { getTscheckVersion } from "./version.js";
 
-const VERSION = "0.1.0";
+const VERSION = getTscheckVersion();
 
 const program = new Command();
 
@@ -16,24 +17,38 @@ program
   .version(VERSION)
   .option("-c, --config <path>", "Path to custom tscheck configuration file")
   .option("-o, --output <dir>", "Custom directory to write audit reports")
+  .option("--staged", "Only scan files currently staged in Git")
+  .option("--since <ref>", "Only scan files changed since a specific git branch or commit")
+  .option("--fix", "Automatically fix safe issues like prefixing unused variables/parameters with _")
+  .option("-f, --format <format>", "Output format: pretty (default), json, or github", "pretty")
   .option("--no-deprecated", "Disable deprecated API usages check")
   .option("--no-unused", "Disable unused variables and imports check")
   .option("--no-any", "Disable explicit any usages check")
+  .option("--no-circular", "Disable circular module dependencies check")
+  .option("--no-boundary", "Disable package boundary check")
   .option("-i, --interactive", "Launch interactive terminal dashboard to filter and search issues")
   .option("--fail-on-warning", "Exit with non-zero code if any violations are found")
-  .option("--json", "Output pure JSON report to stdout without Ink UI")
+  .option("--json", "Output pure JSON report to stdout without Ink UI (shorthand for --format json)")
   .action(async (options) => {
     try {
       const { config, configPath } = await loadConfig(options.config);
 
+      const format = options.json ? "json" : options.format || config.format || "pretty";
+
       // CLI flags override config
       const finalConfig: TsCheckConfig = {
         ...config,
+        staged: options.staged ?? config.staged,
+        since: options.since ?? config.since,
+        fix: options.fix ?? config.fix,
+        format,
         rules: {
           ...config.rules,
           deprecated: options.deprecated !== false && config.rules?.deprecated !== false,
           unused: options.unused !== false && config.rules?.unused !== false,
           noExplicitAny: options.any !== false && config.rules?.noExplicitAny !== false,
+          circular: options.circular !== false && config.rules?.circular !== false,
+          packageBoundary: options.boundary !== false && config.rules?.packageBoundary !== false,
         },
         reporters: {
           ...config.reporters,
@@ -42,8 +57,28 @@ program
         failOnWarning: options.failOnWarning ?? config.failOnWarning,
       };
 
+      // GitHub Actions Annotation format
+      if (format === "github") {
+        const report = await runAuditEngine(finalConfig);
+        const reportFiles = writeAuditReports(report, finalConfig);
+        report.reportFiles = reportFiles;
+        emitGitHubAnnotations(report, finalConfig.failOnWarning);
+
+        const hasViolations =
+          report.summary.totalDeprecatedUsages > 0 ||
+          report.summary.totalUnusedItems > 0 ||
+          report.summary.totalAnyUsages > 0 ||
+          (report.summary.totalCircularDependencies || 0) > 0 ||
+          (report.summary.totalBoundaryViolations || 0) > 0;
+
+        if (finalConfig.failOnWarning && hasViolations) {
+          process.exit(1);
+        }
+        process.exit(0);
+      }
+
       // Pure JSON output mode (headless / CI integration)
-      if (options.json) {
+      if (format === "json") {
         const report = await runAuditEngine(finalConfig);
         const reportFiles = writeAuditReports(report, finalConfig);
         report.reportFiles = reportFiles;
@@ -52,7 +87,9 @@ program
         const hasViolations =
           report.summary.totalDeprecatedUsages > 0 ||
           report.summary.totalUnusedItems > 0 ||
-          report.summary.totalAnyUsages > 0;
+          report.summary.totalAnyUsages > 0 ||
+          (report.summary.totalCircularDependencies || 0) > 0 ||
+          (report.summary.totalBoundaryViolations || 0) > 0;
 
         if (finalConfig.failOnWarning && hasViolations) {
           process.exit(1);
@@ -60,7 +97,7 @@ program
         process.exit(0);
       }
 
-      // Ink React Mode
+      // Ink React Mode (Default)
       let exitCode = 0;
       const { waitUntilExit } = render(
         <App
@@ -72,7 +109,9 @@ program
             const hasViolations =
               report.summary.totalDeprecatedUsages > 0 ||
               report.summary.totalUnusedItems > 0 ||
-              report.summary.totalAnyUsages > 0;
+              report.summary.totalAnyUsages > 0 ||
+              (report.summary.totalCircularDependencies || 0) > 0 ||
+              (report.summary.totalBoundaryViolations || 0) > 0;
 
             if (finalConfig.failOnWarning && hasViolations) {
               exitCode = 1;

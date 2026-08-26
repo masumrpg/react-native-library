@@ -24,6 +24,26 @@
       "description": "List of directory patterns to ignore during file discovery.",
       "default": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"]
     },
+    "staged": {
+      "type": "boolean",
+      "description": "Only scan files currently staged in Git.",
+      "default": false
+    },
+    "since": {
+      "type": "string",
+      "description": "Only scan files changed since a specific git branch or commit reference (e.g. \"main\")."
+    },
+    "fix": {
+      "type": "boolean",
+      "description": "Automatically fix safe issues like prefixing unused variables/parameters with an underscore.",
+      "default": false
+    },
+    "format": {
+      "type": "string",
+      "enum": ["pretty", "json", "github"],
+      "description": "Output format for CLI stdout (\"pretty\", \"json\", or \"github\").",
+      "default": "pretty"
+    },
     "rules": {
       "type": "object",
       "description": "Audit rules configuration to enable or disable specific checks.",
@@ -42,13 +62,23 @@
           "type": "boolean",
           "description": "Flags explicit any type annotations, assertions (as any), and generics.",
           "default": true
+        },
+        "circular": {
+          "type": "boolean",
+          "description": "Detects circular module dependency cycles across files.",
+          "default": true
+        },
+        "packageBoundary": {
+          "type": "boolean",
+          "description": "Detects illegal deep internal imports that violate package boundaries.",
+          "default": true
         }
       },
       "additionalProperties": false
     },
     "reporters": {
       "type": "object",
-      "description": "Report output settings for JSON and Markdown artifacts.",
+      "description": "Report output settings for JSON, Markdown, HTML, and CI artifacts.",
       "properties": {
         "outputDir": {
           "type": "string",
@@ -65,6 +95,16 @@
           "description": "Generate audit-report.md file.",
           "default": true
         },
+        "html": {
+          "type": "boolean",
+          "description": "Generate interactive audit-report.html file.",
+          "default": true
+        },
+        "githubAnnotations": {
+          "type": "boolean",
+          "description": "Emit GitHub Actions workflow annotations (::warning, ::error) to stdout.",
+          "default": false
+        },
         "jsonFileName": {
           "type": "string",
           "description": "Custom filename for JSON report.",
@@ -74,6 +114,11 @@
           "type": "string",
           "description": "Custom filename for Markdown report.",
           "default": "audit-report.md"
+        },
+        "htmlFileName": {
+          "type": "string",
+          "description": "Custom filename for HTML report.",
+          "default": "audit-report.html"
         }
       },
       "additionalProperties": false

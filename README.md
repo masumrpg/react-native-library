@@ -15,7 +15,7 @@ Welcome to **Masum Dev** monorepo repository. This project contains high-perform
 │   └── tscheck/               # TypeScript & AST auditing module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
-│   └── docs/                  # Astro 5 + Starlight documentation portal (https://masum.dev)
+│   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.netlify.app)
 ├── CONTEXT.md                 # Monorepo architecture & domain context
 ├── RULES.md                   # Mandatory development & contribution rules
 ├── README.md                  # Monorepo setup & getting started guide
@@ -84,7 +84,7 @@ bun run publish --help
 
 This monorepo includes `@masumdev/tscheck`, a modern TypeScript AST audit CLI with interactive terminal UI (powered by Ink) and type-safe configuration.
 
-### Run Codebase Audit
+### Run Codebase Audit (Generates JSON, Markdown & HTML Reports)
 ```bash
 bun run audit
 ```
@@ -104,5 +104,5 @@ https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/ts
 
 ## 📄 Documentation
 
-Visit our official documentation portal at **[https://masum.dev](https://masum.dev)** for guides, component API references, and interactive code samples.
+Visit our official documentation portal at **[https://react-native-library-docs.netlify.app](https://react-native-library-docs.netlify.app)** for guides, component API references, and interactive code samples.
 

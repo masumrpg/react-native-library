@@ -7,11 +7,18 @@ import type {
   DeprecatedUsage,
   UnusedItem,
   AnyTypeUsage,
+  CircularDependency,
+  BoundaryViolation,
   WorkspaceScanResult,
 } from "../config/types.js";
 import { checkNodeDeprecation } from "./rules/deprecated.js";
 import { checkUnusedDiagnostics } from "./rules/unused.js";
 import { checkExplicitAnyUsages } from "./rules/anyType.js";
+import { checkCircularAndBoundaryRules } from "./rules/circular.js";
+import { CommentSuppressionMap } from "./suppression.js";
+import { getStagedFiles, getChangedFilesSince } from "./git.js";
+import { applyAutoFixes } from "./fixer.js";
+import { getTscheckVersion } from "../version.js";
 
 export interface EngineProject {
   name: string;
@@ -175,15 +182,34 @@ export async function runAuditEngine(
     deprecated: config.rules?.deprecated !== false,
     unused: config.rules?.unused !== false,
     noExplicitAny: config.rules?.noExplicitAny !== false,
+    circular: config.rules?.circular !== false,
+    packageBoundary: config.rules?.packageBoundary !== false,
   };
 
   const excludePatterns = config.exclude || ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"];
 
+  // Git diff / staged file filtering
+  let gitTargetFiles: Set<string> | null = null;
+  if (config.staged) {
+    gitTargetFiles = new Set<string>();
+    for (const f of getStagedFiles(config.rootDir)) {
+      gitTargetFiles.add(path.normalize(f));
+    }
+  } else if (config.since) {
+    gitTargetFiles = new Set<string>();
+    for (const f of getChangedFilesSince(config.since, config.rootDir)) {
+      gitTargetFiles.add(path.normalize(f));
+    }
+  }
+
   const allDeprecatedUsages: DeprecatedUsage[] = [];
   const allUnusedItems: UnusedItem[] = [];
   const allAnyUsages: AnyTypeUsage[] = [];
+  const allCircularDependencies: CircularDependency[] = [];
+  const allBoundaryViolations: BoundaryViolation[] = [];
   const workspaceResults: WorkspaceScanResult[] = [];
   let totalFilesScanned = 0;
+  let totalSuppressedCount = 0;
   const cleanFiles = new Set<string>();
 
   onProgress?.({
@@ -204,6 +230,8 @@ export async function runAuditEngine(
         deprecatedCount: 0,
         unusedCount: 0,
         anyCount: 0,
+        circularCount: 0,
+        boundaryCount: 0,
       },
       totalWorkspaces: projects.length,
       completedWorkspaces: i,
@@ -216,7 +244,7 @@ export async function runAuditEngine(
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    let program: ts.Program | undefined;
+    let program: ts.Program;
     if (proj.tsconfig && fs.existsSync(proj.tsconfig)) {
       const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
         proj.tsconfig,
@@ -224,28 +252,16 @@ export async function runAuditEngine(
           noUnusedLocals: true,
           noUnusedParameters: true,
         },
-        {
-          ...ts.sys,
-          onUnRecoverableConfigFileDiagnostic: () => {},
-        }
+        ts.sys as unknown as ts.ParseConfigFileHost
       );
 
-      if (!parsedCommandLine) {
-        continue;
-      }
-
-      const host = ts.createCompilerHost(parsedCommandLine.options);
-      program = ts.createProgram(
-        parsedCommandLine.fileNames,
-        parsedCommandLine.options,
-        host
-      );
+      const options = parsedCommandLine?.options || {};
+      const fileNames = parsedCommandLine?.fileNames || [];
+      const host = ts.createCompilerHost(options);
+      program = ts.createProgram(fileNames, options, host);
     } else {
       // Fallback: in-memory compiler options for projects without tsconfig.json
       const rawFiles = findSourceFilesRecursively(proj.rootDir, excludePatterns);
-      if (rawFiles.length === 0) {
-        continue;
-      }
       const defaultOptions: ts.CompilerOptions = {
         target: ts.ScriptTarget.ES2022,
         module: ts.ModuleKind.ESNext,
@@ -262,19 +278,21 @@ export async function runAuditEngine(
       program = ts.createProgram(rawFiles, defaultOptions, host);
     }
 
-    if (!program) {
-      continue;
-    }
-
     const checker = program.getTypeChecker();
     const allSourceFiles = program.getSourceFiles();
 
-    // Filter valid files first to accurately compute total progress
+    // Filter valid files first
     const workspaceFiles = allSourceFiles.filter((file) => {
       if (file.isDeclarationFile) return false;
       const normPath = path.normalize(file.fileName);
       const isExcluded = excludePatterns.some((pattern) => normPath.includes(`/${pattern}/`) || normPath.includes(`\\${pattern}\\`));
       if (isExcluded) return false;
+
+      // Check git staged/since filter if active
+      if (gitTargetFiles && !gitTargetFiles.has(normPath)) {
+        return false;
+      }
+
       return normPath.startsWith(path.normalize(proj.rootDir));
     });
 
@@ -283,11 +301,36 @@ export async function runAuditEngine(
     let projUnused = 0;
     let projAny = 0;
 
+    // Cache comment suppressions per file
+    const suppressionMaps = new Map<string, CommentSuppressionMap>();
+    for (const sf of workspaceFiles) {
+      suppressionMaps.set(sf.fileName, new CommentSuppressionMap(sf));
+    }
+
+    // Run circular dependency and package boundary analysis
+    let projCircular = 0;
+    let projBoundary = 0;
+    if (rules.circular || rules.packageBoundary) {
+      const graphResult = checkCircularAndBoundaryRules(
+        program,
+        proj.name,
+        suppressionMaps,
+        rules.circular,
+        rules.packageBoundary
+      );
+      allCircularDependencies.push(...graphResult.circularDependencies);
+      allBoundaryViolations.push(...graphResult.boundaryViolations);
+      projCircular += graphResult.circularDependencies.length;
+      projBoundary += graphResult.boundaryViolations.length;
+      totalSuppressedCount += graphResult.suppressedCount;
+    }
+
     for (const sourceFile of workspaceFiles) {
       projFilesScanned++;
       totalFilesScanned++;
       let fileHasViolations = false;
       const relPath = path.relative(proj.rootDir, sourceFile.fileName);
+      const suppression = suppressionMaps.get(sourceFile.fileName);
 
       onProgress?.({
         type: "file-progress",
@@ -314,21 +357,28 @@ export async function runAuditEngine(
             const result = checkNodeDeprecation(node, checker);
             if (result.deprecated) {
               const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-              const lineStart = sourceFile.getPositionOfLineAndCharacter(line, 0);
-              const lineEnd = sourceFile.getLineEndOfPosition(node.getStart());
-              const lineText = sourceFile.text.substring(lineStart, lineEnd).trim();
+              const lineNum = line + 1;
+              const colNum = character + 1;
 
-              allDeprecatedUsages.push({
-                file: sourceFile.fileName,
-                line: line + 1,
-                column: character + 1,
-                symbol: node.getText(sourceFile),
-                reason: result.reason,
-                codeSnippet: lineText,
-                package: proj.name,
-              });
-              projDeprecated++;
-              fileHasViolations = true;
+              if (suppression?.isSuppressed(lineNum, "deprecated")) {
+                totalSuppressedCount++;
+              } else {
+                const lineStart = sourceFile.getPositionOfLineAndCharacter(line, 0);
+                const lineEnd = sourceFile.getLineEndOfPosition(node.getStart());
+                const lineText = sourceFile.text.substring(lineStart, lineEnd).trim();
+
+                allDeprecatedUsages.push({
+                  file: sourceFile.fileName,
+                  line: lineNum,
+                  column: colNum,
+                  symbol: node.getText(sourceFile),
+                  reason: result.reason,
+                  codeSnippet: lineText,
+                  package: proj.name,
+                });
+                projDeprecated++;
+                fileHasViolations = true;
+              }
             }
           }
           ts.forEachChild(node, checkNode);
@@ -338,7 +388,13 @@ export async function runAuditEngine(
 
       // 2. Unused items check
       if (rules.unused) {
-        const unused = checkUnusedDiagnostics(program, sourceFile, proj.name);
+        const { items: unused, suppressedCount: unusedSuppressed } = checkUnusedDiagnostics(
+          program,
+          sourceFile,
+          proj.name,
+          suppression
+        );
+        totalSuppressedCount += unusedSuppressed;
         if (unused.length > 0) {
           allUnusedItems.push(...unused);
           projUnused += unused.length;
@@ -348,7 +404,12 @@ export async function runAuditEngine(
 
       // 3. Explicit any type check
       if (rules.noExplicitAny) {
-        const anyUsages = checkExplicitAnyUsages(sourceFile, proj.name);
+        const { items: anyUsages, suppressedCount: anySuppressed } = checkExplicitAnyUsages(
+          sourceFile,
+          proj.name,
+          suppression
+        );
+        totalSuppressedCount += anySuppressed;
         if (anyUsages.length > 0) {
           allAnyUsages.push(...anyUsages);
           projAny += anyUsages.length;
@@ -368,6 +429,8 @@ export async function runAuditEngine(
       deprecatedCount: projDeprecated,
       unusedCount: projUnused,
       anyCount: projAny,
+      circularCount: projCircular,
+      boundaryCount: projBoundary,
     };
     workspaceResults.push(wsResult);
 
@@ -379,15 +442,27 @@ export async function runAuditEngine(
     });
   }
 
+  // Auto-Fixer execution
+  let fixedCount = 0;
+  if (config.fix && allUnusedItems.length > 0) {
+    const fixResult = applyAutoFixes(allUnusedItems);
+    fixedCount = fixResult.fixedCount;
+  }
+
   const durationMs = Date.now() - startTime;
 
   const report: AuditReport = {
+    version: getTscheckVersion(),
     timestamp: new Date().toISOString(),
     durationMs,
     summary: {
       totalDeprecatedUsages: allDeprecatedUsages.length,
       totalUnusedItems: allUnusedItems.length,
       totalAnyUsages: allAnyUsages.length,
+      totalCircularDependencies: allCircularDependencies.length,
+      totalBoundaryViolations: allBoundaryViolations.length,
+      suppressedCount: totalSuppressedCount,
+      fixedCount,
       filesScanned: totalFilesScanned,
       cleanFilesCount: cleanFiles.size,
       workspacesScanned: workspaceResults.length,
@@ -395,6 +470,8 @@ export async function runAuditEngine(
     deprecatedUsages: allDeprecatedUsages,
     unusedItems: allUnusedItems,
     anyUsages: allAnyUsages,
+    circularDependencies: allCircularDependencies,
+    boundaryViolations: allBoundaryViolations,
     workspaces: workspaceResults,
   };
 

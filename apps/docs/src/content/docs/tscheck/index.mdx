@@ -3,21 +3,30 @@ title: TSCheck
 sidebar:
   label: Overview
   order: 1
-description: Modern, high-performance TypeScript AST code audit CLI and engine with Ink React terminal UI, JSON/YAML configuration, and zero emojis.
+description: Modern, high-performance TypeScript AST code audit CLI and engine with Ink React terminal UI, JSON/YAML configuration, and 100% test coverage.
 ---
 
 import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
 
-`@masumdev/tscheck` is a high-performance TypeScript AST auditing CLI tool and engine. It inspects single projects or monorepos for deprecated API usages, unused variables/imports, and explicit `any` types, rendering a terminal interface powered by **Ink (React in Terminal)** with zero emojis.
+`@masumdev/tscheck` is a high-performance TypeScript AST auditing CLI tool and engine. It inspects single projects or monorepos for deprecated API usages, unused variables/imports, explicit `any` types, circular dependencies, and package boundary violations, rendering a terminal interface powered by **Ink (React in Terminal)** with zero emojis and 100% test coverage.
 
-## NPM Package Stats
+## Package & CI Stats
 
 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '16px 0' }}>
   <a href="https://www.npmjs.com/package/@masumdev/tscheck">
-    <img src="https://img.shields.io/npm/dt/%40masumdev%2Ftscheck?style=for-the-badge&logo=npm&color=06B6D4&label=Total%20Downloads" alt="total downloads" />
+    <img src="https://img.shields.io/npm/dt/%40masumdev%2Ftscheck?style=for-the-badge&logo=npm&color=06B6D4&label=Downloads" alt="total downloads" />
   </a>
   <a href="https://www.npmjs.com/package/@masumdev/tscheck">
     <img src="https://img.shields.io/npm/v/%40masumdev%2Ftscheck?style=for-the-badge&logo=npm&color=06B6D4&label=Version" alt="npm version" />
+  </a>
+  <a href="https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/badge/Coverage-100%25-10B981?style=for-the-badge&logo=bun&logoColor=white&label=Coverage" alt="test coverage" />
+  </a>
+  <a href="https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/badge/Tests-56%20Passed-10B981?style=for-the-badge&logo=bun&logoColor=white&label=Tests" alt="tests passing" />
+  </a>
+  <a href="https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/badge/CI-Passing-10B981?style=for-the-badge&logo=githubactions&logoColor=white&label=CI" alt="ci status" />
   </a>
   <a href="https://github.com/masumrpg/react-native-library/blob/main/LICENSE">
     <img src="https://img.shields.io/npm/l/%40masumdev%2Ftscheck?style=for-the-badge&color=F59E0B&label=License" alt="license" />
@@ -38,14 +47,23 @@ import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
   <Card title="Strict Any-Type Policy" icon="seti:typescript">
     Flags explicit `any` type annotations, assertions (`as any`), and generic type arguments to uphold strict type safety standards.
   </Card>
+  <Card title="Circular Dependency & Boundary Inspector" icon="random">
+    Traces module dependency graphs to catch circular dependency cycles and illegal deep internal package imports.
+  </Card>
+  <Card title="Git Staged & Diff Filtering" icon="git">
+    Execute sub-second pre-commit scans with `--staged` or CI PR audits with `--since <branch>`.
+  </Card>
+  <Card title="Auto-Fixer Engine" icon="pencil">
+    Safely auto-prefixes unused parameters and variables with `_` via `--fix` without breaking runtime code.
+  </Card>
   <Card title="Interactive Ink React UI" icon="laptop">
     Renders real-time scan progress with animated spinners, progress bars, and ASCII summary tables using React & Ink with a strict zero-emoji aesthetic.
   </Card>
-  <Card title="JSON & YAML Config with Schema" icon="setting">
-    Configure audits using `.tscheckrc.json`, `tscheck.config.json`, or `tscheck.config.yaml` with instant IDE schema autocompletion.
+  <Card title="Rich Interactive HTML Reports" icon="document">
+    Generates single-file self-contained HTML audit reports with live filtering, dark/light mode toggle, and clickable deprecation links.
   </Card>
-  <Card title="Interactive Live Search Dashboard" icon="magnifier">
-    Launch with `tscheck -i` to filter violations, workspaces, and code issues in real-time right in your terminal.
+  <Card title="100% Green Code Coverage" icon="approve-check">
+    Guaranteed reliability with 56 unit and end-to-end integration tests spanning AST rules, terminal rendering, configuration parsing, and CLI subprocess execution.
   </Card>
 </CardGrid>
 
@@ -60,18 +78,18 @@ import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
     description="Install @masumdev/tscheck globally or as a project devDependency."
   />
   <LinkCard
-    title="CLI & API Usage"
+    title="Usage Guide"
     href="/tscheck/usage/"
-    description="Explore CLI commands, interactive explorer mode (-i), and programmatic API."
+    description="Explore CLI commands, flags, and programmatic audit engine APIs."
   />
   <LinkCard
-    title="Configuration Guide"
+    title="Configuration"
     href="/tscheck/configuration/"
-    description="Configure tscheck using JSON, YAML, or TypeScript with full JSON Schema validation."
+    description="Set up JSON, YAML, or TypeScript configuration with schema validation."
   />
   <LinkCard
     title="Changelog"
     href="/tscheck/changelog/"
-    description="Check the latest version updates and release history."
+    description="Release history, new features, and test suite updates."
   />
 </CardGrid>

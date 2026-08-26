@@ -1,48 +1,44 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-node_modules
+# Dependencies
+node_modules/
 .pnp
 .pnp.js
 
-# testing
-coverage
+# Testing & Coverage
+coverage/
 
-# next.js
+# Build outputs
+dist/
+dist
+build/
+out/
 .next/
 .source/
 .swc/
-out/
-build
+.expo/
+.turbo/
 
-# expo
-.expo
+# Package build outputs (react-native-builder-bob)
+packages/*/lib/
 
-# misc
+# Miscellaneous
 .DS_Store
 *.pem
-dist
-lib/
-lib
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# Environment files
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# turbo
-.turbo
-
-# sample
-sample/
-
-# audit temp reports
+# Audit temporary reports
 .temp-reports/
 .temp/
 temp/
+sample/

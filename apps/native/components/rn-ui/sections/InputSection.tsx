@@ -19,7 +19,7 @@ export function InputSection({ ctx }: { ctx: RnUiSectionContext }) {
 
           <Box gap="xs">
             <Text variant="label">Highlight 2026</Text>
-            <Input type="email" placeholder="expo-react-native@masum.dev" />
+            <Input type="email" placeholder="expo-react-native@example.com" />
           </Box>
 
           <Box gap="xs">

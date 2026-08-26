@@ -15,7 +15,7 @@ This workspace is a **Turborepo** monorepo using **Bun** workspaces for high-per
 │   └── tscheck/               # TypeScript & AST checking module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
-│   └── docs/                  # Astro 5 + Starlight documentation portal (https://masum.dev)
+│   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.netlify.app)
 ├── scripts/                   # Workspace maintenance & audit scripts (e.g. audit-codebase.ts)
 └── .agents/                   # Centralized AI rules, skills, and configuration
 ```
@@ -39,3 +39,5 @@ The following runbooks are available in `.agents/skills/`:
 - [Component Workflow](file:///.agents/skills/component-workflow/SKILL.md): 3-step standard pipeline for implementing, showcasing, and documenting new UI components.
 - [Codebase Audit](file:///.agents/skills/audit-codebase/SKILL.md): Procedure for executing AST checks and remediating typing or unused item violations.
 - [Package Publishing](file:///.agents/skills/publish-package/SKILL.md): Workflow for dynamic builds, version bumps, and publishing packages to npm.
+- [Package Testing](file:///.agents/skills/package-testing/SKILL.md): On-demand runbook for running and authoring 100% unit and E2E test suites for packages.
+

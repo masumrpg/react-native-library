@@ -17,7 +17,9 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
   const isAllClean =
     summary.totalDeprecatedUsages === 0 &&
     summary.totalUnusedItems === 0 &&
-    summary.totalAnyUsages === 0;
+    summary.totalAnyUsages === 0 &&
+    (summary.totalCircularDependencies || 0) === 0 &&
+    (summary.totalBoundaryViolations || 0) === 0;
 
   const statusBadge = isAllClean
     ? symbols.badges.pass
@@ -34,8 +36,14 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
     Deprecated: ws.deprecatedCount === 0 ? "0" : `[WARN] ${ws.deprecatedCount}`,
     Unused: ws.unusedCount === 0 ? "0" : `[WARN] ${ws.unusedCount}`,
     Any: ws.anyCount === 0 ? "0" : `[WARN] ${ws.anyCount}`,
+    Circular: (ws.circularCount || 0) === 0 ? "0" : `[FAIL] ${ws.circularCount}`,
+    Boundary: (ws.boundaryCount || 0) === 0 ? "0" : `[FAIL] ${ws.boundaryCount}`,
     Status:
-      ws.deprecatedCount === 0 && ws.unusedCount === 0 && ws.anyCount === 0
+      ws.deprecatedCount === 0 &&
+      ws.unusedCount === 0 &&
+      ws.anyCount === 0 &&
+      (ws.circularCount || 0) === 0 &&
+      (ws.boundaryCount || 0) === 0
         ? "[PASSED]"
         : "[WARN]",
   }));
@@ -123,6 +131,44 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
           </Text>
         </Box>
 
+        <Box justifyContent="space-between">
+          <Text color="gray">Circular Dependency Cycles</Text>
+          <Text
+            bold
+            color={(summary.totalCircularDependencies || 0) === 0 ? "green" : "red"}
+          >
+            {summary.totalCircularDependencies || 0}
+          </Text>
+        </Box>
+
+        <Box justifyContent="space-between">
+          <Text color="gray">Package Boundary Violations</Text>
+          <Text
+            bold
+            color={(summary.totalBoundaryViolations || 0) === 0 ? "green" : "red"}
+          >
+            {summary.totalBoundaryViolations || 0}
+          </Text>
+        </Box>
+
+        {summary.suppressedCount > 0 && (
+          <Box justifyContent="space-between">
+            <Text color="gray">Suppressed via Comments</Text>
+            <Text bold color="cyan">
+              {summary.suppressedCount}
+            </Text>
+          </Box>
+        )}
+
+        {summary.fixedCount > 0 && (
+          <Box justifyContent="space-between">
+            <Text color="gray">Auto-Fixed Violations</Text>
+            <Text bold color="green">
+              {summary.fixedCount}
+            </Text>
+          </Box>
+        )}
+
         {report.reportFiles && (
           <>
             <Box marginY={0}>
@@ -142,11 +188,45 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
                 <Text color="cyan">{report.reportFiles.markdown}</Text>
               </Box>
             )}
+            {report.reportFiles.html && (
+              <Box justifyContent="space-between">
+                <Text color="dim">HTML Report</Text>
+                <Text color="cyan">{report.reportFiles.html}</Text>
+              </Box>
+            )}
           </>
         )}
       </Box>
 
       {/* 3. Violation Previews if any */}
+      {(summary.totalCircularDependencies || 0) > 0 && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text bold color="red">
+            [CIRCULAR DEPENDENCY PREVIEW]
+          </Text>
+          {report.circularDependencies.slice(0, 3).map((item, idx) => (
+            <Text key={idx} color="gray">
+              {" "}
+              {symbols.bullet} {item.package}: {item.cycle.map((p) => p.split("/").pop()).join(" ➔ ")}
+            </Text>
+          ))}
+        </Box>
+      )}
+
+      {(summary.totalBoundaryViolations || 0) > 0 && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text bold color="red">
+            [PACKAGE BOUNDARY PREVIEW]
+          </Text>
+          {report.boundaryViolations.slice(0, 3).map((item, idx) => (
+            <Text key={idx} color="gray">
+              {" "}
+              {symbols.bullet} {item.package}: Illegal import '{item.importPath}'
+            </Text>
+          ))}
+        </Box>
+      )}
+
       {summary.totalDeprecatedUsages > 0 && (
         <Box flexDirection="column" marginTop={1}>
           <Text bold color="yellow">

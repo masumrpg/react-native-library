@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import type { UnusedItem } from "../../config/types.js";
+import type { CommentSuppressionMap } from "../suppression.js";
 
 /**
  * Checks TypeScript compiler diagnostics for unused variables, parameters, and imports.
@@ -7,43 +8,36 @@ import type { UnusedItem } from "../../config/types.js";
 export function checkUnusedDiagnostics(
   program: ts.Program,
   sourceFile: ts.SourceFile,
-  packageName: string
-): UnusedItem[] {
+  packageName: string,
+  suppression?: CommentSuppressionMap
+): { items: UnusedItem[]; suppressedCount: number } {
   const unusedItems: UnusedItem[] = [];
+  let suppressedCount = 0;
 
-  // TS diagnostic codes for unused items
-  // 6133: 'x' is declared but its value is never read.
-  // 6138: Property 'x' is declared but its value is never read.
-  // 6192: All imports in import declaration are unused.
-  // 6196: 'x' is declared but never used.
-  // 6198: All destructured elements are unused.
-  // 6199: All variables in a destructuring declaration are unused.
-  // 6205: Parameter 'x' implicitly has an 'any' type, but a better type may be inferred from usage.
   const UNUSED_CODES = new Set([6133, 6138, 6192, 6196, 6198, 6199]);
-
   const diagnostics = program.getSemanticDiagnostics(sourceFile);
 
   for (const diag of diagnostics) {
     if (UNUSED_CODES.has(diag.code)) {
       if (diag.start !== undefined) {
         const { line, character } = sourceFile.getLineAndCharacterOfPosition(diag.start);
+        const lineNum = line + 1;
+        const colNum = character + 1;
+
+        if (suppression?.isSuppressed(lineNum, "unused")) {
+          suppressedCount++;
+          continue;
+        }
+
         const messageText =
           typeof diag.messageText === "string"
             ? diag.messageText
             : diag.messageText.messageText;
 
         let type: UnusedItem["type"] = "other";
-        if (diag.code === 6133) {
-          if (messageText.includes("parameter") || messageText.includes("Parameter")) {
-            type = "unused-parameter";
-          } else if (messageText.includes("import") || messageText.includes("Import")) {
-            type = "unused-import";
-          } else {
-            type = "unused-variable";
-          }
-        } else if (diag.code === 6192) {
+        if (diag.code === 6192 || messageText.toLowerCase().includes("import")) {
           type = "unused-import";
-        } else if (diag.code === 6196) {
+        } else {
           type = "unused-variable";
         }
 
@@ -57,8 +51,8 @@ export function checkUnusedDiagnostics(
 
         unusedItems.push({
           file: sourceFile.fileName,
-          line: line + 1,
-          column: character + 1,
+          line: lineNum,
+          column: colNum,
           name,
           type,
           message: messageText,
@@ -68,5 +62,5 @@ export function checkUnusedDiagnostics(
     }
   }
 
-  return unusedItems;
+  return { items: unusedItems, suppressedCount };
 }
