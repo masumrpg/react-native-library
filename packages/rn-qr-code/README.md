@@ -61,9 +61,9 @@ export function MyComponent() {
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/rn-qr-code";
 
 // Using predefined variant name
-<QRCode variant="HEART" value="https://masum.dev" size={200} />
-<QRCode variant="RAIN" value="https://masum.dev" size={200} />
-<QRCode variant="LINEAR_GRADIENT" value="https://masum.dev" size={200} />
+<QRCode variant="HEART" value="https://react-native-library-docs.netlify.app" size={200} />
+<QRCode variant="RAIN" value="https://react-native-library-docs.netlify.app" size={200} />
+<QRCode variant="LINEAR_GRADIENT" value="https://react-native-library-docs.netlify.app" size={200} />
 ```
 
 ### Non-blocking Async Rendering

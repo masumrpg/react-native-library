@@ -15,7 +15,7 @@ Welcome to the **Masum Dev** React Native & Expo Library Workspace. This project
 │   └── tscheck/               # TypeScript & AST checking module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
-│   └── docs/                  # Astro 5 + Starlight documentation portal (https://masum.dev)
+│   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.netlify.app)
 ├── scripts/                   # Workspace maintenance & audit scripts (e.g. audit-codebase.ts)
 ├── .agents/                   # Centralized AI rules, skills, and configuration
 ├── turbo.json                 # Turborepo task orchestration
