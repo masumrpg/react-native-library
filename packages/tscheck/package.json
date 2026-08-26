@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/tscheck",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Modern, high-performance TypeScript AST code audit CLI and engine with beautiful Ink terminal UI and type-safe config.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -26,7 +26,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage"
   },
   "keywords": [
     "typescript",

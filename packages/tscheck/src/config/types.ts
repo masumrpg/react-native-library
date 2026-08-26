@@ -19,6 +19,18 @@ export interface TsCheckRulesConfig {
    * @default true
    */
   noExplicitAny?: boolean;
+
+  /**
+   * Check for circular module dependencies across files.
+   * @default true
+   */
+  circular?: boolean;
+
+  /**
+   * Check for package boundary violations (e.g. illegal deep internal imports).
+   * @default true
+   */
+  packageBoundary?: boolean;
 }
 
 /**
@@ -44,6 +56,18 @@ export interface TsCheckReporterConfig {
   markdown?: boolean;
 
   /**
+   * Whether to generate an interactive HTML report file (`audit-report.html`).
+   * @default true
+   */
+  html?: boolean;
+
+  /**
+   * Whether to emit GitHub Actions workflow annotations (`::warning`, `::error`) to stdout.
+   * @default false
+   */
+  githubAnnotations?: boolean;
+
+  /**
    * Custom file name for the JSON report (without path).
    * @default "audit-report.json"
    */
@@ -54,6 +78,12 @@ export interface TsCheckReporterConfig {
    * @default "audit-report.md"
    */
   markdownFileName?: string;
+
+  /**
+   * Custom file name for the HTML report (without path).
+   * @default "audit-report.html"
+   */
+  htmlFileName?: string;
 }
 
 /**
@@ -89,6 +119,30 @@ export interface TsCheckConfig {
    * Reporter and output file configuration.
    */
   reporters?: TsCheckReporterConfig;
+
+  /**
+   * Only scan files that are currently staged in git.
+   * @default false
+   */
+  staged?: boolean;
+
+  /**
+   * Only scan files changed since a specific git reference (branch or commit sha).
+   * @example "main" or "HEAD~1"
+   */
+  since?: string;
+
+  /**
+   * Automatically fix safe violations (such as prefixing unused variables/parameters with `_`).
+   * @default false
+   */
+  fix?: boolean;
+
+  /**
+   * Output report format for CLI stdout.
+   * @default "pretty"
+   */
+  format?: "pretty" | "json" | "github";
 
   /**
    * Whether to exit with a non-zero exit code if warnings or deprecations are discovered.
@@ -142,6 +196,31 @@ export interface AnyTypeUsage {
 }
 
 /**
+ * Discovered circular dependency record.
+ */
+export interface CircularDependency {
+  package: string;
+  file: string;
+  line: number;
+  column: number;
+  cycle: string[];
+  codeSnippet: string;
+}
+
+/**
+ * Discovered package boundary violation record.
+ */
+export interface BoundaryViolation {
+  package: string;
+  file: string;
+  line: number;
+  column: number;
+  importPath: string;
+  targetPackage: string;
+  codeSnippet: string;
+}
+
+/**
  * Scan results for an individual workspace / package.
  */
 export interface WorkspaceScanResult {
@@ -151,18 +230,25 @@ export interface WorkspaceScanResult {
   deprecatedCount: number;
   unusedCount: number;
   anyCount: number;
+  circularCount: number;
+  boundaryCount: number;
 }
 
 /**
  * Complete audit report data structure.
  */
 export interface AuditReport {
+  version?: string;
   timestamp: string;
   durationMs: number;
   summary: {
     totalDeprecatedUsages: number;
     totalUnusedItems: number;
     totalAnyUsages: number;
+    totalCircularDependencies: number;
+    totalBoundaryViolations: number;
+    suppressedCount: number;
+    fixedCount: number;
     filesScanned: number;
     cleanFilesCount: number;
     workspacesScanned: number;
@@ -170,9 +256,12 @@ export interface AuditReport {
   deprecatedUsages: DeprecatedUsage[];
   unusedItems: UnusedItem[];
   anyUsages: AnyTypeUsage[];
+  circularDependencies: CircularDependency[];
+  boundaryViolations: BoundaryViolation[];
   workspaces: WorkspaceScanResult[];
   reportFiles?: {
     json?: string;
     markdown?: string;
+    html?: string;
   };
 }

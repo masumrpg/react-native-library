@@ -40,14 +40,19 @@ The CLI searches for configuration files in the following order of priority:
       "rules": {
         "deprecated": true,
         "unused": true,
-        "noExplicitAny": true
+        "noExplicitAny": true,
+        "circular": true,
+        "packageBoundary": true
       },
       "reporters": {
         "outputDir": ".temp/tscheck",
         "json": true,
         "markdown": true,
+        "html": true,
+        "githubAnnotations": false,
         "jsonFileName": "audit-report.json",
-        "markdownFileName": "audit-report.md"
+        "markdownFileName": "audit-report.md",
+        "htmlFileName": "audit-report.html"
       },
       "failOnWarning": false
     }
@@ -76,12 +81,14 @@ The CLI searches for configuration files in the following order of priority:
       deprecated: true
       unused: true
       noExplicitAny: true
+      circular: true
+      packageBoundary: true
     reporters:
       outputDir: .temp/tscheck
       json: true
       markdown: true
-      jsonFileName: audit-report.json
-      markdownFileName: audit-report.md
+      html: true
+      githubAnnotations: false
     failOnWarning: false
     ```
   </TabItem>
@@ -100,17 +107,54 @@ The CLI searches for configuration files in the following order of priority:
         deprecated: true,
         unused: true,
         noExplicitAny: true,
+        circular: true,
+        packageBoundary: true,
       },
       reporters: {
         outputDir: ".temp/tscheck",
         json: true,
         markdown: true,
+        html: true,
       },
       failOnWarning: false,
     });
     ```
   </TabItem>
 </Tabs>
+
+---
+
+## Inline Comment Suppression
+
+You can selectively disable inspections for individual lines or blocks of code using comment annotations:
+
+```typescript
+// 1. Ignore next line for a specific rule
+// tscheck-ignore-next-line any
+const rawData: any = JSON.parse(response);
+
+// 2. Ignore multiple rules on next line
+// tscheck-ignore-next-line any, deprecated
+const result: any = legacyHelper();
+
+// 3. Ignore all rules on next line
+// tscheck-ignore-next-line
+const oldItem: any = oldApi();
+
+// 4. Block-level suppression
+/* tscheck-disable any */
+const a: any = 1;
+const b: any = 2;
+/* tscheck-enable any */
+```
+
+### Supported Rule Keywords in Comments
+- `deprecated`
+- `unused`
+- `any` / `noExplicitAny`
+- `circular`
+- `boundary` / `packageBoundary`
+- `all`
 
 ---
 
@@ -131,19 +175,44 @@ The CLI searches for configuration files in the following order of priority:
 - **Default**: `["node_modules", "dist", "build", ".expo", ".turbo", ".temp"]`
 - Directory names and path patterns to ignore during file discovery.
 
+### `staged`
+- **Type**: `boolean`
+- **Default**: `false`
+- When enabled, only scans files currently staged in Git (ideal for pre-commit hooks).
+
+### `since`
+- **Type**: `string`
+- **Example**: `"main"` or `"HEAD~1"`
+- When provided, only scans files modified since the specified Git reference.
+
+### `fix`
+- **Type**: `boolean`
+- **Default**: `false`
+- Automatically fixes safe issues like prefixing unused variables and parameters with `_`.
+
+### `format`
+- **Type**: `"pretty" | "json" | "github"`
+- **Default**: `"pretty"`
+- Output format for CLI stdout. `"github"` emits native GitHub Actions workflow annotations.
+
 ### `rules`
 - **Type**: `object`
   - `deprecated?: boolean` (Default: `true`): Checks for functions, classes, and properties tagged with JSDoc `@deprecated`.
   - `unused?: boolean` (Default: `true`): Checks for unused variables, parameters, and imports.
   - `noExplicitAny?: boolean` (Default: `true`): Checks for explicit `any` type annotations, assertions (`as any`), and generics.
+  - `circular?: boolean` (Default: `true`): Traces import/export graphs to detect circular module dependency cycles.
+  - `packageBoundary?: boolean` (Default: `true`): Checks for illegal deep internal imports from workspace packages.
 
 ### `reporters`
 - **Type**: `object`
   - `outputDir?: string` (Default: `".temp/tscheck"`): Destination folder for generated reports.
   - `json?: boolean` (Default: `true`): Generates `audit-report.json`.
   - `markdown?: boolean` (Default: `true`): Generates `audit-report.md`.
+  - `html?: boolean` (Default: `true`): Generates interactive `audit-report.html` with real-time search, filters, dark/light theme, and clickable links.
+  - `githubAnnotations?: boolean` (Default: `false`): Emits GitHub Actions workflow annotations.
   - `jsonFileName?: string` (Default: `"audit-report.json"`).
   - `markdownFileName?: string` (Default: `"audit-report.md"`).
+  - `htmlFileName?: string` (Default: `"audit-report.html"`).
 
 ### `failOnWarning`
 - **Type**: `boolean`
@@ -154,3 +223,63 @@ The CLI searches for configuration files in the following order of priority:
 - **Type**: `string`
 - **Default**: `"tsconfig.json"`
 - Custom project tsconfig file name to search for across workspaces.
+
+---
+
+## TypeScript Type System & Extending Types
+
+`@masumdev/tscheck` is fully typed out of the box. You can leverage TypeScript for type safety, autocompletion, and even extend the configuration interfaces for your custom scripts or CI pipelines.
+
+### 1. Using `defineConfig()` Helper
+The recommended way to author TypeScript configs is via `defineConfig()`. It provides instant IDE IntelliSense without having to manually type annotations:
+
+```typescript
+import { defineConfig } from "@masumdev/tscheck";
+
+export default defineConfig({
+  rootDir: process.cwd(),
+  workspaces: ["packages/*", "apps/*"],
+  rules: {
+    deprecated: true,
+    unused: true,
+    noExplicitAny: true,
+    circular: true,
+    packageBoundary: true,
+  },
+  reporters: {
+    outputDir: ".temp/tscheck",
+    json: true,
+    markdown: true,
+    html: true,
+  },
+});
+```
+
+### 2. Extending Config Types
+If your project or company maintains custom wrappers, CI metadata, or Slack alert channels, you can extend `TsCheckConfig`:
+
+```typescript
+import type { TsCheckConfig } from "@masumdev/tscheck";
+
+export interface CustomAuditConfig extends TsCheckConfig {
+  metadata?: {
+    team: string;
+    slackChannel?: string;
+    complianceLevel: "strict" | "standard";
+  };
+}
+
+export const auditConfig: CustomAuditConfig = {
+  rootDir: process.cwd(),
+  rules: {
+    deprecated: true,
+    noExplicitAny: true,
+    circular: true,
+  },
+  metadata: {
+    team: "Mobile Core Architecture",
+    slackChannel: "#dev-alerts",
+    complianceLevel: "strict",
+  },
+};
+```

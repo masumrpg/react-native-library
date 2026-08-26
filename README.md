@@ -84,7 +84,7 @@ bun run publish --help
 
 This monorepo includes `@masumdev/tscheck`, a modern TypeScript AST audit CLI with interactive terminal UI (powered by Ink) and type-safe configuration.
 
-### Run Codebase Audit
+### Run Codebase Audit (Generates JSON, Markdown & HTML Reports)
 ```bash
 bun run audit
 ```

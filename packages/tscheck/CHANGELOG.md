@@ -1,14 +1,15 @@
----
-title: Changelog
-sidebar:
-  label: Changelog
-  order: 5
-description: Release history and version notes for @masumdev/tscheck.
+# Changelog
+
+All notable changes to `@masumdev/tscheck` will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ---
 
-### v0.2.0
+## [0.2.0] - 2026-08-26
 
-#### New Features
+### Added
 - **100% Green Test Suite & Code Coverage**:
   - Authored 56 comprehensive unit, UI, and integration test cases covering 100% of functions and 99.74% of lines across the entire codebase.
   - Added CLI end-to-end tests verifying subprocess execution, flags (`--help`, `-V`, `--json`), and stdout pipelines.
@@ -43,10 +44,14 @@ description: Release history and version notes for @masumdev/tscheck.
 
 ---
 
-### v0.1.0 — Initial Release
+## [0.1.0] - 2026-08-25
 
-- **Standalone TypeScript AST Audit CLI**: Complete AST scanner detecting deprecated API usages, unused variables/imports/parameters, and explicit `any` types.
-- **Interactive Terminal UI with Ink**: Built using React & Ink with zero-emoji minimalism and real-time workspace scanning progress.
-- **Type-Safe Configuration**: Added `defineConfig()` helper with auto-discovery from `tscheck.config.ts`, `tscheck.config.js`, and `.tscheckrc.json`.
-- **Customizable Reporting**: Automated output of `audit-report.json` and clean formatted `audit-report.md`.
-- **Global & Local Executable**: Added binary support via `npx tscheck` or global installation.
+### Added
+- **Initial Release of `@masumdev/tscheck`**:
+  - Standalone TypeScript AST code audit CLI and engine.
+  - AST deprecation detection for JSDoc `@deprecated` tags.
+  - Unused variables, parameters, and import detection using TypeScript compiler diagnostics.
+  - Strict explicit `any` type detection.
+  - Real-time terminal progress with Ink.
+  - Type-safe configuration via `defineConfig()`.
+  - Automated report generation (`audit-report.json` and `audit-report.md`).

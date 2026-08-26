@@ -7,12 +7,26 @@ import type { AuditReport } from "../config/types.js";
 // Handle ESM/CJS interop for ink-text-input
 const TextInput = (TextInputComponent as unknown as { default?: typeof TextInputComponent }).default || TextInputComponent;
 
-interface InteractiveExplorerProps {
+export interface InteractiveExplorerProps {
   report: AuditReport;
+  initialQuery?: string;
+  onExit?: () => void;
 }
 
-export const InteractiveExplorer: React.FC<InteractiveExplorerProps> = ({ report }) => {
-  const [query, setQuery] = useState("");
+export function handleInteractiveExplorerSubmit(query: string, exitFn: () => void): boolean {
+  if (query === ":q" || query === "exit") {
+    exitFn();
+    return true;
+  }
+  return false;
+}
+
+export function InteractiveExplorer({
+  report,
+  initialQuery = "",
+  onExit,
+}: InteractiveExplorerProps): React.JSX.Element {
+  const [query, setQuery] = useState(initialQuery);
   const { exit } = useApp();
 
   const lowerQuery = query.toLowerCase().trim();
@@ -45,6 +59,10 @@ export const InteractiveExplorer: React.FC<InteractiveExplorerProps> = ({ report
   const totalResults =
     filteredDeprecated.length + filteredUnused.length + filteredAny.length;
 
+  const handleSubmit = () => {
+    handleInteractiveExplorerSubmit(query, onExit || exit);
+  };
+
   return (
     <Box flexDirection="column" marginTop={1} padding={1} borderStyle="round" borderColor="cyan">
       <Box justifyContent="space-between" marginBottom={1}>
@@ -62,11 +80,7 @@ export const InteractiveExplorer: React.FC<InteractiveExplorerProps> = ({ report
           value={query}
           onChange={setQuery}
           placeholder="Type symbol, package, or rule..."
-          onSubmit={() => {
-            if (query === ":q" || query === "exit") {
-              exit();
-            }
-          }}
+          onSubmit={handleSubmit}
         />
       </Box>
 
@@ -88,7 +102,9 @@ export const InteractiveExplorer: React.FC<InteractiveExplorerProps> = ({ report
             </Text>
           ))}
           {filteredDeprecated.length > 5 && (
-            <Text color="dim"> ... and {filteredDeprecated.length - 5} more</Text>
+            <Text color="dim">
+              {" "}... and {filteredDeprecated.length - 5} more items
+            </Text>
           )}
         </Box>
       )}
@@ -105,27 +121,31 @@ export const InteractiveExplorer: React.FC<InteractiveExplorerProps> = ({ report
             </Text>
           ))}
           {filteredUnused.length > 5 && (
-            <Text color="dim"> ... and {filteredUnused.length - 5} more</Text>
+            <Text color="dim">
+              {" "}... and {filteredUnused.length - 5} more items
+            </Text>
           )}
         </Box>
       )}
 
-      {/* Any Type Matches */}
+      {/* Any Matches */}
       {filteredAny.length > 0 && (
-        <Box flexDirection="column" marginBottom={1}>
+        <Box flexDirection="column">
           <Text bold color="yellow">
             Explicit Any Usages ({filteredAny.length})
           </Text>
           {filteredAny.slice(0, 5).map((item, idx) => (
             <Text key={idx} color="gray">
-              {" "}● [{item.package}] <Text color="white">{item.context}</Text> in {item.file}:{item.line}
+              {" "}● [{item.package}] {item.context} in {item.file}:{item.line}
             </Text>
           ))}
           {filteredAny.length > 5 && (
-            <Text color="dim"> ... and {filteredAny.length - 5} more</Text>
+            <Text color="dim">
+              {" "}... and {filteredAny.length - 5} more items
+            </Text>
           )}
         </Box>
       )}
     </Box>
   );
-};
+}

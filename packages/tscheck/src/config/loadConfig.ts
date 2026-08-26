@@ -18,21 +18,33 @@ const DEFAULT_CONFIG_FILENAMES = [
   "tscheck.config.cjs",
 ];
 
-const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces">> & { workspaces?: string[] } = {
+const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces" | "since">> & {
+  workspaces?: string[];
+  since?: string;
+} = {
   rootDir: process.cwd(),
   workspaces: undefined,
   exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
+  staged: false,
+  since: undefined,
+  fix: false,
+  format: "pretty",
   rules: {
     deprecated: true,
     unused: true,
     noExplicitAny: true,
+    circular: true,
+    packageBoundary: true,
   },
   reporters: {
     outputDir: ".temp/tscheck",
     json: true,
     markdown: true,
+    html: true,
+    githubAnnotations: false,
     jsonFileName: "audit-report.json",
     markdownFileName: "audit-report.md",
+    htmlFileName: "audit-report.html",
   },
   failOnWarning: false,
   tsconfigName: "tsconfig.json",
@@ -66,46 +78,40 @@ export async function loadConfig(
     }
   }
 
-  let userConfig: TsCheckConfig = {};
+  if (!resolvedPath) {
+    return {
+      config: { ...DEFAULT_CONFIG },
+      configPath: null,
+    };
+  }
 
-  if (resolvedPath) {
-    const ext = path.extname(resolvedPath).toLowerCase();
-    const basename = path.basename(resolvedPath).toLowerCase();
+  const ext = path.extname(resolvedPath).toLowerCase();
+  let userConfig: Partial<TsCheckConfig> = {};
 
-    if (ext === ".json" || basename === ".tscheckrc") {
-      const content = fs.readFileSync(resolvedPath, "utf-8");
-      userConfig = JSON.parse(content) as TsCheckConfig;
-    } else if (ext === ".yaml" || ext === ".yml") {
-      const content = fs.readFileSync(resolvedPath, "utf-8");
-      userConfig = YAML.parse(content) as TsCheckConfig;
-    } else {
-      try {
-        const fileUrl = pathToFileURL(resolvedPath).href;
-        const loadedModule = (await import(fileUrl)) as { default?: TsCheckConfig };
-        userConfig = loadedModule.default ?? (loadedModule as TsCheckConfig);
-      } catch (err) {
-        throw new Error(
-          `Failed to load configuration from ${resolvedPath}: ${
-            err instanceof Error ? err.message : String(err)
-          }`
-        );
-      }
-    }
+  if (ext === ".json" || path.basename(resolvedPath) === ".tscheckrc") {
+    const content = fs.readFileSync(resolvedPath, "utf-8");
+    userConfig = JSON.parse(content) as Partial<TsCheckConfig>;
+  } else if (ext === ".yaml" || ext === ".yml") {
+    const content = fs.readFileSync(resolvedPath, "utf-8");
+    userConfig = YAML.parse(content) as Partial<TsCheckConfig>;
+  } else if (ext === ".ts" || ext === ".js" || ext === ".mjs" || ext === ".cjs") {
+    // Dynamic import for TS/JS configuration
+    const fileUrl = pathToFileURL(resolvedPath).href;
+    const mod = await import(fileUrl);
+    userConfig = (mod.default ?? mod) as Partial<TsCheckConfig>;
   }
 
   const mergedConfig: TsCheckConfig = {
     ...DEFAULT_CONFIG,
     ...userConfig,
-    rootDir: userConfig.rootDir ? path.resolve(cwd, userConfig.rootDir) : cwd,
     rules: {
       ...DEFAULT_CONFIG.rules,
-      ...(userConfig.rules ?? {}),
+      ...userConfig.rules,
     },
     reporters: {
       ...DEFAULT_CONFIG.reporters,
-      ...(userConfig.reporters ?? {}),
+      ...userConfig.reporters,
     },
-    exclude: userConfig.exclude ?? DEFAULT_CONFIG.exclude,
   };
 
   return {
