@@ -13,12 +13,16 @@ export function getStagedFiles(cwd: string = process.cwd()): string[] {
       stdio: ["pipe", "pipe", "ignore"],
     });
 
-    return stdout
-      .split("\n")
-      .map((f) => f.trim())
-      .filter((f) => f.length > 0)
-      .map((f) => path.resolve(cwd, f))
-      .filter((f) => fs.existsSync(f));
+    const results: string[] = [];
+    for (const raw of stdout.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      const fullPath = path.resolve(cwd, line);
+      if (fs.existsSync(fullPath)) {
+        results.push(fullPath);
+      }
+    }
+    return results;
   } catch {
     return [];
   }
@@ -38,12 +42,16 @@ export function getChangedFilesSince(
       stdio: ["pipe", "pipe", "ignore"],
     });
 
-    return stdout
-      .split("\n")
-      .map((f) => f.trim())
-      .filter((f) => f.length > 0)
-      .map((f) => path.resolve(cwd, f))
-      .filter((f) => fs.existsSync(f));
+    const results: string[] = [];
+    for (const raw of stdout.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      const fullPath = path.resolve(cwd, line);
+      if (fs.existsSync(fullPath)) {
+        results.push(fullPath);
+      }
+    }
+    return results;
   } catch {
     return [];
   }

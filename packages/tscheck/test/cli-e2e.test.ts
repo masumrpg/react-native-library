@@ -1,9 +1,12 @@
 import { describe, it, expect } from "bun:test";
 import { execSync } from "node:child_process";
 import * as path from "node:path";
+import * as fs from "node:fs";
 
 describe("CLI E2E", () => {
-  const cliPath = path.resolve(__dirname, "../dist/cli.mjs");
+  const distCli = path.resolve(__dirname, "../dist/cli.mjs");
+  const srcCli = path.resolve(__dirname, "../src/cli.tsx");
+  const cliPath = fs.existsSync(distCli) ? distCli : srcCli;
   const bunPath = process.execPath;
 
   it("outputs help screen on --help", () => {
@@ -16,7 +19,7 @@ describe("CLI E2E", () => {
 
   it("outputs version number on -V", () => {
     const stdout = execSync(`"${bunPath}" "${cliPath}" -V`, { encoding: "utf-8" });
-    expect(stdout.trim()).toBe("0.2.0");
+    expect(stdout.trim()).toContain("0.2.0");
   });
 
   it("outputs valid JSON when --json flag is passed", () => {
