@@ -6,7 +6,7 @@ export { getTscheckVersion, TSCHECK_VERSION } from "./version.js";
 export { CommentSuppressionMap } from "./core/suppression.js";
 export { getStagedFiles, getChangedFilesSince } from "./core/git.js";
 export { applyAutoFixes } from "./core/fixer.js";
-export { checkCircularAndBoundaryRules } from "./core/rules/circular.js";
+export { checkCircularDependencies, checkCircularAndBoundaryRules } from "./core/rules/circular.js";
 
 export type {
   TsCheckConfig,
@@ -17,6 +17,5 @@ export type {
   UnusedItem,
   AnyTypeUsage,
   CircularDependency,
-  BoundaryViolation,
   WorkspaceScanResult,
 } from "./config/types.js";

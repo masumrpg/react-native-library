@@ -1,35 +1,27 @@
 ---
-title: Configuration Guide
+title: Configuration
 sidebar:
   label: Configuration
-  order: 4
-description: Complete reference for configuring tscheck via JSON, YAML, or TypeScript with JSON Schema autocompletion.
+  order: 3
+description: Complete JSON, YAML, and TypeScript configuration guide for @masumdev/tscheck with JSON schema support and IDE autocompletion.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
 
-`@masumdev/tscheck` automatically searches for a configuration file in your current working directory. You can configure your audit rules using **JSON**, **YAML**, or **TypeScript/JavaScript**.
+`@masumdev/tscheck` can be configured using JSON, YAML, or TypeScript configuration files.
 
----
-
-## Supported Config Formats & Priority
-
-The CLI searches for configuration files in the following order of priority:
-
-1. `tscheck.config.json`
-2. `.tscheckrc.json`
-3. `tscheck.config.yaml` / `tscheck.config.yml`
-4. `.tscheckrc.yaml` / `.tscheckrc.yml`
-5. `.tscheckrc` (JSON)
-6. `tscheck.config.ts` / `tscheck.config.js` / `tscheck.config.mjs`
+When no explicit configuration file path is passed via `-c` or `--config`, `tscheck` automatically searches the current working directory for:
+1. `.tscheckrc.json` / `tscheck.config.json`
+2. `.tscheckrc.yaml` / `tscheck.config.yaml` / `.tscheckrc.yml` / `tscheck.config.yml`
+3. `tscheck.config.ts` / `tscheck.config.js` / `tscheck.config.mjs`
 
 ---
 
-## Configuration Examples
+## Configuration Formats
 
 <Tabs>
   <TabItem label="JSON (.tscheckrc.json)">
-    Use the official `$schema` from GitHub (or local `node_modules`) to get **instant autocompletion, type validation, and hover tooltips** in VS Code, Cursor, and WebStorm:
+    Full schema autocompletion in VS Code, Cursor, and Zed via `$schema`:
 
     ```json
     {
@@ -41,8 +33,7 @@ The CLI searches for configuration files in the following order of priority:
         "deprecated": true,
         "unused": true,
         "noExplicitAny": true,
-        "circular": true,
-        "packageBoundary": true
+        "circular": true
       },
       "reporters": {
         "outputDir": ".temp/tscheck",
@@ -82,7 +73,6 @@ The CLI searches for configuration files in the following order of priority:
       unused: true
       noExplicitAny: true
       circular: true
-      packageBoundary: true
     reporters:
       outputDir: .temp/tscheck
       json: true
@@ -108,7 +98,6 @@ The CLI searches for configuration files in the following order of priority:
         unused: true,
         noExplicitAny: true,
         circular: true,
-        packageBoundary: true,
       },
       reporters: {
         outputDir: ".temp/tscheck",
@@ -153,7 +142,6 @@ const b: any = 2;
 - `unused`
 - `any` / `noExplicitAny`
 - `circular`
-- `boundary` / `packageBoundary`
 - `all`
 
 ---
@@ -201,7 +189,6 @@ const b: any = 2;
   - `unused?: boolean` (Default: `true`): Checks for unused variables, parameters, and imports.
   - `noExplicitAny?: boolean` (Default: `true`): Checks for explicit `any` type annotations, assertions (`as any`), and generics.
   - `circular?: boolean` (Default: `true`): Traces import/export graphs to detect circular module dependency cycles.
-  - `packageBoundary?: boolean` (Default: `true`): Checks for illegal deep internal imports from workspace packages.
 
 ### `reporters`
 - **Type**: `object`
@@ -244,7 +231,6 @@ export default defineConfig({
     unused: true,
     noExplicitAny: true,
     circular: true,
-    packageBoundary: true,
   },
   reporters: {
     outputDir: ".temp/tscheck",

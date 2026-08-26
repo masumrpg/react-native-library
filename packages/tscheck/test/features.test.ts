@@ -97,7 +97,6 @@ describe("GitHubAnnotations", () => {
           totalUnusedItems: 1,
           totalAnyUsages: 1,
           totalCircularDependencies: 0,
-          totalBoundaryViolations: 0,
           suppressedCount: 0,
           fixedCount: 0,
           filesScanned: 3,
@@ -137,7 +136,6 @@ describe("GitHubAnnotations", () => {
           },
         ],
         circularDependencies: [],
-        boundaryViolations: [],
         workspaces: [],
       };
 

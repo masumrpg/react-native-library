@@ -18,8 +18,7 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
     summary.totalDeprecatedUsages === 0 &&
     summary.totalUnusedItems === 0 &&
     summary.totalAnyUsages === 0 &&
-    (summary.totalCircularDependencies || 0) === 0 &&
-    (summary.totalBoundaryViolations || 0) === 0;
+    (summary.totalCircularDependencies || 0) === 0;
 
   const statusBadge = isAllClean
     ? symbols.badges.pass
@@ -37,13 +36,11 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
     Unused: ws.unusedCount === 0 ? "0" : `[WARN] ${ws.unusedCount}`,
     Any: ws.anyCount === 0 ? "0" : `[WARN] ${ws.anyCount}`,
     Circular: (ws.circularCount || 0) === 0 ? "0" : `[FAIL] ${ws.circularCount}`,
-    Boundary: (ws.boundaryCount || 0) === 0 ? "0" : `[FAIL] ${ws.boundaryCount}`,
     Status:
       ws.deprecatedCount === 0 &&
       ws.unusedCount === 0 &&
       ws.anyCount === 0 &&
-      (ws.circularCount || 0) === 0 &&
-      (ws.boundaryCount || 0) === 0
+      (ws.circularCount || 0) === 0
         ? "[PASSED]"
         : "[WARN]",
   }));
@@ -60,39 +57,19 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
         </Box>
       )}
 
-      {/* 2. Audit Summary Box */}
+      {/* 2. Overall Summary Box */}
       <Box
-        borderStyle="single"
-        borderColor={isAllClean ? "green" : "yellow"}
         flexDirection="column"
-        paddingX={1}
+        borderStyle="round"
+        borderColor={statusColor}
+        paddingX={2}
+        paddingY={1}
       >
         <Box justifyContent="space-between" marginBottom={1}>
-          <Text bold color="white">
-            AUDIT SUMMARY
-          </Text>
-          <Text bold color={statusColor}>
+          <Text bold>Overall Codebase Audit Summary</Text>
+          <Text color={statusColor} bold>
             {statusBadge}
           </Text>
-        </Box>
-
-        <Box justifyContent="space-between">
-          <Text color="gray">Workspaces Scanned</Text>
-          <Text bold color="white">
-            {summary.workspacesScanned}
-          </Text>
-        </Box>
-
-        <Box justifyContent="space-between">
-          <Text color="gray">Files Scanned</Text>
-          <Text bold color="white">
-            {summary.filesScanned} ({summary.cleanFilesCount} clean)
-          </Text>
-        </Box>
-
-        <Box justifyContent="space-between">
-          <Text color="gray">Scan Duration</Text>
-          <Text color="white">{(report.durationMs / 1000).toFixed(2)}s</Text>
         </Box>
 
         <Box marginY={0}>
@@ -102,7 +79,19 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
         </Box>
 
         <Box justifyContent="space-between">
-          <Text color="gray">Deprecated Usages</Text>
+          <Text color="gray">Workspaces Scanned</Text>
+          <Text bold>{summary.workspacesScanned}</Text>
+        </Box>
+
+        <Box justifyContent="space-between">
+          <Text color="gray">Files Scanned</Text>
+          <Text bold>
+            {summary.filesScanned} ({summary.cleanFilesCount} Clean)
+          </Text>
+        </Box>
+
+        <Box justifyContent="space-between">
+          <Text color="gray">Deprecated API Usages</Text>
           <Text
             bold
             color={summary.totalDeprecatedUsages === 0 ? "green" : "yellow"}
@@ -122,10 +111,10 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
         </Box>
 
         <Box justifyContent="space-between">
-          <Text color="gray">Explicit Any Usages</Text>
+          <Text color="gray">Explicit any Type Annotations</Text>
           <Text
             bold
-            color={summary.totalAnyUsages === 0 ? "green" : "yellow"}
+            color={summary.totalAnyUsages === 0 ? "green" : "red"}
           >
             {summary.totalAnyUsages}
           </Text>
@@ -138,16 +127,6 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
             color={(summary.totalCircularDependencies || 0) === 0 ? "green" : "red"}
           >
             {summary.totalCircularDependencies || 0}
-          </Text>
-        </Box>
-
-        <Box justifyContent="space-between">
-          <Text color="gray">Package Boundary Violations</Text>
-          <Text
-            bold
-            color={(summary.totalBoundaryViolations || 0) === 0 ? "green" : "red"}
-          >
-            {summary.totalBoundaryViolations || 0}
           </Text>
         </Box>
 
@@ -213,20 +192,6 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
         </Box>
       )}
 
-      {(summary.totalBoundaryViolations || 0) > 0 && (
-        <Box flexDirection="column" marginTop={1}>
-          <Text bold color="red">
-            [PACKAGE BOUNDARY PREVIEW]
-          </Text>
-          {report.boundaryViolations.slice(0, 3).map((item, idx) => (
-            <Text key={idx} color="gray">
-              {" "}
-              {symbols.bullet} {item.package}: Illegal import '{item.importPath}'
-            </Text>
-          ))}
-        </Box>
-      )}
-
       {summary.totalDeprecatedUsages > 0 && (
         <Box flexDirection="column" marginTop={1}>
           <Text bold color="yellow">
@@ -238,12 +203,6 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
               {symbols.bullet} {item.package}: {item.symbol} ({item.reason})
             </Text>
           ))}
-          {report.deprecatedUsages.length > 3 && (
-            <Text color="dim">
-              {" "}
-              ... and {report.deprecatedUsages.length - 3} more (see report)
-            </Text>
-          )}
         </Box>
       )}
 
@@ -255,15 +214,23 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
           {report.unusedItems.slice(0, 3).map((item, idx) => (
             <Text key={idx} color="gray">
               {" "}
-              {symbols.bullet} {item.package}: {item.name} ({item.type}) - {item.file}:{item.line}
+              {symbols.bullet} {item.package}: {item.name} ({item.type})
             </Text>
           ))}
-          {report.unusedItems.length > 3 && (
-            <Text color="dim">
+        </Box>
+      )}
+
+      {summary.totalAnyUsages > 0 && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text bold color="red">
+            [EXPLICIT ANY PREVIEW]
+          </Text>
+          {report.anyUsages.slice(0, 3).map((item, idx) => (
+            <Text key={idx} color="gray">
               {" "}
-              ... and {report.unusedItems.length - 3} more (see report)
+              {symbols.bullet} {item.package}: {item.context}
             </Text>
-          )}
+          ))}
         </Box>
       )}
     </Box>

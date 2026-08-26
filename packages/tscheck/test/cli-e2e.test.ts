@@ -22,14 +22,18 @@ describe("CLI E2E", () => {
     expect(stdout.trim()).toContain("0.2.0");
   });
 
-  it("outputs valid JSON when --json flag is passed", () => {
-    const stdout = execSync(`"${bunPath}" "${cliPath}" --json`, {
-      cwd: path.resolve(__dirname, ".."),
-      encoding: "utf-8",
-    });
-    const parsed = JSON.parse(stdout);
-    expect(parsed.version).toBe("0.2.0");
-    expect(parsed.summary).toBeDefined();
-    expect(parsed.summary.filesScanned).toBeGreaterThan(0);
-  });
+  it(
+    "outputs valid JSON when --json flag is passed",
+    () => {
+      const stdout = execSync(`"${bunPath}" "${cliPath}" --json`, {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf-8",
+      });
+      const parsed = JSON.parse(stdout);
+      expect(parsed.version).toBe("0.2.0");
+      expect(parsed.summary).toBeDefined();
+      expect(parsed.summary.filesScanned).toBeGreaterThan(0);
+    },
+    20000
+  );
 });

@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 import * as path from "node:path";
 import * as fs from "node:fs";
-import type { CircularDependency, BoundaryViolation } from "../../config/types.js";
+import type { CircularDependency } from "../../config/types.js";
 import type { CommentSuppressionMap } from "../suppression.js";
 
 const TS_EXTENSIONS = [".ts", ".tsx", ".d.ts", ".js", ".jsx", "/index.ts", "/index.tsx", "/index.js"];
@@ -27,20 +27,21 @@ function resolveRelativeImport(sourceFilePath: string, moduleSpecifier: string):
   return null;
 }
 
-export function checkCircularAndBoundaryRules(
+export function checkCircularDependencies(
   program: ts.Program,
   workspaceName: string,
   suppressionMaps: Map<string, CommentSuppressionMap>,
-  checkCircular: boolean = true,
-  checkBoundary: boolean = true
+  checkCircular: boolean = true
 ): {
   circularDependencies: CircularDependency[];
-  boundaryViolations: BoundaryViolation[];
   suppressedCount: number;
 } {
   const circularDependencies: CircularDependency[] = [];
-  const boundaryViolations: BoundaryViolation[] = [];
   let suppressedCount = 0;
+
+  if (!checkCircular) {
+    return { circularDependencies, suppressedCount };
+  }
 
   const sourceFiles = program
     .getSourceFiles()
@@ -53,8 +54,6 @@ export function checkCircularAndBoundaryRules(
   for (const sf of sourceFiles) {
     fileToSf.set(sf.fileName, sf);
     const edges: Array<{ target: string; line: number; col: number; snippet: string }> = [];
-
-    const suppression = suppressionMaps.get(sf.fileName);
 
     const visit = (node: ts.Node) => {
       let moduleSpecifierText: string | null = null;
@@ -78,32 +77,8 @@ export function checkCircularAndBoundaryRules(
         const colNum = character + 1;
         const snippet = node.getText(sf).trim();
 
-        // 1. Boundary Check: Deep import from workspace package (e.g. '@masumdev/rn-ui/src/...')
-        if (checkBoundary) {
-          const isDeepInternalImport =
-            (moduleSpecifierText.startsWith("@masumdev/") || moduleSpecifierText.startsWith("@/")) &&
-            (moduleSpecifierText.includes("/src/") || moduleSpecifierText.split("/").length > 2);
-
-          if (isDeepInternalImport) {
-            if (suppression?.isSuppressed(lineNum, "packageBoundary")) {
-              suppressedCount++;
-            } else {
-              const targetPkg = moduleSpecifierText.split("/").slice(0, 2).join("/");
-              boundaryViolations.push({
-                package: workspaceName,
-                file: sf.fileName,
-                line: lineNum,
-                column: colNum,
-                importPath: moduleSpecifierText,
-                targetPackage: targetPkg,
-                codeSnippet: snippet,
-              });
-            }
-          }
-        }
-
-        // 2. Resolve relative path for circular dependency check
-        if (checkCircular && (moduleSpecifierText.startsWith("./") || moduleSpecifierText.startsWith("../"))) {
+        // Resolve relative path for circular dependency check
+        if (moduleSpecifierText.startsWith("./") || moduleSpecifierText.startsWith("../")) {
           const resolved = resolveRelativeImport(sf.fileName, moduleSpecifierText);
           if (resolved) {
             edges.push({
@@ -123,11 +98,7 @@ export function checkCircularAndBoundaryRules(
     graph.set(sf.fileName, edges);
   }
 
-  if (!checkCircular) {
-    return { circularDependencies, boundaryViolations, suppressedCount };
-  }
-
-  // Detect Cycles using Tarjan / DFS Cycle Detection
+  // Detect Cycles using DFS Cycle Detection
   const visited = new Set<string>();
   const inStack = new Set<string>();
   const stack: string[] = [];
@@ -196,5 +167,8 @@ export function checkCircularAndBoundaryRules(
     }
   }
 
-  return { circularDependencies, boundaryViolations, suppressedCount };
+  return { circularDependencies, suppressedCount };
 }
+
+// Alias for backwards compatibility
+export const checkCircularAndBoundaryRules = checkCircularDependencies;

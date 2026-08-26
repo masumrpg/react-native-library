@@ -25,12 +25,6 @@ export interface TsCheckRulesConfig {
    * @default true
    */
   circular?: boolean;
-
-  /**
-   * Check for package boundary violations (e.g. illegal deep internal imports).
-   * @default true
-   */
-  packageBoundary?: boolean;
 }
 
 /**
@@ -208,19 +202,6 @@ export interface CircularDependency {
 }
 
 /**
- * Discovered package boundary violation record.
- */
-export interface BoundaryViolation {
-  package: string;
-  file: string;
-  line: number;
-  column: number;
-  importPath: string;
-  targetPackage: string;
-  codeSnippet: string;
-}
-
-/**
  * Scan results for an individual workspace / package.
  */
 export interface WorkspaceScanResult {
@@ -231,7 +212,6 @@ export interface WorkspaceScanResult {
   unusedCount: number;
   anyCount: number;
   circularCount: number;
-  boundaryCount: number;
 }
 
 /**
@@ -246,7 +226,6 @@ export interface AuditReport {
     totalUnusedItems: number;
     totalAnyUsages: number;
     totalCircularDependencies: number;
-    totalBoundaryViolations: number;
     suppressedCount: number;
     fixedCount: number;
     filesScanned: number;
@@ -257,7 +236,6 @@ export interface AuditReport {
   unusedItems: UnusedItem[];
   anyUsages: AnyTypeUsage[];
   circularDependencies: CircularDependency[];
-  boundaryViolations: BoundaryViolation[];
   workspaces: WorkspaceScanResult[];
   reportFiles?: {
     json?: string;

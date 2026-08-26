@@ -133,20 +133,32 @@ describe("engine", () => {
 
   it("handles git staged and since filters without error", async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "tscheck-eng-git-"));
+    const { execSync } = await import("node:child_process");
+    execSync("git init", { cwd: tmpDir, stdio: "ignore" });
+    execSync('git config user.name "Test"', { cwd: tmpDir, stdio: "ignore" });
+    execSync('git config user.email "test@example.com"', { cwd: tmpDir, stdio: "ignore" });
+
     fs.writeFileSync(path.join(tmpDir, "tsconfig.json"), JSON.stringify({}));
     fs.writeFileSync(path.join(tmpDir, "file.ts"), "export const b = 2;\n");
+    execSync("git add file.ts", { cwd: tmpDir, stdio: "ignore" });
 
     const reportStaged = await runAuditEngine({
       rootDir: tmpDir,
       staged: true,
     });
-    expect(reportStaged.summary.filesScanned).toBe(0);
+    expect(reportStaged.summary.filesScanned).toBe(1);
+
+    execSync('git commit -m "commit 1"', { cwd: tmpDir, stdio: "ignore" });
+
+    fs.writeFileSync(path.join(tmpDir, "file2.ts"), "export const c = 3;\n");
+    execSync("git add file2.ts", { cwd: tmpDir, stdio: "ignore" });
+    execSync('git commit -m "commit 2"', { cwd: tmpDir, stdio: "ignore" });
 
     const reportSince = await runAuditEngine({
       rootDir: tmpDir,
-      since: "HEAD",
+      since: "HEAD~1",
     });
-    expect(typeof reportSince.summary.filesScanned).toBe("number");
+    expect(reportSince.summary.filesScanned).toBe(1);
 
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });

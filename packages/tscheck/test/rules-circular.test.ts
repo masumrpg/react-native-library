@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import * as ts from "typescript";
-import { checkCircularAndBoundaryRules } from "../src/core/rules/circular.js";
+import { checkCircularDependencies } from "../src/core/rules/circular.js";
 import { CommentSuppressionMap } from "../src/core/suppression.js";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -25,12 +25,11 @@ describe("rules/circular", () => {
       [fileB, new CommentSuppressionMap(sfB)],
     ]);
 
-    const result = checkCircularAndBoundaryRules(
+    const result = checkCircularDependencies(
       program,
       "test-pkg",
       suppressionMaps,
-      true,
-      false
+      true
     );
 
     expect(result.circularDependencies.length).toBeGreaterThanOrEqual(1);
@@ -56,58 +55,23 @@ describe("rules/circular", () => {
       [fileB, new CommentSuppressionMap(sfB)],
     ]);
 
-    const result = checkCircularAndBoundaryRules(
+    const result = checkCircularDependencies(
       program,
       "test-pkg",
       suppressionMaps,
-      true,
-      false
+      true
     );
 
     expect(result.suppressedCount).toBeGreaterThanOrEqual(1);
 
     // Test checkCircular: false
-    const nonCircResult = checkCircularAndBoundaryRules(
+    const nonCircResult = checkCircularDependencies(
       program,
       "test-pkg",
       suppressionMaps,
-      false,
-      true
+      false
     );
     expect(nonCircResult.circularDependencies.length).toBe(0);
-
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-  });
-
-  it("detects package boundary violations for deep imports and handles suppression", () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "tscheck-bound-"));
-    const testFile = path.join(tmpDir, "Component.ts");
-
-    fs.writeFileSync(
-      testFile,
-      '// tscheck-ignore-next-line boundary\nimport { secret } from "@masumdev/rn-ui/src/internal/secret.js";\nimport { bad } from "@masumdev/rn-ui/src/other.js";\n',
-      "utf-8"
-    );
-
-    const host = ts.createCompilerHost({});
-    const program = ts.createProgram([testFile], { allowJs: true }, host);
-    const sf = program.getSourceFile(testFile)!;
-    const suppressionMaps = new Map<string, CommentSuppressionMap>([
-      [testFile, new CommentSuppressionMap(sf)],
-    ]);
-
-    const result = checkCircularAndBoundaryRules(
-      program,
-      "test-pkg",
-      suppressionMaps,
-      false,
-      true
-    );
-
-    expect(result.boundaryViolations.length).toBe(1);
-    expect(result.suppressedCount).toBe(1);
-    expect(result.boundaryViolations[0].importPath).toContain("@masumdev/rn-ui/src/other.js");
-    expect(result.boundaryViolations[0].targetPackage).toBe("@masumdev/rn-ui");
 
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });

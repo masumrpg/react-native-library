@@ -9,18 +9,14 @@ describe("reporter", () => {
   const mockReport: AuditReport = {
     timestamp: new Date().toISOString(),
     version: "0.2.0",
-    rootDir: "/root",
     durationMs: 1200,
     summary: {
-      totalWorkspaces: 1,
       filesScanned: 5,
       totalDeprecatedUsages: 1,
       totalUnusedItems: 1,
       totalAnyUsages: 1,
       totalCircularDependencies: 1,
-      totalBoundaryViolations: 1,
       cleanFilesCount: 4,
-      scanDurationMs: 1200,
       suppressedCount: 2,
       fixedCount: 3,
       workspacesScanned: 1,
@@ -34,7 +30,6 @@ describe("reporter", () => {
         unusedCount: 1,
         anyCount: 1,
         circularCount: 1,
-        boundaryCount: 1,
       },
     ],
     deprecatedUsages: [
@@ -77,17 +72,6 @@ describe("reporter", () => {
         line: 1,
         column: 1,
         codeSnippet: "import './b'",
-      },
-    ],
-    boundaryViolations: [
-      {
-        package: "@test/pkg",
-        file: "/root/src/bad.ts",
-        line: 2,
-        column: 1,
-        importPath: "@masumdev/rn-ui/src/deep",
-        targetPackage: "@masumdev/rn-ui",
-        codeSnippet: "import '@masumdev/rn-ui/src/deep'",
       },
     ],
   };
@@ -162,5 +146,6 @@ describe("reporter", () => {
     expect(lines.some((l) => l.includes("title=Deprecated API"))).toBe(true);
     expect(lines.some((l) => l.includes("title=Unused Diagnostic"))).toBe(true);
     expect(lines.some((l) => l.includes("title=Explicit Any Type"))).toBe(true);
+    expect(lines.some((l) => l.includes("title=Circular Dependency"))).toBe(true);
   });
 });

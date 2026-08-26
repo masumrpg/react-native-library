@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/tscheck",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Modern, high-performance TypeScript AST code audit CLI and engine with beautiful Ink terminal UI and type-safe config.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

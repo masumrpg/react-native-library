@@ -25,7 +25,6 @@ program
   .option("--no-unused", "Disable unused variables and imports check")
   .option("--no-any", "Disable explicit any usages check")
   .option("--no-circular", "Disable circular module dependencies check")
-  .option("--no-boundary", "Disable package boundary check")
   .option("-i, --interactive", "Launch interactive terminal dashboard to filter and search issues")
   .option("--fail-on-warning", "Exit with non-zero code if any violations are found")
   .option("--json", "Output pure JSON report to stdout without Ink UI (shorthand for --format json)")
@@ -48,7 +47,6 @@ program
           unused: options.unused !== false && config.rules?.unused !== false,
           noExplicitAny: options.any !== false && config.rules?.noExplicitAny !== false,
           circular: options.circular !== false && config.rules?.circular !== false,
-          packageBoundary: options.boundary !== false && config.rules?.packageBoundary !== false,
         },
         reporters: {
           ...config.reporters,
@@ -68,8 +66,7 @@ program
           report.summary.totalDeprecatedUsages > 0 ||
           report.summary.totalUnusedItems > 0 ||
           report.summary.totalAnyUsages > 0 ||
-          (report.summary.totalCircularDependencies || 0) > 0 ||
-          (report.summary.totalBoundaryViolations || 0) > 0;
+          (report.summary.totalCircularDependencies || 0) > 0;
 
         if (finalConfig.failOnWarning && hasViolations) {
           process.exit(1);
@@ -88,8 +85,7 @@ program
           report.summary.totalDeprecatedUsages > 0 ||
           report.summary.totalUnusedItems > 0 ||
           report.summary.totalAnyUsages > 0 ||
-          (report.summary.totalCircularDependencies || 0) > 0 ||
-          (report.summary.totalBoundaryViolations || 0) > 0;
+          (report.summary.totalCircularDependencies || 0) > 0;
 
         if (finalConfig.failOnWarning && hasViolations) {
           process.exit(1);
@@ -110,8 +106,7 @@ program
               report.summary.totalDeprecatedUsages > 0 ||
               report.summary.totalUnusedItems > 0 ||
               report.summary.totalAnyUsages > 0 ||
-              (report.summary.totalCircularDependencies || 0) > 0 ||
-              (report.summary.totalBoundaryViolations || 0) > 0;
+              (report.summary.totalCircularDependencies || 0) > 0;
 
             if (finalConfig.failOnWarning && hasViolations) {
               exitCode = 1;

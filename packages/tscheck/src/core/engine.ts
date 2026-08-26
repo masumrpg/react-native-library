@@ -8,13 +8,12 @@ import type {
   UnusedItem,
   AnyTypeUsage,
   CircularDependency,
-  BoundaryViolation,
   WorkspaceScanResult,
 } from "../config/types.js";
 import { checkNodeDeprecation } from "./rules/deprecated.js";
 import { checkUnusedDiagnostics } from "./rules/unused.js";
 import { checkExplicitAnyUsages } from "./rules/anyType.js";
-import { checkCircularAndBoundaryRules } from "./rules/circular.js";
+import { checkCircularDependencies } from "./rules/circular.js";
 import { CommentSuppressionMap } from "./suppression.js";
 import { getStagedFiles, getChangedFilesSince } from "./git.js";
 import { applyAutoFixes } from "./fixer.js";
@@ -183,7 +182,6 @@ export async function runAuditEngine(
     unused: config.rules?.unused !== false,
     noExplicitAny: config.rules?.noExplicitAny !== false,
     circular: config.rules?.circular !== false,
-    packageBoundary: config.rules?.packageBoundary !== false,
   };
 
   const excludePatterns = config.exclude || ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"];
@@ -206,7 +204,6 @@ export async function runAuditEngine(
   const allUnusedItems: UnusedItem[] = [];
   const allAnyUsages: AnyTypeUsage[] = [];
   const allCircularDependencies: CircularDependency[] = [];
-  const allBoundaryViolations: BoundaryViolation[] = [];
   const workspaceResults: WorkspaceScanResult[] = [];
   let totalFilesScanned = 0;
   let totalSuppressedCount = 0;
@@ -231,7 +228,6 @@ export async function runAuditEngine(
         unusedCount: 0,
         anyCount: 0,
         circularCount: 0,
-        boundaryCount: 0,
       },
       totalWorkspaces: projects.length,
       completedWorkspaces: i,
@@ -307,21 +303,17 @@ export async function runAuditEngine(
       suppressionMaps.set(sf.fileName, new CommentSuppressionMap(sf));
     }
 
-    // Run circular dependency and package boundary analysis
+    // Run circular dependency analysis
     let projCircular = 0;
-    let projBoundary = 0;
-    if (rules.circular || rules.packageBoundary) {
-      const graphResult = checkCircularAndBoundaryRules(
+    if (rules.circular) {
+      const graphResult = checkCircularDependencies(
         program,
         proj.name,
         suppressionMaps,
-        rules.circular,
-        rules.packageBoundary
+        rules.circular
       );
       allCircularDependencies.push(...graphResult.circularDependencies);
-      allBoundaryViolations.push(...graphResult.boundaryViolations);
       projCircular += graphResult.circularDependencies.length;
-      projBoundary += graphResult.boundaryViolations.length;
       totalSuppressedCount += graphResult.suppressedCount;
     }
 
@@ -430,7 +422,6 @@ export async function runAuditEngine(
       unusedCount: projUnused,
       anyCount: projAny,
       circularCount: projCircular,
-      boundaryCount: projBoundary,
     };
     workspaceResults.push(wsResult);
 
@@ -460,7 +451,6 @@ export async function runAuditEngine(
       totalUnusedItems: allUnusedItems.length,
       totalAnyUsages: allAnyUsages.length,
       totalCircularDependencies: allCircularDependencies.length,
-      totalBoundaryViolations: allBoundaryViolations.length,
       suppressedCount: totalSuppressedCount,
       fixedCount,
       filesScanned: totalFilesScanned,
@@ -471,7 +461,6 @@ export async function runAuditEngine(
     unusedItems: allUnusedItems,
     anyUsages: allAnyUsages,
     circularDependencies: allCircularDependencies,
-    boundaryViolations: allBoundaryViolations,
     workspaces: workspaceResults,
   };
 
