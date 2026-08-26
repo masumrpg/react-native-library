@@ -37,6 +37,8 @@ export function checkUnusedDiagnostics(
         let type: UnusedItem["type"] = "other";
         if (diag.code === 6192 || messageText.toLowerCase().includes("import")) {
           type = "unused-import";
+        } else if (messageText.toLowerCase().includes("parameter")) {
+          type = "unused-parameter";
         } else {
           type = "unused-variable";
         }
@@ -49,6 +51,11 @@ export function checkUnusedDiagnostics(
           continue;
         }
 
+        const suggestedFix =
+          type === "unused-import"
+            ? `Remove unused import '${name}'`
+            : `Prefix with underscore '_${name}' or remove`;
+
         unusedItems.push({
           file: sourceFile.fileName,
           line: lineNum,
@@ -57,6 +64,7 @@ export function checkUnusedDiagnostics(
           type,
           message: messageText,
           package: packageName,
+          suggestedFix,
         });
       }
     }

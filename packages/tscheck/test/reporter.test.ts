@@ -8,7 +8,7 @@ import * as os from "node:os";
 describe("reporter", () => {
   const mockReport: AuditReport = {
     timestamp: new Date().toISOString(),
-    version: "0.2.0",
+    version: "0.2.2",
     durationMs: 1200,
     summary: {
       filesScanned: 5,
@@ -41,6 +41,8 @@ describe("reporter", () => {
         reason: "Use modernFn instead",
         codeSnippet: "legacyFn()",
         package: "@test/pkg",
+        origin: "Built-in JS (lib.es5)",
+        suggestedFix: "Use modernFn instead",
       },
     ],
     unusedItems: [
@@ -52,6 +54,7 @@ describe("reporter", () => {
         type: "unused-variable",
         message: "declared but never used",
         package: "@test/pkg",
+        suggestedFix: "Prefix with underscore '_unusedVar' or remove",
       },
     ],
     anyUsages: [
@@ -62,6 +65,7 @@ describe("reporter", () => {
         context: "variable 'x'",
         codeSnippet: "const x: any = 1;",
         package: "@test/pkg",
+        suggestedFix: "Specify a concrete type interface or 'unknown' instead of 'any'",
       },
     ],
     circularDependencies: [
@@ -72,11 +76,12 @@ describe("reporter", () => {
         line: 1,
         column: 1,
         codeSnippet: "import './b'",
+        suggestedFix: "Extract shared types into a leaf file or use 'import type'",
       },
     ],
   };
 
-  it("writes JSON, Markdown, and HTML reports to disk and handles githubAnnotations", () => {
+  it("writes JSON, Markdown, AI Prompt, and HTML reports to disk and handles githubAnnotations", () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "tscheck-rep-"));
     const config: TsCheckConfig = {
       rootDir: tmpDir,
@@ -85,6 +90,7 @@ describe("reporter", () => {
         json: true,
         markdown: true,
         html: true,
+        ai: true,
         githubAnnotations: true,
       },
     };
@@ -99,10 +105,21 @@ describe("reporter", () => {
       expect(result.json).toBeDefined();
       expect(result.markdown).toBeDefined();
       expect(result.html).toBeDefined();
+      expect(result.ai).toBeDefined();
 
       expect(fs.existsSync(path.join(tmpDir, result.json!))).toBe(true);
       expect(fs.existsSync(path.join(tmpDir, result.markdown!))).toBe(true);
       expect(fs.existsSync(path.join(tmpDir, result.html!))).toBe(true);
+      expect(fs.existsSync(path.join(tmpDir, result.ai!))).toBe(true);
+
+      const htmlContent = fs.readFileSync(path.join(tmpDir, result.html!), "utf-8");
+      expect(htmlContent).toContain("Copy for AI");
+      expect(htmlContent).toContain("vscode://file/");
+      expect(htmlContent).toContain("Built-in JS");
+      expect(htmlContent).toContain("AI Suggested Fix");
+      expect(htmlContent).toContain("Created by <strong>Ma'sum</strong>");
+      expect(htmlContent).toContain("https://github.com/masumrpg.png");
+
       expect(lines.length).toBeGreaterThanOrEqual(4);
     } finally {
       console.log = originalLog;

@@ -3,7 +3,7 @@ title: CLI & API Usage
 sidebar:
   label: Usage Guide
   order: 3
-description: Complete guide for using tscheck via the CLI, interactive search explorer, Git staged/diff filtering, auto-fixer, and programmatic Node/Bun API.
+description: Complete guide for using tscheck via the CLI, interactive search explorer, Git staged/diff filtering, auto-fixer, report server, AI prompt generation, and programmatic Node/Bun API.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -26,10 +26,15 @@ tscheck
 | :--- | :--- | :--- |
 | `-c, --config <path>` | Path to custom configuration file (`.json`, `.yaml`, `.ts`) | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
+| `-s, --serve [port]` | Start local HTTP server to host and inspect interactive HTML reports | `true` (port: `5500`) |
+| `--no-serve` | Disable starting local HTTP report server after audit | `false` |
+| `-O, --open` | Automatically open the HTML report in your default browser | `false` |
+| `--editor <editor>` | Default editor scheme (`vscode`, `cursor`, `antigravity`, `windsurf`, `zed`, `webstorm`, `sublime`) | `vscode` |
+| `--ai` | Output token-efficient AI prompt markdown to stdout | `false` |
 | `--staged` | Only scan files currently staged in Git (pre-commit mode) | `false` |
 | `--since <ref>` | Only scan files changed since a specific git branch/commit | |
 | `--fix` | Automatically fix safe issues like prefixing unused identifiers with `_` | `false` |
-| `-f, --format <format>` | Output format: `pretty` (default), `json`, or `github` | `pretty` |
+| `-f, --format <format>` | Output format: `pretty` (default), `json`, `github`, or `ai` | `pretty` |
 | `-i, --interactive` | Launch interactive terminal search dashboard with live filtering | `false` |
 | `--no-deprecated` | Disable deprecated API usages check | `false` |
 | `--no-unused` | Disable unused variables and imports check | `false` |
@@ -44,7 +49,25 @@ tscheck
 
 ## Practical Examples & Workflows
 
-### 1. Git Staged Pre-Commit Hook (`--staged`)
+### 1. Launch Local Report Server & Open in Browser (`-O` / `--serve`)
+View the full interactive report in Google Chrome / your default browser:
+
+```bash
+# Audit and immediately open report in browser
+tscheck -O
+
+# Start server on custom port 3000 and auto-open
+tscheck --serve 3000 --open
+```
+
+### 2. Generate Dense AI Remediation Context (`--ai`)
+Generate token-efficient instructions for Claude, ChatGPT, Gemini, or Antigravity:
+
+```bash
+tscheck --ai
+```
+
+### 3. Git Staged Pre-Commit Hook (`--staged`)
 Integrate `tscheck` into `husky` or `lint-staged` for sub-second pre-commit validations:
 
 ```bash
@@ -52,7 +75,7 @@ Integrate `tscheck` into `husky` or `lint-staged` for sub-second pre-commit vali
 npx tscheck --staged --fail-on-warning
 ```
 
-### 2. CI Pull Request Audits with GitHub Actions (`--format github`)
+### 4. CI Pull Request Audits with GitHub Actions (`--format github`)
 Output native GitHub annotations so issues render directly on PR diffs:
 
 ```bash
@@ -60,28 +83,18 @@ Output native GitHub annotations so issues render directly on PR diffs:
 npx tscheck --format github --fail-on-warning
 ```
 
-### 3. Auto-Fix Safe Issues (`--fix`)
+### 5. Auto-Fix Safe Issues (`--fix`)
 Automatically rename unused parameters and variables with an underscore prefix `_` to satisfy TypeScript standards without breaking runtime code:
 
 ```bash
 npx tscheck --fix
 ```
 
-### 4. Interactive Search Explorer Mode (`-i`)
+### 6. Interactive Search Explorer Mode (`-i`)
 Launch the interactive terminal UI with live search:
 
 ```bash
 tscheck -i
-```
-Type any package name, rule, or symbol name in the interactive text input to instantly filter audit issues in real-time.
-
-### 5. Rule-Specific Audits
-```bash
-# Audit only for circular dependencies
-tscheck --no-deprecated --no-unused --no-any
-
-# Audit only for deprecated APIs
-tscheck --no-unused --no-any --no-circular
 ```
 
 ---
@@ -96,7 +109,9 @@ import {
   writeAuditReports,
   emitGitHubAnnotations,
   applyAutoFixes,
-  getStagedFiles,
+  generateAiPrompt,
+  startReportServer,
+  openInBrowser,
 } from "@masumdev/tscheck";
 
 // 1. Run audit programmatically
@@ -112,36 +127,22 @@ const report = await audit({
 
 console.log(`Files scanned: ${report.summary.filesScanned}`);
 console.log(`Deprecated usages: ${report.summary.totalDeprecatedUsages}`);
-console.log(`Circular dependencies: ${report.summary.totalCircularDependencies}`);
 
-// 2. Write JSON, Markdown & HTML reports to disk
+// 2. Generate AI prompt string
+const aiPrompt = generateAiPrompt(report);
+
+// 3. Write JSON, Markdown, AI Prompt & HTML reports to disk
 const files = writeAuditReports(report, {
   reporters: {
     outputDir: ".temp/tscheck",
     json: true,
     markdown: true,
     html: true,
+    ai: true,
   },
 });
 
-console.log(`Generated: ${files.json}, ${files.markdown}, ${files.html}`);
-
-// 3. Emit GitHub Annotations in CI environment
-if (process.env.GITHUB_ACTIONS) {
-  emitGitHubAnnotations(report, false);
-}
-```
-
----
-
-## Testing & Verification
-
-`@masumdev/tscheck` includes 56 unit and end-to-end tests maintaining **100% function coverage** across all rules, CLI commands, and UI components.
-
-```bash
-# Run test suite
-bun test
-
-# Run tests with code coverage report
-bun test --coverage
+// 4. Start local HTTP report server
+const server = await startReportServer(".temp/tscheck/audit-report.html", 5500);
+openInBrowser(server.url);
 ```

@@ -52,6 +52,7 @@ export function checkExplicitAnyUsages(
           context,
           codeSnippet: lineText,
           package: packageName,
+          suggestedFix: "Specify a concrete type interface or 'unknown' instead of 'any'",
         });
       }
     }

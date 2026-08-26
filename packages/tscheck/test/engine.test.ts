@@ -181,4 +181,15 @@ describe("engine", () => {
     expect(report.summary.filesScanned).toBe(0);
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
+
+  it("formats server timestamp with local time and timezone offset", () => {
+    const { formatServerTimestamp } = require("../src/core/engine.js");
+    const testDate = new Date(2026, 7, 26, 22, 25, 0); // 2026-08-26 22:25:00
+    const formatted = formatServerTimestamp(testDate);
+    expect(formatted).toContain("2026-08-26 22:25:00");
+    expect(formatted).toMatch(/GMT|UTC/);
+
+    const nowFormatted = formatServerTimestamp();
+    expect(nowFormatted).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \((GMT[+-]\d{2}:\d{2}|UTC)\)$/);
+  });
 });

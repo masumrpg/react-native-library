@@ -40,9 +40,35 @@
     },
     "format": {
       "type": "string",
-      "enum": ["pretty", "json", "github"],
-      "description": "Output format for CLI stdout (\"pretty\", \"json\", or \"github\").",
+      "enum": ["pretty", "json", "github", "ai"],
+      "description": "Output format for CLI stdout (\"pretty\", \"json\", \"github\", or \"ai\").",
       "default": "pretty"
+    },
+    "serve": {
+      "type": "boolean",
+      "description": "Start a local HTTP server to view the HTML report.",
+      "default": true
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Automatically open the HTML report in the default web browser.",
+      "default": false
+    },
+    "port": {
+      "type": "number",
+      "description": "Port number for the local HTML report server.",
+      "default": 5500
+    },
+    "editor": {
+      "type": "string",
+      "enum": ["vscode", "cursor", "antigravity", "windsurf", "zed", "webstorm", "sublime", "vscode-insiders", "auto"],
+      "description": "Default editor scheme for clicking file locations in reports.",
+      "default": "vscode"
+    },
+    "ai": {
+      "type": "boolean",
+      "description": "Output token-efficient AI prompt markdown format.",
+      "default": false
     },
     "rules": {
       "type": "object",
@@ -73,7 +99,7 @@
     },
     "reporters": {
       "type": "object",
-      "description": "Report output settings for JSON, Markdown, HTML, and CI artifacts.",
+      "description": "Report output settings for JSON, Markdown, HTML, AI, and CI artifacts.",
       "properties": {
         "outputDir": {
           "type": "string",
@@ -95,6 +121,32 @@
           "description": "Generate interactive audit-report.html file.",
           "default": true
         },
+        "ai": {
+          "type": "boolean",
+          "description": "Generate token-efficient audit-report.ai.md file.",
+          "default": true
+        },
+        "serve": {
+          "type": "boolean",
+          "description": "Start a local HTTP server to view the HTML report.",
+          "default": true
+        },
+        "open": {
+          "type": "boolean",
+          "description": "Automatically open the HTML report in the default web browser.",
+          "default": false
+        },
+        "port": {
+          "type": "number",
+          "description": "Port number for the local HTML report server.",
+          "default": 5500
+        },
+        "editor": {
+          "type": "string",
+          "enum": ["vscode", "cursor", "antigravity", "windsurf", "zed", "webstorm", "sublime", "vscode-insiders", "auto"],
+          "description": "Default editor scheme for clicking file locations in reports.",
+          "default": "vscode"
+        },
         "githubAnnotations": {
           "type": "boolean",
           "description": "Emit GitHub Actions workflow annotations (::warning, ::error) to stdout.",
@@ -102,30 +154,35 @@
         },
         "jsonFileName": {
           "type": "string",
-          "description": "Custom filename for JSON report.",
+          "description": "Custom file name for the JSON report (without path).",
           "default": "audit-report.json"
         },
         "markdownFileName": {
           "type": "string",
-          "description": "Custom filename for Markdown report.",
+          "description": "Custom file name for the Markdown report (without path).",
           "default": "audit-report.md"
         },
         "htmlFileName": {
           "type": "string",
-          "description": "Custom filename for HTML report.",
+          "description": "Custom file name for the HTML report (without path).",
           "default": "audit-report.html"
+        },
+        "aiFileName": {
+          "type": "string",
+          "description": "Custom file name for the AI prompt file (without path).",
+          "default": "audit-report.ai.md"
         }
       },
       "additionalProperties": false
     },
     "failOnWarning": {
       "type": "boolean",
-      "description": "Exit CLI process with non-zero exit code if any violations are found (recommended for CI).",
+      "description": "Exit with code 1 if any warnings or deprecations are found.",
       "default": false
     },
     "tsconfigName": {
       "type": "string",
-      "description": "Name of the TypeScript config file in each workspace.",
+      "description": "Custom tsconfig file name to search for across workspaces.",
       "default": "tsconfig.json"
     }
   },
