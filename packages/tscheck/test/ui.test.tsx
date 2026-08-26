@@ -18,7 +18,6 @@ describe("Ink UI Components", () => {
     unusedCount: 0,
     anyCount: 0,
     circularCount: 0,
-    boundaryCount: 0,
   };
 
   const mockWorkspaceViolation: WorkspaceScanResult = {
@@ -29,23 +28,19 @@ describe("Ink UI Components", () => {
     unusedCount: 4,
     anyCount: 5,
     circularCount: 1,
-    boundaryCount: 2,
   };
 
   const mockFullReport: AuditReport = {
     timestamp: new Date().toISOString(),
     version: "0.2.0",
-    rootDir: "/workspace",
     summary: {
-      totalWorkspaces: 2,
+      workspacesScanned: 2,
       filesScanned: 35,
       totalDeprecatedUsages: 7,
       totalUnusedItems: 7,
       totalAnyUsages: 7,
       totalCircularDependencies: 1,
-      totalBoundaryViolations: 2,
       cleanFilesCount: 18,
-      scanDurationMs: 3450,
       suppressedCount: 2,
       fixedCount: 3,
     },
@@ -84,26 +79,6 @@ describe("Ink UI Components", () => {
         line: 1,
         column: 1,
         codeSnippet: "import './b'",
-      },
-    ],
-    boundaryViolations: [
-      {
-        package: "@masumdev/violation-pkg",
-        file: "/src/deep.ts",
-        line: 1,
-        column: 1,
-        importPath: "@masumdev/rn-ui/src/deep",
-        targetPackage: "@masumdev/rn-ui",
-        codeSnippet: "import '@masumdev/rn-ui/src/deep'",
-      },
-      {
-        package: "@masumdev/violation-pkg",
-        file: "/src/deep2.ts",
-        line: 2,
-        column: 1,
-        importPath: "@masumdev/rn-ui/src/deep2",
-        targetPackage: "@masumdev/rn-ui",
-        codeSnippet: "import '@masumdev/rn-ui/src/deep2'",
       },
     ],
   };
@@ -180,10 +155,10 @@ describe("Ink UI Components", () => {
   it("renders SummaryTable with all metrics, preview sections, and violation details", () => {
     const { lastFrame } = render(<SummaryTable report={mockFullReport} />);
     const frame = lastFrame() || "";
-    expect(frame).toContain("AUDIT SUMMARY");
+    expect(frame).toContain("Overall Codebase Audit Summary");
     expect(frame).toContain("Files Scanned");
-    expect(frame).toContain("Deprecated Usages");
-    expect(frame).toContain("Explicit Any Usages");
+    expect(frame).toContain("Deprecated API Usages");
+    expect(frame).toContain("Explicit any Type Annotations");
   });
 
   it("renders InteractiveExplorer with search bar and handles exit commands", () => {

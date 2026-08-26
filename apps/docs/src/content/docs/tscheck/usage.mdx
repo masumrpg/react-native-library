@@ -35,7 +35,6 @@ tscheck
 | `--no-unused` | Disable unused variables and imports check | `false` |
 | `--no-any` | Disable explicit any usages check | `false` |
 | `--no-circular` | Disable circular module dependencies check | `false` |
-| `--no-boundary` | Disable package boundary check | `false` |
 | `--fail-on-warning` | Exit with non-zero exit code if violations are found | `false` |
 | `--json` | Output pure JSON to stdout without Ink UI (shorthand for `--format json`) | `false` |
 | `-V, --version` | Output version number | |
@@ -78,11 +77,11 @@ Type any package name, rule, or symbol name in the interactive text input to ins
 
 ### 5. Rule-Specific Audits
 ```bash
-# Audit only for circular dependencies and package boundaries
+# Audit only for circular dependencies
 tscheck --no-deprecated --no-unused --no-any
 
 # Audit only for deprecated APIs
-tscheck --no-unused --no-any --no-circular --no-boundary
+tscheck --no-unused --no-any --no-circular
 ```
 
 ---
@@ -108,7 +107,6 @@ const report = await audit({
     unused: true,
     noExplicitAny: true,
     circular: true,
-    packageBoundary: true,
   },
 });
 

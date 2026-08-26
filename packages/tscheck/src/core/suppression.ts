@@ -4,8 +4,7 @@ export type RuleCategory =
   | "deprecated"
   | "unused"
   | "noExplicitAny"
-  | "circular"
-  | "packageBoundary";
+  | "circular";
 
 interface LineSuppression {
   rules: Set<string>;
@@ -28,7 +27,6 @@ export class CommentSuppressionMap {
   private normalizeRule(raw: string): string {
     const lower = raw.trim().toLowerCase();
     if (lower === "any") return "noexplicitany";
-    if (lower === "boundary") return "packageboundary";
     return lower;
   }
 

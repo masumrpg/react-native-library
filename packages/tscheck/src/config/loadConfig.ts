@@ -34,7 +34,6 @@ const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces" | "since">> & {
     unused: true,
     noExplicitAny: true,
     circular: true,
-    packageBoundary: true,
   },
   reporters: {
     outputDir: ".temp/tscheck",

@@ -90,24 +90,16 @@ export function emitGitHubAnnotations(report: AuditReport, failOnWarning: boolea
     console.log(`::error file=${relFile},line=${item.line},col=${item.column},title=Circular Dependency::${msg}`);
   }
 
-  // Boundary
-  for (const item of report.boundaryViolations) {
-    const relFile = path.relative(rootDir, item.file);
-    const msg = `[PACKAGE BOUNDARY] Illegal deep internal import: '${item.importPath}' from package '${item.package}'`;
-    console.log(`::error file=${relFile},line=${item.line},col=${item.column},title=Package Boundary Violation::${msg}`);
-  }
 }
 
 function generateMarkdownReport(report: AuditReport, rootDir: string): string {
   const lines: string[] = [];
   const totalCirc = report.circularDependencies?.length || 0;
-  const totalBound = report.boundaryViolations?.length || 0;
   const hasViolations =
     report.summary.totalDeprecatedUsages > 0 ||
     report.summary.totalUnusedItems > 0 ||
     report.summary.totalAnyUsages > 0 ||
-    totalCirc > 0 ||
-    totalBound > 0;
+    totalCirc > 0;
 
   lines.push("# TypeScript Codebase Audit Report");
   lines.push("");
@@ -145,11 +137,6 @@ function generateMarkdownReport(report: AuditReport, rootDir: string): string {
       totalCirc === 0 ? "`[PASSED]`" : "`[FAILED]`"
     } |`
   );
-  lines.push(
-    `| Package Boundary Violations | \`${totalBound}\` | 0 allowed | ${
-      totalBound === 0 ? "`[PASSED]`" : "`[FAILED]`"
-    } |`
-  );
   if (report.summary.suppressedCount > 0) {
     lines.push(
       `| Suppressed via Comments | \`${report.summary.suppressedCount}\` | Inline bypasses | \`[SUPPRESSED]\` |`
@@ -165,17 +152,16 @@ function generateMarkdownReport(report: AuditReport, rootDir: string): string {
   // 2. Workspaces Breakdown Table
   lines.push("## Workspaces Breakdown");
   lines.push("");
-  lines.push("| Workspace | Files | Clean Files | Deprecated | Unused | Any | Circular | Boundary | Status |");
-  lines.push("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |");
+  lines.push("| Workspace | Files | Clean Files | Deprecated | Unused | Any | Circular | Status |");
+  lines.push("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |");
   for (const ws of report.workspaces) {
     const wsCirc = ws.circularCount || 0;
-    const wsBound = ws.boundaryCount || 0;
-    const isClean = ws.deprecatedCount === 0 && ws.unusedCount === 0 && ws.anyCount === 0 && wsCirc === 0 && wsBound === 0;
-    const cleanFilesCount = Math.max(0, ws.filesScanned - (ws.deprecatedCount + ws.unusedCount + ws.anyCount + wsCirc + wsBound));
+    const isClean = ws.deprecatedCount === 0 && ws.unusedCount === 0 && ws.anyCount === 0 && wsCirc === 0;
+    const cleanFilesCount = Math.max(0, ws.filesScanned - (ws.deprecatedCount + ws.unusedCount + ws.anyCount + wsCirc));
     lines.push(
       `| \`${ws.name}\` | ${ws.filesScanned} | ${cleanFilesCount} | ${ws.deprecatedCount} | ${ws.unusedCount} | ${
         ws.anyCount
-      } | ${wsCirc} | ${wsBound} | ${isClean ? "`[PASSED]`" : "`[FAILED]`"} |`
+      } | ${wsCirc} | ${isClean ? "`[PASSED]`" : "`[FAILED]`"} |`
     );
   }
   lines.push("");
@@ -191,21 +177,6 @@ function generateMarkdownReport(report: AuditReport, rootDir: string): string {
       const cycleStr = item.cycle.map((p) => `\`${path.relative(rootDir, p)}\``).join(" ➔ ");
       lines.push(
         `| \`${item.package}\` | \`${relFile}:${item.line}:${item.column}\` | ${cycleStr} |`
-      );
-    }
-    lines.push("");
-  }
-
-  // 4. Package Boundary Violations Section
-  if (report.boundaryViolations && report.boundaryViolations.length > 0) {
-    lines.push("## Package Boundary Violations");
-    lines.push("");
-    lines.push("| Source Package | Target Package | Location | Illegal Import Path |");
-    lines.push("| :--- | :--- | :--- | :--- |");
-    for (const item of report.boundaryViolations) {
-      const relFile = path.relative(rootDir, item.file);
-      lines.push(
-        `| \`${item.package}\` | \`${item.targetPackage}\` | \`${relFile}:${item.line}:${item.column}\` | \`${item.importPath}\` |`
       );
     }
     lines.push("");
@@ -306,25 +277,22 @@ function escapeHtml(text: string): string {
  */
 function generateHtmlReport(report: AuditReport, rootDir: string): string {
   const totalCirc = report.circularDependencies?.length || 0;
-  const totalBound = report.boundaryViolations?.length || 0;
   const hasViolations =
     report.summary.totalDeprecatedUsages > 0 ||
     report.summary.totalUnusedItems > 0 ||
     report.summary.totalAnyUsages > 0 ||
-    totalCirc > 0 ||
-    totalBound > 0;
+    totalCirc > 0;
 
   const totalViolations =
     report.summary.totalDeprecatedUsages +
     report.summary.totalUnusedItems +
     report.summary.totalAnyUsages +
-    totalCirc +
-    totalBound;
+    totalCirc;
 
   // Prepare violation cards data
   const violations: Array<{
     id: string;
-    type: "deprecated" | "unused" | "any" | "circular" | "boundary";
+    type: "deprecated" | "unused" | "any" | "circular";
     typeLabel: string;
     package: string;
     file: string;
@@ -355,27 +323,6 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
         title: "Circular Module Dependency",
         detail: `Cycle: ${cycleStr}`,
         formattedDetail: `Dependency cycle: <code>${escapeHtml(cycleStr)}</code>`,
-        codeSnippet: item.codeSnippet,
-      });
-    }
-  }
-
-  if (report.boundaryViolations) {
-    for (const item of report.boundaryViolations) {
-      vIdx++;
-      const relFile = path.relative(rootDir, item.file);
-      violations.push({
-        id: `v-${vIdx}`,
-        type: "boundary",
-        typeLabel: "BOUNDARY",
-        package: item.package,
-        file: item.file,
-        relFile,
-        line: item.line,
-        column: item.column,
-        title: `Deep Import from ${item.targetPackage}`,
-        detail: `Illegal deep import: ${item.importPath}`,
-        formattedDetail: `Illegal deep import path: <code>${escapeHtml(item.importPath)}</code>`,
         codeSnippet: item.codeSnippet,
       });
     }
@@ -880,16 +827,6 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
       font-weight: 700;
       letter-spacing: 0.3px;
     }
-    .tag-boundary {
-      background: rgba(236, 72, 153, 0.15);
-      color: #f472b6;
-      border: 1px solid #ec4899;
-      padding: 3px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
     .tag-pkg {
       background: var(--surface-border);
       color: var(--text);
@@ -1152,7 +1089,6 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
             <th>Unused</th>
             <th>Any</th>
             <th>Circular</th>
-            <th>Boundary</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -1160,9 +1096,8 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
           ${report.workspaces
             .map((ws) => {
               const wsCirc = ws.circularCount || 0;
-              const wsBound = ws.boundaryCount || 0;
-              const isClean = ws.deprecatedCount === 0 && ws.unusedCount === 0 && ws.anyCount === 0 && wsCirc === 0 && wsBound === 0;
-              const cleanCount = Math.max(0, ws.filesScanned - (ws.deprecatedCount + ws.unusedCount + ws.anyCount + wsCirc + wsBound));
+              const isClean = ws.deprecatedCount === 0 && ws.unusedCount === 0 && ws.anyCount === 0 && wsCirc === 0;
+              const cleanCount = Math.max(0, ws.filesScanned - (ws.deprecatedCount + ws.unusedCount + ws.anyCount + wsCirc));
               return `<tr>
                 <td><strong>${escapeHtml(ws.name)}</strong></td>
                 <td><code>${ws.filesScanned}</code></td>
@@ -1171,7 +1106,6 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
                 <td><span class="badge-pill ${ws.unusedCount === 0 ? 'pill-clean' : 'pill-warn'}">${ws.unusedCount}</span></td>
                 <td><span class="badge-pill ${ws.anyCount === 0 ? 'pill-clean' : 'pill-danger'}">${ws.anyCount}</span></td>
                 <td><span class="badge-pill ${wsCirc === 0 ? 'pill-clean' : 'pill-danger'}">${wsCirc}</span></td>
-                <td><span class="badge-pill ${wsBound === 0 ? 'pill-clean' : 'pill-danger'}">${wsBound}</span></td>
                 <td><span class="badge-pill ${isClean ? 'pill-clean' : 'pill-danger'}">${isClean ? 'PASSED' : 'FAILED'}</span></td>
               </tr>`;
             })
@@ -1207,7 +1141,6 @@ function generateHtmlReport(report: AuditReport, rootDir: string): string {
         <button class="tab-btn" data-filter="unused">Unused (${report.summary.totalUnusedItems})</button>
         <button class="tab-btn" data-filter="any">Any (${report.summary.totalAnyUsages})</button>
         <button class="tab-btn" data-filter="circular">Circular (${totalCirc})</button>
-        <button class="tab-btn" data-filter="boundary">Boundary (${totalBound})</button>
       </div>
     </div>
 

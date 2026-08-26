@@ -67,11 +67,6 @@
           "type": "boolean",
           "description": "Detects circular module dependency cycles across files.",
           "default": true
-        },
-        "packageBoundary": {
-          "type": "boolean",
-          "description": "Detects illegal deep internal imports that violate package boundaries.",
-          "default": true
         }
       },
       "additionalProperties": false

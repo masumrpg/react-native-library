@@ -8,7 +8,7 @@ description: Modern, high-performance TypeScript AST code audit CLI and engine w
 
 import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
 
-`@masumdev/tscheck` is a high-performance TypeScript AST auditing CLI tool and engine. It inspects single projects or monorepos for deprecated API usages, unused variables/imports, explicit `any` types, circular dependencies, and package boundary violations, rendering a terminal interface powered by **Ink (React in Terminal)** with zero emojis and 100% test coverage.
+`@masumdev/tscheck` is a high-performance TypeScript AST auditing CLI tool and engine. It inspects single projects or monorepos for deprecated API usages, unused variables/imports, explicit `any` types, and circular dependencies, rendering a terminal interface powered by **Ink (React in Terminal)** with zero emojis and 100% test coverage.
 
 ## Package & CI Stats
 
@@ -47,8 +47,8 @@ import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
   <Card title="Strict Any-Type Policy" icon="seti:typescript">
     Flags explicit `any` type annotations, assertions (`as any`), and generic type arguments to uphold strict type safety standards.
   </Card>
-  <Card title="Circular Dependency & Boundary Inspector" icon="random">
-    Traces module dependency graphs to catch circular dependency cycles and illegal deep internal package imports.
+  <Card title="Circular Dependency Inspector" icon="random">
+    Traces module dependency graphs to catch and resolve cross-file circular dependency cycles.
   </Card>
   <Card title="Git Staged & Diff Filtering" icon="git">
     Execute sub-second pre-commit scans with `--staged` or CI PR audits with `--since <branch>`.
