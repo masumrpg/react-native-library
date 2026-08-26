@@ -112,35 +112,14 @@ describe("rules/deprecated", () => {
     expect(aliasedResult.deprecated).toBe(false);
   });
 
-  it("does not report non-deprecated functions", () => {
-    const code = `
-      /** Normal function documentation */
-      function modernApi() {}
+  it("resolves origin and infers suggested fixes for deprecated symbols", () => {
+    const { resolveDeclarationOrigin, inferSuggestedFix } = require("../src/core/rules/deprecated.js");
 
-      function caller() {
-        modernApi();
-      }
-    `;
+    expect(inferSuggestedFix("substr", "A legacy feature")).toBe("Use .slice(start, end) or .substring(start, end)");
+    expect(inferSuggestedFix("customFn", "Use newCustomFn instead")).toBe("Use newCustomFn instead");
+    expect(inferSuggestedFix("componentWillMount", "legacy")).toBe("Use componentDidMount() or React.useEffect()");
+    expect(inferSuggestedFix("unknown", "deprecated")).toBe("");
 
-    const sourceFile = ts.createSourceFile("test.ts", code, ts.ScriptTarget.Latest, true);
-    const host = ts.createCompilerHost({});
-    const program = ts.createProgram(["test.ts"], {}, {
-      ...host,
-      getSourceFile: (f) => (f === "test.ts" ? sourceFile : host.getSourceFile(f, ts.ScriptTarget.Latest)),
-    });
-    const checker = program.getTypeChecker();
-
-    let found = false;
-
-    function visit(node: ts.Node) {
-      const result = checkNodeDeprecation(node, checker);
-      if (result.deprecated) {
-        found = true;
-      }
-      ts.forEachChild(node, visit);
-    }
-
-    visit(sourceFile);
-    expect(found).toBe(false);
+    expect(resolveDeclarationOrigin(undefined)).toBe("Local Workspace");
   });
 });

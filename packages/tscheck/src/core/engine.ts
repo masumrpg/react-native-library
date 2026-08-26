@@ -19,6 +19,25 @@ import { getStagedFiles, getChangedFilesSince } from "./git.js";
 import { applyAutoFixes } from "./fixer.js";
 import { getTscheckVersion } from "../version.js";
 
+export function formatServerTimestamp(date: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  const offsetMinutes = -date.getTimezoneOffset();
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const absOffset = Math.abs(offsetMinutes);
+  const offsetHours = pad(Math.floor(absOffset / 60));
+  const offsetMins = pad(absOffset % 60);
+  const tzString = offsetMinutes === 0 ? "UTC" : `GMT${sign}${offsetHours}:${offsetMins}`;
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} (${tzString})`;
+}
+
 export interface EngineProject {
   name: string;
   tsconfig: string;
@@ -338,6 +357,14 @@ export async function runAuditEngine(
 
       // 1. Deprecation check
       if (rules.deprecated) {
+        const fileDeprecatedNodes: {
+          node: ts.Node;
+          result: ReturnType<typeof checkNodeDeprecation>;
+          lineNum: number;
+          colNum: number;
+          lineText: string;
+        }[] = [];
+
         const checkNode = (node: ts.Node) => {
           if (
             ts.isIdentifier(node) ||
@@ -359,23 +386,44 @@ export async function runAuditEngine(
                 const lineEnd = sourceFile.getLineEndOfPosition(node.getStart());
                 const lineText = sourceFile.text.substring(lineStart, lineEnd).trim();
 
-                allDeprecatedUsages.push({
-                  file: sourceFile.fileName,
-                  line: lineNum,
-                  column: colNum,
-                  symbol: node.getText(sourceFile),
-                  reason: result.reason,
-                  codeSnippet: lineText,
-                  package: proj.name,
+                fileDeprecatedNodes.push({
+                  node,
+                  result,
+                  lineNum,
+                  colNum,
+                  lineText,
                 });
-                projDeprecated++;
-                fileHasViolations = true;
               }
             }
           }
           ts.forEachChild(node, checkNode);
         };
         checkNode(sourceFile);
+
+        // Deduplicate on same line for identical leaf symbols / property calls
+        const seenTokensOnLine = new Set<string>();
+        for (const item of fileDeprecatedNodes) {
+          const rawSymbol = item.node.getText(sourceFile);
+          const leafSymbol = rawSymbol.split(".").pop() || rawSymbol;
+          const tokenKey = `${item.lineNum}:${leafSymbol}`;
+
+          if (!seenTokensOnLine.has(tokenKey)) {
+            seenTokensOnLine.add(tokenKey);
+            allDeprecatedUsages.push({
+              file: sourceFile.fileName,
+              line: item.lineNum,
+              column: item.colNum,
+              symbol: rawSymbol,
+              reason: item.result.reason,
+              codeSnippet: item.lineText,
+              package: proj.name,
+              origin: item.result.origin,
+              suggestedFix: item.result.suggestedFix,
+            });
+            projDeprecated++;
+            fileHasViolations = true;
+          }
+        }
       }
 
       // 2. Unused items check
@@ -444,7 +492,7 @@ export async function runAuditEngine(
 
   const report: AuditReport = {
     version: getTscheckVersion(),
-    timestamp: new Date().toISOString(),
+    timestamp: formatServerTimestamp(),
     durationMs,
     summary: {
       totalDeprecatedUsages: allDeprecatedUsages.length,

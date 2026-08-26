@@ -29,6 +29,11 @@ const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces" | "since">> & {
   since: undefined,
   fix: false,
   format: "pretty",
+  serve: true,
+  open: true,
+  port: 5500,
+  editor: "vscode",
+  ai: true,
   rules: {
     deprecated: true,
     unused: true,
@@ -40,10 +45,16 @@ const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces" | "since">> & {
     json: true,
     markdown: true,
     html: true,
+    ai: true,
+    serve: true,
+    open: false,
+    port: 5500,
+    editor: "vscode",
     githubAnnotations: false,
     jsonFileName: "audit-report.json",
     markdownFileName: "audit-report.md",
     htmlFileName: "audit-report.html",
+    aiFileName: "audit-report.ai.md",
   },
   failOnWarning: false,
   tsconfigName: "tsconfig.json",
@@ -59,17 +70,16 @@ export async function loadConfig(
   let resolvedPath: string | null = null;
 
   if (customPath) {
-    const directPath = path.isAbsolute(customPath)
+    resolvedPath = path.isAbsolute(customPath)
       ? customPath
       : path.resolve(cwd, customPath);
-    if (fs.existsSync(directPath)) {
-      resolvedPath = directPath;
-    } else {
-      throw new Error(`Configuration file not found at specified path: ${customPath}`);
+
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`Configuration file not found at: ${resolvedPath}`);
     }
   } else {
     for (const filename of DEFAULT_CONFIG_FILENAMES) {
-      const candidate = path.resolve(cwd, filename);
+      const candidate = path.join(cwd, filename);
       if (fs.existsSync(candidate)) {
         resolvedPath = candidate;
         break;
@@ -78,26 +88,22 @@ export async function loadConfig(
   }
 
   if (!resolvedPath) {
-    return {
-      config: { ...DEFAULT_CONFIG },
-      configPath: null,
-    };
+    return { config: { ...DEFAULT_CONFIG }, configPath: null };
   }
 
   const ext = path.extname(resolvedPath).toLowerCase();
   let userConfig: Partial<TsCheckConfig> = {};
 
-  if (ext === ".json" || path.basename(resolvedPath) === ".tscheckrc") {
-    const content = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = JSON.parse(content) as Partial<TsCheckConfig>;
+  if (ext === ".json" || resolvedPath.endsWith("rc")) {
+    const raw = fs.readFileSync(resolvedPath, "utf-8");
+    userConfig = JSON.parse(raw);
   } else if (ext === ".yaml" || ext === ".yml") {
-    const content = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = YAML.parse(content) as Partial<TsCheckConfig>;
+    const raw = fs.readFileSync(resolvedPath, "utf-8");
+    userConfig = YAML.parse(raw);
   } else if (ext === ".ts" || ext === ".js" || ext === ".mjs" || ext === ".cjs") {
-    // Dynamic import for TS/JS configuration
     const fileUrl = pathToFileURL(resolvedPath).href;
     const mod = await import(fileUrl);
-    userConfig = (mod.default ?? mod) as Partial<TsCheckConfig>;
+    userConfig = mod.default || mod;
   }
 
   const mergedConfig: TsCheckConfig = {
@@ -113,8 +119,5 @@ export async function loadConfig(
     },
   };
 
-  return {
-    config: mergedConfig,
-    configPath: resolvedPath,
-  };
+  return { config: mergedConfig, configPath: resolvedPath };
 }

@@ -150,6 +150,7 @@ export function checkCircularDependencies(
                 line: edge.line,
                 column: edge.col,
                 codeSnippet: edge.snippet,
+                suggestedFix: "Refactor shared types/modules into a separate leaf file or use 'import type'",
               });
             }
           }

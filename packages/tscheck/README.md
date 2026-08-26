@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
 [![CI](https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/react-native-library/actions)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.netlify.app/tscheck/)
-[![Tests](https://img.shields.io/badge/Tests-55%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.netlify.app/tscheck/)
+[![Tests](https://img.shields.io/badge/Tests-61%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.netlify.app/tscheck/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 > **Modern, high-performance TypeScript AST code audit CLI & engine for Turborepos and Monorepos.**
@@ -14,50 +14,23 @@ Audits codebases for **deprecated API usages**, **unused variables/parameters/im
 
 ## Features
 
-- **AST Deprecation Detection**: Identifies usages of deprecated functions, classes, properties, and types tagged with JSDoc `@deprecated`.
+- **AST Deprecation Detection**: Identifies usages of deprecated functions, classes, properties, and types tagged with JSDoc `@deprecated` with origin package identification and suggested fixes.
 - **Unused Diagnostics**: Pinpoints unused variables, parameters, and imports across all workspace packages.
 - **Strict Any Type Auditing**: Flags explicit `any` type annotations, assertions, and generic parameters.
 - **Circular Dependency Detection**: Traces AST import/export graphs and detects circular module dependency cycles.
-- **Inline Comment Suppression**: Bypass specific rules per-line or in blocks with `// tscheck-ignore-next-line <rule>`.
+- **Local HTTP Report Server (`--serve [port]`)**: Instantly launches a local server to view the rich interactive HTML report with custom port and auto-fallback.
+- **Auto Browser Launcher (`-O, --open`)**: Automatically opens the generated report in Google Chrome / default browser.
+- **AI Token-Efficient Remediation (`--ai` / `--format ai`)**: Generates compact, structured prompt context for AI LLMs (Claude, ChatGPT, Gemini, Antigravity) with zero token bloat.
+- **Multi-IDE Deep Linking**: 1-click jump from HTML report directly into **VS Code**, **Cursor**, **Antigravity IDE**, **Windsurf**, **Zed**, **WebStorm**, **Sublime Text**, and **VS Code Insiders** at the exact line and column.
+- **Same-Line AST Deduplication**: Eliminates duplicate violation cards on overlapping method calls.
+- **Group-By View Switcher**: Interactive report toggle between **Flat List**, **Group by File**, **Group by Rule**, and **Group by Package**.
+- **1-Click Copy Actions**: Instant copy for code snippets, ignore directives (`// tscheck-ignore-next-line <rule>`), and AI prompts.
 - **Git Staged & Diff Filtering**: Instant pre-commit and CI PR audits with `--staged` and `--since <ref>`.
 - **Auto-Fixer Mode (`--fix`)**: Safely auto-prefixes unused variables and parameters with an underscore `_`.
 - **GitHub Actions CI Annotations**: Output native workflow commands with `--format github`.
 - **Interactive Terminal UI**: Built with [Ink](https://github.com/vadimdemedes/ink) (React for CLI) with real-time workspace scanning and search.
 - **Zero Emoji Policy**: Clean, minimalist terminal interface using box-drawing borders and status badges.
-- **Type-Safe Configuration**: Full autocompletion and JSDoc metadata support via `defineConfig()`.
-- **Automated Report Generation**: Exports `audit-report.json`, `audit-report.md`, and rich interactive `audit-report.html`.
-- **100% Test Coverage**: Fully verified across 55 comprehensive unit, UI, AST rule, and CLI E2E tests.
-
----
-
-## Test Coverage & Quality
-
-Every module, AST rule, terminal UI component, and CLI command is thoroughly covered by automated test suites.
-
-```bash
-# Run full unit and integration test suite
-bun test
-
-# Run test suite with detailed coverage table
-bun test --coverage
-```
-
-### Coverage Overview
-
-| Module / Layer | Description | % Funcs | % Lines | Status |
-| :--- | :--- | :---: | :---: | :---: |
-| **`core/rules/deprecated.ts`** | JSDoc `@deprecated` AST analysis & overload resolver | 100.00% | 96.88% | `PASSED` |
-| **`core/rules/unused.ts`** | TypeScript compiler diagnostics for unused locals & imports | 100.00% | 100.00% | `PASSED` |
-| **`core/rules/anyType.ts`** | Strict `any` type detection in variables, params, return types | 100.00% | 100.00% | `PASSED` |
-| **`core/rules/circular.ts`** | Cycle detection across AST import/export graphs | 100.00% | 100.00% | `PASSED` |
-| **`core/suppression.ts`** | Per-line and range-based comment directive parser | 100.00% | 100.00% | `PASSED` |
-| **`core/engine.ts`** | Multi-workspace scanner, virtual fallback & AST runner | 100.00% | 99.13% | `PASSED` |
-| **`core/fixer.ts`** | Automated AST code modifier (`--fix`) | 100.00% | 100.00% | `PASSED` |
-| **`core/git.ts`** | Git staged and branch diff file discovery | 100.00% | 88.64% | `PASSED` |
-| **`core/reporter.ts`** | JSON, Markdown, and HTML report generators | 100.00% | 100.00% | `PASSED` |
-| **`config/loadConfig.ts`** | Multi-format config discovery (`.json`, `.yaml`, `.ts`, `.js`) | 100.00% | 100.00% | `PASSED` |
-| **`ui/*` (Ink Components)** | Real-time terminal progress, tables, cards, interactive search | 100.00% | 99.70% | `PASSED` |
-| **`version.ts`** | Dynamic semver version resolution | 100.00% | 100.00% | `PASSED` |
+- **100% Test Coverage**: Fully verified across 61 comprehensive unit, UI, AST rule, and CLI E2E tests.
 
 ---
 
@@ -82,6 +55,15 @@ Run `tscheck` in any TypeScript workspace or monorepo root:
 ```bash
 # Basic audit across all workspace projects
 tscheck
+
+# Audit, generate reports, and automatically launch in Chrome
+tscheck -O
+
+# Start local report server on custom port 3000 and open browser
+tscheck --serve 3000 --open
+
+# Output dense, token-efficient AI remediation prompt for LLMs
+tscheck --ai
 
 # Fast audit on git staged files before commit (Husky / lint-staged)
 tscheck --staged
@@ -108,10 +90,15 @@ tscheck --json
 | :--- | :--- | :--- |
 | `-c, --config <path>` | Path to custom tscheck configuration file | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
+| `-s, --serve [port]` | Start local HTTP server to view the interactive HTML report | `true` (port: `5500`) |
+| `--no-serve` | Disable starting local HTTP report server after audit | `false` |
+| `-O, --open` | Automatically open the HTML report in your default browser | `false` |
+| `--editor <editor>` | Default editor scheme (`vscode`, `cursor`, `antigravity`, `windsurf`, `zed`, `webstorm`, `sublime`) | `vscode` |
+| `--ai` | Output token-efficient AI prompt markdown to stdout | `false` |
 | `--staged` | Only scan files currently staged in Git | `false` |
 | `--since <ref>` | Only scan files changed since a specific git branch/commit | |
 | `--fix` | Automatically fix safe issues (prefix unused identifiers with `_`) | `false` |
-| `-f, --format <format>` | Output format: `pretty`, `json`, or `github` | `pretty` |
+| `-f, --format <format>` | Output format: `pretty`, `json`, `github`, or `ai` | `pretty` |
 | `-i, --interactive` | Launch interactive terminal search dashboard | `false` |
 | `--no-deprecated` | Disable deprecated API usages check | `false` |
 | `--no-unused` | Disable unused variables/imports check | `false` |
@@ -124,37 +111,11 @@ tscheck --json
 
 ---
 
-## Inline Comment Suppression
-
-You can selectively bypass tscheck warnings using comment directives:
-
-```typescript
-// 1. Ignore next line for specific rule
-// tscheck-ignore-next-line any
-const data: any = JSON.parse(str);
-
-// 2. Ignore next line for multiple rules
-// tscheck-ignore-next-line any, deprecated
-const res: any = legacyApiCall();
-
-// 3. Ignore all rules on next line
-// tscheck-ignore-next-line
-const raw: any = oldFunction();
-
-// 4. Disable rules for a block of code
-/* tscheck-disable any */
-const a: any = 1;
-const b: any = 2;
-/* tscheck-enable any */
-```
-
----
-
 ## Configuration
 
-`tscheck` supports **JSON**, **YAML**, and **TypeScript/JavaScript** configuration files with built-in JSON Schema autocompletion in VS Code and Cursor.
+`tscheck` supports **JSON**, **YAML**, and **TypeScript/JavaScript** configuration files with built-in JSON Schema autocompletion in VS Code, Cursor, and Zed.
 
-### 1. JSON Configuration (`.tscheckrc.json` or `tscheck.config.json`)
+### JSON Configuration (`.tscheckrc.json` or `tscheck.config.json`)
 
 ```json
 {
@@ -173,96 +134,26 @@ const b: any = 2;
     "json": true,
     "markdown": true,
     "html": true,
-    "githubAnnotations": false,
-    "jsonFileName": "audit-report.json",
-    "markdownFileName": "audit-report.md",
-    "htmlFileName": "audit-report.html"
+    "ai": true,
+    "serve": false,
+    "open": false,
+    "port": 5500,
+    "editor": "vscode",
+    "githubAnnotations": false
   },
   "failOnWarning": false
 }
 ```
 
-> **Tip**: You can also reference the local schema if installed in your project: `"$schema": "node_modules/@masumdev/tscheck/schema.json"`.
-
-### 2. YAML Configuration (`tscheck.config.yaml` or `.tscheckrc.yaml`)
-
-```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/tscheck/schema.json
-rootDir: .
-workspaces:
-  - packages/*
-  - apps/*
-exclude:
-  - node_modules
-  - dist
-  - build
-  - .expo
-rules:
-  deprecated: true
-  unused: true
-  noExplicitAny: true
-  circular: true
-reporters:
-  outputDir: .temp/tscheck
-  json: true
-  markdown: true
-  html: true
-failOnWarning: false
-```
-
-### 3. TypeScript Configuration (`tscheck.config.ts`)
-
-```typescript
-import { defineConfig, type TsCheckConfig } from "@masumdev/tscheck";
-
-export default defineConfig({
-  rootDir: process.cwd(),
-  workspaces: ["packages/*", "apps/*"],
-  rules: {
-    deprecated: true,
-    unused: true,
-    noExplicitAny: true,
-    circular: true,
-  },
-  reporters: {
-    outputDir: ".temp/tscheck",
-    json: true,
-    markdown: true,
-    html: true,
-  },
-});
-```
-
 ---
 
-## Programmatic API
+## Author & Credits
 
-You can also run `@masumdev/tscheck` programmatically within your Node or Bun scripts:
+Created with ❤️ by **[Ma'sum](https://github.com/masumrpg)**
 
-```typescript
-import { audit, writeAuditReports, emitGitHubAnnotations } from "@masumdev/tscheck";
-
-const report = await audit({
-  rootDir: process.cwd(),
-  rules: {
-    deprecated: true,
-    unused: true,
-    noExplicitAny: true,
-    circular: true,
-  },
-});
-
-console.log(`Files scanned: ${report.summary.filesScanned}`);
-console.log(`Deprecated usages: ${report.summary.totalDeprecatedUsages}`);
-console.log(`Circular cycles: ${report.summary.totalCircularDependencies}`);
-
-// Save reports to disk (JSON, Markdown & HTML)
-const files = writeAuditReports(report, {
-  reporters: {
-    outputDir: ".temp/tscheck",
-  },
-});
-```
+- **GitHub Profile**: [@masumrpg](https://github.com/masumrpg)
+- **Monorepo Repository**: [react-native-library](https://github.com/masumrpg/react-native-library)
+- **Documentation Portal**: [https://react-native-library-docs.netlify.app](https://react-native-library-docs.netlify.app)
 
 ---
 

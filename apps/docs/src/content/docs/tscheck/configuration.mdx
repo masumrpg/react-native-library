@@ -2,7 +2,7 @@
 title: Configuration
 sidebar:
   label: Configuration
-  order: 3
+  order: 4
 description: Complete JSON, YAML, and TypeScript configuration guide for @masumdev/tscheck with JSON schema support and IDE autocompletion.
 ---
 
@@ -40,10 +40,12 @@ When no explicit configuration file path is passed via `-c` or `--config`, `tsch
         "json": true,
         "markdown": true,
         "html": true,
-        "githubAnnotations": false,
-        "jsonFileName": "audit-report.json",
-        "markdownFileName": "audit-report.md",
-        "htmlFileName": "audit-report.html"
+        "ai": true,
+        "serve": true,
+        "open": false,
+        "port": 5500,
+        "editor": "vscode",
+        "githubAnnotations": false
       },
       "failOnWarning": false
     }
@@ -78,7 +80,9 @@ When no explicit configuration file path is passed via `-c` or `--config`, `tsch
       json: true
       markdown: true
       html: true
-      githubAnnotations: false
+      ai: true
+      port: 5500
+      editor: vscode
     failOnWarning: false
     ```
   </TabItem>
@@ -104,6 +108,8 @@ When no explicit configuration file path is passed via `-c` or `--config`, `tsch
         json: true,
         markdown: true,
         html: true,
+        ai: true,
+        editor: "vscode",
       },
       failOnWarning: false,
     });
@@ -151,121 +157,60 @@ const b: any = 2;
 ### `rootDir`
 - **Type**: `string`
 - **Default**: `"."` (resolved to `process.cwd()`)
-- Base directory where the audit engine executes.
 
 ### `workspaces`
 - **Type**: `string[]`
 - **Default**: `["packages/*", "apps/*"]` (or fallback to root `tsconfig.json`)
-- Glob patterns or relative directory paths to scan.
 
 ### `exclude`
 - **Type**: `string[]`
 - **Default**: `["node_modules", "dist", "build", ".expo", ".turbo", ".temp"]`
-- Directory names and path patterns to ignore during file discovery.
 
 ### `staged`
 - **Type**: `boolean`
 - **Default**: `false`
-- When enabled, only scans files currently staged in Git (ideal for pre-commit hooks).
 
 ### `since`
 - **Type**: `string`
 - **Example**: `"main"` or `"HEAD~1"`
-- When provided, only scans files modified since the specified Git reference.
 
 ### `fix`
 - **Type**: `boolean`
 - **Default**: `false`
-- Automatically fixes safe issues like prefixing unused variables and parameters with `_`.
 
 ### `format`
-- **Type**: `"pretty" | "json" | "github"`
+- **Type**: `"pretty" | "json" | "github" | "ai"`
 - **Default**: `"pretty"`
-- Output format for CLI stdout. `"github"` emits native GitHub Actions workflow annotations.
 
-### `rules`
-- **Type**: `object`
-  - `deprecated?: boolean` (Default: `true`): Checks for functions, classes, and properties tagged with JSDoc `@deprecated`.
-  - `unused?: boolean` (Default: `true`): Checks for unused variables, parameters, and imports.
-  - `noExplicitAny?: boolean` (Default: `true`): Checks for explicit `any` type annotations, assertions (`as any`), and generics.
-  - `circular?: boolean` (Default: `true`): Traces import/export graphs to detect circular module dependency cycles.
+### `serve`
+- **Type**: `boolean`
+- **Default**: `true` (starts local HTTP report server after audit)
+
+### `open`
+- **Type**: `boolean`
+- **Default**: `false`
+
+### `port`
+- **Type**: `number`
+- **Default**: `5500`
+
+### `editor`
+- **Type**: `"vscode" | "cursor" | "antigravity" | "windsurf" | "zed" | "webstorm" | "sublime" | "vscode-insiders"`
+- **Default**: `"vscode"`
 
 ### `reporters`
 - **Type**: `object`
   - `outputDir?: string` (Default: `".temp/tscheck"`): Destination folder for generated reports.
   - `json?: boolean` (Default: `true`): Generates `audit-report.json`.
   - `markdown?: boolean` (Default: `true`): Generates `audit-report.md`.
-  - `html?: boolean` (Default: `true`): Generates interactive `audit-report.html` with real-time search, filters, dark/light theme, and clickable links.
+  - `html?: boolean` (Default: `true`): Generates interactive `audit-report.html` with real-time search, filters, dark/light theme, and clickable editor links.
+  - `ai?: boolean` (Default: `true`): Generates token-efficient `audit-report.ai.md`.
   - `githubAnnotations?: boolean` (Default: `false`): Emits GitHub Actions workflow annotations.
-  - `jsonFileName?: string` (Default: `"audit-report.json"`).
-  - `markdownFileName?: string` (Default: `"audit-report.md"`).
-  - `htmlFileName?: string` (Default: `"audit-report.html"`).
-
-### `failOnWarning`
-- **Type**: `boolean`
-- **Default**: `false`
-- If set to `true`, the CLI will exit with code `1` whenever any violations are found.
-
-### `tsconfigName`
-- **Type**: `string`
-- **Default**: `"tsconfig.json"`
-- Custom project tsconfig file name to search for across workspaces.
 
 ---
 
-## TypeScript Type System & Extending Types
+## Author & Monorepo Links
 
-`@masumdev/tscheck` is fully typed out of the box. You can leverage TypeScript for type safety, autocompletion, and even extend the configuration interfaces for your custom scripts or CI pipelines.
-
-### 1. Using `defineConfig()` Helper
-The recommended way to author TypeScript configs is via `defineConfig()`. It provides instant IDE IntelliSense without having to manually type annotations:
-
-```typescript
-import { defineConfig } from "@masumdev/tscheck";
-
-export default defineConfig({
-  rootDir: process.cwd(),
-  workspaces: ["packages/*", "apps/*"],
-  rules: {
-    deprecated: true,
-    unused: true,
-    noExplicitAny: true,
-    circular: true,
-  },
-  reporters: {
-    outputDir: ".temp/tscheck",
-    json: true,
-    markdown: true,
-    html: true,
-  },
-});
-```
-
-### 2. Extending Config Types
-If your project or company maintains custom wrappers, CI metadata, or Slack alert channels, you can extend `TsCheckConfig`:
-
-```typescript
-import type { TsCheckConfig } from "@masumdev/tscheck";
-
-export interface CustomAuditConfig extends TsCheckConfig {
-  metadata?: {
-    team: string;
-    slackChannel?: string;
-    complianceLevel: "strict" | "standard";
-  };
-}
-
-export const auditConfig: CustomAuditConfig = {
-  rootDir: process.cwd(),
-  rules: {
-    deprecated: true,
-    noExplicitAny: true,
-    circular: true,
-  },
-  metadata: {
-    team: "Mobile Core Architecture",
-    slackChannel: "#dev-alerts",
-    complianceLevel: "strict",
-  },
-};
-```
+- **Author**: **[Ma'sum](https://github.com/masumrpg)**
+- **Repository**: [GitHub Repository](https://github.com/masumrpg/react-native-library)
+- **Docs Portal**: [https://react-native-library-docs.netlify.app](https://react-native-library-docs.netlify.app)

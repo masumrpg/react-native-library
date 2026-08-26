@@ -1,27 +1,41 @@
 /**
- * Configuration options for specific inspection rules in tscheck.
+ * Supported IDE/Editor schemes for deep-linking from reports.
+ */
+export type SupportedEditor =
+  | "vscode"
+  | "cursor"
+  | "antigravity"
+  | "windsurf"
+  | "zed"
+  | "webstorm"
+  | "sublime"
+  | "vscode-insiders"
+  | "auto";
+
+/**
+ * Granular rule options for enabling / disabling specific AST audit rules.
  */
 export interface TsCheckRulesConfig {
   /**
-   * Check for deprecated API, function, property, and type usages.
+   * Check for deprecated symbols, functions, methods, and classes tagged with JSDoc `@deprecated`.
    * @default true
    */
   deprecated?: boolean;
 
   /**
-   * Check for unused variables, imports, parameters, and expressions.
+   * Check for unused variables, parameters, and imports using TypeScript compiler diagnostics.
    * @default true
    */
   unused?: boolean;
 
   /**
-   * Check for explicit `any` type annotations and assertions.
+   * Check for explicit `any` type annotations, assertions, and generic type arguments.
    * @default true
    */
   noExplicitAny?: boolean;
 
   /**
-   * Check for circular module dependencies across files.
+   * Check for circular module dependency cycles across import / export graphs.
    * @default true
    */
   circular?: boolean;
@@ -56,10 +70,40 @@ export interface TsCheckReporterConfig {
   html?: boolean;
 
   /**
+   * Whether to generate an AI-optimized, token-efficient prompt context file (`audit-report.ai.md`).
+   * @default true
+   */
+  ai?: boolean;
+
+  /**
    * Whether to emit GitHub Actions workflow annotations (`::warning`, `::error`) to stdout.
    * @default false
    */
   githubAnnotations?: boolean;
+
+  /**
+   * Whether to start a local HTTP server to view the HTML report.
+   * @default true
+   */
+  serve?: boolean;
+
+  /**
+   * Whether to automatically open the report in the default web browser.
+   * @default false
+   */
+  open?: boolean;
+
+  /**
+   * Port for the local HTML report server.
+   * @default 5500
+   */
+  port?: number;
+
+  /**
+   * Default editor scheme to use when clicking file links in reports.
+   * @default "vscode"
+   */
+  editor?: SupportedEditor;
 
   /**
    * Custom file name for the JSON report (without path).
@@ -78,6 +122,12 @@ export interface TsCheckReporterConfig {
    * @default "audit-report.html"
    */
   htmlFileName?: string;
+
+  /**
+   * Custom file name for the AI-optimized prompt file (without path).
+   * @default "audit-report.ai.md"
+   */
+  aiFileName?: string;
 }
 
 /**
@@ -136,7 +186,37 @@ export interface TsCheckConfig {
    * Output report format for CLI stdout.
    * @default "pretty"
    */
-  format?: "pretty" | "json" | "github";
+  format?: "pretty" | "json" | "github" | "ai";
+
+  /**
+   * Whether to start a local HTTP server to view the HTML report.
+   * @default true
+   */
+  serve?: boolean;
+
+  /**
+   * Whether to automatically open the report in the default web browser.
+   * @default false
+   */
+  open?: boolean;
+
+  /**
+   * Port for the local HTML report server.
+   * @default 5500
+   */
+  port?: number;
+
+  /**
+   * Default editor scheme to use when clicking file links.
+   * @default "vscode"
+   */
+  editor?: SupportedEditor;
+
+  /**
+   * Whether to output token-efficient AI prompt markdown.
+   * @default false
+   */
+  ai?: boolean;
 
   /**
    * Whether to exit with a non-zero exit code if warnings or deprecations are discovered.
@@ -162,6 +242,8 @@ export interface DeprecatedUsage {
   reason: string;
   codeSnippet: string;
   package: string;
+  origin?: string;
+  suggestedFix?: string;
 }
 
 /**
@@ -175,6 +257,7 @@ export interface UnusedItem {
   type: "unused-variable" | "unused-parameter" | "unused-import" | "other";
   message: string;
   package: string;
+  suggestedFix?: string;
 }
 
 /**
@@ -187,6 +270,7 @@ export interface AnyTypeUsage {
   context: string;
   codeSnippet: string;
   package: string;
+  suggestedFix?: string;
 }
 
 /**
@@ -199,6 +283,7 @@ export interface CircularDependency {
   column: number;
   cycle: string[];
   codeSnippet: string;
+  suggestedFix?: string;
 }
 
 /**
@@ -241,5 +326,6 @@ export interface AuditReport {
     json?: string;
     markdown?: string;
     html?: string;
+    ai?: string;
   };
 }
