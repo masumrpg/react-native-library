@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
@@ -33,11 +34,13 @@ export function findChromeExecutable(): string | null {
     "/snap/bin/chromium",
     "/usr/bin/microsoft-edge",
     "/usr/bin/microsoft-edge-stable",
+    "/usr/bin/brave-browser",
     // macOS
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    // Windows — Program Files (env-var resolved)
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    // Windows — Google Chrome
     `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
@@ -45,6 +48,10 @@ export function findChromeExecutable(): string | null {
     `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
     `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
     `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    // Windows — Brave Browser
+    `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
     // Windows — Chromium
     `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
   ].filter(Boolean);
@@ -59,12 +66,12 @@ export function findChromeExecutable(): string | null {
     }
   }
 
-  // Check PATH via which/where (including msedge on Windows)
+  // Check PATH via which/where (including msedge and brave on Windows)
   try {
     const cmd = isWin ? "where" : "which";
     const names = isWin
-      ? ["chrome", "msedge", "google-chrome", "chromium", "chromium-browser"]
-      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge"];
+      ? ["chrome", "msedge", "brave", "google-chrome", "chromium", "chromium-browser"]
+      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "brave-browser"];
 
     for (const name of names) {
       const res = spawnSync(cmd, [name], { encoding: "utf-8" });
@@ -79,6 +86,7 @@ export function findChromeExecutable(): string | null {
 
   return null;
 }
+
 
 
 /**
@@ -204,6 +212,7 @@ export async function buildPdfDocument(
 
     try {
       fs.writeFileSync(tmpHtml, pagedHtml, "utf-8");
+      const fileUrl = pathToFileURL(tmpHtml).href;
 
       let res = spawnSync(
         chromePath,
@@ -213,12 +222,13 @@ export async function buildPdfDocument(
           "--no-sandbox",
           "--disable-setuid-sandbox",
           "--allow-file-access-from-files",
+          "--disable-web-security",
           "--force-color-profile=srgb",
           "--run-all-compositor-stages-before-draw",
           "--virtual-time-budget=8000",
           "--no-pdf-header-footer",
           `--print-to-pdf=${tmpPdf}`,
-          tmpHtml,
+          fileUrl,
         ],
         { timeout: 30000 }
       );
@@ -233,10 +243,11 @@ export async function buildPdfDocument(
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--allow-file-access-from-files",
+            "--disable-web-security",
             "--force-color-profile=srgb",
             "--no-pdf-header-footer",
             `--print-to-pdf=${tmpPdf}`,
-            tmpHtml,
+            fileUrl,
           ],
           { timeout: 30000 }
         );

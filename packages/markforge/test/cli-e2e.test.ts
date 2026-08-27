@@ -29,8 +29,12 @@ describe("CLI E2E", () => {
     const stdout = await new Response(proc.stdout).text();
     await proc.exited;
 
-    expect(stdout.trim()).toBe("0.1.0");
+    const pkgJson = JSON.parse(
+      fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8")
+    );
+    expect(stdout.trim()).toBe(pkgJson.version);
   });
+
 
   it("compiles a markdown file via CLI command", async () => {
     const tmpDir = path.resolve(process.cwd(), ".temp/markforge-cli-test");

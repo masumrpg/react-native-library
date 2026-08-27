@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 import { findChromeExecutable } from "../pdf/pdfBuilder.js";
 
 /**
@@ -61,6 +62,7 @@ ${mermaidCode}
 
   try {
     fs.writeFileSync(tmpHtml, htmlContent, "utf-8");
+    const fileUrl = pathToFileURL(tmpHtml).href;
 
     const res = spawnSync(
       chromePath,
@@ -69,11 +71,13 @@ ${mermaidCode}
         "--disable-gpu",
         "--no-sandbox",
         "--disable-setuid-sandbox",
+        "--allow-file-access-from-files",
+        "--disable-web-security",
         "--disable-software-rasterizer",
         "--window-size=1200,800",
         "--virtual-time-budget=5000",
         `--screenshot=${tmpScreenshot}`,
-        tmpHtml,
+        fileUrl,
       ],
       { timeout: 15000 }
     );
@@ -95,3 +99,4 @@ ${mermaidCode}
 
   return null;
 }
+

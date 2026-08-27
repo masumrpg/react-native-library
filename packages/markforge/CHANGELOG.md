@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.3] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **Node.js 22/25 `--localstorage-file` warning**: The `docx` library accesses `globalThis.localStorage` during its module evaluation. In ESM, static `import` declarations are evaluated before any user code in the entry point. Refactored `cli.tsx` to dynamically import `App`, `Ink`, and `loadConfig`, ensuring the `globalThis.localStorage` stub is active before `docx` is loaded by Node.js.
+- **CLI Compilation Error (`expected input to be a string or buffer`)**: Fixed a prop name mismatch in `cli.tsx` where `inputPath` was passed instead of `inputFile` to the Ink `<App />` component.
+- **Dynamic Version Resolution in Global ESM Installs**: Replaced fallback version detection with `fileURLToPath(import.meta.url)` so `MARKFORGE_VERSION` always resolves the installed package's `package.json` correctly.
+
+---
+
 ## [0.2.2] - 2026-08-28
 
 ### 🛠️ Fixed

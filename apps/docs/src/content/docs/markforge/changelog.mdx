@@ -6,6 +6,16 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.2.3] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **Node.js 22/25 `--localstorage-file` warning**: Eliminated the webstorage warning caused by `docx` checking `globalThis.localStorage` by using dynamic imports in the CLI entry point.
+- **CLI Compilation Error**: Resolved the `expected input to be a string or buffer` error caused by an `inputPath` vs `inputFile` prop mismatch in `<App />`.
+- **Global Package Versioning**: Fixed version resolution in ESM bundles to correctly detect `0.2.3` across global and local installations.
+
+---
+
 ## [0.2.2] - 2026-08-28
 
 ### 🛠️ Fixed

@@ -12,7 +12,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",
     "publish": "bun scripts/publish-package.ts",
     "publish:all": "turbo run build && bun publish --access public",
-    "audit": "bun packages/tscheck/dist/cli.mjs"
+    "audit": "bun packages/tscheck/dist/cli.mjs",
+    "markforge": "bun packages/markforge/dist/cli.mjs",
+    "markforge:build": "turbo run build --filter=@masumdev/markforge",
+    "markforge:test": "bun test --cwd packages/markforge"
   },
   "devDependencies": {
     "@turbo/gen": "^2.9.8",
