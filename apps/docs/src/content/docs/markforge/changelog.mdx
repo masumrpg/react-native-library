@@ -6,6 +6,30 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.2.1] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **Windows PDF not using Chromium (fallback PDF rendered)**: `findChromeExecutable()` now resolves Windows browser paths using **runtime environment variables** (`process.env.LOCALAPPDATA`, `process.env.PROGRAMFILES`) instead of hardcoded strings. This fixes the most common Windows failure case where Chrome is installed at the user level (`%LOCALAPPDATA%\Google\Chrome\...`) rather than the system level.
+
+  Full detection order on Windows:
+  | Browser | Path Source |
+  | :--- | :--- |
+  | Chrome (user) | `%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe` |
+  | Chrome (system) | `%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` |
+  | **Edge** (user) | `%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe` |
+  | **Edge** (system) | `%PROGRAMFILES%\Microsoft\Edge\Application\msedge.exe` |
+  | Chromium | `%LOCALAPPDATA%\Chromium\Application\chrome.exe` |
+  | PATH search | `where chrome`, `where msedge` |
+
+  **Override**: Set `CHROME_PATH` or `PUPPETEER_EXECUTABLE_PATH` environment variable to use a custom browser binary.
+
+- **CLI `--localstorage-file` warning**: Suppressed the noisy Bun startup warning `--localstorage-file was provided without a valid path` that appeared on every `markforge` invocation. Bun's built-in localStorage API emits this warning when no storage file is configured. MarkForge never uses localStorage, so the warning is filtered silently at process startup.
+
+- **Mermaid renderer reliability**: Added `--virtual-time-budget=5000` and `--disable-software-rasterizer` to the Chromium invocation for Mermaid diagram capture. Improves render success rate on Windows and lower-end hardware where GPU rasterization is unavailable.
+
+---
+
 ## [0.2.0] - 2026-08-27
 
 ### 🚀 Added
