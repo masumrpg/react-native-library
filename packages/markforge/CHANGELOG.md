@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.2] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **CLI warning still showing after 0.2.1**: The `--localstorage-file` warning suppression in `cli.tsx` was broken due to incorrect listener registration order. `process.removeAllListeners("warning")` was called *after* `process.on("warning", handler)`, which immediately removed the handler we just added. Fixed by calling `removeAllListeners` **before** registering the filter handler.
+- **Dynamic version**: `MARKFORGE_VERSION` in `version.ts` is now resolved at runtime by walking up the directory tree to find `package.json`. The hardcoded string is only a fallback. Version bumps in `package.json` are now automatically reflected in `markforge -V` output without needing to touch `version.ts`.
+
+---
+
 ## [0.2.1] - 2026-08-28
 
 ### 🛠️ Fixed

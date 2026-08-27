@@ -1,10 +1,11 @@
 // Suppress Bun's --localstorage-file warning (harmless: fires when no file path is
 // configured for Bun's localStorage API, which markforge never uses).
+// IMPORTANT: removeAllListeners must come BEFORE process.on, not after.
+process.removeAllListeners("warning");
 process.on("warning", (w) => {
   if (w.message.includes("localstorage-file") || w.message.includes("localStorage")) return;
   process.stderr.write(`(node:${process.pid}) ${w.name}: ${w.message}\n`);
 });
-process.removeAllListeners("warning"); // remove default handler; our handler above is already set
 
 import { render } from "ink";
 import { Command } from "commander";
