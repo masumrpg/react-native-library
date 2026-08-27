@@ -6,6 +6,7 @@
     "dev:native": "turbo dev --filter='@masumdev/*' --filter=native",
     "dev:docs": "turbo dev --filter=docs",
     "gen:expo-package": "bunx turbo gen expo-package",
+    "gen:cli-package": "bunx turbo gen cli-package",
     "build": "turbo run build",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore",

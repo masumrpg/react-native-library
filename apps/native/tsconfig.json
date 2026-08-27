@@ -9,8 +9,7 @@
         "../../packages/rn-qr-code/src"
       ],
       "@masumdev/rn-tajweed-verse": ["../../packages/rn-tajweed-verse/src"],
-      "@masumdev/rn-ui": ["../../packages/rn-ui/src"],
-      "@masumdev/tscheck": ["../../packages/tscheck/src"]
+      "@masumdev/rn-ui": ["../../packages/rn-ui/src"]
     }
   },
   "exclude": ["dist", "build", "node_modules", ".expo"]

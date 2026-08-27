@@ -1,0 +1,193 @@
+---
+title: Configuration Reference
+sidebar:
+  label: Configuration
+  order: 4
+description: Complete options reference for markforge.config.ts, .markforgerc.json, and YAML configurations with header, footer, watermark, and theme options.
+---
+
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+MarkForge supports configuration via file or frontmatter. Configuration files are auto-discovered in the following order:
+
+1. `markforge.config.ts` / `markforge.config.js` / `markforge.config.mjs`
+2. `markforge.config.json` / `.markforgerc.json` / `.markforgerc`
+3. `markforge.config.yaml` / `markforge.config.yml`
+
+---
+
+## Configuration File Examples
+
+<Tabs>
+  <TabItem label="TypeScript">
+    ```typescript
+    // markforge.config.ts
+    import { defineConfig } from "@masumdev/markforge";
+
+    export default defineConfig({
+      to: ["docx", "pdf", "html"],
+      outputDir: "./dist",
+      theme: "default",
+      orientation: "portrait",
+      paperSize: "A4",
+      margins: {
+        top: "2.5cm",
+        bottom: "2.5cm",
+        left: "3cm",
+        right: "3cm",
+      },
+      header: {
+        left: "My Organization",
+        center: "{title}",
+        right: "v{version}",
+      },
+      footer: {
+        left: "Confidential — Internal Use Only",
+        right: "Page {page} of {pages}",
+      },
+      toc: true,
+      embedImages: true,
+      watermark: {
+        enabled: false,
+        text: "DRAFT",
+        opacity: 0.07,
+        position: "diagonal",
+      },
+    });
+    ```
+  </TabItem>
+  <TabItem label="JSON">
+    ```json
+    {
+      "$schema": "https://react-native-library-docs.netlify.app/markforge/schema.json",
+      "to": ["docx", "pdf", "html"],
+      "outputDir": "./dist",
+      "theme": "academic",
+      "orientation": "portrait",
+      "paperSize": "A4",
+      "toc": true,
+      "header": {
+        "left": "My Company",
+        "right": "{title}"
+      },
+      "footer": {
+        "right": "Page {page} of {pages}"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="YAML">
+    ```yaml
+    to:
+      - docx
+      - pdf
+      - html
+    outputDir: "./dist"
+    theme: "academic"
+    orientation: "portrait"
+    paperSize: "A4"
+    toc: true
+    header:
+      left: "My Company"
+      right: "{title}"
+    footer:
+      right: "Page {page} of {pages}"
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## All Configuration Properties
+
+### Core Options
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `to` | `string \| string[]` | `["docx","pdf"]` | Output formats: `docx`, `pdf`, `html` |
+| `outputDir` | `string` | `undefined` | Target directory for generated files |
+| `theme` | `string` | `"default"` | Built-in theme name |
+| `css` | `string \| string[]` | `undefined` | Custom CSS file paths to inject |
+| `embedImages` | `boolean` | `true` | Inline all images as Base64 |
+| `toc` | `boolean` | `false` | Auto-generate Table of Contents |
+| `watch` | `boolean` | `false` | Watch input file and recompile on change |
+
+### Page Layout
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `orientation` | `"portrait" \| "landscape"` | `"portrait"` | Page orientation |
+| `paperSize` | `"A4" \| "letter" \| "legal"` | `"A4"` | Paper size |
+| `margins.top` | `string` | `"2.5cm"` | Top margin (CSS units) |
+| `margins.bottom` | `string` | `"2.5cm"` | Bottom margin |
+| `margins.left` | `string` | `"3cm"` | Left margin |
+| `margins.right` | `string` | `"3cm"` | Right margin |
+
+### Header & Footer
+
+Multi-zone header and footer with Left / Center / Right columns. Supported in **DOCX** and **PDF**.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `header.left` | `string` | Left-aligned header content |
+| `header.center` | `string` | Center-aligned header content |
+| `header.right` | `string` | Right-aligned header content |
+| `footer.left` | `string` | Left-aligned footer content |
+| `footer.center` | `string` | Center-aligned footer content |
+| `footer.right` | `string` | Right-aligned footer content |
+
+**Available tokens:**
+
+| Token | Replaced With |
+| :--- | :--- |
+| `{title}` | Document title from frontmatter |
+| `{author}` | Author from frontmatter |
+| `{version}` | Version from frontmatter |
+| `{date}` | Date from frontmatter |
+| `{page}` | Current page number |
+| `{pages}` | Total page count |
+
+### Watermark
+
+<Aside type="note">
+Watermarks are **disabled by default**. Enable only when needed for draft or confidential documents.
+</Aside>
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `watermark.enabled` | `boolean` | `false` | Enable/disable watermark |
+| `watermark.text` | `string` | `"DRAFT"` | Watermark text |
+| `watermark.opacity` | `number` | `0.07` | Opacity 0–1 |
+| `watermark.position` | `string` | `"diagonal"` | `diagonal` \| `center` \| `top-left` \| `top-right` \| `bottom-left` \| `bottom-right` |
+
+---
+
+## Built-in Themes
+
+| Theme | Font | Best Use Case |
+| :--- | :--- | :--- |
+| `default` | System sans-serif (Segoe UI, Roboto) | Tech specs, API docs |
+| `academic` | Merriweather / Georgia (serif) | Papers, reports, theses |
+| `github` | GitHub Markdown style | READMEs, open-source |
+| `corporate` | Clean professional layout | Business documents |
+| `minimal` | Whitespace-focused | Simple notes |
+| `dracula` | Dark-mode inspired | Developer docs |
+
+All themes share the `THEME_COMPONENTS` base layer — callout boxes, code blocks, tables, TOC, and images are consistently styled across every theme.
+
+---
+
+## Frontmatter vs Config File
+
+Frontmatter properties (in the Markdown file itself) always **override** config file settings for that specific document:
+
+```markdown
+---
+title: "Quarterly Report"
+theme: "corporate"        # overrides config file theme
+toc: false                # overrides config file toc: true
+watermark:
+  enabled: true
+  text: "CONFIDENTIAL"
+---
+```

@@ -1,0 +1,79 @@
+{
+  "name": "@masumdev/markforge",
+  "version": "0.1.0",
+  "description": "Modern, high-performance Markdown & MDX multi-format document publishing engine and CLI (DOCX, PDF, HTML, and Images) with embedded HTML/CSS, image inliner, and Ink terminal UI.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "markforge": "./dist/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./schema.json": "./schema.json"
+  },
+  "files": [
+    "dist",
+    "schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage"
+  },
+  "keywords": [
+    "markdown",
+    "mdx",
+    "docx",
+    "pdf",
+    "html",
+    "converter",
+    "document-generator",
+    "word",
+    "publishing",
+    "ink",
+    "cli",
+    "markforge"
+  ],
+  "author": "Ma'sum",
+  "license": "MIT",
+  "homepage": "https://react-native-library-docs.netlify.app/markforge/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "directory": "packages/markforge"
+  },
+  "bugs": {
+    "url": "https://github.com/masumrpg/react-native-library/issues"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "docx": "^9.2.0",
+    "gray-matter": "^4.0.3",
+    "ink": "^6.1.0",
+    "ink-spinner": "^5.0.0",
+    "ink-table": "^3.1.0",
+    "picocolors": "^1.1.1",
+    "react": "^19.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "bun-types": "^1.4.0",
+    "ink-testing-library": "^4.0.0",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

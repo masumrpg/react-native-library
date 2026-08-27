@@ -1,0 +1,17 @@
+{
+  "name": "markforge-playground",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:sample": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --to docx,pdf,html -o .temp/output",
+    "build:spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-specification.md --to docx,pdf,html -o .temp/output",
+    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --watch -o .temp/output"
+  },
+  "dependencies": {
+    "@masumdev/markforge": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

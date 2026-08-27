@@ -76,6 +76,10 @@ export default defineConfig({
           label: 'TSCheck',
           autogenerate: { directory: 'tscheck' },
         },
+        {
+          label: 'MarkForge',
+          autogenerate: { directory: 'markforge' },
+        },
       ],
     }),
   ],
