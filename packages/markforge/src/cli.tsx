@@ -1,18 +1,37 @@
-// Suppress Bun's --localstorage-file warning (harmless: fires when no file path is
-// configured for Bun's localStorage API, which markforge never uses).
-// IMPORTANT: removeAllListeners must come BEFORE process.on, not after.
+// Stub globalThis.localStorage to prevent Node.js 22+ internal webstorage warning
+// when third-party libraries (e.g. docx) check for localStorage availability.
+try {
+  if (
+    typeof globalThis !== "undefined" &&
+    (!globalThis.localStorage || typeof globalThis.localStorage.getItem !== "function")
+  ) {
+    Object.defineProperty(globalThis, "localStorage", {
+      value: {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+        clear: () => {},
+        key: () => null,
+        length: 0,
+      },
+      configurable: true,
+      writable: true,
+    });
+  }
+} catch {
+  // ignore
+}
+
+// Suppress any remaining warning
 process.removeAllListeners("warning");
 process.on("warning", (w) => {
   if (w.message.includes("localstorage-file") || w.message.includes("localStorage")) return;
   process.stderr.write(`(node:${process.pid}) ${w.name}: ${w.message}\n`);
 });
 
-import { render } from "ink";
 import { Command } from "commander";
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { App } from "./ui/App.js";
-import { loadConfig } from "./config/loadConfig.js";
 import { MARKFORGE_VERSION } from "./version.js";
 import type { MarkforgeFormat } from "./config/types.js";
 
@@ -54,6 +73,13 @@ async function main() {
     .map((f: string) => f.trim().toLowerCase())
     .filter(Boolean) as MarkforgeFormat[];
 
+  // Dynamically import App, Ink, and loadConfig so localStorage stub runs first
+  const [{ render }, { App }, { loadConfig }] = await Promise.all([
+    import("ink"),
+    import("./ui/App.js"),
+    import("./config/loadConfig.js"),
+  ]);
+
   // Load config (auto-discover or explicit path)
   const fileConfig = await loadConfig(options.config as string | undefined, path.dirname(resolvedInputPath));
 
@@ -69,9 +95,13 @@ async function main() {
 
   render(
     <App
-      inputPath={resolvedInputPath}
+      inputFile={resolvedInputPath}
       config={mergedConfig}
-      watch={options.watch as boolean}
+      onComplete={(res) => {
+        if (res.errors && res.errors.length > 0) {
+          process.exitCode = 1;
+        }
+      }}
     />
   );
 }
@@ -80,3 +110,5 @@ main().catch((err: unknown) => {
   console.error("[FATAL]", err instanceof Error ? err.message : err);
   process.exit(1);
 });
+
+
