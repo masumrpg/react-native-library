@@ -1,0 +1,49 @@
+---
+title: Changelog
+sidebar:
+  label: Changelog
+  order: 5
+description: Release history and version notes for @masumdev/markforge.
+---
+
+## [0.2.0] - 2026-08-27
+
+### 🚀 Added
+
+- **Mermaid Diagram Support**: Full Mermaid.js rendering for all output formats. Diagrams in ` ```mermaid ``` ` blocks are rasterized via headless Chromium and embedded as images in DOCX, PDF, and HTML. Virtual-time-budget set to 8000ms for complex diagrams.
+- **Callout / Alert Boxes**: GitHub-flavored callout syntax (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`) now renders with colored left-border and background in all three output formats. Colors use inline `style` attributes to bypass Chromium print background suppression.
+- **Watermark Configuration**: Optional per-document watermark support via `markforge.config.ts` or frontmatter. Disabled by default. Configurable `text`, `opacity`, and `position` (`diagonal`, `center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`).
+- **Multi-Zone Header & Footer**: Full Left / Center / Right header and footer support in both DOCX (OpenXML tab-stop logic) and PDF (CSS Paged Media `@top-*` / `@bottom-*` rules). Supports `{title}`, `{author}`, `{version}`, `{date}`, `{page}`, `{pages}` tokens.
+- **`THEME_COMPONENTS` Base Layer**: All shared component CSS (callouts, blockquotes, code blocks, tables, images, TOC, document header, print rules) extracted into a `THEME_COMPONENTS` constant always injected regardless of the chosen theme. Fixes missing styles in `academic` and all non-default themes.
+
+### 🎨 Changed
+
+- **Primary Color Palette**: Updated to Blu by BCA Digital cyan — primary `#33CDCF`, deep `#009DA0`, tint `#ECFDFD` — across all themes and component styles.
+- **Dual Syntax Highlight Themes**:
+  - **PDF / HTML** (dark background): VS Code Dark+-inspired palette. Strings in warm orange `#E07C4F`, keywords in coral-red `#FF7B72`, plain text in light gray `#E2E8F0`, functions in soft purple `#D2A8FF`.
+  - **DOCX** (white background): GitHub Light-inspired palette. Strings in forest teal `#0A7E5C`, keywords in crimson `#D73A49`, plain text near-black `#24292E`.
+  - `tokenizeCodeLine(line, lang, theme)` now accepts a `theme: "dark" | "light"` parameter. `docxBuilder` passes `"light"`, HTML/PDF builders use `"dark"` (default).
+- **PDF Code Block Scrollbar Removed**: `@media print { pre { overflow: visible; white-space: pre-wrap; word-break: break-all; } }` — scrollbars no longer appear in printed/PDF code blocks.
+- **`THEME_ACADEMIC`** now includes a full `:root` CSS variable block compatible with `THEME_COMPONENTS`, enabling all component styles (callouts, code, tables) to apply correctly in academic theme documents.
+
+### 🛠️ Fixed
+
+- **PDF Header/Footer not rendering**: Refactored `injectPagedMediaStyles()` in `pdfBuilder.ts` to correctly inject CSS `@page` rules using `@top-left`, `@top-center`, `@top-right`, `@bottom-*` selectors from frontmatter/config.
+- **DOCX Header/Footer single-zone bug**: Implemented `TabStopType` logic to correctly split headers into three zones using tab characters and `TabStop` positions in OpenXML paragraphs.
+- **Callout styles missing in PDF**: Root cause was `THEME_ACADEMIC` missing component CSS. Fixed by the `THEME_COMPONENTS` extraction + injection approach in `htmlBuilder.ts`.
+- **Chromium PDF background color suppression**: Added `--force-color-profile=srgb` Chrome flag. Callout colors rendered using inline styles that bypass print background graphics suppression.
+- **Mermaid diagram alignment**: Fixed `virtual-time-budget` increased to `8000ms` to ensure complex diagrams finish rendering before PDF capture.
+
+---
+
+## [0.1.0] - 2026-08-27
+
+### 🚀 Initial Release
+
+- **Multi-Format Document Engine**: Full compiler pipeline producing Microsoft Word (`.docx`), Print-ready (`.pdf`), and Standalone (`.html`).
+- **Embedded HTML & CSS Support**: Native parsing of inline HTML tags (`<div>`, `<span>`, `<table>`, `<img>`, `<style>`) inside Markdown & MDX.
+- **Image Resolver Engine**: Local relative path resolution, remote Web URL fetching with caching, Base64 data URIs, and SVG vector support.
+- **Built-in Curated Themes**: `default`, `academic`, `github`, `corporate`, `minimal`, and `dracula`.
+- **Interactive Terminal UI**: Built with **Ink** (React for Terminal) with progress indicators and summary table.
+- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts`, `.markforgerc.json`, and YAML support with JSON Schema autocomplete.
+- **Programmatic TypeScript API**: Direct functions `markforge()`, `compileMarkdown()`, `buildDocxDocument()`, `buildHtmlDocument()`, and `buildPdfDocument()`.

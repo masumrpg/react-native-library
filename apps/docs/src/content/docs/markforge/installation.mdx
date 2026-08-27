@@ -1,0 +1,84 @@
+---
+title: Installation
+sidebar:
+  label: Installation
+  order: 2
+description: How to install and setup @masumdev/markforge in your local project or global CLI environment.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+You can install `@masumdev/markforge` globally as a command-line tool or locally as a project dependency.
+
+## Global Installation (CLI)
+
+Install globally to use the `markforge` command anywhere in your terminal:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bun add -g @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -g @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn global add @masumdev/markforge
+    ```
+  </TabItem>
+</Tabs>
+
+Verify your global installation:
+
+```bash
+markforge --version
+# Output: 0.1.0
+```
+
+---
+
+## Local Installation (Project / Monorepo)
+
+Install as a development dependency in your workspace:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -D @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bun add -d @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -D @masumdev/markforge
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add -D @masumdev/markforge
+    ```
+  </TabItem>
+</Tabs>
+
+Add a script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "build:docs": "markforge docs/spec.md --to docx,pdf,html -o dist/docs"
+  }
+}
+```
