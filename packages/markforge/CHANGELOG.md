@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **Windows PDF not using Chromium (fallback)**: `findChromeExecutable()` now resolves Windows browser paths using runtime environment variables instead of hardcoded strings:
+  - `%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe` — user-level Chrome install (most common on Windows)
+  - `%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` — system-level Chrome
+  - `%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe` — Microsoft Edge (bundled with Windows 10/11)
+  - `%PROGRAMFILES%\Microsoft\Edge\Application\msedge.exe` — system Edge
+  - `%LOCALAPPDATA%\Chromium\Application\chrome.exe` — Chromium standalone
+  - Also added `where chrome` and `where msedge` to PATH search on Windows.
+  - Set `CHROME_PATH` or `PUPPETEER_EXECUTABLE_PATH` env variable to override auto-detection.
+- **CLI `--localstorage-file` warning**: Suppressed the noisy Bun startup warning `--localstorage-file was provided without a valid path`. This fired because Bun's built-in localStorage API is enabled by default but no file path was configured. MarkForge never uses localStorage, so the warning is harmless — it is now silently filtered at process startup.
+- **Mermaid renderer**: Added `--virtual-time-budget=5000` and `--disable-software-rasterizer` flags to Chromium invocation for more reliable diagram capture on Windows and lower-end hardware.
+
+---
+
 ## [0.2.0] - 2026-08-27
 
 ### 🚀 Added

@@ -3,10 +3,10 @@ title: Installation
 sidebar:
   label: Installation
   order: 2
-description: How to install and setup @masumdev/markforge in your local project or global CLI environment.
+description: How to install and set up @masumdev/markforge as a global CLI or local project dependency. Includes PDF requirements and Windows browser configuration.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 You can install `@masumdev/markforge` globally as a command-line tool or locally as a project dependency.
 
@@ -37,11 +37,11 @@ Install globally to use the `markforge` command anywhere in your terminal:
   </TabItem>
 </Tabs>
 
-Verify your global installation:
+Verify your installation:
 
 ```bash
 markforge --version
-# Output: 0.1.0
+# Output: 0.2.1
 ```
 
 ---
@@ -82,3 +82,38 @@ Add a script to your `package.json`:
   }
 }
 ```
+
+---
+
+## PDF Requirements
+
+PDF output is rendered via **headless Chromium**. MarkForge automatically detects the browser on your system in this order:
+
+| Platform | Auto-detected browsers |
+| :--- | :--- |
+| **Linux** | `google-chrome`, `chromium`, `chromium-browser`, `microsoft-edge` |
+| **macOS** | Google Chrome, Chromium, Microsoft Edge |
+| **Windows** | Chrome (`%LOCALAPPDATA%` / `%PROGRAMFILES%`), **Microsoft Edge** (built-in), Chromium |
+
+<Aside type="tip">
+**Windows users**: Microsoft Edge is bundled with Windows 10/11 and is automatically detected — no additional install needed.
+</Aside>
+
+### Custom Browser Path
+
+If your browser is installed in a non-standard location, set the `CHROME_PATH` environment variable:
+
+```bash
+# Linux / macOS
+export CHROME_PATH="/usr/local/bin/chromium"
+
+# Windows (PowerShell)
+$env:CHROME_PATH = "C:\Users\YourName\AppData\Local\Google\Chrome\Application\chrome.exe"
+
+# Or use PUPPETEER_EXECUTABLE_PATH (if you use Puppeteer)
+export PUPPETEER_EXECUTABLE_PATH="/path/to/chrome"
+```
+
+<Aside type="note">
+If no Chromium-based browser is found, MarkForge falls back to a minimal PDF-1.4 structure. The fallback contains the document title only — no styling, images, or full content. Install Chrome or Edge to get full PDF output.
+</Aside>

@@ -17,6 +17,13 @@ export function findChromeExecutable(): string | null {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
   }
 
+  const isWin = process.platform === "win32";
+
+  // Resolve Windows env-var paths at runtime
+  const winLocalAppData = process.env.LOCALAPPDATA ?? "";
+  const winProgramFiles = process.env.PROGRAMFILES ?? "C:\\Program Files";
+  const winProgramFilesX86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
+
   const candidates: string[] = [
     // Linux
     "/usr/bin/google-chrome",
@@ -24,13 +31,23 @@ export function findChromeExecutable(): string | null {
     "/usr/bin/chromium",
     "/usr/bin/chromium-browser",
     "/snap/bin/chromium",
+    "/usr/bin/microsoft-edge",
+    "/usr/bin/microsoft-edge-stable",
     // macOS
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    // Windows
-    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-  ];
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    // Windows — Program Files (env-var resolved)
+    `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
+    // Windows — Microsoft Edge (ships with Windows 10/11)
+    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    // Windows — Chromium
+    `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
+  ].filter(Boolean);
 
   for (const candidate of candidates) {
     try {
@@ -42,11 +59,14 @@ export function findChromeExecutable(): string | null {
     }
   }
 
-  // Check PATH via which/where
+  // Check PATH via which/where (including msedge on Windows)
   try {
-    const isWin = process.platform === "win32";
     const cmd = isWin ? "where" : "which";
-    for (const name of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]) {
+    const names = isWin
+      ? ["chrome", "msedge", "google-chrome", "chromium", "chromium-browser"]
+      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge"];
+
+    for (const name of names) {
       const res = spawnSync(cmd, [name], { encoding: "utf-8" });
       if (res.status === 0 && res.stdout.trim()) {
         const binPath = res.stdout.split(/\r?\n/)[0].trim();
@@ -59,6 +79,7 @@ export function findChromeExecutable(): string | null {
 
   return null;
 }
+
 
 /**
  * Injects CSS Paged Media styles into HTML for print & PDF formatting.
