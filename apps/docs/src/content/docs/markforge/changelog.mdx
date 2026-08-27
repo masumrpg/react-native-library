@@ -6,6 +6,24 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.2.2] - 2026-08-28
+
+### 🛠️ Fixed
+
+- **CLI `--localstorage-file` warning still appearing (regression from 0.2.1)**: The warning suppression logic had an inverted listener order bug:
+  ```typescript
+  // ❌ Wrong — handler added then immediately removed
+  process.on("warning", handler);
+  process.removeAllListeners("warning"); // removes our handler too!
+
+  // ✅ Fixed — remove defaults first, then add our filter
+  process.removeAllListeners("warning");
+  process.on("warning", handler);
+  ```
+- **Dynamic `markforge -V` version**: `MARKFORGE_VERSION` now reads directly from `package.json` at runtime instead of a hardcoded string. Future version bumps only require updating `package.json`.
+
+---
+
 ## [0.2.1] - 2026-08-28
 
 ### 🛠️ Fixed
