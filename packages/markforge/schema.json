@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MarkforgeConfig",
-  "description": "Configuration schema for @masumdev/markforge Markdown & MDX document publishing engine",
+  "description": "Type-safe configuration schema for @masumdev/markforge Markdown & MDX document publishing engine",
   "type": "object",
   "properties": {
     "$schema": {
       "type": "string",
-      "description": "JSON schema reference URI"
+      "description": "JSON Schema reference URI for IDE autocompletion and validation"
     },
     "to": {
-      "description": "Target formats to compile markdown to",
+      "description": "Target formats to compile markdown to (docx, pdf, html, png)",
       "oneOf": [
         {
           "type": "string",
@@ -31,12 +31,12 @@
     },
     "theme": {
       "type": "string",
-      "description": "Visual document theme",
+      "description": "Visual document theme name",
       "enum": ["default", "academic", "github", "corporate", "minimal", "dracula"],
       "default": "default"
     },
     "css": {
-      "description": "Custom CSS stylesheet(s) to inject",
+      "description": "Custom CSS stylesheet path(s) to inject",
       "oneOf": [
         { "type": "string" },
         { "type": "array", "items": { "type": "string" } }
@@ -44,56 +44,87 @@
     },
     "orientation": {
       "type": "string",
+      "description": "Page orientation for PDF and DOCX",
       "enum": ["portrait", "landscape"],
       "default": "portrait"
     },
     "paperSize": {
       "type": "string",
+      "description": "Physical page size",
       "enum": ["A4", "Letter", "Legal", "A3", "A5"],
       "default": "A4"
     },
     "margins": {
       "type": "object",
+      "description": "Document margins (supports units like '2.5cm', '1in', '20mm', or pt numbers)",
       "properties": {
         "top": { "type": ["string", "number"] },
         "bottom": { "type": ["string", "number"] },
         "left": { "type": ["string", "number"] },
         "right": { "type": ["string", "number"] }
-      }
+      },
+      "additionalProperties": false
     },
     "header": {
       "type": "object",
+      "description": "Header text across pages",
       "properties": {
         "left": { "type": "string" },
         "center": { "type": "string" },
         "right": { "type": "string" }
-      }
+      },
+      "additionalProperties": false
     },
     "footer": {
       "type": "object",
+      "description": "Footer text across pages (supports {page} and {pages} variables)",
       "properties": {
         "left": { "type": "string" },
         "center": { "type": "string" },
         "right": { "type": "string" }
-      }
+      },
+      "additionalProperties": false
     },
     "toc": {
       "type": "boolean",
-      "description": "Auto-generate Table of Contents",
+      "description": "Auto-generate Table of Contents with page references",
       "default": false
     },
     "watermark": {
       "type": "string",
-      "description": "Watermark text across pages"
+      "description": "Diagonal watermark text across document pages"
     },
     "embedImages": {
       "type": "boolean",
-      "description": "Whether to inline/embed all images",
+      "description": "Whether to inline/embed all images as Base64 in outputs",
       "default": true
+    },
+    "bundleHtml": {
+      "type": "boolean",
+      "description": "Produce self-contained HTML with embedded styles and scripts",
+      "default": true
+    },
+    "syntaxTheme": {
+      "type": "string",
+      "description": "Code block syntax highlighting color scheme",
+      "enum": ["github-dark", "github-light", "dracula", "monokai", "nord"],
+      "default": "github-dark"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Document frontmatter metadata defaults",
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "date": { "type": "string" },
+        "version": { "type": "string" },
+        "company": { "type": "string" }
+      },
+      "additionalProperties": true
     },
     "watch": {
       "type": "boolean",
-      "description": "Watch mode for hot compilation",
+      "description": "Watch mode for re-compilation on source file changes",
       "default": false
     },
     "serve": {
@@ -108,7 +139,7 @@
     },
     "open": {
       "type": "boolean",
-      "description": "Open document in browser on compile",
+      "description": "Automatically open document in browser on compile",
       "default": false
     }
   },
