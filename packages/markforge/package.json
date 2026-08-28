@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/markforge",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Modern, high-performance Markdown & MDX multi-format document publishing engine and CLI (DOCX, PDF, HTML, and Images) with embedded HTML/CSS, image inliner, and Ink terminal UI.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
