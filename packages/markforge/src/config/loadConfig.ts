@@ -57,30 +57,64 @@ export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" 
 };
 
 /**
+ * Searches for a configuration file starting from `startDir` and walking up to filesystem root,
+ * and also checks `process.cwd()`.
+ */
+function discoverConfigFile(startDir: string): string | null {
+  const dirsToCheck: string[] = [];
+
+  // 1. Walk up from startDir to root
+  let curr = path.resolve(startDir);
+  while (curr) {
+    dirsToCheck.push(curr);
+    const parent = path.dirname(curr);
+    if (parent === curr) break;
+    curr = parent;
+  }
+
+  // 2. Also ensure process.cwd() is checked
+  const cwd = path.resolve(process.cwd());
+  if (!dirsToCheck.includes(cwd)) {
+    dirsToCheck.push(cwd);
+  }
+
+  for (const dir of dirsToCheck) {
+    for (const filename of DEFAULT_CONFIG_FILENAMES) {
+      const candidate = path.join(dir, filename);
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        return candidate;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * Resolves and loads markforge configuration from disk.
  */
 export async function loadConfig(
   customPath?: string,
-  cwd: string = process.cwd()
+  startDir: string = process.cwd()
 ): Promise<{ config: MarkforgeConfig; configPath: string | null }> {
   let resolvedPath: string | null = null;
 
   if (customPath) {
     resolvedPath = path.isAbsolute(customPath)
       ? customPath
-      : path.resolve(cwd, customPath);
+      : path.resolve(process.cwd(), customPath);
 
     if (!fs.existsSync(resolvedPath)) {
-      throw new Error(`Configuration file not found: ${resolvedPath}`);
-    }
-  } else {
-    for (const filename of DEFAULT_CONFIG_FILENAMES) {
-      const candidate = path.resolve(cwd, filename);
-      if (fs.existsSync(candidate)) {
-        resolvedPath = candidate;
-        break;
+      // Also try resolving relative to startDir
+      const altPath = path.resolve(startDir, customPath);
+      if (fs.existsSync(altPath)) {
+        resolvedPath = altPath;
+      } else {
+        throw new Error(`Configuration file not found: ${resolvedPath}`);
       }
     }
+  } else {
+    resolvedPath = discoverConfigFile(startDir);
   }
 
   if (!resolvedPath) {
@@ -91,36 +125,63 @@ export async function loadConfig(
   }
 
   const ext = path.extname(resolvedPath).toLowerCase();
-  let userConfig: Partial<MarkforgeConfig> = {};
+  let userConfig: Record<string, unknown> = {};
 
-  if (ext === ".json" || resolvedPath.endsWith(".markforgerc")) {
-    const raw = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = JSON.parse(raw);
-  } else if (ext === ".yaml" || ext === ".yml") {
-    const raw = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = YAML.parse(raw);
-  } else if (ext === ".ts" || ext === ".js" || ext === ".mjs" || ext === ".cjs") {
-    try {
-      const fileUrl = pathToFileURL(resolvedPath).href;
-      const mod = await import(fileUrl);
-      userConfig = mod.default || mod;
-    } catch {
-      // Fallback require
-      const required = require(resolvedPath);
-      userConfig = required.default || required;
+  try {
+    if (ext === ".json" || ext === "" || resolvedPath.endsWith(".markforgerc")) {
+      const raw = fs.readFileSync(resolvedPath, "utf-8").trim();
+      try {
+        userConfig = JSON.parse(raw);
+      } catch {
+        // Fallback: parse as YAML in case .markforgerc contains YAML
+        userConfig = (YAML.parse(raw) || {}) as Record<string, unknown>;
+      }
+    } else if (ext === ".yaml" || ext === ".yml") {
+      const raw = fs.readFileSync(resolvedPath, "utf-8");
+      userConfig = (YAML.parse(raw) || {}) as Record<string, unknown>;
+    } else if (ext === ".ts" || ext === ".js" || ext === ".mjs" || ext === ".cjs") {
+      try {
+        const fileUrl = `${pathToFileURL(resolvedPath).href}?t=${Date.now()}`;
+        const mod = await import(fileUrl);
+        const rawExport = mod.default ?? mod.config ?? mod;
+        userConfig = (typeof rawExport === "function" ? await rawExport() : rawExport) || {};
+      } catch (importErr) {
+        // Fallback for CommonJS
+        try {
+          const mod = require(resolvedPath);
+          const rawExport = mod.default ?? mod.config ?? mod;
+          userConfig = (typeof rawExport === "function" ? await rawExport() : rawExport) || {};
+        } catch {
+          throw importErr;
+        }
+      }
     }
+  } catch (err) {
+    throw new Error(
+      `Failed to parse configuration file at ${resolvedPath}: ${err instanceof Error ? err.message : String(err)}`
+    );
   }
+
+  // Remove $schema if present in JSON config so it doesn't pollute the typed config
+  if (userConfig && typeof userConfig === "object" && "$schema" in userConfig) {
+    delete userConfig.$schema;
+  }
+
+  const parsedConfig = userConfig as Partial<MarkforgeConfig>;
 
   const mergedConfig: MarkforgeConfig = {
     ...DEFAULT_CONFIG,
-    ...userConfig,
+    ...parsedConfig,
     margins: {
       ...DEFAULT_CONFIG.margins,
-      ...userConfig.margins,
+      ...(parsedConfig.margins || {}),
     },
-    header: userConfig.header || DEFAULT_CONFIG.header,
-    footer: userConfig.footer || DEFAULT_CONFIG.footer,
-    metadata: userConfig.metadata,
+    header: parsedConfig.header !== undefined ? parsedConfig.header : DEFAULT_CONFIG.header,
+    footer: parsedConfig.footer !== undefined ? parsedConfig.footer : DEFAULT_CONFIG.footer,
+    metadata: {
+      ...(DEFAULT_CONFIG.metadata || {}),
+      ...(parsedConfig.metadata || {}),
+    },
   };
 
   return {

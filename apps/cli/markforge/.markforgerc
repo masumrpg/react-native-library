@@ -1,0 +1,6 @@
+{
+  "to": ["docx", "html"],
+  "outputDir": ".temp/output-rc",
+  "theme": "corporate",
+  "toc": true
+}

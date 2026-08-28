@@ -165,42 +165,132 @@ footer:
 
 ---
 
-## ⚙️ Configuration (`markforge.config.ts`)
+## ⚙️ Configuration Reference
+
+MarkForge automatically discovers configuration files starting from the input file's directory up to the workspace root, or via the `-c, --config <path>` CLI flag.
+
+### 1. TypeScript (`markforge.config.ts`)
 
 ```typescript
 import { defineConfig } from "@masumdev/markforge";
 
 export default defineConfig({
+  // Output formats: "docx" | "pdf" | "html"
   to: ["docx", "pdf", "html"],
   outputDir: "./dist/documents",
-  theme: "default",
-  orientation: "portrait",
-  paperSize: "A4",
+
+  // Theme: "default" | "academic" | "github" | "corporate" | "minimal" | "dracula"
+  theme: "academic",
+
+  // Custom CSS stylesheet(s) to inject
+  css: ["./styles/custom.css"],
+
+  // Page layout & dimensions
+  orientation: "portrait", // "portrait" | "landscape"
+  paperSize: "A4",         // "A4" | "Letter" | "Legal" | "A3" | "A5"
   margins: {
     top: "2.5cm",
     bottom: "2.5cm",
     left: "3cm",
     right: "3cm",
   },
+
+  // Multi-zone header & footer (supports tokens: {title}, {author}, {version}, {date}, {page}, {pages})
   header: {
-    left: "My Organization",
+    left: "Enterprise Architecture",
     center: "{title}",
     right: "v{version}",
   },
   footer: {
-    left: "Confidential",
+    left: "Confidential — Internal Use Only",
     right: "Page {page} of {pages}",
   },
-  toc: true,
-  embedImages: true,
-  watermark: {
-    enabled: false,       // disabled by default — enable to add branding
-    text: "DRAFT",
-    opacity: 0.07,
-    position: "diagonal",
+
+  // Document features
+  toc: true,                 // Auto-generate Table of Contents
+  embedImages: true,         // Embed/inline all images as Base64 data URIs
+  bundleHtml: true,          // Self-contained HTML with embedded styles and scripts
+  syntaxTheme: "github-dark", // "github-dark" | "github-light" | "dracula" | "monokai" | "nord"
+
+  // Diagonal page watermark
+  watermark: "CONFIDENTIAL",
+
+  // Default document metadata
+  metadata: {
+    title: "System Architecture Specification",
+    author: "Ma'sum",
+    version: "1.0.0",
+    company: "My Organization",
   },
+
+  // Server & watch options
+  watch: false,
+  serve: false,
+  port: 4000,
+  open: false,
 });
 ```
+
+### 2. JSON with `$schema` (`markforge.config.json`)
+
+Adding `$schema` enables **instant autocompletion and validation** in VS Code, WebStorm, and other IDEs:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/masumdev/react-native-library/main/packages/markforge/schema.json",
+  "to": ["docx", "pdf", "html"],
+  "outputDir": "./dist/documents",
+  "theme": "academic",
+  "orientation": "portrait",
+  "paperSize": "A4",
+  "margins": {
+    "top": "2.5cm",
+    "bottom": "2.5cm",
+    "left": "3cm",
+    "right": "3cm"
+  },
+  "header": {
+    "left": "Enterprise Architecture",
+    "right": "{title}"
+  },
+  "footer": {
+    "left": "Confidential",
+    "right": "Page {page} of {pages}"
+  },
+  "toc": true,
+  "embedImages": true,
+  "syntaxTheme": "github-dark",
+  "watermark": "CONFIDENTIAL"
+}
+```
+
+### 3. YAML (`markforge.config.yaml` / `.markforgerc.yaml`)
+
+```yaml
+to:
+  - docx
+  - pdf
+  - html
+outputDir: ./dist/documents
+theme: academic
+orientation: portrait
+paperSize: A4
+margins:
+  top: 2.5cm
+  bottom: 2.5cm
+  left: 3cm
+  right: 3cm
+header:
+  left: Enterprise Architecture
+  right: "{title}"
+footer:
+  left: Confidential
+  right: "Page {page} of {pages}"
+toc: true
+embedImages: true
+watermark: CONFIDENTIAL
+```
+
 
 ---
 

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../packages/markforge/schema.json",
+  "to": ["docx", "pdf", "html"],
+  "outputDir": ".temp/output-json",
+  "theme": "dracula",
+  "orientation": "portrait",
+  "paperSize": "A4",
+  "margins": {
+    "top": "2.5cm",
+    "bottom": "2.5cm",
+    "left": "3cm",
+    "right": "3cm"
+  },
+  "header": {
+    "left": "MarkForge Document",
+    "right": "{title}"
+  },
+  "footer": {
+    "left": "Confidential",
+    "right": "Page {page} of {pages}"
+  },
+  "toc": true,
+  "embedImages": true
+}
