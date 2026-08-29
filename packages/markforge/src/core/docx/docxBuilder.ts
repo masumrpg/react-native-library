@@ -60,6 +60,8 @@ import {
   resolveDocumentConfig,
   type NormalizedSignatureItem,
   type NormalizedSignatureBlock,
+  type NormalizedCoverPage,
+  type NormalizedBackCover,
 } from "../../config/resolveConfig.js";
 
 export interface InlineRunOptions {
@@ -223,6 +225,31 @@ export async function convertInlinesToTextRuns(
       continue;
     }
 
+    if (span.type === "mathInline") {
+      runs.push(
+        new TextRun({
+          text: span.content,
+          font: "Cambria Math",
+          italics: true,
+          size: options.size,
+          color: options.color || "0F172A",
+        })
+      );
+      continue;
+    }
+
+    if (span.type === "footnoteRef") {
+      runs.push(
+        new TextRun({
+          text: `[${span.content}]`,
+          superScript: true,
+          color: "009DA0",
+          bold: true,
+        })
+      );
+      continue;
+    }
+
     // Plain text
     runs.push(
       new TextRun({
@@ -262,8 +289,8 @@ export async function buildDocxDocument(
     ? themeProps.fontFamily.split(",")[0].replace(/['"]/g, "").trim()
     : "Segoe UI";
 
-  // 1. Cover / Title Area if title exists
-  if (resolved.title) {
+  // 1. Cover / Title Area if title exists and NO coverPage
+  if (resolved.title && !resolved.coverPage?.enabled) {
     docElements.push(
       new Paragraph({
         children: [
@@ -887,6 +914,119 @@ export async function buildDocxDocument(
       }
       continue;
     }
+
+    if (node.type === "mathBlock") {
+      docElements.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: node.text || "",
+              font: "Cambria Math",
+              italics: true,
+              size: 24, // 12pt
+              color: textHex,
+            }),
+          ],
+          spacing: { before: 180, after: 180 },
+          shading: { fill: cardBgHex, type: ShadingType.CLEAR },
+          border: {
+            top: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+            bottom: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+            left: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+            right: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+          },
+        })
+      );
+      continue;
+    }
+
+    if (node.type === "columns") {
+      const cols = node.columnsCount || 2;
+      const contentWidth = Math.max(
+        1000,
+        resolved.paperDimensions.widthTwip - resolved.margins.leftTwip - resolved.margins.rightTwip
+      );
+      const cellWidthDxa = Math.floor(contentWidth / cols);
+      const cells: TableCell[] = [];
+
+      for (const col of node.children || []) {
+        const colParagraphs: Paragraph[] = [];
+        for (const childNode of col.children || []) {
+          if (childNode.type === "heading") {
+            const runs = await convertInlinesToTextRuns(childNode.inlines, baseDir, { font: defaultFont, bold: true, size: 24, color: primaryDarkHex });
+            colParagraphs.push(new Paragraph({ children: runs, spacing: { before: 120, after: 60 } }));
+          } else if (childNode.type === "paragraph") {
+            const runs = await convertInlinesToTextRuns(childNode.inlines, baseDir, { font: defaultFont, size: 21, color: textHex });
+            colParagraphs.push(new Paragraph({ children: runs, spacing: { after: 100 } }));
+          } else if (childNode.type === "list" && childNode.children) {
+            for (const item of childNode.children) {
+              const runs = await convertInlinesToTextRuns(item.inlines, baseDir, { font: defaultFont, size: 21, color: textHex });
+              colParagraphs.push(new Paragraph({ children: [new TextRun({ text: "•  ", font: defaultFont, color: primaryHex }), ...runs], spacing: { after: 40 } }));
+            }
+          }
+        }
+        if (colParagraphs.length === 0) colParagraphs.push(new Paragraph({}));
+        cells.push(
+          new TableCell({
+            width: { size: cellWidthDxa, type: WidthType.DXA },
+            borders: {
+              top: { style: BorderStyle.NONE, size: 0, color: "auto" },
+              bottom: { style: BorderStyle.NONE, size: 0, color: "auto" },
+              left: { style: BorderStyle.NONE, size: 0, color: "auto" },
+              right: { style: BorderStyle.NONE, size: 0, color: "auto" },
+            },
+            margins: { top: 60, bottom: 60, left: 100, right: 100 },
+            children: colParagraphs,
+          })
+        );
+      }
+
+      docElements.push(
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [new TableRow({ children: cells })],
+        })
+      );
+      docElements.push(new Paragraph({ spacing: { after: 120 } }));
+      continue;
+    }
+  }
+
+  // 2.3 Footnotes List if defined
+  if (doc.footnoteDefs && doc.footnoteDefs.length > 0) {
+    docElements.push(
+      new Paragraph({
+        border: {
+          top: { style: BorderStyle.SINGLE, size: 4, color: borderHex, space: 8 },
+        },
+        spacing: { before: 360, after: 120 },
+      })
+    );
+
+    for (const def of doc.footnoteDefs) {
+      const defRuns = await convertInlinesToTextRuns(def.inlines, baseDir, {
+        font: defaultFont,
+        size: 18, // 9pt
+        color: textMutedHex,
+      });
+
+      docElements.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `[${def.id}] `,
+              bold: true,
+              color: primaryDarkHex,
+              font: defaultFont,
+              size: 18,
+            }),
+            ...defRuns,
+          ],
+          spacing: { after: 60 },
+        })
+      );
+    }
   }
 
   // 2.5 Signature and Approval Block
@@ -1154,6 +1294,97 @@ export async function buildDocxDocument(
   // 4. Page Dimensions & Margins
   const isLandscape = resolved.orientation === "landscape";
 
+  const docSections = [];
+
+  if (resolved.coverPage && resolved.coverPage.enabled) {
+    const coverElements = await buildDocxCoverPageElements(
+      resolved.coverPage,
+      defaultFont,
+      textHex,
+      primaryHex,
+      primaryDarkHex,
+      textMutedHex,
+      baseDir
+    );
+
+    docSections.push({
+      properties: {
+        page: {
+          size: {
+            width: resolved.paperDimensions.widthTwip,
+            height: resolved.paperDimensions.heightTwip,
+            orientation: isLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT,
+          },
+          margin: {
+            top: resolved.margins.topTwip,
+            bottom: resolved.margins.bottomTwip,
+            left: resolved.margins.leftTwip,
+            right: resolved.margins.rightTwip,
+          },
+        },
+      },
+      headers: undefined,
+      footers: undefined,
+      children: coverElements,
+    });
+  }
+
+  docSections.push({
+    properties: {
+      page: {
+        size: {
+          width: resolved.paperDimensions.widthTwip,
+          height: resolved.paperDimensions.heightTwip,
+          orientation: isLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT,
+        },
+        margin: {
+          top: resolved.margins.topTwip,
+          bottom: resolved.margins.bottomTwip,
+          left: resolved.margins.leftTwip,
+          right: resolved.margins.rightTwip,
+          header: 720,
+          footer: 720,
+        },
+      },
+    },
+    headers: docHeader ? { default: docHeader } : undefined,
+    footers: docFooter ? { default: docFooter } : undefined,
+    children: docElements,
+  });
+
+  if (resolved.backCover && resolved.backCover.enabled) {
+    const backElements = await buildDocxBackCoverElements(
+      resolved.backCover,
+      defaultFont,
+      textHex,
+      primaryHex,
+      primaryDarkHex,
+      textMutedHex,
+      baseDir
+    );
+
+    docSections.push({
+      properties: {
+        page: {
+          size: {
+            width: resolved.paperDimensions.widthTwip,
+            height: resolved.paperDimensions.heightTwip,
+            orientation: isLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT,
+          },
+          margin: {
+            top: resolved.margins.topTwip,
+            bottom: resolved.margins.bottomTwip,
+            left: resolved.margins.leftTwip,
+            right: resolved.margins.rightTwip,
+          },
+        },
+      },
+      headers: undefined,
+      footers: undefined,
+      children: backElements,
+    });
+  }
+
   const document = new Document({
     styles: {
       default: {
@@ -1172,33 +1403,273 @@ export async function buildDocxDocument(
         },
       },
     },
-    sections: [
-      {
-        properties: {
-          page: {
-            size: {
-              width: resolved.paperDimensions.widthTwip,
-              height: resolved.paperDimensions.heightTwip,
-              orientation: isLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT,
-            },
-            margin: {
-              top: resolved.margins.topTwip,
-              bottom: resolved.margins.bottomTwip,
-              left: resolved.margins.leftTwip,
-              right: resolved.margins.rightTwip,
-              header: 720,
-              footer: 720,
-            },
-          },
-        },
-        headers: docHeader ? { default: docHeader } : undefined,
-        footers: docFooter ? { default: docFooter } : undefined,
-        children: docElements,
-      },
-    ],
+    sections: docSections,
   });
 
   return await Packer.toBuffer(document);
+}
+
+async function buildDocxBackCoverElements(
+  backCover: NormalizedBackCover,
+  defaultFont: string,
+  textHex: string,
+  primaryHex: string,
+  primaryDarkHex: string,
+  textMutedHex: string,
+  baseDir: string
+): Promise<Paragraph[]> {
+  const elements: Paragraph[] = [];
+  elements.push(new Paragraph({ spacing: { before: 1800 } }));
+
+  if (backCover.logo) {
+    const resolvedLogo = await resolveImage(backCover.logo, baseDir);
+    if (resolvedLogo) {
+      const logoW = typeof backCover.logoWidth === "number" ? backCover.logoWidth : 140;
+      const logoType = resolvedLogo.mimeType?.includes("png") ? "png" : "jpg";
+      elements.push(
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: resolvedLogo.buffer,
+              transformation: {
+                width: logoW,
+                height: Math.round(logoW * 0.75),
+              },
+              type: logoType,
+            }),
+          ],
+          spacing: { after: 240 },
+        })
+      );
+    }
+  }
+
+  if (backCover.badge) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `[ ${backCover.badge.toUpperCase()} ]`,
+            font: defaultFont,
+            size: 20,
+            bold: true,
+            color: primaryDarkHex,
+          }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+  }
+
+  elements.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: backCover.title,
+          font: defaultFont,
+          size: 52, // 26pt
+          bold: true,
+          color: textHex,
+        }),
+      ],
+      spacing: { after: 140 },
+    })
+  );
+
+  if (backCover.subtitle) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: backCover.subtitle,
+            font: defaultFont,
+            size: 24, // 12pt
+            color: textMutedHex,
+          }),
+        ],
+        spacing: { after: 480 },
+      })
+    );
+  }
+
+  // Accent divider line
+  elements.push(
+    new Paragraph({
+      border: {
+        bottom: { style: BorderStyle.SINGLE, size: 16, color: primaryHex, space: 8 },
+      },
+      spacing: { after: 480 },
+    })
+  );
+
+  const contactRuns: TextRun[] = [];
+  if (backCover.company) contactRuns.push(new TextRun({ text: `Organization:  ${backCover.company}\n`, font: defaultFont, size: 21, color: textHex }));
+  if (backCover.address) contactRuns.push(new TextRun({ text: `Address:  ${backCover.address}\n`, font: defaultFont, size: 21, color: textHex }));
+  if (backCover.email) contactRuns.push(new TextRun({ text: `Email:  ${backCover.email}\n`, font: defaultFont, size: 21, color: textHex }));
+  if (backCover.phone) contactRuns.push(new TextRun({ text: `Phone:  ${backCover.phone}\n`, font: defaultFont, size: 21, color: textHex }));
+  if (backCover.website) contactRuns.push(new TextRun({ text: `Website:  ${backCover.website}\n`, font: defaultFont, size: 21, color: textHex }));
+
+  if (backCover.social) {
+    for (const [net, url] of Object.entries(backCover.social)) {
+      if (url) {
+        contactRuns.push(new TextRun({ text: `${net.toUpperCase()}:  ${url}\n`, font: defaultFont, size: 21, color: textHex }));
+      }
+    }
+  }
+
+  if (contactRuns.length > 0) {
+    elements.push(
+      new Paragraph({
+        children: contactRuns,
+        spacing: { before: 360, after: 360 },
+      })
+    );
+  }
+
+  if (backCover.copyright) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: backCover.copyright,
+            font: defaultFont,
+            size: 18,
+            color: "94A3B8",
+          }),
+        ],
+        spacing: { before: 720 },
+      })
+    );
+  }
+
+  return elements;
+}
+
+async function buildDocxCoverPageElements(
+  cover: NormalizedCoverPage,
+  defaultFont: string,
+  textHex: string,
+  primaryHex: string,
+  primaryDarkHex: string,
+  textMutedHex: string,
+  baseDir: string
+): Promise<Paragraph[]> {
+  const elements: Paragraph[] = [];
+  elements.push(new Paragraph({ spacing: { before: 1800 } }));
+
+  if (cover.logo) {
+    const resolvedLogo = await resolveImage(cover.logo, baseDir);
+    if (resolvedLogo) {
+      const logoW = typeof cover.logoWidth === "number" ? cover.logoWidth : 140;
+      const logoType = resolvedLogo.mimeType?.includes("png") ? "png" : "jpg";
+      elements.push(
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: resolvedLogo.buffer,
+              transformation: {
+                width: logoW,
+                height: Math.round(logoW * 0.75),
+              },
+              type: logoType,
+            }),
+          ],
+          spacing: { after: 240 },
+        })
+      );
+    }
+  }
+
+  if (cover.badge) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `[ ${cover.badge.toUpperCase()} ]`,
+            font: defaultFont,
+            size: 20,
+            bold: true,
+            color: primaryDarkHex,
+          }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+  }
+
+  elements.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: cover.title,
+          font: defaultFont,
+          size: 56, // 28pt
+          bold: true,
+          color: textHex,
+        }),
+      ],
+      spacing: { after: 140 },
+    })
+  );
+
+  if (cover.subtitle) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: cover.subtitle,
+            font: defaultFont,
+            size: 26, // 13pt
+            color: textMutedHex,
+          }),
+        ],
+        spacing: { after: 480 },
+      })
+    );
+  }
+
+  // Accent divider line
+  elements.push(
+    new Paragraph({
+      border: {
+        bottom: { style: BorderStyle.SINGLE, size: 16, color: primaryHex, space: 8 },
+      },
+      spacing: { after: 480 },
+    })
+  );
+
+  if (cover.company || cover.author || cover.version || cover.date) {
+    const metaRuns: TextRun[] = [];
+    if (cover.company) metaRuns.push(new TextRun({ text: `Organization:  ${cover.company}\n`, font: defaultFont, size: 21, color: textHex }));
+    if (cover.author) metaRuns.push(new TextRun({ text: `Author:  ${cover.author}\n`, font: defaultFont, size: 21, color: textHex }));
+    if (cover.version) metaRuns.push(new TextRun({ text: `Version:  ${cover.version}\n`, font: defaultFont, size: 21, color: textHex }));
+    if (cover.date) metaRuns.push(new TextRun({ text: `Date:  ${cover.date}\n`, font: defaultFont, size: 21, color: textHex }));
+
+    elements.push(
+      new Paragraph({
+        children: metaRuns,
+        spacing: { before: 360, after: 360 },
+      })
+    );
+  }
+
+  if (cover.footerText) {
+    elements.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: cover.footerText,
+            font: defaultFont,
+            size: 18,
+            color: "94A3B8",
+          }),
+        ],
+        spacing: { before: 720 },
+      })
+    );
+  }
+
+  return elements;
 }
 
 async function buildDocxSignatureCell(

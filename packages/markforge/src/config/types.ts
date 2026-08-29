@@ -183,6 +183,255 @@ export interface WatermarkOptions {
   position?: "diagonal" | "center" | "top-right" | "bottom-right" | WatermarkPosition;
 }
 
+export enum CoverPagePreset {
+  MODERN = "modern",
+  CORPORATE_SPLIT = "corporate-split",
+  MINIMAL = "minimal",
+  CARD = "card",
+}
+
+export type CoverPreset = "modern" | "corporate-split" | "minimal" | "card" | CoverPagePreset;
+
+export interface CoverPageConfig {
+  /**
+   * Whether the dedicated cover page is enabled.
+   * @default true
+   */
+  enabled?: boolean;
+
+  /**
+   * Cover page visual layout template.
+   * @default "modern"
+   */
+  preset?: CoverPreset;
+
+  /**
+   * Title shown on the cover page (falls back to document title).
+   */
+  title?: string;
+
+  /**
+   * Subtitle shown on the cover page (falls back to document subtitle).
+   */
+  subtitle?: string;
+
+  /**
+   * Author(s) shown on the cover page (falls back to document author).
+   */
+  author?: string | string[];
+
+  /**
+   * Organization / Company name shown on the cover page.
+   */
+  company?: string;
+
+  /**
+   * Document version shown on the cover page.
+   */
+  version?: string;
+
+  /**
+   * Date shown on the cover page (falls back to document date or current date).
+   */
+  date?: string | boolean;
+
+  /**
+   * Status / Confidentiality badge (e.g. "CONFIDENTIAL", "DRAFT", "TECHNICAL SPECIFICATION").
+   */
+  badge?: string;
+
+  /**
+   * Badge background and text colors.
+   */
+  badgeColor?: string;
+  badgeTextColor?: string;
+
+  /**
+   * Corporate logo image path, URL, or Base64 data URI.
+   */
+  logo?: string;
+
+  /**
+   * Width or height of the logo (e.g. 120, "120px", "3.5cm").
+   */
+  logoWidth?: number | string;
+
+  /**
+   * Custom background color or CSS gradient for the cover page.
+   */
+  bgGradient?: string;
+
+  /**
+   * Custom text color for cover typography.
+   */
+  textColor?: string;
+
+  /**
+   * Custom footer notes at the bottom of the cover page.
+   */
+  footerText?: string;
+}
+
+export type BackCoverPreset = "modern" | "corporate" | "minimal" | "contact-card";
+
+export interface BackCoverSocial {
+  github?: string;
+  twitter?: string;
+  linkedin?: string;
+  website?: string;
+  [key: string]: string | undefined;
+}
+
+export interface BackCoverConfig {
+  /**
+   * Whether the standalone back cover / closing page is enabled.
+   * @default false
+   */
+  enabled?: boolean;
+
+  /**
+   * Visual layout preset for the back cover:
+   * - "modern": Accent colored background with centered logo, thank you typography, and contact footer.
+   * - "corporate": Navy/cyan split layout with comprehensive company details, legal notice, and social links.
+   * - "minimal": Clean white card with minimalist contact table and copyright line.
+   * - "contact-card": Floating elevated glassmorphic contact card with full metadata grid.
+   * @default "modern"
+   */
+  preset?: BackCoverPreset;
+
+  /**
+   * Headline title shown on the back cover.
+   * @default "Thank You"
+   */
+  title?: string;
+
+  /**
+   * Subtitle / closing statement shown on the back cover.
+   */
+  subtitle?: string;
+
+  /**
+   * Organization or company name (falls back to document company).
+   */
+  company?: string;
+
+  /**
+   * Office address or headquarters location.
+   */
+  address?: string;
+
+  /**
+   * Official contact email address.
+   */
+  email?: string;
+
+  /**
+   * Official contact phone number.
+   */
+  phone?: string;
+
+  /**
+   * Official company website URL.
+   */
+  website?: string;
+
+  /**
+   * Social media links dictionary (e.g. { github: "https://github.com/masumrpg", ... }).
+   */
+  social?: BackCoverSocial;
+
+  /**
+   * Copyright notice at the bottom (supports tokens like {company}, {date}, {year}).
+   */
+  copyright?: string;
+
+  /**
+   * Brand logo path, URL, or Base64 data URI.
+   */
+  logo?: string;
+
+  /**
+   * Logo width (e.g. 140, "140px", "3.5cm").
+   */
+  logoWidth?: number | string;
+
+  /**
+   * Status / confidentiality badge.
+   */
+  badge?: string;
+
+  /**
+   * Badge colors.
+   */
+  badgeColor?: string;
+  badgeTextColor?: string;
+
+  /**
+   * Custom CSS background gradient or solid hex color for the back cover.
+   */
+  bgGradient?: string;
+
+  /**
+   * Custom text color for back cover typography.
+   */
+  textColor?: string;
+}
+
+export interface NumberHeadingsOptions {
+  /**
+   * Whether hierarchical heading numbering is enabled.
+   * @default true
+   */
+  enabled?: boolean;
+
+  /**
+   * Maximum heading level depth to number (e.g. 3 for H1..H3, 4 for H1..H4).
+   * @default 3
+   */
+  depth?: number;
+
+  /**
+   * Whether to skip numbering the main H1 document heading.
+   * @default false
+   */
+  skipH1?: boolean;
+
+  /**
+   * Custom prefix string prepended to all heading numbers.
+   * @default ""
+   */
+  prefix?: string;
+}
+
+export type NumberHeadingsConfig = boolean | NumberHeadingsOptions;
+
+export interface PdfPermissions {
+  printing?: "highResolution" | "lowResolution" | "none" | boolean;
+  modifying?: boolean;
+  copying?: boolean;
+  annotating?: boolean;
+  fillingForms?: boolean;
+  contentAccessibility?: boolean;
+  documentAssembly?: boolean;
+}
+
+export interface SecurityConfig {
+  /**
+   * Password required to open and view the document.
+   */
+  userPassword?: string;
+
+  /**
+   * Master password required to change document permissions.
+   */
+  ownerPassword?: string;
+
+  /**
+   * Granular permission restrictions on the PDF document.
+   */
+  permissions?: PdfPermissions;
+}
+
 /**
  * Pure document metadata dictionary (author, title, date, version, etc.).
  */
@@ -194,7 +443,8 @@ export interface DocumentMetadata {
   version?: string;
   company?: string;
   lang?: string;
-  coverPage?: boolean;
+  coverPage?: boolean | CoverPageConfig;
+  backCover?: boolean | BackCoverConfig;
   [key: string]: unknown;
 }
 
@@ -345,6 +595,33 @@ export interface DocumentLayoutConfig {
    * Path(s) to custom CSS stylesheets to inject into the document.
    */
   css?: string | string[];
+
+  /**
+   * Dedicated standalone Cover Page builder.
+   */
+  coverPage?: boolean | CoverPageConfig;
+
+  /**
+   * Dedicated standalone Back Cover / Closing Page builder.
+   */
+  backCover?: boolean | BackCoverConfig;
+
+  /**
+   * Hierarchical heading numbering (e.g. 1., 1.1, 1.1.1).
+   * @default false
+   */
+  numberHeadings?: NumberHeadingsConfig;
+
+  /**
+   * Document security and password protection for PDF outputs.
+   */
+  security?: SecurityConfig;
+
+  /**
+   * Whether LaTeX math equations ($inline$ and $$block$$) are parsed and rendered.
+   * @default true
+   */
+  math?: boolean;
 
   /**
    * Code syntax highlighting theme.

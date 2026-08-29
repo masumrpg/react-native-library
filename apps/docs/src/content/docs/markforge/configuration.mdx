@@ -1,11 +1,11 @@
 ---
-title: "Configuration"
-description: "Complete guide to MarkForge configuration files, TypeScript enums, custom ThemeProps, and document styling."
+title: "Configuration Reference"
+description: "Comprehensive guide to all MarkForge configuration properties, TypeScript enums, custom ThemeProps, and document settings."
 ---
 
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
-MarkForge provides a type-safe, declarative configuration system. You can configure documents using `markforge.config.ts`, `markforge.config.json`, `markforge.config.yaml`, or directly via Markdown frontmatter.
+MarkForge provides a fully type-safe, declarative configuration system. You can configure documents using `markforge.config.ts`, `.markforgerc.json`, `markforge.config.yaml`, or directly via Markdown frontmatter.
 
 ---
 
@@ -21,9 +21,9 @@ Markdown Frontmatter (Highest Priority)
 
 ---
 
-## TypeScript Config (`markforge.config.ts`)
+## TypeScript Config Example (`markforge.config.ts`)
 
-Using `defineConfig` with TypeScript Enums provides **100% autocompletion and type-safety**:
+Using `defineConfig` with TypeScript Enums provides autocompletion and compile-time type validation:
 
 ```typescript
 import {
@@ -33,29 +33,59 @@ import {
   Orientation,
   PaperSizeEnum,
   SyntaxTheme,
-  WatermarkPosition,
+  SignatureAlign,
+  SignatureStyle,
 } from "@masumdev/markforge";
 
 export default defineConfig({
   // Target output formats
   to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
 
-  // Output directory
-  outputDir: ".temp/output-full-spec",
+  // Output destination directory
+  outputDir: ".temp/output",
 
-  // Visual document theme (Theme.CORPORATE or custom ThemeProps object)
+  // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,
 
-  // Page orientation & standard size
+  // Page geometry
   orientation: Orientation.PORTRAIT,
   paperSize: PaperSizeEnum.A4,
-
-  // Page margins
   margins: {
     top: "3cm",
     bottom: "2.5cm",
     left: "2.5cm",
     right: "2.5cm",
+  },
+
+  // Cover Page Builder
+  coverPage: {
+    enabled: true,
+    preset: "modern",
+    logo: "./assets/company-logo.png",
+    logoWidth: 140,
+    badge: "CONFIDENTIAL SPECIFICATION",
+    badgeColor: "#ECFDFD",
+    badgeTextColor: "#0D998D",
+    footerText: "Proprietary Document - Authorized Personnel Only",
+  },
+
+  // Back Cover / Closing Page
+  backCover: {
+    enabled: true,
+    preset: "corporate",
+    logo: "./assets/company-logo.png",
+    logoWidth: 120,
+    title: "Thank You",
+    subtitle: "Enterprise Cross-Platform Document Solutions",
+    company: "Masum Dev Technologies",
+    address: "Jakarta, Indonesia",
+    email: "contact@masumdev.com",
+    phone: "+62 812 3456 7890",
+    website: "https://react-native-library-docs.netlify.app",
+    social: {
+      github: "https://github.com/masumrpg",
+    },
+    copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
   },
 
   // Running headers with per-zone styling & tokens
@@ -66,7 +96,7 @@ export default defineConfig({
       fontSize: 9,
       bold: true,
     },
-    center: "Internal Technical Guide",
+    center: "Technical Specification",
     right: {
       text: "v{version}",
       color: "#94A3B8",
@@ -77,7 +107,7 @@ export default defineConfig({
     dividerColor: "#CBD5E1",
   },
 
-  // Running footers with dynamic page numbering
+  // Running footers with dynamic page numbers
   footer: {
     left: {
       text: "Author: {author}",
@@ -100,189 +130,300 @@ export default defineConfig({
     dividerColor: "#CBD5E1",
   },
 
-  // Automatic Table of Contents
+  // Table of Contents & Heading Numbering
   toc: true,
+  tocTitle: "TABLE OF CONTENTS",
+  tocDepth: 3,
+  numberHeadings: {
+    enabled: true,
+    depth: 3,
+    skipH1: false,
+  },
 
-  // Watermark configuration
+  // Math equation rendering
+  math: true,
+
+  // PDF Document Security & AES-256 Encryption
+  security: {
+    userPassword: "masumdev_secret",
+    ownerPassword: "masumdev_admin",
+    permissions: {
+      printing: "highResolution",
+      modifying: false,
+      copying: true,
+      annotating: true,
+      fillingForms: true,
+      contentAccessibility: true,
+      documentAssembly: false,
+    },
+  },
+
+  // Unselectable diagonal watermark
   watermark: {
     text: "CONFIDENTIAL DRAFT",
     color: "#E11D48",
     opacity: 0.1,
     fontSize: 52,
     rotate: -45,
-    position: WatermarkPosition.DIAGONAL,
   },
 
-  // Syntax highlighting palette
-  syntaxTheme: SyntaxTheme.DRACULA,
-
-  // Assets & bundling flags
-  embedImages: true,
-  bundleHtml: true,
-
-  // Global document metadata
-  metadata: {
-    title: "Unified Platform Architecture & Document Suite",
-    subtitle: "Enterprise Specification & Feature Validation Guide",
-    author: "Ma'sum",
-    company: "Masum Dev Technologies",
-    version: "1.0.0",
-    date: "2026-08-29",
-    lang: "en",
-  },
-});
-```
-
----
-
-## Per-Zone Header & Footer Customization
-
-Each zone (`left`, `center`, `right`) can be defined either as a simple string or as a typed `HeaderFooterSlot` object with granular font, color, size, bold, and italic controls:
-
-```typescript
-header: {
-  left: {
-    text: "{company} - {title}",
-    color: "#0D998D",
-    fontSize: 9,
-    fontFamily: "Inter, Segoe UI, sans-serif",
-    bold: true,
-  },
-  right: {
-    text: "v{version}",
-    color: "#94A3B8",
-    fontSize: 8.5,
-    italic: true,
-  },
-  divider: true,
-  dividerColor: "#CBD5E1",
-}
-```
-
-| Slot Property | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `text` | `string` | **Required** | Template text (supports `{title}`, `{company}`, `{author}`, `{version}`, `{date}`, `{page}`, `{pages}`) |
-| `color` | `string` | `"#94A3B8"` | Custom hex or named color string |
-| `fontSize` | `number` | `9` | Font size in points (pt) |
-| `fontFamily` | `string` | `"Segoe UI"` | Font family for this specific slot |
-| `bold` | `boolean` | `false` | Whether text is bold weight |
-| `italic` | `boolean` | `false` | Whether text is in italics |
-
----
-
-## Custom Document Theming (`ThemeProps`)
-
-In addition to `Theme.CORPORATE`, you can pass a full `ThemeProps` object to completely brand your documents:
-
-```typescript
-export default defineConfig({
-  theme: {
-    primaryColor: "#0D998D",
-    primaryDark: "#008073",
-    primaryLight: "#D9F1F0",
-    backgroundColor: "#FFFFFF",
-    textColor: "#0F172A",
-    textMuted: "#64748B",
-    borderColor: "#E2E8F0",
-    cardBackground: "#F8FAFC",
-    fontFamily: "'Inter', sans-serif",
-    fontMono: "'Fira Code', monospace",
-  },
-});
-```
-
----
-
-## Dynamic Metadata Tokens
-
-Variables defined in `metadata` or Markdown frontmatter can be referenced inside headers, footers, and templates using `{token}` syntax:
-
-| Token | Source | Example Output |
-| :--- | :--- | :--- |
-| `{title}` | Document title | `Platform Reference Guide` |
-| `{subtitle}` | Document subtitle | `Enterprise Architecture` |
-| `{author}` | Author name | `Ma'sum` |
-| `{version}` | Document version | `1.0.0` |
-| `{date}` | Document date | `2026-08-29` |
-| `{company}` | Company or organization | `Masum Dev Technologies` |
-| `{page}` | Current page number (Footers only) | `1` |
-| `{pages}` | Total pages count (Footers only) | `4` |
-
----
-
-## Signatures & Approval Blocks (`signatures`)
-
-Add formal corporate approval and signature sections (*Lembar Pengesahan / Tanda Tangan*) at the end of documents with support for 1 to 4 signatory slots, variable token substitution, and custom visual styling:
-
-```typescript
-export default defineConfig({
-  signatures: {
-    align: "space-between", // "left" | "center" | "right" | "space-between"
-    style: "line",          // "line" | "box" | "clean"
-    borderColor: "#CBD5E1",
+  // Document signatures and approval block
+  signatureBlock: {
+    align: SignatureAlign.SPACE_BETWEEN,
+    style: SignatureStyle.BOX,
+    spacingBefore: "2.5cm",
     items: [
       {
-        title: "Prepared by",
+        title: "Prepared By",
         name: "{author}",
-        role: "Lead Platform Architect",
+        role: "Principal Mobile Architect",
         date: "{date}",
       },
       {
-        title: "Reviewed by",
-        name: "Sarah Jenkins",
-        role: "Head of Engineering",
-        date: "{date}",
-      },
-      {
-        title: "Approved by",
-        name: "Dr. Alexander Wright",
+        title: "Approved By",
+        name: "Enterprise Architecture Board",
         role: "Chief Technology Officer",
         date: "{date}",
       },
     ],
   },
+
+  // Code syntax highlighting
+  syntaxTheme: SyntaxTheme.GITHUB_DARK,
+
+  // Fallback metadata dictionary
+  metadata: {
+    title: "Document Reference Manual",
+    author: "Ma'sum (@masumrpg)",
+    company: "Masum Dev Technologies",
+    version: "1.0.0",
+    date: "2026-08-30",
+  },
 });
 ```
 
-### Signature Block Properties
+---
+
+## Detailed Configuration Properties
+
+### Target Output & Directories
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `items` | `SignatureItem[]` | **Required** | Array of 1 to 4 signature item definitions |
-| `align` | `SignatureAlign` | `"space-between"` / `"right"` | Alignment (`"left"`, `"center"`, `"right"`, `"space-between"`) |
-| `style` | `SignatureStyle` | `"line"` | Visual style: `"line"` (underline divider), `"box"` (bordered card), `"clean"` (borderless) |
-| `borderColor` | `string` | `"#CBD5E1"` | Color of the separator line or bounding box border |
-| `titleColor` | `string` | `"#64748B"` | Color of the title label (e.g. "Prepared by") |
-| `nameColor` | `string` | `"#0F172A"` | Color of the signatory name |
-| `roleColor` | `string` | `"#64748B"` | Color of the role and date labels |
-| `spacingBefore` | `string \| number` | `"2.5rem"` | Top spacing before the signature block |
+| `to` | `OutputFormat[]` | `['docx', 'pdf']` | Array of output file formats to compile: `OutputFormat.DOCX`, `OutputFormat.PDF`, `OutputFormat.HTML`, `OutputFormat.PNG`. |
+| `outputDir` | `string` | `'.'` | Destination folder for compiled document files. Created automatically if it does not exist. |
+| `clean` | `boolean` | `false` | When `true`, removes existing compiled documents in `outputDir` prior to compilation. |
 
-### `SignatureItem` Properties
-
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `title` | `string` | Title or sign-off label above signature (e.g. `"Prepared by"`, `"Approved by"`) |
-| `name` | `string` | Signatory person name (supports metadata tokens like `{author}`) |
-| `role` | `string` | Signatory job title, role, or department (e.g. `"Lead Platform Architect"`) |
-| `date` | `string \| boolean` | Date string, `{date}` token, or `true` for auto-formatted current date |
-| `image` | `string` | Optional signature image path, URL, or Base64 data URI (digital seal or handwritten signature) |
-| `signatureHeight` | `number \| string` | Blank height reserved for physical handwriting signature (default: `60px`) |
-
-### Frontmatter Quick Definition
-
-Signatures can also be defined directly inside document frontmatter:
-
-```markdown
 ---
-title: "Service Level Agreement"
-author: "Ma'sum"
-signatures:
-  align: right
-  style: box
-  items:
-    - title: "Authorized Signature"
-      name: "{author}"
-      role: "Lead Platform Architect"
-      date: true
+
+### Theming & Design System
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `theme` | `Theme \| ThemeProps` | `Theme.CORPORATE` | Preset name (`Theme.CORPORATE`, `Theme.DEFAULT`, `Theme.ACADEMIC`, `Theme.GITHUB`, `Theme.MINIMAL`) or a custom `ThemeProps` object. |
+| `syntaxTheme` | `SyntaxTheme` | `SyntaxTheme.GITHUB_DARK` | Syntax highlighting palette: `SyntaxTheme.GITHUB_DARK`, `SyntaxTheme.GITHUB_LIGHT`, `SyntaxTheme.DRACULA`, `SyntaxTheme.MONOKAI`, `SyntaxTheme.NORD`, `SyntaxTheme.ONE_DARK`, `SyntaxTheme.SOLARIZED_DARK`, `SyntaxTheme.SOLARIZED_LIGHT`. |
+| `css` | `string \| string[]` | `undefined` | Path or array of paths to external CSS stylesheets to inject into PDF and HTML outputs. |
+| `customCss` | `string` | `undefined` | Raw CSS text string injected into the `<head>` of the compiled document. |
+
+#### Custom `ThemeProps` Schema
+
+```typescript
+export interface ThemeProps {
+  primaryColor?: string;     // Accent color (e.g. "#0D998D")
+  primaryDark?: string;      // Darker shade for borders (e.g. "#008073")
+  primaryLight?: string;     // Lighter tint for badges (e.g. "#D9F1F0")
+  backgroundColor?: string;  // Canvas background (e.g. "#FFFFFF")
+  textColor?: string;        // Body text color (e.g. "#0F172A")
+  textMuted?: string;        // Secondary/muted text (e.g. "#64748B")
+  borderColor?: string;      // Container borders (e.g. "#E2E8F0")
+  cardBackground?: string;   // Card fills (e.g. "#F8FAFC")
+  fontFamily?: string;       // Primary font stack (e.g. "'Inter', sans-serif")
+  fontMono?: string;         // Monospace font stack (e.g. "'Fira Code', monospace")
+}
+```
+
 ---
+
+### Page Setup & Geometry
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `orientation` | `Orientation` | `Orientation.PORTRAIT` | Document page orientation: `Orientation.PORTRAIT` or `Orientation.LANDSCAPE`. |
+| `paperSize` | `PaperSizeEnum` | `PaperSizeEnum.A4` | Standard paper size: `PaperSizeEnum.A4`, `PaperSizeEnum.LETTER`, `PaperSizeEnum.LEGAL`, `PaperSizeEnum.A3`, `PaperSizeEnum.A5`. |
+| `margins` | `PageMargins` | `{ top: '2.5cm', bottom: '2.5cm', left: '2.5cm', right: '2.5cm' }` | Page margins with standard units (`cm`, `mm`, `in`, `pt`). |
+| `breakBeforeHeadings` | `number[]` | `[1]` | Heading levels that trigger an automatic hard page break (`[1]` breaks before every H1). |
+| `embedImages` | `boolean` | `true` | When `true`, all referenced images (local files and remote URLs) are Base64-inlined into the output. |
+
+---
+
+### Header & Footer Slots
+
+Headers and footers support three independent positional zones (`left`, `center`, `right`). Each zone can be defined as a plain string or a detailed `HeaderFooterSlot` object:
+
+```typescript
+export interface HeaderFooterSlot {
+  text: string;           // Template string with tokens ({title}, {author}, {page}, {pages}, etc.)
+  color?: string;         // Hex color code (e.g. "#0D998D")
+  fontSize?: number;      // Font size in points (e.g. 9)
+  fontFamily?: string;    // Custom font family (e.g. "Segoe UI")
+  bold?: boolean;         // Bold font weight
+  italic?: boolean;       // Italic font style
+}
+```
+
+#### Available Dynamic Tokens
+
+- `{title}`: Document title resolved from metadata or first H1
+- `{subtitle}`: Document subtitle
+- `{author}`: Author name(s)
+- `{company}`: Organization or company name
+- `{version}`: Document version string
+- `{date}`: Document publication date
+- `{year}`: Current four-digit calendar year
+- `{page}`: Current page number (PDF and DOCX)
+- `{pages}`: Total document page count (PDF and DOCX)
+
+---
+
+### Table of Contents & Heading Numbering
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `toc` | `boolean` | `true` | Enable or disable automated Table of Contents generation. |
+| `tocTitle` | `string` | `'TABLE OF CONTENTS'` | Title header displayed above the Table of Contents card. |
+| `tocDepth` | `number` | `3` | Maximum heading level depth included in the TOC (1 to 6). |
+| `numberHeadings` | `boolean \| NumberHeadingsOptions` | `false` | Enable automated decimal section numbering (`1.`, `1.1.`, `1.1.1.`). |
+
+```typescript
+// Detailed numberHeadings options
+numberHeadings: {
+  enabled: true,
+  depth: 3,           // Number headings down to H3
+  skipH1: false,      // Set to true to leave main document H1 unnumbered
+  prefix: "",         // Optional prefix (e.g. "SEC-")
+}
+```
+
+---
+
+### Cover Page Builder (`coverPage`)
+
+Generates a dedicated, unnumbered title page before the main document content:
+
+```typescript
+coverPage: {
+  enabled: true,
+  preset: "modern",                         // "modern" | "corporate-split" | "minimal" | "card"
+  title: "Annual Architecture Report",     // Fallback to {title}
+  subtitle: "Enterprise Technical Roadmap", // Fallback to {subtitle}
+  author: "Ma'sum",                         // Fallback to {author}
+  company: "Masum Dev Technologies",       // Fallback to {company}
+  date: "2026-08-30",                       // Fallback to {date}
+  version: "1.0.0",                         // Fallback to {version}
+  logo: "./assets/company-logo.png",        // Local path or URL
+  logoWidth: 140,                           // Logo display width in px
+  badge: "CONFIDENTIAL",                    // Top-right status badge text
+  badgeColor: "#ECFDFD",                    // Badge background color
+  badgeTextColor: "#0D998D",                // Badge text color
+  footerText: "Strictly Confidential",      // Bottom disclaimer text
+}
+```
+
+---
+
+### Back Cover / Closing Page (`backCover`)
+
+Generates an isolated closing back cover card at the end of the document:
+
+```typescript
+backCover: {
+  enabled: true,
+  preset: "corporate",                      // "modern" | "corporate" | "minimal" | "contact-card"
+  title: "Thank You",
+  subtitle: "Next-Gen Engineering Solutions",
+  company: "Masum Dev Technologies",
+  address: "Jakarta, Indonesia",
+  email: "contact@masumdev.com",
+  phone: "+62 812 3456 7890",
+  website: "https://react-native-library-docs.netlify.app",
+  logo: "./assets/company-logo.png",
+  logoWidth: 120,
+  social: {
+    github: "https://github.com/masumrpg",
+  },
+  copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
+}
+```
+
+---
+
+### PDF Security & Password Encryption (`security`)
+
+Encrypts the PDF using **ISO 32000-2 AES-256** standards:
+
+```typescript
+security: {
+  userPassword: "masumdev_secret", // Password required to open the PDF
+  ownerPassword: "masumdev_admin",  // Master password required to modify permissions
+  permissions: {
+    printing: "highResolution",     // "highResolution" | "lowResolution" | false
+    modifying: false,               // Allow editing document contents
+    copying: true,                  // Allow extracting text and images
+    annotating: true,               // Allow adding comments and form annotations
+    fillingForms: true,             // Allow filling in interactive form fields
+    contentAccessibility: true,     // Allow screen readers to extract content
+    documentAssembly: false,        // Allow inserting, rotating, or deleting pages
+  },
+}
+```
+
+<Aside type="note">
+If `userPassword` is left empty (`""`), conforming PDF readers will open the document without prompting the user, while still strictly enforcing the permissions lock defined by `ownerPassword`.
+</Aside>
+
+---
+
+### Watermark (`watermark`)
+
+Renders a diagonal background watermark on all content pages (excluding the cover and back cover):
+
+```typescript
+watermark: {
+  text: "CONFIDENTIAL DRAFT",
+  color: "#E11D48",
+  opacity: 0.10,
+  fontSize: 52,
+  rotate: -45,                      // Negative degrees slope upwards from bottom-left to top-right
+}
+```
+
+---
+
+### Signatures & Approval Block (`signatureBlock`)
+
+Appends a formal multi-signatory approval grid to the document:
+
+```typescript
+signatureBlock: {
+  align: SignatureAlign.SPACE_BETWEEN, // "left" | "center" | "right" | "space-between"
+  style: SignatureStyle.BOX,           // "line" | "box" | "clean"
+  spacingBefore: "2.5cm",
+  borderColor: "#CBD5E1",
+  items: [
+    {
+      title: "Prepared By",
+      name: "Ma'sum",
+      role: "Lead Mobile Architect",
+      date: "{date}",
+      image: "./assets/signature-masum.png", // Optional signature image
+      signatureHeight: 48,
+    },
+    {
+      title: "Approved By",
+      name: "Enterprise Architecture Board",
+      role: "Chief Technology Officer",
+      date: "{date}",
+    },
+  ],
+}
 ```

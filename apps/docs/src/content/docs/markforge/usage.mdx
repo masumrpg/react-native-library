@@ -3,7 +3,7 @@ title: Usage & Features Guide
 sidebar:
   label: Usage Guide
   order: 3
-description: Complete CLI usage, Mermaid diagrams, callout alert boxes, dual syntax highlighting, image inlining, and the programmatic TypeScript API for @masumdev/markforge.
+description: Complete guide for MarkForge enterprise features including Cover Page Builder, Math KaTeX formulas, Multi-Column directives, Live-Reload Preview Server, Section Numbering, Footnotes, and PDF Security.
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
@@ -25,8 +25,8 @@ markforge report.md --theme corporate --css ./styles/custom.css
 # Force Table of Contents + watch mode
 markforge guide.md --toc --watch
 
-# Start local HTTP preview server on port 4000
-markforge document.md --serve --port 4000 --open
+# Start interactive live-reload preview server on port 3000
+markforge document.md --serve 3000 --open
 ```
 
 ---
@@ -39,7 +39,7 @@ markforge document.md --serve --port 4000 --open
 | `--to <formats...>` | `-t` | Comma-separated: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
 | `--output <dir>` | `-o` | Target directory for generated files | Input file directory |
 | `--config <file>` | `-c` | Explicit configuration file path | Auto-detected |
-| `--theme <name>` | | Built-in theme (`corporate`, `default`) | `corporate` |
+| `--theme <name>` | | Built-in theme (`corporate`, `default`, `academic`, `github`, `minimal`) | `corporate` |
 | `--css <files...>` | | Custom CSS file(s) to inject | `undefined` |
 | `--orientation <type>` | | Page orientation (`portrait`, `landscape`) | `portrait` |
 | `--paper-size <size>` | | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) | `A4` |
@@ -47,302 +47,239 @@ markforge document.md --serve --port 4000 --open
 | `--watermark <text>` | | Document watermark text | `undefined` |
 | `--syntax-theme <theme>`| | Code syntax highlighting theme | `github-dark` |
 | `--watch` | `-w` | Watch input file and recompile on change | `false` |
-| `--serve` | | Start local HTTP preview server | `false` |
-| `--port <number>` | `-p` | Local preview server port | `4000` |
-| `--open` | | Automatically open browser on preview | `false` |
+| `--serve [port]` | `-s` | Start interactive live-reload preview server | `false` |
+| `--open` | `-O` | Automatically open browser on preview | `false` |
 | `--version` | `-V` | Print version and exit | |
 | `--help` | `-h` | Show help screen | |
 
 ---
 
-## Frontmatter Reference
+## Enterprise Features Guide
 
-Frontmatter inside the Markdown file overrides configuration file settings for that specific document:
+### 1. Cover Page Builder
+
+MarkForge includes an enterprise Cover Page Builder that generates isolated, unnumbered first pages across HTML, PDF, and DOCX formats:
 
 ```markdown
 ---
-title: "Enterprise Architecture Specification"
-subtitle: "Cloud & Edge Infrastructure — Q3 2026"
+title: "Quarterly Financial Analysis"
+subtitle: "FY2026 Strategy & Growth Projections"
 author: "Ma'sum"
-company: "Masum Dev Technologies"
+company: "Enterprise Global Holdings"
 version: "1.0.0"
 date: "2026-08-29"
-theme: "corporate"
-toc: true
-orientation: "portrait"
-paperSize: "A4"
-margins:
-  top: "3cm"
-  bottom: "2.5cm"
-  left: "2.5cm"
-  right: "2.5cm"
-watermark:
-  text: "CONFIDENTIAL DRAFT"
-  color: "#E11D48"
-  opacity: 0.1
-  fontSize: 52
-  rotate: -45
-  position: "diagonal"
-header:
-  left:
-    text: "{company} - {title}"
-    color: "#0D998D"
-    fontSize: 9
-    bold: true
-  center: "Internal Technical Guide"
-  right:
-    text: "v{version}"
-    color: "#94A3B8"
-    fontSize: 8.5
-    italic: true
-  divider: true
-  dividerColor: "#CBD5E1"
-footer:
-  left:
-    text: "Author: {author}"
-    color: "#64748B"
-    fontSize: 8.5
-  center: "{date}"
-  right:
-    text: "Page {page} of {pages}"
-    color: "#0D998D"
-    fontSize: 9
-    bold: true
-  divider: true
-  dividerColor: "#CBD5E1"
+coverPage:
+  enabled: true
+  preset: "modern"
+  badge: "CONFIDENTIAL"
+  badgeColor: "#ECFDFD"
+  badgeTextColor: "#0D998D"
+  logo: "./assets/brand-logo.png"
+  logoWidth: 160
+  footerText: "Proprietary & Confidential - Authorized Distribution Only"
 ---
 ```
 
+#### Available Presets
+
+- `modern`: Accent colored top bar with uppercase badge, high-contrast title, and metadata table.
+- `corporate-split`: Left vertical colored brand panel with clean white content panel on the right.
+- `minimal`: Elegant centered typography with clean borders and subtle metadata lines.
+- `card`: Centered glassmorphic card container with rounded corners and elevated shadow styling.
+
 ---
 
-## Callout / Alert Boxes
+### 2. Math & LaTeX Equation Rendering
 
-MarkForge renders GitHub-flavored callout syntax with colored backgrounds and borders in **all output formats** (DOCX, PDF, HTML):
+MarkForge provides native, standalone KaTeX math rendering with inlined CSS for HTML/PDF and Cambria Math typography in Microsoft Word DOCX:
+
+- **Inline Math**: Enclose equations in single dollar signs: `$E = mc^2$` or `$\nabla \cdot \mathbf{B} = 0$`.
+- **Block Math**: Enclose multi-line equations in double dollar signs:
 
 ```markdown
-> [!NOTE]
-> All document builders operate concurrently. Assets are resolved once and cached.
+$$
+\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
 
-> [!TIP]
-> Use `markforge.config.ts` to enforce uniform margins, page numbering, and corporate branding.
-
-> [!IMPORTANT]
-> External images from remote URLs are automatically fetched with exponential backoff retry and inlined as Base64.
-
-> [!WARNING]
-> Ensure all local relative file paths are relative to the root Markdown entry file.
-
-> [!CAUTION]
-> High-risk action — modifying OpenXML schemas directly without validation may corrupt Word documents.
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
 ```
-
-| Type | Border Color | Background |
-| :--- | :--- | :--- |
-| `NOTE` | Cyan `#33CDCF` | `#ECFDFD` |
-| `TIP` | Green `#10b981` | `#ecfdf5` |
-| `IMPORTANT` | Purple `#8b5cf6` | `#f5f3ff` |
-| `WARNING` | Amber `#f59e0b` | `#fffbeb` |
-| `CAUTION` | Red `#ef4444` | `#fef2f2` |
 
 ---
 
-## Mermaid Diagrams
+### 3. Multi-Column Container Directives
 
-Mermaid code blocks are automatically rendered into rasterized diagrams and embedded across all formats:
+Create multi-column responsive grid layouts inside standard Markdown using `:::columns` and `:::col` container directives:
 
-````markdown
-```mermaid
-flowchart LR
-  A[Markdown Source] --> B[AST Ingestion Engine]
-  B --> C[Image & Asset Resolver] --> D[Chromium Vector PDF]
-  B --> E[Syntax Highlighter] --> F[Standalone HTML5]
-  B --> G[DOCX Builder] --> H[Microsoft Word DOCX]
+```markdown
+:::columns 2
+:::col
+### Cloud Infrastructure
+- Edge API Gateways with Anycast routing
+- Automated horizontal auto-scaling
+- Multi-region failover database clusters
+:::
+:::col
+### Observability & Security
+- Real-time Prometheus metrics pipeline
+- Distributed tracing with OpenTelemetry
+- Strict zero-trust mTLS encryption
+:::
+:::
 ```
-````
+
+Custom column gaps and column counts:
+
+```markdown
+:::columns [cols=3 gap=2rem]
+:::col
+Column 1
+:::
+:::col
+Column 2
+:::
+:::col
+Column 3
+:::
+:::
+```
 
 ---
 
-## Syntax-Highlighted Code Blocks
+### 4. Interactive Live-Reload Preview Server
 
-MarkForge includes built-in syntax highlighting palettes: `github-dark`, `github-light`, `dracula`, `monokai`, and `nord`:
+Launch a local development preview server with Server-Sent Events (SSE) live reloading and scroll preservation:
 
-````markdown
+```bash
+markforge document.md --serve 3000 --open
+```
+
+Features:
+- **Instant Hot-Reload**: Automatically detects changes to Markdown source, configuration files, and custom CSS.
+- **Scroll Preservation**: Keeps your exact reading position when saving edits in your code editor.
+- **Modern Workbench UI**: Clean Blu-by-BCA cyan corporate interface (`#0D998D`, `#33CDCF`, `#0F172A`) with quick print and open in new tab buttons.
+
+---
+
+### 5. Hierarchical Section Numbering
+
+Automatically generates hierarchical decimal numbers for document headings (`1.`, `1.1.`, `1.1.1.`) and synchronizes them with the Table of Contents:
+
+```markdown
+---
+numberHeadings:
+  enabled: true
+  depth: 3
+  skipH1: false
+  prefix: ""
+---
+```
+
+---
+
+### 6. Footnotes & Endnotes
+
+Add standard academic footnotes and citations using `[^1]` reference identifiers and `[^1]: Note text` bottom definitions:
+
+```markdown
+Modern web services rely on distributed consensus algorithms[^raft] to ensure data consistency[^cap].
+
+[^raft]: Ongaro, D., & Ousterhout, J. (2014). In Search of an Understandable Consensus Algorithm.
+[^cap]: Brewer, E. A. (2000). Towards robust distributed systems.
+```
+
+In HTML and PDF, footnotes are rendered at the bottom with return jump links (`&#8617;`). In Microsoft Word DOCX, footnotes are rendered with dedicated superscript numbering.
+
+---
+
+### 7. PDF Security & Document Metadata
+
+Configure PDF encryption, passwords, and permission flags:
+
+```markdown
+---
+title: "Restricted Enterprise Blueprint"
+author: "Ma'sum"
+security:
+  userPassword: "user123"
+  ownerPassword: "admin_secret_key"
+  permissions:
+    printing: "highResolution"
+    copying: false
+    modifying: false
+    annotating: true
+---
+```
+
+---
+
+### 8. Back Cover & Closing Page
+
+Generate an isolated, branded final closing page with company contact cards and copyright disclosures:
+
+```markdown
+---
+title: "Project Alpha Final Proposal"
+author: "Ma'sum"
+company: "Masum Dev Technologies"
+backCover:
+  enabled: true
+  preset: "corporate"
+  title: "Thank You"
+  subtitle: "We look forward to transforming digital experiences together."
+  email: "contact@masumdev.com"
+  phone: "+62 812 3456 7890"
+  address: "Jakarta, Indonesia"
+  website: "https://masumdev.com"
+  social:
+    github: "https://github.com/masumrpg"
+  copyright: "Copyright (c) {year} {company}. All Rights Reserved."
+---
+```
+
+---
+
+## Programmatic TypeScript API
+
 ```typescript
-import { compileMarkdown, OutputFormat, Theme } from "@masumdev/markforge";
+import {
+  compileMarkdown,
+  parseMarkdown,
+  buildHtmlDocument,
+  buildDocxDocument,
+  buildPdfDocument,
+  startPreviewServer,
+  renderMathToHtml,
+} from "@masumdev/markforge";
 
-const result = await compileMarkdown("./spec.md", {
-  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
-  theme: Theme.CORPORATE,
+// 1. Compile Markdown file directly
+const result = await compileMarkdown("./specification.md", {
+  to: ["docx", "pdf", "html"],
+  outputDir: "./dist",
+  theme: "corporate",
+  coverPage: {
+    enabled: true,
+    preset: "modern",
+    badge: "CONFIDENTIAL",
+  },
+  numberHeadings: {
+    enabled: true,
+    depth: 3,
+  },
 });
+
+console.log(`Generated ${result.files.length} output files in ${result.durationMs}ms`);
+
+// 2. Start programmatic preview server
+const server = await startPreviewServer({
+  filePath: "./specification.md",
+  port: 3000,
+  open: false,
+});
+
+console.log(`Preview server active at ${server.url}`);
+
+// Close server when finished
+await server.close();
 ```
-````
-
----
-
-## Programmatic API
-
-<Tabs>
-  <TabItem label="1. Minimal">
-    ```typescript
-    import { compileMarkdown } from "@masumdev/markforge";
-
-    // Fast, zero-config compilation from raw string or file path
-    const result = await compileMarkdown("# Minimal Document\n\nGenerated with MarkForge.", {
-      to: ["docx", "pdf", "html"],
-      outputDir: "./dist",
-      metadata: {
-        title: "Quick Specification",
-        author: "Ma'sum",
-      },
-    });
-
-    console.log(`Compiled ${result.files.length} documents in ${result.durationMs}ms`);
-    ```
-  </TabItem>
-  <TabItem label="2. Intermediate">
-    ```typescript
-    import {
-      compileMarkdown,
-      OutputFormat,
-      Theme,
-      SyntaxTheme,
-      PaperSizeEnum,
-    } from "@masumdev/markforge";
-
-    const result = await compileMarkdown("./specification.md", {
-      to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
-      outputDir: "./dist",
-      theme: Theme.CORPORATE,
-      syntaxTheme: SyntaxTheme.DRACULA,
-      paperSize: PaperSizeEnum.A4,
-      toc: true,
-      margins: {
-        top: "2.5cm",
-        bottom: "2.5cm",
-        left: "2.5cm",
-        right: "2.5cm",
-      },
-      metadata: {
-        title: "Platform Reference Manual",
-        author: "Ma'sum",
-        company: "Masum Dev Technologies",
-        version: "1.2.0",
-      },
-    }, (statusMessage) => {
-      console.log(`[PROGRESS] ${statusMessage}`);
-    });
-    ```
-  </TabItem>
-  <TabItem label="3. Full Enterprise">
-    ```typescript
-    import {
-      compileMarkdown,
-      OutputFormat,
-      Orientation,
-      PaperSizeEnum,
-      SyntaxTheme,
-      type MarkforgeConfig,
-    } from "@masumdev/markforge";
-
-    const config: MarkforgeConfig = {
-      to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
-      outputDir: "./dist",
-      orientation: Orientation.PORTRAIT,
-      paperSize: PaperSizeEnum.A4,
-      toc: true,
-      syntaxTheme: SyntaxTheme.GITHUB_DARK,
-      embedImages: true,
-      bundleHtml: true,
-
-      // Custom ThemeProps palette
-      theme: {
-        primaryColor: "#0D998D",
-        primaryDark: "#008073",
-        primaryLight: "#D9F1F0",
-        backgroundColor: "#FFFFFF",
-        textColor: "#0F172A",
-        textMuted: "#64748B",
-        borderColor: "#E2E8F0",
-        cardBackground: "#F8FAFC",
-        fontFamily: "'Segoe UI', Roboto, sans-serif",
-      },
-
-      // 100% Unselectable PDF & Visual Watermark
-      watermark: {
-        text: "CONFIDENTIAL DRAFT",
-        color: "#E11D48",
-        opacity: 0.08,
-        fontSize: 52,
-        rotate: -45,
-      },
-
-      // Per-Zone Header Slots with Dynamic Tokens
-      header: {
-        left: { text: "{company} | {title}", color: "#0D998D", fontSize: 9, bold: true },
-        center: "Enterprise Specification",
-        right: { text: "v{version}", color: "#94A3B8", fontSize: 8.5, italic: true },
-        divider: true,
-        dividerColor: "#CBD5E1",
-      },
-
-      // Per-Zone Footer Slots with Page Numbering
-      footer: {
-        left: { text: "Author: {author}", color: "#64748B", fontSize: 8.5 },
-        center: "{date}",
-        right: { text: "Page {page} of {pages}", color: "#0D998D", fontSize: 9, bold: true },
-        divider: true,
-        dividerColor: "#CBD5E1",
-      },
-
-      // Signatures & Approval Block (Lembar Pengesahan)
-      signatures: {
-        align: "space-between",
-        style: "line",
-        items: [
-          { title: "Prepared by", name: "{author}", role: "Lead Platform Architect", date: "{date}" },
-          { title: "Approved by", name: "Dr. Alexander Wright", role: "Chief Technology Officer", date: true },
-        ],
-      },
-    };
-
-    const result = await compileMarkdown("./contract.md", config, (msg) => {
-      console.log(`[COMPILING] ${msg}`);
-    });
-    ```
-  </TabItem>
-  <TabItem label="4. Low-Level AST">
-    ```typescript
-    import * as fs from "node:fs";
-    import {
-      parseMarkdownDocument,
-      buildDocxDocument,
-      buildPdfDocument,
-      buildHtmlDocument,
-      resolveDocumentConfig,
-      Theme,
-    } from "@masumdev/markforge";
-
-    // 1. Ingest markdown directly into structured AST
-    const rawMarkdown = fs.readFileSync("./report.md", "utf-8");
-    const doc = parseMarkdownDocument(rawMarkdown);
-
-    // 2. Resolve document config
-    const resolved = resolveDocumentConfig(doc.metadata, {
-      theme: Theme.CORPORATE,
-      toc: true,
-    });
-
-    // 3. Build documents independently into in-memory Buffers / strings
-    const [docxBuffer, pdfBuffer, htmlString] = await Promise.all([
-      buildDocxDocument(doc, resolved),
-      buildPdfDocument(doc, resolved),
-      buildHtmlDocument(doc, resolved),
-    ]);
-
-    // 4. Save buffers directly
-    fs.writeFileSync("./dist/report.docx", docxBuffer);
-    fs.writeFileSync("./dist/report.pdf", pdfBuffer);
-    fs.writeFileSync("./dist/report.html", htmlString, "utf-8");
-    ```
-  </TabItem>
-</Tabs>

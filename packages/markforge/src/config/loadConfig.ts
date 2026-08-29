@@ -18,13 +18,17 @@ const DEFAULT_CONFIG_FILENAMES = [
   "markforge.config.cjs",
 ];
 
-export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures">> & {
+export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures" | "coverPage" | "backCover" | "numberHeadings" | "security">> & {
   outputDir?: string;
   css?: string | string[];
   margins?: MarkforgeConfig["margins"];
   header?: MarkforgeConfig["header"];
   footer?: MarkforgeConfig["footer"];
   signatures?: MarkforgeConfig["signatures"];
+  coverPage?: MarkforgeConfig["coverPage"];
+  backCover?: MarkforgeConfig["backCover"];
+  numberHeadings?: MarkforgeConfig["numberHeadings"];
+  security?: MarkforgeConfig["security"];
   watermark?: string;
   metadata?: MarkforgeConfig["metadata"];
   syntaxTheme?: string;
@@ -47,6 +51,12 @@ export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" 
   },
   toc: false,
   watermark: undefined,
+  signatures: undefined,
+  coverPage: undefined,
+  backCover: undefined,
+  numberHeadings: undefined,
+  security: undefined,
+  math: true,
   embedImages: true,
   metadata: undefined,
   watch: false,

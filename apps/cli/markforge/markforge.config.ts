@@ -20,4 +20,12 @@ export default defineConfig({
   },
   toc: true,
   embedImages: true,
+
+  // Optional enterprise features (uncomment to activate):
+  // coverPage: { enabled: true, preset: "modern", logo: "./assets/company-logo.png", badge: "SPECIFICATION" },
+  // backCover: { enabled: true, preset: "corporate", logo: "./assets/company-logo.png" },
+  // numberHeadings: { enabled: true, depth: 3 },
+  // watermark: "CONFIDENTIAL",
+  // security: { userPassword: "open_password", ownerPassword: "admin_password", permissions: { modifying: false, copying: false } },
+  // math: true,
 });

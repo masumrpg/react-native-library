@@ -76,7 +76,49 @@ def check_environment():
 > Use `--watch` flag during local authoring for instant live updates.
 
 > [!IMPORTANT]
-> Both Word Twips and CSS `@page` dimensions are accurately synchronized.
+> Both Word Twips and CSS `@page` dimensions are accurately synchronized.## Heading 2### Heading 3
+| Column 1 | Column 2 | Column 3 |
+| :--- | :---: | ---: |
+| Data A | Data B | Data C |
+| Data D | Data E | Data F |
+
+| Column 1 | Column 2 | Column 3 |
+| :--- | :---: | ---: |
+| Data A | Data B | Data C |
+| Data D | Data E | Data F |
+
+| Column 1 | Column 2 | Column 3 |
+| :--- | :---: | ---: |
+| Data A | Data B | Data C |
+| Data D | Data E | Data F |
+
+
+---
+
+# Mathematical Foundations
+
+MarkForge provides native KaTeX math compilation for both inline physics equations such as $E = mc^2$ and complex display block proofs[^euler]:
+
+$$\oint_C \mathbf{B} \cdot d\mathbf{l} = \mu_0 \left( I_{\text{enc}} + \varepsilon_0 \frac{d\Phi_E}{dt} \right)$$
+
+---
+
+# Multi-Column Comparison
+
+:::columns 2
+:::col
+### Cloud Architecture
+- Globally distributed edge routing
+- Low-latency WebSocket connections
+- Automatic failover clustering
+:::
+:::col
+### On-Premises Security
+- Air-gapped deployment support
+- Hardware Security Module (HSM) keys
+- Strict local audit logging
+:::
+:::
 
 ---
 
@@ -84,6 +126,8 @@ def check_environment():
 
 | Pipeline Component | Target Output | Processing Time | Quality Level |
 | :--- | :--- | :---: | :---: |
-| Native DOCX Packager | `sample.docx` | 45ms | Pixel-Perfect Word Layout |
-| Headless Chromium | `sample.pdf` | 650ms | 300 DPI Vector PDF |
-| HTML5 Bundler | `sample.html` | 18ms | Single Self-Contained File |
+| Native DOCX Packager | `full-all-properties.docx` | 45ms | Pixel-Perfect Word Layout |
+| Headless Chromium | `full-all-properties.pdf` | 650ms | 300 DPI Vector PDF |
+| HTML5 Bundler | `full-all-properties.html` | 18ms | Single Self-Contained File |
+
+[^euler]: Maxwell, J. C. (1865). A Dynamical Theory of the Electromagnetic Field. Philosophical Transactions of the Royal Society of London.
