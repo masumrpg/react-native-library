@@ -6,14 +6,53 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.4.0] - 2026-08-29
+
+### Major Enterprise Features & Security Release
+
+- **ISO 32000-2 AES-256 PDF Security & Password Encryption (`security`)**:
+  - Native standard PDF encryption with independent `userPassword` (password required to open the document) and `ownerPassword` (master password required to modify document permissions).
+  - Granular permissions enforcement: `printing`, `modifying`, `copying`, `annotating`, `fillingForms`, `contentAccessibility`, and `documentAssembly`.
+  - Supports permission-only protection mode when `userPassword` is left empty.
+- **100% Unselectable Image XObject Watermark**:
+  - Replaced live text glyphs with transparent Chromium-rendered PNG buffers embedded via `pdfDoc.drawImage()` as PDF Image XObjects.
+  - Eliminates 100% of selectable text stream tokens (`Tj`/`TJ`), preventing any cursor interference or unwanted text highlights during document review.
+  - Automatically centered diagonally (`rotate: -45`) across content pages and excluded from Front Cover and Back Cover.
+- **Cover Page Builder with Company Logo Embedding (`coverPage`)**:
+  - Four enterprise design presets: `modern`, `corporate-split`, `minimal`, and `card`.
+  - Native image embedding for brand logos across DOCX, PDF, and HTML with configurable `logoWidth`.
+  - Generates dedicated unnumbered first sections in Microsoft Word DOCX and suppresses running headers/footers via CSS `@page :first` in PDF.
+- **Back Cover / Closing Page Builder (`backCover`)**:
+  - Four closing design presets: `modern`, `corporate`, `minimal`, and `contact-card`.
+  - Full-bleed edge-to-edge dark closing card in PDF and isolated final section in DOCX.
+  - Company profile grid including address, email, phone, website, and social links.
+- **Math & LaTeX Equation Rendering (`math`)**:
+  - Native KaTeX in-memory math parsing for inline formulas (`$E=mc^2$`) and display block equations (`$$\int e^x dx$$`).
+  - Self-contained inlined KaTeX CSS for zero-network HTML and PDF generation.
+  - Cambria Math typography and shaded equation containers in Microsoft Word DOCX.
+- **Multi-Column Container Directives (`:::columns`, `:::col`)**:
+  - Multi-column container syntax with configurable columns count and gap (`:::columns 2` or `:::columns [cols=3 gap=2rem]`).
+  - Emitted as CSS Grid layouts in HTML/PDF and native borderless multi-cell table structures in DOCX.
+- **Hierarchical Section Numbering (`numberHeadings`)**:
+  - Automated decimal heading prefixes (`1.`, `1.1.`, `1.1.1.`) with configurable depth and optional H1 skip.
+  - Synchronized Table of Contents entries and anchor slugs.
+- **Footnotes & Endnotes (`[^1]`, `[^1]: text`)**:
+  - Markdown footnote references (`[^id]`) and bottom definition parsing.
+  - Formatted as superscripts with return links in HTML/PDF and dedicated numbered sections in Word DOCX.
+- **Windows Enterprise & Strict Corporate Policy Compliance**:
+  - Prioritizes Microsoft Edge (`msedge.exe`) with AppLocker and GPO whitelist compatibility.
+  - Isolated process arguments without suspicious flags (`--disable-sync`, isolated temp profile).
+  - Added `windowsHide: true` on child processes to eliminate console prompt flashes on Windows.
+- **Interactive Live-Reload Preview Server (`markforge --serve`)**:
+  - Real-time Server-Sent Events (SSE) `/events` broadcast on file or config changes.
+  - Automatic scroll position and reading preservation across live reloads.
+
+---
+
 ## [0.3.0] - 2026-08-29
 
 ### Features & Enhancements
 
-- **100% Unselectable Vector Watermarks in PDF**:
-  - Replaced SVG text nodes with dynamic high-DPI HTML5 Canvas 2D rasterization (`canvas.toDataURL('image/png')` at 3x DPR).
-  - Emitted as a pure PNG Image XObject background layer in Chromium PDF, completely eliminating selectable text layer glyphs.
-  - Ensures clean cursor dragging and text selection across all PDF reader applications.
 - **Comprehensive Programmatic API Suite**:
   - Added full programmatic compilation examples in `apps/cli/markforge/examples/`:
     - `1-minimal.ts`: Zero-configuration Markdown-to-MultiFormat execution.
@@ -25,7 +64,7 @@ description: Release history and version notes for @masumdev/markforge.
   - Added author attribution (`Author: Ma'sum (@masumrpg)`) and direct repository links.
   - Removed all emojis across CLI terminal outputs for maximum shell compatibility.
 - **Author Identity & Workspace Normalization**:
-  - Replaced all legacy author references with `Ma'sum` and updated GitHub profiles to `https://github.com/masumrpg`.
+  - Normalized author identity to `Ma'sum` and updated GitHub profiles to `https://github.com/masumrpg`.
 
 ---
 
@@ -34,126 +73,45 @@ description: Release history and version notes for @masumdev/markforge.
 ### Features & Enhancements
 
 - **Document Signatures & Approval Blocks (`signatures`)**:
-  - Add formal approval and sign-off blocks (*Lembar Pengesahan / Tanda Tangan*) with 1 to 4 signatory slots.
+  - Add formal approval and sign-off blocks with 1 to 4 signatory slots.
   - Multi-alignment support (`left`, `center`, `right`, `space-between`).
   - Multiple visual styles: `line` (classic underline divider), `box` (bordered card), and `clean` (borderless).
-  - Dynamic token interpolation (`{author}`, `{company}`, `{date}`, etc.) and optional digital signature image/seal embedding.
-  - Consistent and responsive rendering across **DOCX (Word)**, **Chromium PDF**, and **HTML**.
-- **Native Word Paragraph TabStops for Running Headers & Footers**: Replaced 3-column table headers and footers with native Microsoft Word OpenXML `TabStopType.CENTER` and `TabStopType.RIGHT` paragraph architecture. Eliminates 100% of table gridline boundaries/box outlines in LibreOffice Writer, Google Docs, and Microsoft Word when dividers are disabled.
-- **Synchronized Header & Footer Divider Lines**: Solid horizontal separator lines render cleanly via `border.bottom` / `border.top` on Word paragraphs and fixed print dividers (`@media print`) on Chromium PDF.
+  - Dynamic token interpolation (`{author}`, `{company}`, `{date}`) and optional digital signature image/seal embedding.
+- **Native Word Paragraph TabStops for Running Headers & Footers**:
+  - Replaced 3-column table headers and footers with native Microsoft Word OpenXML `TabStopType.CENTER` and `TabStopType.RIGHT` paragraph architecture.
+  - Eliminates 100% of table gridline boundaries in LibreOffice Writer, Google Docs, and Microsoft Word when dividers are disabled.
+- **Synchronized Header & Footer Divider Lines**:
+  - Solid horizontal separator lines render cleanly via `border.bottom` / `border.top` on Word paragraphs and fixed print dividers (`@media print`) on Chromium PDF.
 - **DOCX Visual & Typography Overhaul**:
-  - **Cover & Title Area**: 22pt bold title, 12pt subtitle, and metadata row with bottom border.
-  - **Table of Contents (TOC) Card**: Auto-generated shaded card box (`#F8FAFC`, border `#E2E8F0`, header `TABLE OF CONTENTS`, indented H1-H3 in `primaryDark`).
-  - **Headings**: H1 with cyan solid bottom border (`#33CDCF`), H2 with subtle bottom border (`#E2E8F0`), and H3.
-  - **Paragraphs & Lists**: Charcoal `#334155` text with comfortable line spacing (`line: 280` / `260`).
-  - **Callout Alert Boxes**: 20pt left border in alert color, tinted background fill (`#ECFDFD`, `#ECFDF5`, etc.), bold badge `[NOTE]`, and padded body text.
-  - **Zebra Tables**: Shaded header `#F1F5F9` with `#CBD5E1` border and alternating rows (`#FFFFFF` and `#F8FAFC`).
-  - **Code Blocks**: Formatted table card with `#33CDCF` left accent border, `#F8FAFC` background, monospace `Consolas` text, and syntax token colors.
+  - Enhanced title area with 22pt bold title, 12pt subtitle, and bottom border.
+  - Auto-generated Table of Contents card with shaded container (`#F8FAFC`, border `#E2E8F0`).
+  - Shaded zebra table rows with alternating fills.
 
 ---
 
 ## [0.2.4] - 2026-08-29
 
-### 🚀 Features & Enhancements
+### Features & Enhancements
 
-- **Granular Header & Footer Slot Customization (`HeaderFooterSlot`)**: Each running header and footer zone (`left`, `center`, `right`) can now be individually styled with custom `color`, `fontSize` (in points), `fontFamily`, `bold`, and `italic`. Fully implemented across DOCX TextRuns and PDF CSS Paged Media (`@top-*` and `@bottom-*`).
-- **Flagship `Theme.CORPORATE` Preset & `ThemeProps` Interface**: Simplified built-in themes to `Theme.CORPORATE` while providing the typed `ThemeProps` interface for total custom document theming (`backgroundColor`, `textColor`, `primaryColor`, `fontFamily`, `fontMono`, `customCss`).
-- **TypeScript Enums**: Full autocompletion and type-safety with `OutputFormat`, `Theme`, `Orientation`, `PaperSizeEnum`, `SyntaxTheme`, and `WatermarkPosition`.
-- **Background-Layered Watermark**: Watermarks are positioned strictly at the background layer (`z-index: 0`) under content to avoid obscuring tables, text, or images.
-- **Enterprise Windows Sandboxing**: Headless Chromium runner is sandboxed with `--disable-sync`, isolated temp directory, and zero Google network requests, prioritizing `msedge.exe` on Windows.
-
----
-
-## [0.2.3] - 2026-08-28
-
-### 🛠️ Fixed
-
-- **Node.js 22/25 `--localstorage-file` warning**: Eliminated the webstorage warning caused by `docx` checking `globalThis.localStorage` by using dynamic imports in the CLI entry point.
-- **CLI Compilation Error**: Resolved the `expected input to be a string or buffer` error caused by an `inputPath` vs `inputFile` prop mismatch in `<App />`.
-- **Global Package Versioning**: Fixed version resolution in ESM bundles to correctly detect `0.2.3` across global and local installations.
+- **Granular Header & Footer Slot Customization (`HeaderFooterSlot`)**:
+  - Each running header and footer zone (`left`, `center`, `right`) can now be individually styled with custom `color`, `fontSize` (in points), `fontFamily`, `bold`, and `italic`.
+  - Fully implemented across DOCX TextRuns and PDF CSS Paged Media (`@top-*` and `@bottom-*`).
+- **Flagship `Theme.CORPORATE` Preset & `ThemeProps` Interface**:
+  - Simplified built-in themes to `Theme.CORPORATE` while providing the typed `ThemeProps` interface for total custom document theming (`backgroundColor`, `textColor`, `primaryColor`, `fontFamily`, `fontMono`, `customCss`).
+- **TypeScript Enums**:
+  - Full autocompletion and type-safety with `OutputFormat`, `Theme`, `Orientation`, `PaperSizeEnum`, `SyntaxTheme`, and `WatermarkPosition`.
+- **Background-Layered Watermark**:
+  - Watermarks are positioned strictly at the background layer (`z-index: 0`) under content to avoid obscuring tables, text, or images.
 
 ---
 
-## [0.2.2] - 2026-08-28
+## [0.1.0] - 2026-08-28
 
-### 🛠️ Fixed
+### Initial Release
 
-- **CLI `--localstorage-file` warning still appearing (regression from 0.2.1)**: The warning suppression logic had an inverted listener order bug:
-  ```typescript
-  // ❌ Wrong — handler added then immediately removed
-  process.on("warning", handler);
-  process.removeAllListeners("warning"); // removes our handler too!
-
-  // ✅ Fixed — remove defaults first, then add our filter
-  process.removeAllListeners("warning");
-  process.on("warning", handler);
-  ```
-- **Dynamic `markforge -V` version**: `MARKFORGE_VERSION` now reads directly from `package.json` at runtime instead of a hardcoded string. Future version bumps only require updating `package.json`.
-
----
-
-## [0.2.1] - 2026-08-28
-
-### 🛠️ Fixed
-
-- **Windows PDF not using Chromium (fallback PDF rendered)**: `findChromeExecutable()` now resolves Windows browser paths using **runtime environment variables** (`process.env.LOCALAPPDATA`, `process.env.PROGRAMFILES`) instead of hardcoded strings. This fixes the most common Windows failure case where Chrome is installed at the user level (`%LOCALAPPDATA%\Google\Chrome\...`) rather than the system level.
-
-  Full detection order on Windows:
-  | Browser | Path Source |
-  | :--- | :--- |
-  | Chrome (user) | `%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe` |
-  | Chrome (system) | `%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` |
-  | **Edge** (user) | `%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe` |
-  | **Edge** (system) | `%PROGRAMFILES%\Microsoft\Edge\Application\msedge.exe` |
-  | Chromium | `%LOCALAPPDATA%\Chromium\Application\chrome.exe` |
-  | PATH search | `where chrome`, `where msedge` |
-
-  **Override**: Set `CHROME_PATH` or `PUPPETEER_EXECUTABLE_PATH` environment variable to use a custom browser binary.
-
-- **CLI `--localstorage-file` warning**: Suppressed the noisy Bun startup warning `--localstorage-file was provided without a valid path` that appeared on every `markforge` invocation. Bun's built-in localStorage API emits this warning when no storage file is configured. MarkForge never uses localStorage, so the warning is filtered silently at process startup.
-
-- **Mermaid renderer reliability**: Added `--virtual-time-budget=5000` and `--disable-software-rasterizer` to the Chromium invocation for Mermaid diagram capture. Improves render success rate on Windows and lower-end hardware where GPU rasterization is unavailable.
-
----
-
-## [0.2.0] - 2026-08-27
-
-### 🚀 Added
-
-- **Mermaid Diagram Support**: Full Mermaid.js rendering for all output formats. Diagrams in ` ```mermaid ``` ` blocks are rasterized via headless Chromium and embedded as images in DOCX, PDF, and HTML. Virtual-time-budget set to 8000ms for complex diagrams.
-- **Callout / Alert Boxes**: GitHub-flavored callout syntax (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`) now renders with colored left-border and background in all three output formats. Colors use inline `style` attributes to bypass Chromium print background suppression.
-- **Watermark Configuration**: Optional per-document watermark support via `markforge.config.ts` or frontmatter. Disabled by default. Configurable `text`, `opacity`, and `position` (`diagonal`, `center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`).
-- **Multi-Zone Header & Footer**: Full Left / Center / Right header and footer support in both DOCX (OpenXML tab-stop logic) and PDF (CSS Paged Media `@top-*` / `@bottom-*` rules). Supports `{title}`, `{author}`, `{version}`, `{date}`, `{page}`, `{pages}` tokens.
-- **`THEME_COMPONENTS` Base Layer**: All shared component CSS (callouts, blockquotes, code blocks, tables, images, TOC, document header, print rules) extracted into a `THEME_COMPONENTS` constant always injected regardless of the chosen theme. Fixes missing styles in `academic` and all non-default themes.
-
-### 🎨 Changed
-
-- **Primary Color Palette**: Updated to Blu by BCA Digital cyan — primary `#33CDCF`, deep `#009DA0`, tint `#ECFDFD` — across all themes and component styles.
-- **Dual Syntax Highlight Themes**:
-  - **PDF / HTML** (dark background): VS Code Dark+-inspired palette. Strings in warm orange `#E07C4F`, keywords in coral-red `#FF7B72`, plain text in light gray `#E2E8F0`, functions in soft purple `#D2A8FF`.
-  - **DOCX** (white background): GitHub Light-inspired palette. Strings in forest teal `#0A7E5C`, keywords in crimson `#D73A49`, plain text near-black `#24292E`.
-  - `tokenizeCodeLine(line, lang, theme)` now accepts a `theme: "dark" | "light"` parameter. `docxBuilder` passes `"light"`, HTML/PDF builders use `"dark"` (default).
-- **PDF Code Block Scrollbar Removed**: `@media print { pre { overflow: visible; white-space: pre-wrap; word-break: break-all; } }` — scrollbars no longer appear in printed/PDF code blocks.
-- **`THEME_ACADEMIC`** now includes a full `:root` CSS variable block compatible with `THEME_COMPONENTS`, enabling all component styles (callouts, code, tables) to apply correctly in academic theme documents.
-
-### 🛠️ Fixed
-
-- **PDF Header/Footer not rendering**: Refactored `injectPagedMediaStyles()` in `pdfBuilder.ts` to correctly inject CSS `@page` rules using `@top-left`, `@top-center`, `@top-right`, `@bottom-*` selectors from frontmatter/config.
-- **DOCX Header/Footer single-zone bug**: Implemented `TabStopType` logic to correctly split headers into three zones using tab characters and `TabStop` positions in OpenXML paragraphs.
-- **Callout styles missing in PDF**: Root cause was `THEME_ACADEMIC` missing component CSS. Fixed by the `THEME_COMPONENTS` extraction + injection approach in `htmlBuilder.ts`.
-- **Chromium PDF background color suppression**: Added `--force-color-profile=srgb` Chrome flag. Callout colors rendered using inline styles that bypass print background graphics suppression.
-- **Mermaid diagram alignment**: Fixed `virtual-time-budget` increased to `8000ms` to ensure complex diagrams finish rendering before PDF capture.
-
----
-
-## [0.1.0] - 2026-08-27
-
-### 🚀 Initial Release
-
-- **Multi-Format Document Engine**: Full compiler pipeline producing Microsoft Word (`.docx`), Print-ready (`.pdf`), and Standalone (`.html`).
-- **Embedded HTML & CSS Support**: Native parsing of inline HTML tags (`<div>`, `<span>`, `<table>`, `<img>`, `<style>`) inside Markdown & MDX.
-- **Image Resolver Engine**: Local relative path resolution, remote Web URL fetching with caching, Base64 data URIs, and SVG vector support.
-- **Built-in Curated Themes**: `default`, `academic`, `github`, `corporate`, `minimal`, and `dracula`.
-- **Interactive Terminal UI**: Built with **Ink** (React for Terminal) with progress indicators and summary table.
-- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts`, `.markforgerc.json`, and YAML support with JSON Schema autocomplete.
-- **Programmatic TypeScript API**: Direct functions `markforge()`, `compileMarkdown()`, `buildDocxDocument()`, `buildHtmlDocument()`, and `buildPdfDocument()`.
+- Core markdown parser supporting standard CommonMark and GitHub Flavored Markdown (GFM).
+- Binary DOCX document builder using `docx` library.
+- Pixel-perfect PDF generation via headless Chromium.
+- Standalone HTML document generator with embedded CSS tokens.
+- Syntax highlighting engine with customizable palettes.
+- Mermaid diagram parser and image renderer.

@@ -3,7 +3,7 @@
 # @masumdev/markforge
 
 **Enterprise Markdown & MDX Multi-Format Publishing Engine & CLI.**  
-Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native typography, syntax highlighting, Mermaid diagrams, callout boxes, customizable `ThemeProps`, and an interactive Ink terminal UI.
+Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native typography, syntax highlighting, Mermaid diagrams, callout boxes, customizable `ThemeProps`, AES-256 PDF encryption, and an interactive Ink terminal UI.
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -14,26 +14,35 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 | :--- | :--- |
-| 📄 **Multi-Format Output** | Generate `.docx`, `.pdf`, and `.html` from a single Markdown source simultaneously |
-| 🎨 **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system + full custom colors & fonts via `ThemeProps` |
-| 📐 **Per-Zone Header & Footer** | Granular color, font size, font family, bold & italic controls per `left`, `center`, `right` slot |
-| 📊 **Mermaid Diagrams** | Full Mermaid.js diagram engine — flowcharts, sequence, state, class, gantt |
-| 📢 **Callout / Alert Boxes** | GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` |
-| 🌈 **Syntax Highlighting** | Tokenized multi-language code blocks (`dracula`, `github-dark`, `monokai`, `nord`, etc.) |
-| 🖼️ **Image Inlining Engine** | Resolves local files, remote URLs, Base64 data URIs, and SVGs into embedded assets |
-| 📑 **Auto Table of Contents** | Anchored TOC generated from heading structure (`#` to `####`) |
-| 💧 **Non-Intrusive Watermark** | Background-layer watermark with custom text, color, opacity, rotation, and position |
-| ⚙️ **Type-Safe Config** | `markforge.config.ts` with Enums, `.markforgerc.json`, or YAML with JSON Schema |
-| 🚀 **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js & Bun |
-| 🖥️ **Ink Terminal UI** | Interactive TUI with live spinners, progress tracking, and compilation metrics |
+| **Multi-Format Output** | Generate `.docx`, `.pdf`, and `.html` from a single Markdown source simultaneously |
+| **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system plus full custom colors and fonts via `ThemeProps` |
+| **Cover Page Builder** | Four professional cover page presets (`modern`, `corporate-split`, `minimal`, `card`) with company logo |
+| **Back Cover / Closing Page** | Dedicated closing page with company details, contact info, social links, and copyright notice |
+| **Math & LaTeX Equations** | Native KaTeX math rendering for inline (`$E=mc^2$`) and display blocks (`$$\sum_{i=1}^n x_i$$`) |
+| **Multi-Column Directives** | Flexible multi-column layouts (`:::columns 2` and `:::col`) across HTML, PDF, and DOCX |
+| **Section Numbering** | Automated hierarchical decimal numbering (`1.`, `1.1.`, `1.1.1.`) with configurable depth |
+| **Footnotes & Endnotes** | Full academic footnotes (`[^1]` and `[^1]: description`) with backlinks and DOCX notes |
+| **AES-256 PDF Security** | ISO 32000-2 standard PDF encryption with user/owner passwords and granular permissions |
+| **100% Unselectable Watermark** | Chromium-rendered Image XObject watermark preventing any cursor selection interference |
+| **Per-Zone Header & Footer** | Granular color, font size, font family, bold, and italic controls per `left`, `center`, `right` slot |
+| **Mermaid Diagrams** | Full Mermaid.js diagram engine for flowcharts, sequence diagrams, gantt charts, and class models |
+| **Callout / Alert Boxes** | GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` |
+| **Syntax Highlighting** | Tokenized multi-language code blocks (`dracula`, `github-dark`, `monokai`, `nord`, etc.) |
+| **Image Inlining Engine** | Resolves local files, remote URLs, Base64 data URIs, and SVGs into self-contained embedded assets |
+| **Signatures & Approvals** | Multi-signatory approval blocks with customizable alignment, border styles, and signature images |
+| **Live-Reload Preview Server** | Real-time HTTP preview server (`--serve`) with Server-Sent Events (SSE) and scroll sync |
+| **Windows Corporate Compliance** | Native Microsoft Edge detection, clean isolated process arguments, and `windowsHide` support |
+| **Type-Safe Config** | `markforge.config.ts` with Enums, `.markforgerc.json`, or YAML with JSON Schema |
+| **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js and Bun |
+| **Ink Terminal UI** | Interactive TUI with live progress tracking, timers, and compilation metrics |
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Global CLI Installation
@@ -49,7 +58,7 @@ bun add -d @masumdev/markforge
 
 ---
 
-## 💻 CLI Usage
+## CLI Usage
 
 ```bash
 # Basic conversion to DOCX and PDF (defaults)
@@ -58,8 +67,8 @@ markforge document.md
 # Specify target formats and output folder
 markforge document.md --to docx,pdf,html -o ./dist
 
-# Use custom CSS styling and force Table of Contents
-markforge specification.md --css ./styles/custom.css --toc
+# Use custom configuration file
+markforge specification.md -c ./markforge.config.ts
 
 # Watch mode for live re-compilation
 markforge report.md --watch
@@ -76,7 +85,7 @@ markforge document.md --serve --port 4000 --open
 | `--to <formats...>` | `-t` | Output formats: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
 | `--output <dir>` | `-o` | Output directory | Same as input file |
 | `--config <file>` | `-c` | Explicit configuration file path | Auto-discovered |
-| `--theme <name>` | | Visual theme preset (`corporate`, `default`) | `corporate` |
+| `--theme <name>` | | Visual theme preset (`corporate`, `default`, `academic`, `github`, `minimal`) | `corporate` |
 | `--css <files...>` | | Custom CSS stylesheets to inject | `undefined` |
 | `--orientation <type>` | | Page orientation (`portrait`, `landscape`) | `portrait` |
 | `--paper-size <size>` | | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) | `A4` |
@@ -92,9 +101,9 @@ markforge document.md --serve --port 4000 --open
 
 ---
 
-## ⚙️ Configuration (`markforge.config.ts`)
+## Configuration (`markforge.config.ts`)
 
-MarkForge supports type-safe configuration with full TypeScript Enums:
+MarkForge supports type-safe configuration with TypeScript Enums:
 
 ```typescript
 import {
@@ -104,24 +113,23 @@ import {
   Orientation,
   PaperSizeEnum,
   SyntaxTheme,
-  WatermarkPosition,
+  SignatureAlign,
+  SignatureStyle,
 } from "@masumdev/markforge";
 
 export default defineConfig({
   // Target output formats
   to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
 
-  // Output destination directory
-  outputDir: ".temp/output-docs",
+  // Destination folder
+  outputDir: ".temp/output",
 
-  // Visual document theme (Theme.CORPORATE preset or a custom ThemeProps object)
+  // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,
 
-  // Page orientation & standard physical paper size
+  // Page geometry
   orientation: Orientation.PORTRAIT,
   paperSize: PaperSizeEnum.A4,
-
-  // Document page margins
   margins: {
     top: "3cm",
     bottom: "2.5cm",
@@ -129,16 +137,46 @@ export default defineConfig({
     right: "2.5cm",
   },
 
-  // Running headers with dynamic tokens & per-zone slot styling
+  // Cover Page Builder
+  coverPage: {
+    enabled: true,
+    preset: "modern",
+    logo: "./assets/company-logo.png",
+    logoWidth: 140,
+    badge: "CONFIDENTIAL SPECIFICATION",
+    badgeColor: "#ECFDFD",
+    badgeTextColor: "#0D998D",
+    footerText: "Proprietary Document - Authorized Personnel Only",
+  },
+
+  // Back Cover / Closing Page
+  backCover: {
+    enabled: true,
+    preset: "corporate",
+    logo: "./assets/company-logo.png",
+    logoWidth: 120,
+    title: "Thank You",
+    subtitle: "Enterprise Cross-Platform Document Solutions",
+    company: "Masum Dev Technologies",
+    address: "Jakarta, Indonesia",
+    email: "contact@masumdev.com",
+    phone: "+62 812 3456 7890",
+    website: "https://react-native-library-docs.netlify.app",
+    social: {
+      github: "https://github.com/masumrpg",
+    },
+    copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
+  },
+
+  // Running headers with per-zone styling & tokens
   header: {
     left: {
       text: "{company} - {title}",
       color: "#0D998D",
       fontSize: 9,
-      fontFamily: "Inter, Segoe UI, sans-serif",
       bold: true,
     },
-    center: "Internal Technical Guide",
+    center: "Technical Specification",
     right: {
       text: "v{version}",
       color: "#94A3B8",
@@ -149,7 +187,7 @@ export default defineConfig({
     dividerColor: "#CBD5E1",
   },
 
-  // Running footers with dynamic page numbering & per-zone slot styling
+  // Running footers with dynamic page numbers
   footer: {
     left: {
       text: "Author: {author}",
@@ -172,158 +210,147 @@ export default defineConfig({
     dividerColor: "#CBD5E1",
   },
 
-  // Automatic Table of Contents
+  // Table of Contents & Heading Numbering
   toc: true,
+  tocTitle: "TABLE OF CONTENTS",
+  tocDepth: 3,
+  numberHeadings: {
+    enabled: true,
+    depth: 3,
+    skipH1: false,
+  },
 
-  // Watermark configuration (placed at lowest background layer)
+  // Math equation rendering
+  math: true,
+
+  // PDF Document Security & AES-256 Encryption
+  security: {
+    userPassword: "masumdev_secret", // Password required to open document
+    ownerPassword: "masumdev_admin",  // Master password to edit permissions
+    permissions: {
+      printing: "highResolution",
+      modifying: false,
+      copying: true,
+      annotating: true,
+      fillingForms: true,
+      contentAccessibility: true,
+      documentAssembly: false,
+    },
+  },
+
+  // Unselectable diagonal watermark
   watermark: {
     text: "CONFIDENTIAL DRAFT",
     color: "#E11D48",
     opacity: 0.1,
     fontSize: 52,
     rotate: -45,
-    position: WatermarkPosition.DIAGONAL,
   },
 
-  // Syntax highlighting theme
-  syntaxTheme: SyntaxTheme.DRACULA,
-
-  // Asset embedding & bundling flags
-  embedImages: true,
-  bundleHtml: true,
-
-  // Global document metadata
-  metadata: {
-    title: "Unified Platform Architecture & Document Suite",
-    subtitle: "Enterprise Specification & Feature Validation Guide",
-    author: "Ma'sum",
-    company: "Masum Dev Technologies",
-    version: "1.0.0",
-    date: "2026-08-29",
-    lang: "en",
-  },
-});
-```
-
----
-
-## Custom Theme Customization (`ThemeProps`)
-
-You can completely rebrand all document styling by passing a `ThemeProps` object:
-
-```typescript
-import { defineConfig } from "@masumdev/markforge";
-
-export default defineConfig({
-  theme: {
-    primaryColor: "#0D998D",
-    primaryDark: "#008073",
-    primaryLight: "#D9F1F0",
-    backgroundColor: "#0F172A",
-    textColor: "#E2E8F0",
-    textMuted: "#94A3B8",
-    borderColor: "#334155",
-    cardBackground: "#1E293B",
-    codeBackground: "#020617",
-    codeText: "#E2E8F0",
-    fontFamily: "'Inter', sans-serif",
-    fontMono: "'Fira Code', monospace",
-  },
-});
-```
-
----
-
-## Signatures & Approval Blocks (`signatures`)
-
-Add formal signature sign-offs (*Lembar Pengesahan / Tanda Tangan*) with 1-4 slots:
-
-```typescript
-export default defineConfig({
-  signatures: {
-    align: "space-between", // "left" | "center" | "right" | "space-between"
-    style: "line",          // "line" | "box" | "clean"
-    borderColor: "#CBD5E1",
+  // Document signatures and approval block
+  signatureBlock: {
+    align: SignatureAlign.SPACE_BETWEEN,
+    style: SignatureStyle.BOX,
+    spacingBefore: "2.5cm",
     items: [
       {
-        title: "Prepared by",
+        title: "Prepared By",
         name: "{author}",
-        role: "Lead Platform Architect",
+        role: "Principal Mobile Architect",
         date: "{date}",
       },
       {
-        title: "Approved by",
-        name: "Dr. Alexander Wright",
+        title: "Approved By",
+        name: "Enterprise Architecture Board",
         role: "Chief Technology Officer",
         date: "{date}",
       },
     ],
   },
+
+  // Code syntax highlighting
+  syntaxTheme: SyntaxTheme.GITHUB_DARK,
+
+  // Fallback metadata dictionary
+  metadata: {
+    title: "Document Reference Manual",
+    author: "Ma'sum (@masumrpg)",
+    company: "Masum Dev Technologies",
+    version: "1.0.0",
+    date: "2026-08-30",
+  },
 });
 ```
 
 ---
 
+## Complete Configuration Properties Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `to` | `OutputFormat[]` | `['docx', 'pdf']` | Array of target document formats (`docx`, `pdf`, `html`, `png`) |
+| `outputDir` | `string` | `'.'` | Output destination directory |
+| `clean` | `boolean` | `false` | Remove stale output files in destination directory before compilation |
+| `theme` | `Theme \| ThemeProps` | `Theme.CORPORATE` | Built-in theme preset or custom `ThemeProps` design tokens |
+| `orientation` | `Orientation` | `'portrait'` | Page orientation (`portrait`, `landscape`) |
+| `paperSize` | `PaperSizeEnum` | `'A4'` | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) |
+| `margins` | `PageMargins` | `{ top: '2.5cm', ... }` | Page margins with units (`cm`, `mm`, `in`, `pt`) |
+| `header` | `HeaderFooterConfig` | `undefined` | Header configuration with slots (`left`, `center`, `right`) and divider |
+| `footer` | `HeaderFooterConfig` | `undefined` | Footer configuration with slots (`left`, `center`, `right`) and divider |
+| `toc` | `boolean` | `true` | Generate automated Table of Contents |
+| `tocTitle` | `string` | `'TABLE OF CONTENTS'`| Header title for the Table of Contents |
+| `tocDepth` | `number` | `3` | Maximum heading level included in Table of Contents (1 to 6) |
+| `numberHeadings` | `boolean \| object` | `false` | Automated hierarchical decimal numbering for headings (`1.`, `1.1.`, etc.) |
+| `coverPage` | `boolean \| object` | `false` | Isolated front cover page builder with presets and company logo |
+| `backCover` | `boolean \| object` | `false` | Isolated closing back cover page builder with corporate contact info |
+| `signatureBlock` | `object` | `undefined` | Formal multi-signatory approval and signing block |
+| `math` | `boolean` | `false` | KaTeX LaTeX math equation rendering (`$inline$` and `$$block$$`) |
+| `security` | `object` | `undefined` | ISO 32000-2 AES-256 PDF encryption, user/owner passwords, and permissions |
+| `watermark` | `string \| object` | `undefined` | 100% unselectable diagonal watermark configuration |
+| `syntaxTheme` | `SyntaxTheme` | `'github-dark'` | Code syntax highlighting color palette |
+| `css` | `string \| string[]` | `undefined` | Custom CSS files to inject |
+| `customCss` | `string` | `undefined` | Raw CSS string injected directly into the document head |
+| `breakBeforeHeadings` | `number[]` | `[1]` | Heading levels that trigger an automatic page break (`1` = H1) |
+| `embedImages` | `boolean` | `true` | Base64-encode and inline all remote and local images |
+| `metadata` | `object` | `{}` | Document metadata dictionary for dynamic `{token}` interpolation |
+
+---
+
 ## Programmatic API
 
-### High-Level API (`compileMarkdown` / `markforge`)
+MarkForge provides both high-level compilation functions and low-level AST builders:
 
 ```typescript
-import { compileMarkdown, OutputFormat } from "@masumdev/markforge";
-
-const result = await compileMarkdown("./specification.md", {
-  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
-  outputDir: "./dist",
-  toc: true,
-  metadata: {
-    title: "API Reference Manual",
-    author: "Ma'sum",
-    version: "1.0.0",
-  },
-});
-
-console.log(`✓ Compiled ${result.files.length} documents in ${result.durationMs}ms:`);
-for (const file of result.files) {
-  console.log(`  [${file.format.toUpperCase()}] ${file.filePath} (${file.sizeBytes} bytes)`);
-}
-```
-
-### Low-Level API (AST & Individual Document Builders)
-
-```typescript
-import * as fs from "node:fs";
 import {
-  parseMarkdownDocument,
+  compileMarkdown,
+  parseMarkdown,
   buildDocxDocument,
   buildPdfDocument,
   buildHtmlDocument,
   Theme,
 } from "@masumdev/markforge";
 
-const markdownContent = fs.readFileSync("./report.md", "utf-8");
-
-// 1. Parse Markdown into structured AST
-const doc = parseMarkdownDocument(markdownContent);
-
-const config = {
+// High-level compilation to disk
+const result = await compileMarkdown("./document.md", {
+  to: ["docx", "pdf", "html"],
+  outputDir: "./dist",
   theme: Theme.CORPORATE,
-  toc: true,
-  margins: { top: "2.5cm", bottom: "2.5cm", left: "2.5cm", right: "2.5cm" },
-};
+});
 
-// 2. Build formats independently into binary buffers or HTML strings
-const docxBuffer = await buildDocxDocument(doc, config);
-const pdfBuffer = await buildPdfDocument(doc, config);
-const htmlString = await buildHtmlDocument(doc, config);
+console.log("Compiled files:", result.outputFiles);
+console.log("Duration:", result.durationMs, "ms");
 
-// 3. Write output files
-fs.writeFileSync("./dist/report.docx", docxBuffer);
-fs.writeFileSync("./dist/report.pdf", pdfBuffer);
-fs.writeFileSync("./dist/report.html", htmlString, "utf-8");
+// Low-level in-memory AST compilation
+const rawMarkdown = "# Executive Summary\n\nHigh-performance document engine.";
+const doc = parseMarkdown(rawMarkdown);
+
+const docxBuffer = await buildDocxDocument(doc, { theme: Theme.CORPORATE });
+const pdfBuffer = await buildPdfDocument(doc, { theme: Theme.CORPORATE });
+const htmlString = await buildHtmlDocument(doc, { theme: Theme.CORPORATE });
 ```
 
 ---
 
 ## License
 
-MIT © [Ma'sum](https://github.com/masumrpg)
+MIT License. Designed and maintained by **Ma'sum** ([@masumrpg](https://github.com/masumrpg)).

@@ -86,9 +86,14 @@ export async function resolveImage(
     }
 
     // 3. Local File Path
-    const localPath = path.isAbsolute(src) ? src : path.resolve(baseDir, src);
+    let localPath = path.isAbsolute(src) ? src : path.resolve(baseDir, src);
     if (!fs.existsSync(localPath)) {
-      return null;
+      const cwdPath = path.resolve(process.cwd(), src);
+      if (fs.existsSync(cwdPath)) {
+        localPath = cwdPath;
+      } else {
+        return null;
+      }
     }
 
     const buffer = fs.readFileSync(localPath);

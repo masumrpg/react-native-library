@@ -254,6 +254,148 @@
       "enum": ["github-dark", "github-light", "dracula", "monokai", "nord"],
       "default": "github-dark"
     },
+    "coverPage": {
+      "description": "Dedicated standalone front cover page configuration",
+      "oneOf": [
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "preset": { "type": "string", "enum": ["modern", "corporate-split", "minimal", "card"] },
+            "title": { "type": "string" },
+            "subtitle": { "type": "string" },
+            "author": { "type": "string" },
+            "company": { "type": "string" },
+            "version": { "type": "string" },
+            "date": { "type": "string" },
+            "badge": { "type": "string" },
+            "badgeColor": { "type": "string" },
+            "badgeTextColor": { "type": "string" },
+            "logo": { "type": "string" },
+            "footerText": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "backCover": {
+      "description": "Dedicated standalone back cover / closing page configuration",
+      "oneOf": [
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "preset": { "type": "string", "enum": ["modern", "corporate", "minimal", "contact-card"] },
+            "title": { "type": "string" },
+            "subtitle": { "type": "string" },
+            "company": { "type": "string" },
+            "address": { "type": "string" },
+            "email": { "type": "string" },
+            "phone": { "type": "string" },
+            "website": { "type": "string" },
+            "social": {
+              "type": "object",
+              "properties": {
+                "github": { "type": "string" },
+                "twitter": { "type": "string" },
+                "linkedin": { "type": "string" }
+              },
+              "additionalProperties": true
+            },
+            "copyright": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "numberHeadings": {
+      "description": "Hierarchical decimal section numbering (e.g. 1., 1.1, 1.1.1)",
+      "oneOf": [
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "depth": { "type": "number", "minimum": 1, "maximum": 6 },
+            "skipH1": { "type": "boolean" },
+            "prefix": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "math": {
+      "type": "boolean",
+      "description": "Enable native KaTeX mathematical LaTeX equation rendering ($inline$ and $$block$$)",
+      "default": true
+    },
+    "security": {
+      "type": "object",
+      "description": "PDF encryption and access permissions",
+      "properties": {
+        "userPassword": { "type": "string" },
+        "ownerPassword": { "type": "string" },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "printing": { "oneOf": [{ "type": "string", "enum": ["highResolution", "lowResolution"] }, { "type": "boolean" }] },
+            "modifying": { "type": "boolean" },
+            "copying": { "type": "boolean" },
+            "annotating": { "type": "boolean" },
+            "fillingForms": { "type": "boolean" },
+            "contentAccessibility": { "type": "boolean" },
+            "documentAssembly": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "signatures": {
+      "description": "Signature and approval block layout and signatory definitions",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "name": { "type": "string" },
+              "role": { "type": "string" },
+              "date": { "type": "string" },
+              "signatureImage": { "type": "string" }
+            },
+            "required": ["name"]
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "style": { "type": "string", "enum": ["line", "box", "clean"] },
+            "align": { "type": "string", "enum": ["left", "center", "right", "space-between"] },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "name": { "type": "string" },
+                  "role": { "type": "string" },
+                  "date": { "type": "string" },
+                  "signatureImage": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          },
+          "required": ["items"],
+          "additionalProperties": false
+        }
+      ]
+    },
     "metadata": {
       "type": "object",
       "description": "Default document metadata dictionary (used as fallback if not in markdown frontmatter)",

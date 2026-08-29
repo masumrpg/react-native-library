@@ -1,11 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
+import type { ParsedMarkdownDocument, MarkdownInlineSpan, MarkdownASTNode } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { generateThemeCss, THEME_COMPONENTS } from "./htmlThemes.js";
 import { highlightCodeToHtml } from "../syntax/syntaxHighlighter.js";
-import { resolveDocumentConfig } from "../../config/resolveConfig.js";
+import { resolveDocumentConfig, type NormalizedCoverPage, type NormalizedBackCover, type ResolvedDocumentConfig } from "../../config/resolveConfig.js";
+import { renderMathToHtml, KATEX_INLINE_CSS } from "../math/mathRenderer.js";
 
 /**
  * Escapes HTML characters safely.
@@ -71,6 +72,17 @@ export async function renderInlinesToHtml(
       continue;
     }
 
+    if (span.type === "mathInline") {
+      result += renderMathToHtml(span.content, false);
+      continue;
+    }
+
+    if (span.type === "footnoteRef") {
+      const id = escapeHtml(span.footnoteId || span.content);
+      result += `<sup><a href="#fn-${id}" id="fnref-${id}" class="markforge-fnref">[${escapeHtml(span.content)}]</a></sup>`;
+      continue;
+    }
+
     if (span.type === "htmlInline") {
       result += span.content;
       continue;
@@ -83,66 +95,16 @@ export async function renderInlinesToHtml(
 }
 
 /**
- * Builds standalone self-contained HTML from a parsed Markdown document.
+ * Renders an AST node array to HTML.
  */
-export async function buildHtmlDocument(
-  doc: ParsedMarkdownDocument,
-  config: MarkforgeConfig,
+export async function renderNodesToHtml(
+  nodes: MarkdownASTNode[],
+  resolved: ResolvedDocumentConfig,
   baseDir: string = process.cwd()
 ): Promise<string> {
-  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
-  const baseThemeCss = generateThemeCss(resolved.theme);
-
-  // Load custom external CSS if provided
-  let customCss = "";
-  for (const cssPath of resolved.css) {
-    const fullCssPath = path.isAbsolute(cssPath) ? cssPath : path.resolve(baseDir, cssPath);
-    if (fs.existsSync(fullCssPath)) {
-      customCss += `\n/* Custom CSS: ${cssPath} */\n` + fs.readFileSync(fullCssPath, "utf-8");
-    }
-  }
-
-  // Collect inlined <style> blocks from markdown
-  const inlinedCss = doc.inlinedStyles.join("\n");
-
   let bodyHtml = "";
 
-  // 1. Header Area if title exists
-  if (resolved.title) {
-    bodyHtml += `  <header class="document-header">\n`;
-    bodyHtml += `    <h1 class="document-title">${escapeHtml(resolved.title)}</h1>\n`;
-    if (resolved.subtitle) {
-      bodyHtml += `    <div class="document-subtitle">${escapeHtml(resolved.subtitle)}</div>\n`;
-    }
-    if (resolved.author || resolved.date || resolved.version) {
-      bodyHtml += `    <div class="document-meta">\n`;
-      if (resolved.author) {
-        bodyHtml += `      <span>Author: ${escapeHtml(resolved.author)}</span>\n`;
-      }
-      if (resolved.version) {
-        bodyHtml += `      <span>Version: ${escapeHtml(resolved.version)}</span>\n`;
-      }
-      if (resolved.date) {
-        bodyHtml += `      <span>Date: ${escapeHtml(resolved.date)}</span>\n`;
-      }
-      bodyHtml += `    </div>\n`;
-    }
-    bodyHtml += `  </header>\n`;
-  }
-
-  // 2. Table of Contents if enabled
-  if (resolved.toc && doc.tocEntries.length > 0) {
-    bodyHtml += `  <nav class="table-of-contents">\n`;
-    bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
-    for (const entry of doc.tocEntries) {
-      const indent = "  ".repeat(entry.level);
-      bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
-    }
-    bodyHtml += `    </ul>\n  </nav>\n`;
-  }
-
-  // 3. Render AST Nodes
-  for (const node of doc.nodes) {
+  for (const node of nodes) {
     if (node.type === "heading") {
       const inner = await renderInlinesToHtml(node.inlines, baseDir);
       bodyHtml += `  <h${node.level} id="${node.id}">${inner}</h${node.level}>\n`;
@@ -152,6 +114,25 @@ export async function buildHtmlDocument(
     if (node.type === "paragraph") {
       const inner = await renderInlinesToHtml(node.inlines, baseDir);
       bodyHtml += `  <p>${inner}</p>\n`;
+      continue;
+    }
+
+    if (node.type === "mathBlock") {
+      bodyHtml += `  <div class="math-block">${renderMathToHtml(node.text || "", true)}</div>\n`;
+      continue;
+    }
+
+    if (node.type === "columns") {
+      const cols = node.columnsCount || 2;
+      const gap = node.columnGap || "1.5rem";
+      let colChildrenHtml = "";
+
+      for (const col of node.children || []) {
+        const colInner = await renderNodesToHtml(col.children || [], resolved, baseDir);
+        colChildrenHtml += `    <div class="markforge-col">\n${colInner}    </div>\n`;
+      }
+
+      bodyHtml += `  <div class="markforge-columns" style="--cols: ${cols}; --col-gap: ${gap};">\n${colChildrenHtml}  </div>\n`;
       continue;
     }
 
@@ -170,7 +151,6 @@ export async function buildHtmlDocument(
 
     if (node.type === "callout") {
       const inner = await renderInlinesToHtml(node.inlines, baseDir);
-      // Inline styles ensure colors render in Chromium PDF (no background-graphics needed)
       const CALLOUT_STYLES: Record<string, { bg: string; border: string; titleColor: string }> = {
         NOTE:      { bg: "#ECFDFD", border: "#33CDCF", titleColor: "#009DA0" },
         TIP:       { bg: "#ecfdf5", border: "#10b981", titleColor: "#10b981" },
@@ -230,7 +210,466 @@ export async function buildHtmlDocument(
     }
   }
 
-  // 4. Watermark if enabled (Rendered as PNG bitmap raster via Canvas to guarantee 100% unselectable PDF text across all pages)
+  return bodyHtml;
+}
+
+/**
+ * Renders the Cover Page HTML and returns { html, css }.
+ */
+export async function renderCoverPageHtml(
+  cover: NormalizedCoverPage,
+  baseDir: string = process.cwd()
+): Promise<{ html: string; css: string }> {
+  let logoHtml = "";
+  if (cover.logo) {
+    const resolvedLogo = await resolveImage(cover.logo, baseDir);
+    const src = resolvedLogo ? resolvedLogo.dataUri : cover.logo;
+    const widthStyle = cover.logoWidth
+      ? `max-width: ${typeof cover.logoWidth === "number" ? cover.logoWidth + "px" : cover.logoWidth}; max-height: 80px; width: auto; height: auto;`
+      : "max-height: 60px; max-width: 180px; width: auto; height: auto;";
+    logoHtml = `<div class="cover-logo"><img src="${src}" alt="Logo" style="${widthStyle} object-fit: contain;" /></div>`;
+  }
+
+  const badgeHtml = cover.badge
+    ? `<div class="cover-badge" style="${cover.badgeColor ? `background-color: ${cover.badgeColor};` : ""}${cover.badgeTextColor ? `color: ${cover.badgeTextColor};` : ""}">${escapeHtml(cover.badge)}</div>`
+    : "";
+
+  const titleHtml = `<h1 class="cover-title">${escapeHtml(cover.title)}</h1>`;
+  const subtitleHtml = cover.subtitle ? `<div class="cover-subtitle">${escapeHtml(cover.subtitle)}</div>` : "";
+
+  const metaItems: string[] = [];
+  if (cover.company) metaItems.push(`<div class="cover-meta-item"><span class="cover-meta-label">Organization:</span> <span class="cover-meta-value">${escapeHtml(cover.company)}</span></div>`);
+  if (cover.author) metaItems.push(`<div class="cover-meta-item"><span class="cover-meta-label">Author:</span> <span class="cover-meta-value">${escapeHtml(cover.author)}</span></div>`);
+  if (cover.version) metaItems.push(`<div class="cover-meta-item"><span class="cover-meta-label">Version:</span> <span class="cover-meta-value">${escapeHtml(cover.version)}</span></div>`);
+  if (cover.date) metaItems.push(`<div class="cover-meta-item"><span class="cover-meta-label">Date:</span> <span class="cover-meta-value">${escapeHtml(cover.date)}</span></div>`);
+
+  const metaHtml = metaItems.length > 0 ? `<div class="cover-meta">${metaItems.join("\n")}</div>` : "";
+  const footerHtml = cover.footerText ? `<div class="cover-footer-text">${escapeHtml(cover.footerText)}</div>` : "";
+
+  const css = `
+  .markforge-cover {
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem 3.5rem;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    z-index: 2;
+    background: ${cover.bgGradient || "#FFFFFF"};
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: ${cover.textColor || "#0F172A"};
+  }
+  .markforge-cover.cover-modern {
+    border-top: 8px solid #0D998D;
+  }
+  .markforge-cover.cover-corporate-split {
+    border-left: 12px solid #0D998D;
+  }
+  .markforge-cover.cover-card {
+    background: #F8FAFC;
+  }
+  .cover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .cover-badge {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background-color: #ECFDFD;
+    color: #0D998D;
+    border-radius: 4px;
+    border: 1px solid #33CDCF;
+  }
+  .cover-body {
+    margin: auto 0;
+  }
+  .cover-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 1rem 0;
+    color: inherit;
+  }
+  .cover-subtitle {
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: #64748B;
+    margin: 0 0 2rem 0;
+    line-height: 1.4;
+  }
+  .cover-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1.5px solid #E2E8F0;
+    padding-top: 1.5rem;
+    max-width: 480px;
+  }
+  .cover-meta-item {
+    font-size: 0.92rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+  .cover-meta-label {
+    font-weight: 600;
+    color: #64748B;
+    min-width: 110px;
+  }
+  .cover-meta-value {
+    font-weight: 500;
+    color: #0F172A;
+  }
+  .cover-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 0.82rem;
+    color: #94A3B8;
+  }
+  @media print {
+    .markforge-cover {
+      page-break-after: always;
+      break-after: page;
+      height: 100vh;
+      min-height: 100vh;
+      max-height: 100vh;
+      box-sizing: border-box;
+      overflow: hidden;
+      margin: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+  `;
+
+  const html = `  <section class="markforge-cover cover-${cover.preset}">
+    <div class="cover-top">
+      ${logoHtml}
+      ${badgeHtml}
+    </div>
+    <div class="cover-body">
+      ${titleHtml}
+      ${subtitleHtml}
+      ${metaHtml}
+    </div>
+    <div class="cover-bottom">
+      ${footerHtml}
+    </div>
+  </section>\n`;
+
+  return { html, css };
+}
+
+/**
+ * Renders the Back Cover / Closing Page HTML & CSS.
+ */
+export async function renderBackCoverHtml(
+  backCover: NormalizedBackCover,
+  baseDir: string = process.cwd()
+): Promise<{ html: string; css: string }> {
+  let logoHtml = "";
+  if (backCover.logo) {
+    const resolved = await resolveImage(backCover.logo, baseDir);
+    const src = resolved ? resolved.dataUri : backCover.logo;
+    const widthStyle = backCover.logoWidth
+      ? `style="width: ${typeof backCover.logoWidth === "number" ? `${backCover.logoWidth}px` : backCover.logoWidth}; max-width: 100%;"`
+      : `style="max-width: 160px; height: auto;"`;
+    logoHtml = `<div class="back-logo"><img src="${src}" alt="Brand Logo" ${widthStyle} /></div>`;
+  }
+
+  const badgeHtml = backCover.badge
+    ? `<div class="back-badge" style="${backCover.badgeColor ? `background-color: ${backCover.badgeColor};` : ""}${backCover.badgeTextColor ? `color: ${backCover.badgeTextColor};` : ""}">${escapeHtml(backCover.badge)}</div>`
+    : "";
+
+  const titleHtml = `<h1 class="back-title">${escapeHtml(backCover.title)}</h1>`;
+  const subtitleHtml = backCover.subtitle ? `<div class="back-subtitle">${escapeHtml(backCover.subtitle)}</div>` : "";
+
+  const contactItems: string[] = [];
+  if (backCover.company) contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">Organization:</span> <span class="back-contact-value">${escapeHtml(backCover.company)}</span></div>`);
+  if (backCover.address) contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">Address:</span> <span class="back-contact-value">${escapeHtml(backCover.address)}</span></div>`);
+  if (backCover.email) contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">Email:</span> <a href="mailto:${escapeHtml(backCover.email)}" class="back-contact-link">${escapeHtml(backCover.email)}</a></div>`);
+  if (backCover.phone) contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">Phone:</span> <span class="back-contact-value">${escapeHtml(backCover.phone)}</span></div>`);
+  if (backCover.website) contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">Website:</span> <a href="${escapeHtml(backCover.website)}" target="_blank" class="back-contact-link">${escapeHtml(backCover.website)}</a></div>`);
+
+  if (backCover.social) {
+    for (const [network, url] of Object.entries(backCover.social)) {
+      if (url) {
+        contactItems.push(`<div class="back-contact-item"><span class="back-contact-label">${escapeHtml(network.toUpperCase())}:</span> <a href="${escapeHtml(url)}" target="_blank" class="back-contact-link">${escapeHtml(url)}</a></div>`);
+      }
+    }
+  }
+
+  const contactHtml = contactItems.length > 0 ? `<div class="back-contact-grid">${contactItems.join("\n")}</div>` : "";
+  const copyrightHtml = backCover.copyright ? `<div class="back-copyright">${escapeHtml(backCover.copyright)}</div>` : "";
+
+  const isDark = backCover.preset === "corporate";
+  const css = `
+  .markforge-back-cover {
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem 3.5rem;
+    page-break-before: always;
+    break-before: page;
+    position: relative;
+    z-index: 2;
+    background: ${backCover.bgGradient || (isDark ? "#0F172A" : "#FFFFFF")};
+    color: ${backCover.textColor || (isDark ? "#F8FAFC" : "#0F172A")};
+  }
+  .markforge-back-cover.back-modern {
+    border-bottom: 8px solid #0D998D;
+  }
+  .markforge-back-cover.back-corporate {
+    border-left: 12px solid #33CDCF;
+  }
+  .markforge-back-cover.back-card {
+    background: #F8FAFC;
+  }
+  .back-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .back-badge {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background-color: #ECFDFD;
+    color: #0D998D;
+    border-radius: 4px;
+    border: 1px solid #33CDCF;
+  }
+  .back-body {
+    margin: auto 0;
+  }
+  .back-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 0.75rem 0;
+    color: inherit;
+  }
+  .back-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: ${isDark ? "#94A3B8" : "#64748B"};
+    margin: 0 0 2rem 0;
+    line-height: 1.4;
+  }
+  .back-contact-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    border-top: 1.5px solid ${isDark ? "#334155" : "#E2E8F0"};
+    padding-top: 1.5rem;
+    max-width: 540px;
+  }
+  .back-contact-item {
+    font-size: 0.92rem;
+    display: flex;
+    gap: 0.75rem;
+  }
+  .back-contact-label {
+    font-weight: 600;
+    color: ${isDark ? "#94A3B8" : "#64748B"};
+    min-width: 110px;
+  }
+  .back-contact-link {
+    color: #0D998D;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .back-contact-link:hover {
+    text-decoration: underline;
+  }
+  .back-copyright {
+    font-size: 0.82rem;
+    color: ${isDark ? "#64748B" : "#94A3B8"};
+    border-top: 1px solid ${isDark ? "#1E293B" : "#F1F5F9"};
+    padding-top: 1rem;
+    margin-top: 2rem;
+  }
+  @media print {
+    .markforge-back-cover {
+      page: back-cover-page;
+      page-break-before: always;
+      break-before: page;
+      page-break-after: avoid;
+      break-after: avoid;
+      min-height: 100vh;
+      height: 100vh;
+      max-height: 100vh;
+      margin: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+  `;
+
+  const html = `  <section class="markforge-back-cover back-${backCover.preset}">
+    <div class="back-top">
+      ${logoHtml}
+      ${badgeHtml}
+    </div>
+    <div class="back-body">
+      ${titleHtml}
+      ${subtitleHtml}
+      ${contactHtml}
+    </div>
+    ${copyrightHtml}
+  </section>\n`;
+
+  return { html, css };
+}
+
+/**
+ * Builds standalone self-contained HTML from a parsed Markdown document.
+ */
+export async function buildHtmlDocument(
+  doc: ParsedMarkdownDocument,
+  config: MarkforgeConfig,
+  baseDir: string = process.cwd()
+): Promise<string> {
+  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const baseThemeCss = generateThemeCss(resolved.theme);
+
+  // Load custom external CSS if provided
+  let customCss = "";
+  for (const cssPath of resolved.css) {
+    const fullCssPath = path.isAbsolute(cssPath) ? cssPath : path.resolve(baseDir, cssPath);
+    if (fs.existsSync(fullCssPath)) {
+      customCss += `\n/* Custom CSS: ${cssPath} */\n` + fs.readFileSync(fullCssPath, "utf-8");
+    }
+  }
+
+  // Collect inlined <style> blocks from markdown
+  const inlinedCss = doc.inlinedStyles.join("\n");
+
+  // Multi-Columns and Footnotes CSS
+  const extraCss = `
+  .markforge-columns {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+    gap: var(--col-gap, 1.5rem);
+    margin: 1.5rem 0;
+  }
+  .markforge-col {
+    min-width: 0;
+  }
+  .markforge-fnref {
+    text-decoration: none;
+    font-size: 0.8em;
+    vertical-align: super;
+    color: #0D998D;
+    font-weight: 700;
+  }
+  .markforge-footnotes {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    font-size: 0.88rem;
+    color: #64748B;
+  }
+  .markforge-footnotes hr {
+    border: 0;
+    border-top: 1px solid #E2E8F0;
+    margin-bottom: 1rem;
+  }
+  .markforge-fn-return {
+    text-decoration: none;
+    color: #0D998D;
+  }
+  .math-block {
+    margin: 1.5rem 0;
+    text-align: center;
+    overflow-x: auto;
+  }
+  `;
+
+  let coverHtml = "";
+  let coverCss = "";
+  if (resolved.coverPage && resolved.coverPage.enabled) {
+    const coverRes = await renderCoverPageHtml(resolved.coverPage, baseDir);
+    coverHtml = coverRes.html;
+    coverCss = coverRes.css;
+  }
+
+  let backHtml = "";
+  let backCss = "";
+  if (resolved.backCover && resolved.backCover.enabled) {
+    const backRes = await renderBackCoverHtml(resolved.backCover, baseDir);
+    backHtml = backRes.html;
+    backCss = backRes.css;
+  }
+
+  let bodyHtml = "";
+
+  // 1. Header Area if title exists and NO cover page
+  if (resolved.title && !resolved.coverPage?.enabled) {
+    bodyHtml += `  <header class="document-header">\n`;
+    bodyHtml += `    <h1 class="document-title">${escapeHtml(resolved.title)}</h1>\n`;
+    if (resolved.subtitle) {
+      bodyHtml += `    <div class="document-subtitle">${escapeHtml(resolved.subtitle)}</div>\n`;
+    }
+    if (resolved.author || resolved.date || resolved.version) {
+      bodyHtml += `    <div class="document-meta">\n`;
+      if (resolved.author) {
+        bodyHtml += `      <span>Author: ${escapeHtml(resolved.author)}</span>\n`;
+      }
+      if (resolved.version) {
+        bodyHtml += `      <span>Version: ${escapeHtml(resolved.version)}</span>\n`;
+      }
+      if (resolved.date) {
+        bodyHtml += `      <span>Date: ${escapeHtml(resolved.date)}</span>\n`;
+      }
+      bodyHtml += `    </div>\n`;
+    }
+    bodyHtml += `  </header>\n`;
+  }
+
+  // 2. Table of Contents if enabled
+  if (resolved.toc && doc.tocEntries.length > 0) {
+    bodyHtml += `  <nav class="table-of-contents">\n`;
+    bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
+    for (const entry of doc.tocEntries) {
+      const indent = "  ".repeat(entry.level);
+      bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
+    }
+    bodyHtml += `    </ul>\n  </nav>\n`;
+  }
+
+  // 3. Render AST Nodes
+  bodyHtml += await renderNodesToHtml(doc.nodes, resolved, baseDir);
+
+  // 3.5 Footnotes Section
+  let footnotesHtml = "";
+  if (doc.footnoteDefs && doc.footnoteDefs.length > 0) {
+    let fnListHtml = "";
+    for (const def of doc.footnoteDefs) {
+      const defInner = await renderInlinesToHtml(def.inlines, baseDir);
+      fnListHtml += `    <li id="fn-${escapeHtml(def.id)}">${defInner} <a href="#fnref-${escapeHtml(def.id)}" class="markforge-fn-return">&#8617;</a></li>\n`;
+    }
+    footnotesHtml = `\n  <footer class="markforge-footnotes">\n    <hr />\n    <ol>\n${fnListHtml}    </ol>\n  </footer>\n`;
+  }
+
+  // 4. Watermark if enabled
   let watermarkCss = "";
   let watermarkHtml = "";
   if (resolved.watermark) {
@@ -240,12 +679,16 @@ export async function buildHtmlDocument(
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 0;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .document-container {
     position: relative;
@@ -256,8 +699,12 @@ export async function buildHtmlDocument(
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
       height: 100vh;
+      pointer-events: none;
+      z-index: 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
@@ -269,16 +716,16 @@ export async function buildHtmlDocument(
   (function() {
     try {
       var canvas = document.createElement('canvas');
-      var dpr = 3;
-      var width = 800;
-      var height = 1100;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      var dpr = 2;
+      var width = 1200;
+      var height = 1600;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
       var ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.scale(dpr, dpr);
         ctx.translate(width / 2, height / 2);
-        ctx.rotate((${wm.rotate} * Math.PI) / 180);
+        ctx.rotate((-Math.abs(${wm.rotate || 45}) * Math.PI) / 180);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = '900 ${wm.fontSize * 1.5}px system-ui, -apple-system, sans-serif';
@@ -300,17 +747,13 @@ export async function buildHtmlDocument(
   </script>\n`;
   }
 
+  // 5. Signatures
   let signaturesHtml = "";
   let signaturesCss = "";
 
   if (resolved.signatures && resolved.signatures.items.length > 0) {
     const sig = resolved.signatures;
     const numItems = sig.items.length;
-
-    let justifyCss = "flex-end";
-    if (sig.align === "left") justifyCss = "flex-start";
-    else if (sig.align === "center") justifyCss = "center";
-    else if (sig.align === "space-between") justifyCss = "space-between";
 
     signaturesCss = `
   .markforge-signatures {
@@ -434,6 +877,10 @@ export async function buildHtmlDocument(
   <style>
 ${THEME_COMPONENTS}
 ${baseThemeCss}
+${KATEX_INLINE_CSS}
+${extraCss}
+${coverCss}
+${backCss}
 ${customCss}
 ${inlinedCss}
 ${watermarkCss}
@@ -441,9 +888,9 @@ ${signaturesCss}
   </style>
 </head>
 <body>
-${watermarkHtml}  <div class="document-container">
-${bodyHtml}${signaturesHtml}  </div>
+${watermarkHtml}${coverHtml}  <div class="document-container">
+${bodyHtml}${footnotesHtml}${signaturesHtml}  </div>
   ${mermaidScript}
-</body>
+${backHtml}</body>
 </html>`;
 }

@@ -11,6 +11,10 @@ import type {
   SignatureStyle,
   SignatureItem,
   SignatureBlockConfig,
+  CoverPageConfig,
+  BackCoverConfig,
+  NumberHeadingsConfig,
+  SecurityConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -127,6 +131,67 @@ export interface NormalizedSignatureBlock {
   spacingBeforeTwip: number;
 }
 
+export interface NormalizedCoverPage {
+  enabled: boolean;
+  preset: "modern" | "corporate-split" | "minimal" | "card";
+  title: string;
+  subtitle?: string;
+  author?: string;
+  company?: string;
+  version?: string;
+  date?: string;
+  badge?: string;
+  badgeColor?: string;
+  badgeTextColor?: string;
+  logo?: string;
+  logoWidth?: number | string;
+  bgGradient?: string;
+  textColor?: string;
+  footerText?: string;
+}
+
+export interface NormalizedBackCover {
+  enabled: boolean;
+  preset: "modern" | "corporate" | "minimal" | "contact-card";
+  title: string;
+  subtitle?: string;
+  company?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  social?: Record<string, string>;
+  copyright?: string;
+  badge?: string;
+  badgeColor?: string;
+  badgeTextColor?: string;
+  logo?: string;
+  logoWidth?: number | string;
+  bgGradient?: string;
+  textColor?: string;
+}
+
+export interface NormalizedNumberHeadings {
+  enabled: boolean;
+  depth: number;
+  skipH1: boolean;
+  prefix: string;
+}
+
+export interface NormalizedSecurity {
+  userPassword?: string;
+  ownerPassword?: string;
+  permissions?: {
+    printing?: "highResolution" | "lowResolution" | "none";
+    modifying?: boolean;
+    copying?: boolean;
+    annotating?: boolean;
+    fillingForms?: boolean;
+    contentAccessibility?: boolean;
+    documentAssembly?: boolean;
+  };
+}
+
 export interface ResolvedDocumentConfig {
   title: string;
   subtitle?: string;
@@ -148,6 +213,11 @@ export interface ResolvedDocumentConfig {
   toc: boolean;
   signatures?: NormalizedSignatureBlock;
   watermark?: NormalizedWatermark;
+  coverPage?: NormalizedCoverPage;
+  backCover?: NormalizedBackCover;
+  numberHeadings?: NormalizedNumberHeadings;
+  security?: NormalizedSecurity;
+  math: boolean;
   css: string[];
   embedImages: boolean;
   bundleHtml: boolean;
@@ -166,14 +236,18 @@ export function replaceDocumentTokens(
     version?: string;
     date?: string;
     company?: string;
+    year?: string;
+    [key: string]: string | undefined;
   }
 ): string {
+  const currentYear = meta.year || new Date().getFullYear().toString();
   return template
     .replace(/\{title\}/gi, meta.title || "")
     .replace(/\{subtitle\}/gi, meta.subtitle || "")
     .replace(/\{author\}/gi, meta.author || "")
     .replace(/\{version\}/gi, meta.version || "")
     .replace(/\{date\}/gi, meta.date || "")
+    .replace(/\{year\}/gi, currentYear)
     .replace(/\{company\}/gi, meta.company || "");
 }
 
@@ -385,6 +459,186 @@ export function normalizeSignatures(
 }
 
 /**
+ * Normalizes Cover Page configuration with token replacement.
+ */
+export function normalizeCoverPage(
+  rawCover?: boolean | CoverPageConfig | Record<string, unknown>,
+  tokenCtx: {
+    title?: string;
+    subtitle?: string;
+    author?: string;
+    version?: string;
+    date?: string;
+    company?: string;
+  } = {}
+): NormalizedCoverPage | undefined {
+  if (!rawCover) return undefined;
+
+  const cfg = (typeof rawCover === "object" ? rawCover : {}) as CoverPageConfig & Record<string, unknown>;
+  if (cfg.enabled === false) return undefined;
+
+  const preset = (cfg.preset as NormalizedCoverPage["preset"]) || "modern";
+  const title = cfg.title ? replaceDocumentTokens(String(cfg.title), tokenCtx) : tokenCtx.title || "Document Title";
+  const subtitle = cfg.subtitle ? replaceDocumentTokens(String(cfg.subtitle), tokenCtx) : tokenCtx.subtitle;
+  const author = Array.isArray(cfg.author)
+    ? cfg.author.join(", ")
+    : cfg.author ? replaceDocumentTokens(String(cfg.author), tokenCtx) : tokenCtx.author;
+  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company;
+  const version = cfg.version ? replaceDocumentTokens(String(cfg.version), tokenCtx) : tokenCtx.version;
+
+  let dateStr: string | undefined;
+  if (typeof cfg.date === "string") {
+    dateStr = replaceDocumentTokens(cfg.date, tokenCtx);
+  } else if (cfg.date === true) {
+    dateStr = tokenCtx.date || new Date().toISOString().split("T")[0];
+  } else {
+    dateStr = tokenCtx.date;
+  }
+
+  const badge = cfg.badge ? replaceDocumentTokens(String(cfg.badge), tokenCtx) : undefined;
+  const badgeColor = typeof cfg.badgeColor === "string" ? cfg.badgeColor : undefined;
+  const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
+  const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
+  const logoWidth = cfg.logoWidth as number | string | undefined;
+  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : undefined;
+  const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
+  const footerText = cfg.footerText ? replaceDocumentTokens(String(cfg.footerText), tokenCtx) : undefined;
+
+  return {
+    enabled: true,
+    preset,
+    title,
+    subtitle,
+    author,
+    company,
+    version,
+    date: dateStr,
+    badge,
+    badgeColor,
+    badgeTextColor,
+    logo,
+    logoWidth,
+    bgGradient,
+    textColor,
+    footerText,
+  };
+}
+
+/**
+ * Normalizes Back Cover / Closing Page configuration with token replacement.
+ */
+export function normalizeBackCover(
+  rawBack?: boolean | BackCoverConfig | Record<string, unknown>,
+  tokenCtx: {
+    title?: string;
+    subtitle?: string;
+    author?: string;
+    version?: string;
+    date?: string;
+    company?: string;
+  } = {}
+): NormalizedBackCover | undefined {
+  if (!rawBack) return undefined;
+
+  const cfg = (typeof rawBack === "object" ? rawBack : {}) as BackCoverConfig & Record<string, unknown>;
+  if (cfg.enabled === false) return undefined;
+
+  const preset = (cfg.preset as NormalizedBackCover["preset"]) || "modern";
+  const title = cfg.title ? replaceDocumentTokens(String(cfg.title), tokenCtx) : "Thank You";
+  const subtitle = cfg.subtitle ? replaceDocumentTokens(String(cfg.subtitle), tokenCtx) : undefined;
+  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company;
+  const address = cfg.address ? replaceDocumentTokens(String(cfg.address), tokenCtx) : undefined;
+  const email = cfg.email ? replaceDocumentTokens(String(cfg.email), tokenCtx) : undefined;
+  const phone = cfg.phone ? replaceDocumentTokens(String(cfg.phone), tokenCtx) : undefined;
+  const website = cfg.website ? replaceDocumentTokens(String(cfg.website), tokenCtx) : undefined;
+
+  let socialMap: Record<string, string> | undefined;
+  if (cfg.social && typeof cfg.social === "object") {
+    socialMap = {};
+    for (const [k, v] of Object.entries(cfg.social)) {
+      if (typeof v === "string") {
+        socialMap[k] = replaceDocumentTokens(v, tokenCtx);
+      }
+    }
+  }
+
+  const currentYear = new Date().getFullYear().toString();
+  const copyright = cfg.copyright
+    ? replaceDocumentTokens(String(cfg.copyright), { ...tokenCtx, year: currentYear })
+    : company
+    ? `Copyright (c) ${currentYear} ${company}. All Rights Reserved.`
+    : undefined;
+
+  const badge = cfg.badge ? replaceDocumentTokens(String(cfg.badge), tokenCtx) : undefined;
+  const badgeColor = typeof cfg.badgeColor === "string" ? cfg.badgeColor : undefined;
+  const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
+  const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
+  const logoWidth = cfg.logoWidth as number | string | undefined;
+  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : undefined;
+  const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
+
+  return {
+    enabled: true,
+    preset,
+    title,
+    subtitle,
+    company,
+    address,
+    email,
+    phone,
+    website,
+    social: socialMap,
+    copyright,
+    badge,
+    badgeColor,
+    badgeTextColor,
+    logo,
+    logoWidth,
+    bgGradient,
+    textColor,
+  };
+}
+
+/**
+ * Normalizes numberHeadings configuration.
+ */
+export function normalizeNumberHeadings(
+  raw?: NumberHeadingsConfig | Record<string, unknown>
+): NormalizedNumberHeadings | undefined {
+  if (raw === undefined || raw === false) return undefined;
+  if (raw === true) {
+    return { enabled: true, depth: 3, skipH1: false, prefix: "" };
+  }
+  if (typeof raw === "object") {
+    const obj = raw as { enabled?: boolean; depth?: number; skipH1?: boolean; prefix?: string };
+    if (obj.enabled === false) return undefined;
+    return {
+      enabled: true,
+      depth: obj.depth ?? 3,
+      skipH1: obj.skipH1 ?? false,
+      prefix: obj.prefix ?? "",
+    };
+  }
+  return undefined;
+}
+
+/**
+ * Normalizes security / PDF password encryption configuration.
+ */
+export function normalizeSecurity(
+  raw?: SecurityConfig | Record<string, unknown>
+): NormalizedSecurity | undefined {
+  if (!raw) return undefined;
+  const sec = raw as SecurityConfig;
+  if (!sec.userPassword && !sec.ownerPassword && !sec.permissions) return undefined;
+  return {
+    userPassword: sec.userPassword,
+    ownerPassword: sec.ownerPassword,
+    permissions: sec.permissions as NormalizedSecurity["permissions"],
+  };
+}
+
+/**
  * Centralized Single Source of Truth for resolving document configuration.
  * Priority hierarchy: Frontmatter metadata > Project Config File / User Config > DEFAULT_CONFIG
  */
@@ -467,6 +721,21 @@ export function resolveDocumentConfig(
     userConfig.signatures;
   const signatures = normalizeSignatures(rawSignatures, tokenContext);
 
+  // 5.6 Cover Page, Back Cover, Number Headings, Security
+  const rawCover = mergedMeta.coverPage !== undefined ? (mergedMeta.coverPage as boolean | Record<string, unknown>) : userConfig.coverPage;
+  const coverPage = normalizeCoverPage(rawCover, tokenContext);
+
+  const rawBack = mergedMeta.backCover !== undefined ? (mergedMeta.backCover as boolean | Record<string, unknown>) : userConfig.backCover;
+  const backCover = normalizeBackCover(rawBack, tokenContext);
+
+  const rawNumberHeadings = mergedMeta.numberHeadings !== undefined ? mergedMeta.numberHeadings : userConfig.numberHeadings;
+  const numberHeadings = normalizeNumberHeadings(rawNumberHeadings as boolean | { enabled?: boolean; depth?: number; skipH1?: boolean; prefix?: string });
+
+  const rawSecurity = (mergedMeta.security as Record<string, unknown>) || userConfig.security;
+  const security = normalizeSecurity(rawSecurity);
+
+  const math = mergedMeta.math !== false && userConfig.math !== false;
+
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
   const cssList: string[] = [];
   const addCss = (item?: string | string[]) => {
@@ -500,6 +769,11 @@ export function resolveDocumentConfig(
     toc,
     signatures,
     watermark,
+    coverPage,
+    backCover,
+    numberHeadings,
+    security,
+    math,
     css: cssList,
     embedImages,
     bundleHtml,

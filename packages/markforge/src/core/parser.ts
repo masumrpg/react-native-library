@@ -1,5 +1,5 @@
 import matter from "gray-matter";
-import type { FrontmatterMetadata } from "../config/types.js";
+import type { FrontmatterMetadata, NumberHeadingsOptions } from "../config/types.js";
 
 export type MarkdownNodeType =
   | "heading"
@@ -13,13 +13,27 @@ export type MarkdownNodeType =
   | "tableCell"
   | "codeBlock"
   | "mermaid"
+  | "mathBlock"
+  | "footnoteDef"
+  | "columns"
+  | "column"
   | "htmlBlock"
   | "thematicBreak"
   | "image"
   | "toc";
 
 export interface MarkdownInlineSpan {
-  type: "text" | "bold" | "italic" | "code" | "link" | "strikethrough" | "image" | "htmlInline";
+  type:
+    | "text"
+    | "bold"
+    | "italic"
+    | "code"
+    | "link"
+    | "strikethrough"
+    | "image"
+    | "htmlInline"
+    | "mathInline"
+    | "footnoteRef";
   content: string;
   url?: string;
   title?: string;
@@ -28,6 +42,7 @@ export interface MarkdownInlineSpan {
   height?: number | string;
   children?: MarkdownInlineSpan[];
   style?: Record<string, string>;
+  footnoteId?: string;
 }
 
 export interface MarkdownASTNode {
@@ -45,6 +60,15 @@ export interface MarkdownASTNode {
   rawHtml?: string;
   id?: string;
   style?: Record<string, string>;
+  columnsCount?: number;
+  columnGap?: string;
+  footnoteId?: string;
+}
+
+export interface FootnoteDefinition {
+  id: string;
+  text: string;
+  inlines: MarkdownInlineSpan[];
 }
 
 export interface ParsedMarkdownDocument {
@@ -53,10 +77,11 @@ export interface ParsedMarkdownDocument {
   nodes: MarkdownASTNode[];
   tocEntries: { id: string; text: string; level: number }[];
   inlinedStyles: string[];
+  footnoteDefs: FootnoteDefinition[];
 }
 
 /**
- * Parses inline formatting (bold, italic, code, links, images, HTML spans)
+ * Parses inline formatting (bold, italic, code, links, images, math, footnotes, HTML spans)
  */
 export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
   const spans: MarkdownInlineSpan[] = [];
@@ -93,7 +118,31 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 2. Link: [text](url "title")
+    // 2. Footnote reference: [^1] or [^note-id]
+    const fnMatch = remaining.match(/^\[\^([\w-]+)\]/);
+    if (fnMatch) {
+      const fnId = fnMatch[1];
+      spans.push({
+        type: "footnoteRef",
+        content: fnId,
+        footnoteId: fnId,
+      });
+      remaining = remaining.slice(fnMatch[0].length);
+      continue;
+    }
+
+    // 3. Inline Math: $math$ (e.g. $E=mc^2$) - must have non-space boundary and not $$
+    const mathMatch = remaining.match(/^\$([^$\n]+?)\$/);
+    if (mathMatch && !mathMatch[1].startsWith("$")) {
+      spans.push({
+        type: "mathInline",
+        content: mathMatch[1],
+      });
+      remaining = remaining.slice(mathMatch[0].length);
+      continue;
+    }
+
+    // 4. Link: [text](url "title")
     const linkMatch = remaining.match(/^\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]+)")?\)/);
     if (linkMatch) {
       spans.push({
@@ -107,7 +156,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 3. Bold + Italic: ***text*** or ___text___
+    // 5. Bold + Italic: ***text*** or ___text___
     const boldItalicMatch = remaining.match(/^(\*\*\*|___)(.+?)\1/);
     if (boldItalicMatch) {
       spans.push({
@@ -125,7 +174,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 4. Bold: **text** or __text__
+    // 6. Bold: **text** or __text__
     const boldMatch = remaining.match(/^(\*\*|__)(.+?)\1/);
     if (boldMatch) {
       spans.push({
@@ -137,7 +186,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 5. Italic: *text* or _text_
+    // 7. Italic: *text* or _text_
     const italicMatch = remaining.match(/^(\*|_)([^*_]+?)\1/);
     if (italicMatch) {
       spans.push({
@@ -149,7 +198,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 6. Strikethrough: ~~text~~
+    // 8. Strikethrough: ~~text~~
     const strikeMatch = remaining.match(/^~~(.+?)~~/);
     if (strikeMatch) {
       spans.push({
@@ -161,7 +210,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 7. Inline code: `code`
+    // 9. Inline code: `code`
     const codeMatch = remaining.match(/^`([^`]+)`/);
     if (codeMatch) {
       spans.push({
@@ -172,7 +221,7 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 8. Raw HTML Tag: <span ...>...</span> or <img ... /> or <br/>
+    // 10. Raw HTML Tag: <span ...>...</span> or <img ... /> or <br/>
     const htmlTagMatch = remaining.match(/^<(\w+)([^>]*)>(.*?)<\/\1>/i) || remaining.match(/^<(\w+)([^>]*)\/?>/i);
     if (htmlTagMatch) {
       const fullTag = htmlTagMatch[0];
@@ -209,8 +258,8 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       continue;
     }
 
-    // 9. Plain text up to next special character
-    const nextSpecial = remaining.search(/[\*\_\[\!`~<]/);
+    // 11. Plain text up to next special character
+    const nextSpecial = remaining.search(/[\*\_\[\!`~<\$]/);
     if (nextSpecial === -1) {
       spans.push({
         type: "text",
@@ -218,7 +267,6 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
       });
       break;
     } else if (nextSpecial === 0) {
-      // Escaped or single special char
       spans.push({
         type: "text",
         content: remaining[0],
@@ -248,6 +296,52 @@ export function slugify(text: string): string {
 }
 
 /**
+ * Applies hierarchical numbering to headings (e.g. "1.", "1.1", "1.1.1").
+ */
+function applyHeadingNumbering(
+  nodes: MarkdownASTNode[],
+  tocEntries: { id: string; text: string; level: number }[],
+  options: NumberHeadingsOptions
+): void {
+  const depth = options.depth ?? 3;
+  const skipH1 = options.skipH1 ?? false;
+  const prefix = options.prefix ?? "";
+
+  const counters = [0, 0, 0, 0, 0, 0]; // H1..H6 counters
+
+  for (const node of nodes) {
+    if (node.type === "heading" && node.level) {
+      const lvl = node.level;
+      if (lvl > depth) continue;
+      if (lvl === 1 && skipH1) continue;
+
+      // Increment current level, reset child levels
+      const idx = lvl - 1;
+      counters[idx]++;
+      for (let c = idx + 1; c < counters.length; c++) {
+        counters[c] = 0;
+      }
+
+      // Build numbering string (e.g. "1.2.3")
+      const startIdx = skipH1 ? 1 : 0;
+      const parts = counters.slice(startIdx, idx + 1).filter((n) => n > 0);
+      const numberStr = parts.join(".") + ".";
+      const fullPrefix = prefix ? `${prefix} ${numberStr} ` : `${numberStr} `;
+
+      const originalText = node.text || "";
+      node.text = fullPrefix + originalText;
+      node.inlines = parseInlineSpans(node.text);
+
+      // Update matching TOC entry
+      const toc = tocEntries.find((t) => t.id === node.id);
+      if (toc) {
+        toc.text = node.text;
+      }
+    }
+  }
+}
+
+/**
  * Parses raw markdown string into rich structured AST nodes.
  */
 export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocument {
@@ -264,6 +358,7 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
   const lines = cleanContent.split(/\r?\n/);
   const nodes: MarkdownASTNode[] = [];
   const tocEntries: { id: string; text: string; level: number }[] = [];
+  const footnoteDefs: { id: string; text: string; inlines: MarkdownInlineSpan[] }[] = [];
 
   let i = 0;
   while (i < lines.length) {
@@ -301,7 +396,34 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 4. Code block (```lang ... ```)
+    // 4. Standalone Math Block ($$ ... $$)
+    if (line.trim().startsWith("$$")) {
+      const mathLines: string[] = [];
+      const singleLine = line.trim().match(/^\$\$(.+)\$\$$/);
+      if (singleLine) {
+        nodes.push({
+          type: "mathBlock",
+          text: singleLine[1].trim(),
+        });
+        i++;
+        continue;
+      }
+
+      i++; // consume opening $$
+      while (i < lines.length && !lines[i].trim().startsWith("$$")) {
+        mathLines.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length) i++; // consume closing $$
+
+      nodes.push({
+        type: "mathBlock",
+        text: mathLines.join("\n").trim(),
+      });
+      continue;
+    }
+
+    // 5. Code block (```lang ... ```)
     const codeBlockMatch = line.match(/^```(\w+)?/);
     if (codeBlockMatch) {
       const language = (codeBlockMatch[1] || "text").trim().toLowerCase();
@@ -330,7 +452,112 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 5. Alert / Callout Block (> [!NOTE], > [!TIP], > [!WARNING], > [!IMPORTANT], > [!CAUTION])
+    // 6. Multi-Column Container Directives (:::columns [cols=2 gap=1.5rem] ... :::)
+    const colsMatch = line.trim().match(/^:::columns(?:\s+\[?([\w\s=.-]+)\]?)?$/i);
+    if (colsMatch) {
+      const attrStr = colsMatch[1] || "";
+      let colsCount = 2;
+      let colGap = "1.5rem";
+
+      if (attrStr) {
+        const numMatch = attrStr.trim().match(/^(\d+)$/);
+        const cMatch = attrStr.match(/cols=(\d+)/i) || attrStr.match(/columns=(\d+)/i);
+        const gMatch = attrStr.match(/gap=([^\s]+)/i);
+        if (numMatch) colsCount = parseInt(numMatch[1], 10);
+        else if (cMatch) colsCount = parseInt(cMatch[1], 10);
+        if (gMatch) colGap = gMatch[1];
+      }
+
+      const columnNodes: MarkdownASTNode[] = [];
+      let currentColumnLines: string[] = [];
+      let inColBlock = false;
+      i++;
+
+      while (i < lines.length) {
+        const curLine = lines[i];
+        const trimmed = curLine.trim();
+
+        if (/^:::col(?:umn)?$/i.test(trimmed)) {
+          if (currentColumnLines.length > 0) {
+            const subDoc = parseMarkdownDocument(currentColumnLines.join("\n"));
+            columnNodes.push({
+              type: "column",
+              children: subDoc.nodes,
+            });
+            currentColumnLines = [];
+          }
+          inColBlock = true;
+          i++;
+        } else if (trimmed === ":::") {
+          if (inColBlock) {
+            if (currentColumnLines.length > 0) {
+              const subDoc = parseMarkdownDocument(currentColumnLines.join("\n"));
+              columnNodes.push({
+                type: "column",
+                children: subDoc.nodes,
+              });
+              currentColumnLines = [];
+            }
+            inColBlock = false;
+            i++;
+          } else {
+            if (currentColumnLines.length > 0) {
+              const subDoc = parseMarkdownDocument(currentColumnLines.join("\n"));
+              columnNodes.push({
+                type: "column",
+                children: subDoc.nodes,
+              });
+              currentColumnLines = [];
+            }
+            i++;
+            break;
+          }
+        } else {
+          currentColumnLines.push(curLine);
+          i++;
+        }
+      }
+
+      if (currentColumnLines.length > 0) {
+        const subDoc = parseMarkdownDocument(currentColumnLines.join("\n"));
+        columnNodes.push({
+          type: "column",
+          children: subDoc.nodes,
+        });
+      }
+
+      nodes.push({
+        type: "columns",
+        columnsCount: columnNodes.length > 0 ? columnNodes.length : colsCount,
+        columnGap: colGap,
+        children: columnNodes,
+      });
+      continue;
+    }
+
+    // 7. Footnote Definition Block ([^id]: Note explanation...)
+    const fnDefMatch = line.match(/^\[\^([\w-]+)\]:\s+(.+)$/);
+    if (fnDefMatch) {
+      const fnId = fnDefMatch[1];
+      const fnText = fnDefMatch[2].trim();
+      const inlines = parseInlineSpans(fnText);
+
+      footnoteDefs.push({
+        id: fnId,
+        text: fnText,
+        inlines,
+      });
+      nodes.push({
+        type: "footnoteDef",
+        footnoteId: fnId,
+        text: fnText,
+        inlines,
+      });
+      i++;
+      continue;
+    }
+
+    // 8. Alert / Callout Block (> [!NOTE], > [!TIP], > [!WARNING], > [!IMPORTANT], > [!CAUTION])
     const calloutMatch = line.match(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*$/i);
     if (calloutMatch) {
       const calloutType = calloutMatch[1].toUpperCase() as MarkdownASTNode["calloutType"];
@@ -350,7 +577,7 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 6. Blockquote (> quote)
+    // 9. Blockquote (> quote)
     if (line.startsWith(">")) {
       const quoteLines: string[] = [];
       while (i < lines.length && lines[i].startsWith(">")) {
@@ -366,7 +593,7 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 7. GFM Tables (| Header | Header |)
+    // 10. GFM Tables (| Header | Header |)
     if (line.trim().startsWith("|") && line.includes("|")) {
       const tableLines: string[] = [];
       while (i < lines.length && lines[i].trim().startsWith("|")) {
@@ -432,7 +659,7 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       }
     }
 
-    // 8. Lists (Unordered & Ordered & Tasks)
+    // 11. Lists (Unordered & Ordered & Tasks)
     const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.+)$/);
     if (listMatch) {
       const listItems: MarkdownASTNode[] = [];
@@ -469,7 +696,7 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 9. Raw HTML Block (e.g. <div class="...">...</div> or <table ...>)
+    // 12. Raw HTML Block (e.g. <div class="...">...</div> or <table ...>)
     if (line.trim().startsWith("<") && !line.trim().startsWith("<!--")) {
       const htmlLines: string[] = [];
       while (i < lines.length && lines[i].trim().length > 0) {
@@ -485,15 +712,18 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
       continue;
     }
 
-    // 10. Normal Paragraph
+    // 13. Normal Paragraph
     const paraLines: string[] = [];
     while (
       i < lines.length &&
       lines[i].trim() &&
       !lines[i].match(/^#{1,6}\s+/) &&
       !lines[i].startsWith("```") &&
+      !lines[i].startsWith("$$") &&
       !lines[i].startsWith(">") &&
       !lines[i].trim().startsWith("|") &&
+      !lines[i].match(/^:::columns/) &&
+      !lines[i].match(/^\[\^[\w-]+\]:\s+/) &&
       !lines[i].match(/^(\s*)([-*+]|\d+\.)\s+/)
     ) {
       paraLines.push(lines[i]);
@@ -508,11 +738,23 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
     });
   }
 
+  // Heading Numbering Pass
+  if (metadata.numberHeadings) {
+    const opts: NumberHeadingsOptions =
+      typeof metadata.numberHeadings === "boolean" ? { enabled: metadata.numberHeadings } : metadata.numberHeadings;
+    if (opts.enabled !== false) {
+      applyHeadingNumbering(nodes, tocEntries, opts);
+    }
+  }
+
   return {
     metadata,
     content: cleanContent,
     nodes,
     tocEntries,
     inlinedStyles,
+    footnoteDefs,
   };
 }
+
+export { parseMarkdownDocument as parseMarkdown };

@@ -3,9 +3,109 @@ import * as path from "node:path";
 import * as os from "node:os";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
+import { PDFDocument } from "pdf-lib";
+import { encryptPDF } from "@pdfsmaller/pdf-encrypt";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
 import { buildHtmlDocument } from "../html/htmlBuilder.js";
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+/**
+ * Generates an unselectable transparent PNG watermark buffer using Chromium screenshot.
+ */
+export function generateWatermarkPngBuffer(
+  chromePath: string,
+  wm: { text: string; color?: string; opacity?: number; fontSize?: number; rotate?: number }
+): Buffer | null {
+  const tmpHtml = path.join(os.tmpdir(), `markforge-wm-${Date.now()}-${Math.random().toString(36).slice(2)}.html`);
+  const tmpPng = path.join(os.tmpdir(), `markforge-wm-${Date.now()}-${Math.random().toString(36).slice(2)}.png`);
+
+  try {
+    const text = escapeXml(wm.text.toUpperCase());
+    const fontSize = (wm.fontSize || 52) * 1.5;
+    const color = wm.color || "#E11D48";
+    const opacity = wm.opacity !== undefined ? wm.opacity : 0.12;
+    // Slopes upwards from bottom-left to top-right in CSS transform (-45deg)
+    const rotate = wm.rotate !== undefined ? wm.rotate : -45;
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 1200px;
+    height: 1600px;
+    background: transparent;
+    overflow: hidden;
+  }
+  .wm-box {
+    width: 1200px;
+    height: 1600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(${rotate}deg);
+  }
+  .wm-text {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-weight: 900;
+    font-size: ${fontSize}px;
+    color: ${color};
+    opacity: ${opacity};
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="wm-box"><span class="wm-text">${text}</span></div>
+</body>
+</html>`;
+
+    fs.writeFileSync(tmpHtml, html, "utf8");
+    const fileUrl = pathToFileURL(tmpHtml).href;
+    const isWin = process.platform === "win32";
+    spawnSync(
+      chromePath,
+      [
+        "--headless=new",
+        "--disable-gpu",
+        "--disable-sync",
+        "--disable-extensions",
+        ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
+        `--screenshot=${tmpPng}`,
+        "--window-size=1200,1600",
+        "--default-background-color=00000000",
+        fileUrl,
+      ],
+      { timeout: 15000, windowsHide: true }
+    );
+
+    if (fs.existsSync(tmpPng) && fs.statSync(tmpPng).size > 0) {
+      return fs.readFileSync(tmpPng);
+    }
+    return null;
+  } catch {
+    return null;
+  } finally {
+    try {
+      if (fs.existsSync(tmpHtml)) fs.unlinkSync(tmpHtml);
+      if (fs.existsSync(tmpPng)) fs.unlinkSync(tmpPng);
+    } catch {}
+  }
+}
 
 /**
  * Finds available Chrome or Chromium binary for headless PDF rendering.
@@ -148,6 +248,45 @@ export function injectPagedMediaStyles(
     }`;
   };
 
+
+  const coverPageCss = resolved.coverPage?.enabled
+    ? `
+  @page :first {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    background-image: none !important;
+    @top-left { content: none; }
+    @top-center { content: none; }
+    @top-right { content: none; }
+    @bottom-left { content: none; }
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }`
+    : "";
+
+  const backCoverCss = resolved.backCover?.enabled
+    ? `
+  @page back-cover-page {
+    size: ${size} ${orientation};
+    margin: 0;
+    background-image: none !important;
+    @top-left { content: none; }
+    @top-center { content: none; }
+    @top-right { content: none; }
+    @bottom-left { content: none; }
+    @bottom-center { content: none; }
+    @bottom-right { content: none; }
+  }
+  .markforge-back-cover {
+    page: back-cover-page;
+    min-height: 100vh;
+    height: 100vh;
+    box-sizing: border-box;
+  }`
+    : "";
+
   const pagedCss = `
   @page {
     size: ${size} ${orientation};
@@ -162,8 +301,11 @@ export function injectPagedMediaStyles(
     ${buildZoneCss("bottom-center", resolved.footer?.center)}
     ${buildZoneCss("bottom-right", resolved.footer?.right, true)}
   }
+  ${coverPageCss}
+  ${backCoverCss}
   @media print {
     body { padding: 0; }
+    .document-watermark { display: none !important; }
     h1, h2, h3, pre, table, blockquote, .callout {
       break-inside: avoid;
     }
@@ -239,6 +381,7 @@ export async function buildPdfDocument(
     const tmpProfile = path.join(tmpDir, `markforge_prof_${tmpId}`);
 
     // Enterprise-isolated flags: Prevents Chrome/Edge from accessing user Google accounts, syncing, or sending telemetry
+    const isWin = process.platform === "win32";
     const isolatedFlags = [
       `--user-data-dir=${tmpProfile}`,
       "--no-first-run",
@@ -249,7 +392,6 @@ export async function buildPdfDocument(
       "--disable-default-apps",
       "--disable-extensions",
       "--disable-domain-reliability",
-      "--disable-client-side-phishing-detection",
       "--disable-breakpad",
       "--disable-component-extensions-with-background-pages",
       "--disable-features=Translate,OptimizationHints,MediaRouter,DialMediaRouteProvider,CalculatedNewTabPage,ChromeWhatsNewUI,PrivacySandboxSettings4",
@@ -258,12 +400,10 @@ export async function buildPdfDocument(
       "--mute-audio",
       "--no-service-autorun",
       "--disable-gpu",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--allow-file-access-from-files",
-      "--disable-web-security",
+      ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
       "--force-color-profile=srgb",
       "--no-pdf-header-footer",
+      "--window-size=1200,1600",
     ];
 
     try {
@@ -280,7 +420,7 @@ export async function buildPdfDocument(
           `--print-to-pdf=${tmpPdf}`,
           fileUrl,
         ],
-        { timeout: 30000 }
+        { timeout: 30000, windowsHide: true }
       );
 
       if ((res.status !== 0 || !fs.existsSync(tmpPdf)) && chromePath) {
@@ -293,13 +433,91 @@ export async function buildPdfDocument(
             `--print-to-pdf=${tmpPdf}`,
             fileUrl,
           ],
-          { timeout: 30000 }
+          { timeout: 30000, windowsHide: true }
         );
       }
 
       if (fs.existsSync(tmpPdf) && fs.statSync(tmpPdf).size > 0) {
         const pdfBuffer = fs.readFileSync(tmpPdf);
-        return pdfBuffer;
+        try {
+          const pdfDoc = await PDFDocument.load(pdfBuffer);
+          const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+          if (resolved.title) pdfDoc.setTitle(resolved.title);
+          if (resolved.author) pdfDoc.setAuthor(resolved.author);
+          if (resolved.subtitle) pdfDoc.setSubject(resolved.subtitle);
+          pdfDoc.setCreator("MarkForge Enterprise Document Generator");
+          pdfDoc.setProducer("MarkForge (by Ma'sum)");
+          pdfDoc.setModificationDate(new Date());
+
+          // When backCover is enabled, Chromium headless print generates a trailing overflow page after the 100vh back cover section.
+          // Remove this trailing blank page so the back cover is the true final page.
+          if (resolved.backCover?.enabled && pdfDoc.getPageCount() > 2) {
+            pdfDoc.removePage(pdfDoc.getPageCount() - 1);
+          }
+
+          if (resolved.watermark) {
+            const wmPng = generateWatermarkPngBuffer(chromePath, resolved.watermark);
+            if (wmPng) {
+              const embeddedPng = await pdfDoc.embedPng(wmPng);
+              const pages = pdfDoc.getPages();
+              const startPageIndex = resolved.coverPage?.enabled ? 1 : 0;
+              const endPageIndex = resolved.backCover?.enabled ? pages.length - 1 : pages.length;
+
+              for (let i = startPageIndex; i < endPageIndex; i++) {
+                const page = pages[i];
+                const { width, height } = page.getSize();
+                page.drawImage(embeddedPng, {
+                  x: 0,
+                  y: 0,
+                  width,
+                  height,
+                });
+              }
+            }
+          }
+
+          const savedBytes = await pdfDoc.save();
+          let finalBuffer = Buffer.from(savedBytes);
+
+          // Apply PDF Security, User Password, Owner Password & Permissions
+          if (resolved.security) {
+            const sec = resolved.security;
+            const hasUserPassword = typeof sec.userPassword === "string" && sec.userPassword.length > 0;
+            const hasOwnerPassword = typeof sec.ownerPassword === "string" && sec.ownerPassword.length > 0;
+
+            if (hasUserPassword || hasOwnerPassword) {
+              try {
+                const userPass = sec.userPassword ?? "";
+                const ownerPass = sec.ownerPassword ?? userPass;
+                const perms = sec.permissions;
+
+                const encryptedBytes = await encryptPDF(
+                  new Uint8Array(finalBuffer),
+                  userPass,
+                  {
+                    ownerPassword: ownerPass,
+                    algorithm: "AES-256",
+                    allowPrinting: perms?.printing !== "none",
+                    allowHighQualityPrint: perms?.printing === "highResolution",
+                    allowModifying: perms?.modifying ?? true,
+                    allowCopying: perms?.copying ?? true,
+                    allowAnnotating: perms?.annotating ?? true,
+                    allowFillingForms: perms?.fillingForms ?? true,
+                    allowExtraction: perms?.contentAccessibility ?? true,
+                    allowAssembly: perms?.documentAssembly ?? true,
+                  }
+                );
+                finalBuffer = Buffer.from(encryptedBytes);
+              } catch {
+                // Keep finalBuffer if encryption throws
+              }
+            }
+          }
+
+          return finalBuffer;
+        } catch {
+          return pdfBuffer;
+        }
       }
     } catch {
       // fallback if spawn fails

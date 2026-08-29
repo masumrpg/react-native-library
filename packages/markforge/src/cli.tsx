@@ -50,8 +50,8 @@ async function main() {
     .option("-c, --config <path>", "Path to custom markforge configuration file")
     .option("--toc", "Force Table of Contents generation")
     .option("-w, --watch", "Watch input file for changes and recompile", false)
-    .option("-s, --serve [port]", "Start local HTTP preview server", false)
-    .option("-O, --open", "Open compiled document in default browser", false);
+    .option("-s, --serve [port]", "Start interactive live-reload preview server")
+    .option("-O, --open", "Open preview or compiled document in default browser", false);
 
   program.parse(process.argv);
 
@@ -75,12 +75,8 @@ async function main() {
         .filter(Boolean) as MarkforgeFormat[]
     : undefined;
 
-  // Dynamically import App, Ink, and loadConfig so localStorage stub runs first
-  const [{ render }, { App }, { loadConfig }] = await Promise.all([
-    import("ink"),
-    import("./ui/App.js"),
-    import("./config/loadConfig.js"),
-  ]);
+  // Dynamically import loadConfig so localStorage stub runs first
+  const { loadConfig } = await import("./config/loadConfig.js");
 
   // Load config (auto-discover starting from input file's dir or explicit -c path)
   const { config: fileConfig } = await loadConfig(
@@ -89,7 +85,7 @@ async function main() {
   );
 
   // CLI options override config file
-  const mergedConfig: MarkforgeConfig = {
+  const mergedConfig = {
     ...fileConfig,
     to: cliFormats && cliFormats.length > 0 ? cliFormats : (fileConfig.to ?? ["docx", "pdf"]),
     ...(options.output ? { outputDir: options.output as string } : {}),
@@ -97,6 +93,35 @@ async function main() {
     ...(options.css ? { css: options.css as string[] } : {}),
     ...(options.toc ? { toc: true } : {}),
   };
+
+  // If --serve is active, start live preview HTTP server
+  if (options.serve !== false && options.serve !== undefined) {
+    const rawPort = options.serve === true ? 3000 : parseInt(String(options.serve), 10);
+    const port = isNaN(rawPort) ? 3000 : rawPort;
+
+    const { startPreviewServer } = await import("./server/previewServer.js");
+    const instance = await startPreviewServer({
+      filePath: resolvedInputPath,
+      port,
+      open: Boolean(options.open),
+      config: mergedConfig,
+    });
+
+    console.log(`\n======================================================`);
+    console.log(`  MarkForge Live Reload Preview Server`);
+    console.log(`  Target File : ${resolvedInputPath}`);
+    console.log(`  Server URL  : ${instance.url}`);
+    console.log(`  Author      : Ma'sum (https://github.com/masumrpg)`);
+    console.log(`======================================================\n`);
+    console.log(`[READY] Watching for markdown and style changes. Press Ctrl+C to exit.\n`);
+    return;
+  }
+
+  // Otherwise, run the Ink CLI Terminal UI
+  const [{ render }, { App }] = await Promise.all([
+    import("ink"),
+    import("./ui/App.js"),
+  ]);
 
   render(
     <App
@@ -115,5 +140,3 @@ main().catch((err: unknown) => {
   console.error("[FATAL]", err instanceof Error ? err.message : err);
   process.exit(1);
 });
-
-

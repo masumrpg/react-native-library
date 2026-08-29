@@ -26,7 +26,7 @@ try {
 }
 
 /** Hardcoded fallback — only used if package.json cannot be found at runtime. */
-const FALLBACK_VERSION = "0.3.0";
+const FALLBACK_VERSION = "0.4.0";
 
 /**
  * Walks up the directory tree from `fromDir` to find the nearest
