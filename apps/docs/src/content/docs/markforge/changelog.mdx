@@ -6,6 +6,23 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.2.5] - 2026-08-29
+
+### 🚀 Features & Enhancements
+
+- **Native Word Paragraph TabStops for Running Headers & Footers**: Replaced 3-column table headers and footers with native Microsoft Word OpenXML `TabStopType.CENTER` and `TabStopType.RIGHT` paragraph architecture. Eliminates 100% of table gridline boundaries/box outlines in LibreOffice Writer, Google Docs, and Microsoft Word when dividers are disabled.
+- **Synchronized Header & Footer Divider Lines**: Solid horizontal separator lines render cleanly via `border.bottom` / `border.top` on Word paragraphs and fixed print dividers (`@media print`) on Chromium PDF.
+- **DOCX Visual & Typography Overhaul**:
+  - **Cover & Title Area**: 22pt bold title, 12pt subtitle, and metadata row with bottom border.
+  - **Table of Contents (TOC) Card**: Auto-generated shaded card box (`#F8FAFC`, border `#E2E8F0`, header `TABLE OF CONTENTS`, indented H1-H3 in `primaryDark`).
+  - **Headings**: H1 with cyan solid bottom border (`#33CDCF`), H2 with subtle bottom border (`#E2E8F0`), and H3.
+  - **Paragraphs & Lists**: Charcoal `#334155` text with comfortable line spacing (`line: 280` / `260`).
+  - **Callout Alert Boxes**: 20pt left border in alert color, tinted background fill (`#ECFDFD`, `#ECFDF5`, etc.), bold badge `[NOTE]`, and padded body text.
+  - **Zebra Tables**: Shaded header `#F1F5F9` with `#CBD5E1` border and alternating rows (`#FFFFFF` and `#F8FAFC`).
+  - **Code Blocks**: Formatted table card with `#33CDCF` left accent border, `#F8FAFC` background, monospace `Consolas` text, and syntax token colors.
+
+---
+
 ## [0.2.4] - 2026-08-29
 
 ### 🚀 Features & Enhancements
