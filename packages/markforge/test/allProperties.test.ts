@@ -8,8 +8,6 @@ import {
   buildDocxDocument,
   buildPdfDocument,
   resolveDocumentConfig,
-  replaceDocumentTokens,
-  normalizeWatermark,
   PAPER_DIMENSIONS_TWIP,
 } from "../src/index.js";
 import type { MarkforgeConfig } from "../src/config/types.js";

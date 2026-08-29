@@ -52,6 +52,7 @@ describe("CLI E2E", () => {
     const exitCode = await proc.exited;
 
     expect(exitCode).toBe(0);
+    expect(stdout).toBeDefined();
     expect(fs.existsSync(path.join(tmpDir, "doc.docx"))).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, "doc.html"))).toBe(true);
 
