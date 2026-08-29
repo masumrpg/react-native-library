@@ -156,6 +156,33 @@ describe("config", () => {
     expect(resolved.header?.left?.text).toBe("Frontmatter Title"); // token replaced!
     expect(resolved.header?.right?.text).toBe("Monorepo Team"); // token replaced!
     expect(resolved.watermark?.text).toBe("DRAFT");
+
+    // 4. Signatures normalization & resolution test
+    const { normalizeSignatures } = await import("../src/config/resolveConfig.js");
+    const sigResolved = normalizeSignatures(
+      {
+        align: "right",
+        style: "box",
+        items: [
+          {
+            title: "Approved by",
+            name: "{author}",
+            role: "Chief Architect",
+            date: "2026-08-29",
+          },
+        ],
+      },
+      { author: "Ma'sum" }
+    );
+
+    expect(sigResolved).toBeDefined();
+    expect(sigResolved?.align).toBe("right");
+    expect(sigResolved?.style).toBe("box");
+    expect(sigResolved?.items.length).toBe(1);
+    expect(sigResolved?.items[0].name).toBe("Ma'sum");
+    expect(sigResolved?.items[0].title).toBe("Approved by");
+    expect(sigResolved?.items[0].role).toBe("Chief Architect");
+    expect(sigResolved?.items[0].date).toBe("2026-08-29");
   });
 });
 

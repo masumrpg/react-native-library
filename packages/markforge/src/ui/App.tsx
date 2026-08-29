@@ -41,9 +41,19 @@ export const App: React.FC<AppProps> = ({ inputFile, config, onComplete }) => {
     run();
   }, [inputFile, config, onComplete]);
 
+  const targetFormats = Array.isArray(config.to)
+    ? (config.to as string[])
+    : config.to
+    ? [String(config.to)]
+    : ["docx", "pdf"];
+
   return (
     <Box flexDirection="column">
-      <Header inputFile={inputFile} theme={config.theme} />
+      <Header
+        inputFile={inputFile}
+        theme={config.theme}
+        targetFormats={targetFormats}
+      />
       <LiveProgress status={status} isCompiling={isCompiling} />
       <SummaryTable result={result} />
     </Box>

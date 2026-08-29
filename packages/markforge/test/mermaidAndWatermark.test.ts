@@ -29,9 +29,9 @@ describe("Mermaid & Watermark Engine", () => {
       },
     });
     expect(html).toContain("document-watermark");
+    expect(html).toContain("markforge-watermark");
     expect(html).toContain("INTERNAL ONLY");
     expect(html).toContain("#33CDCF");
-    expect(html).toContain("rotate(-30deg)");
   });
 
   it("renders mermaid in HTML with mermaid script loader", async () => {

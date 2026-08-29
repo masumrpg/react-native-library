@@ -1,7 +1,7 @@
 ---
 title: "Unified Platform Architecture & Document Suite"
 subtitle: "Enterprise Specification & Feature Validation Guide"
-author: "Masum RPG"
+author: "Ma'sum"
 company: "Masum Dev Technologies"
 version: "1.0.0"
 date: "2026-08-29"

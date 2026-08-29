@@ -23,6 +23,7 @@ export {
   resolveDocumentConfig,
   replaceDocumentTokens,
   normalizeWatermark,
+  normalizeSignatures,
   normalizeHeaderFooter,
   normalizeHeaderFooterSlot,
   PAPER_DIMENSIONS_TWIP,
@@ -33,6 +34,8 @@ export type {
   NormalizedWatermark,
   NormalizedHeaderFooter,
   NormalizedHeaderFooterZone,
+  NormalizedSignatureItem,
+  NormalizedSignatureBlock,
 } from "./config/resolveConfig.js";
 export {
   OutputFormat,
@@ -56,6 +59,10 @@ export type {
   DocumentLayoutConfig,
   FrontmatterMetadata,
   WatermarkOptions,
+  SignatureAlign,
+  SignatureStyle,
+  SignatureItem,
+  SignatureBlockConfig,
   GeneratedOutputFile,
   CompilationResult,
 } from "./config/types.js";

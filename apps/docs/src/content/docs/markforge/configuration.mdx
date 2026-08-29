@@ -124,7 +124,7 @@ export default defineConfig({
   metadata: {
     title: "Unified Platform Architecture & Document Suite",
     subtitle: "Enterprise Specification & Feature Validation Guide",
-    author: "Masum RPG",
+    author: "Ma'sum",
     company: "Masum Dev Technologies",
     version: "1.0.0",
     date: "2026-08-29",
@@ -201,9 +201,88 @@ Variables defined in `metadata` or Markdown frontmatter can be referenced inside
 | :--- | :--- | :--- |
 | `{title}` | Document title | `Platform Reference Guide` |
 | `{subtitle}` | Document subtitle | `Enterprise Architecture` |
-| `{author}` | Author name | `Masum RPG` |
+| `{author}` | Author name | `Ma'sum` |
 | `{version}` | Document version | `1.0.0` |
 | `{date}` | Document date | `2026-08-29` |
 | `{company}` | Company or organization | `Masum Dev Technologies` |
 | `{page}` | Current page number (Footers only) | `1` |
 | `{pages}` | Total pages count (Footers only) | `4` |
+
+---
+
+## Signatures & Approval Blocks (`signatures`)
+
+Add formal corporate approval and signature sections (*Lembar Pengesahan / Tanda Tangan*) at the end of documents with support for 1 to 4 signatory slots, variable token substitution, and custom visual styling:
+
+```typescript
+export default defineConfig({
+  signatures: {
+    align: "space-between", // "left" | "center" | "right" | "space-between"
+    style: "line",          // "line" | "box" | "clean"
+    borderColor: "#CBD5E1",
+    items: [
+      {
+        title: "Prepared by",
+        name: "{author}",
+        role: "Lead Platform Architect",
+        date: "{date}",
+      },
+      {
+        title: "Reviewed by",
+        name: "Sarah Jenkins",
+        role: "Head of Engineering",
+        date: "{date}",
+      },
+      {
+        title: "Approved by",
+        name: "Dr. Alexander Wright",
+        role: "Chief Technology Officer",
+        date: "{date}",
+      },
+    ],
+  },
+});
+```
+
+### Signature Block Properties
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `items` | `SignatureItem[]` | **Required** | Array of 1 to 4 signature item definitions |
+| `align` | `SignatureAlign` | `"space-between"` / `"right"` | Alignment (`"left"`, `"center"`, `"right"`, `"space-between"`) |
+| `style` | `SignatureStyle` | `"line"` | Visual style: `"line"` (underline divider), `"box"` (bordered card), `"clean"` (borderless) |
+| `borderColor` | `string` | `"#CBD5E1"` | Color of the separator line or bounding box border |
+| `titleColor` | `string` | `"#64748B"` | Color of the title label (e.g. "Prepared by") |
+| `nameColor` | `string` | `"#0F172A"` | Color of the signatory name |
+| `roleColor` | `string` | `"#64748B"` | Color of the role and date labels |
+| `spacingBefore` | `string \| number` | `"2.5rem"` | Top spacing before the signature block |
+
+### `SignatureItem` Properties
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `title` | `string` | Title or sign-off label above signature (e.g. `"Prepared by"`, `"Approved by"`) |
+| `name` | `string` | Signatory person name (supports metadata tokens like `{author}`) |
+| `role` | `string` | Signatory job title, role, or department (e.g. `"Lead Platform Architect"`) |
+| `date` | `string \| boolean` | Date string, `{date}` token, or `true` for auto-formatted current date |
+| `image` | `string` | Optional signature image path, URL, or Base64 data URI (digital seal or handwritten signature) |
+| `signatureHeight` | `number \| string` | Blank height reserved for physical handwriting signature (default: `60px`) |
+
+### Frontmatter Quick Definition
+
+Signatures can also be defined directly inside document frontmatter:
+
+```markdown
+---
+title: "Service Level Agreement"
+author: "Ma'sum"
+signatures:
+  align: right
+  style: box
+  items:
+    - title: "Authorized Signature"
+      name: "{author}"
+      role: "Lead Platform Architect"
+      date: true
+---
+```

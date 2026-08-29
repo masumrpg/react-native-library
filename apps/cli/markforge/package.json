@@ -13,7 +13,12 @@
     "test:auto": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md",
     "build:sample": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --to docx,pdf,html -o .temp/output",
     "build:spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-specification.md --to docx,pdf,html -o .temp/output",
-    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --watch -o .temp/output"
+    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --watch -o .temp/output",
+    "example:minimal": "bun ./examples/1-minimal.ts",
+    "example:intermediate": "bun ./examples/2-intermediate.ts",
+    "example:full": "bun ./examples/3-full-custom.ts",
+    "example:ast": "bun ./examples/4-low-level-ast.ts",
+    "example:all": "bun run example:minimal && bun run example:intermediate && bun run example:full && bun run example:ast"
   },
   "dependencies": {
     "@masumdev/markforge": "workspace:*"

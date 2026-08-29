@@ -230,7 +230,7 @@ export async function buildHtmlDocument(
     }
   }
 
-  // 4. Watermark if enabled
+  // 4. Watermark if enabled (Rendered as PNG bitmap raster via Canvas to guarantee 100% unselectable PDF text across all pages)
   let watermarkCss = "";
   let watermarkHtml = "";
   if (resolved.watermark) {
@@ -238,26 +238,172 @@ export async function buildHtmlDocument(
     watermarkCss = `
   .document-watermark {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(${wm.rotate}deg);
-    font-size: ${wm.fontSize}pt;
-    font-weight: 900;
-    color: ${wm.color};
-    opacity: ${wm.opacity};
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
     z-index: 0;
     user-select: none;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    white-space: nowrap;
+    -webkit-user-select: none;
   }
   .document-container {
     position: relative;
     z-index: 1;
   }
+  @media print {
+    .document-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
   `;
-    watermarkHtml = `  <div class="document-watermark">${escapeHtml(wm.text)}</div>\n`;
+
+    watermarkHtml = `  <div id="markforge-watermark" class="document-watermark" aria-hidden="true"></div>
+  <script>
+  (function() {
+    try {
+      var canvas = document.createElement('canvas');
+      var dpr = 3;
+      var width = 800;
+      var height = 1100;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      var ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((${wm.rotate} * Math.PI) / 180);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '900 ${wm.fontSize * 1.5}px system-ui, -apple-system, sans-serif';
+        ctx.fillStyle = '${wm.color}';
+        ctx.globalAlpha = ${wm.opacity};
+        try { ctx.letterSpacing = '0.15em'; } catch(e) {}
+        ctx.fillText(${JSON.stringify(wm.text.toUpperCase())}, 0, 0);
+        var dataUrl = canvas.toDataURL('image/png');
+        var wmEl = document.getElementById('markforge-watermark');
+        if (wmEl) {
+          wmEl.style.backgroundImage = 'url("' + dataUrl + '")';
+          wmEl.style.backgroundRepeat = 'no-repeat';
+          wmEl.style.backgroundPosition = 'center center';
+          wmEl.style.backgroundSize = 'contain';
+        }
+      }
+    } catch(err) {}
+  })();
+  </script>\n`;
+  }
+
+  let signaturesHtml = "";
+  let signaturesCss = "";
+
+  if (resolved.signatures && resolved.signatures.items.length > 0) {
+    const sig = resolved.signatures;
+    const numItems = sig.items.length;
+
+    let justifyCss = "flex-end";
+    if (sig.align === "left") justifyCss = "flex-start";
+    else if (sig.align === "center") justifyCss = "center";
+    else if (sig.align === "space-between") justifyCss = "space-between";
+
+    signaturesCss = `
+  .markforge-signatures {
+    margin-top: ${sig.spacingBefore};
+    display: grid;
+    grid-template-columns: ${
+      numItems === 1
+        ? sig.align === "left"
+          ? "minmax(200px, 280px) 1fr"
+          : sig.align === "center"
+          ? "1fr minmax(200px, 280px) 1fr"
+          : "1fr minmax(200px, 280px)"
+        : `repeat(${numItems}, minmax(0, 1fr))`
+    };
+    gap: 2rem;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .markforge-signature-card {
+    ${numItems === 1 && sig.align === "center" ? "grid-column: 2;" : ""}
+    ${numItems === 1 && sig.align === "right" ? "grid-column: 2;" : ""}
+    display: flex;
+    flex-direction: column;
+    ${sig.style === "box" ? `border: 1px solid ${sig.borderColor}; border-radius: 6px; padding: 14px 18px; background-color: var(--mf-card-bg, #F8FAFC);` : ""}
+  }
+  .markforge-sig-title {
+    font-size: 0.85rem;
+    color: ${sig.titleColor};
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .markforge-sig-space {
+    height: var(--sig-height, 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .markforge-sig-space img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .markforge-sig-line {
+    ${sig.style === "line" ? `border-bottom: 1.5px solid ${sig.borderColor}; margin-bottom: 8px;` : ""}
+  }
+  .markforge-sig-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: ${sig.nameColor};
+  }
+  .markforge-sig-role {
+    font-size: 0.82rem;
+    color: ${sig.roleColor};
+    margin-top: 2px;
+  }
+  .markforge-sig-date {
+    font-size: 0.78rem;
+    color: ${sig.roleColor};
+    margin-top: 2px;
+  }
+  @media print {
+    .markforge-signatures {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+  }
+  `;
+
+    const itemCards = sig.items.map((item) => {
+      const titleHtml = item.title ? `<div class="markforge-sig-title">${escapeHtml(item.title)}</div>` : "";
+      let signSpaceHtml = "";
+      if (item.image) {
+        signSpaceHtml = `<div class="markforge-sig-space" style="--sig-height: ${item.signatureHeight}px;"><img src="${escapeHtml(item.image)}" alt="Signature" /></div>`;
+      } else {
+        signSpaceHtml = `<div class="markforge-sig-space" style="--sig-height: ${item.signatureHeight}px;"></div>`;
+      }
+      const lineHtml = sig.style === "line" ? `<div class="markforge-sig-line"></div>` : "";
+      const nameHtml = `<div class="markforge-sig-name">${escapeHtml(item.name)}</div>`;
+      const roleHtml = item.role ? `<div class="markforge-sig-role">${escapeHtml(item.role)}</div>` : "";
+      const dateHtml = item.date ? `<div class="markforge-sig-date">Date: ${escapeHtml(item.date)}</div>` : "";
+
+      return `    <div class="markforge-signature-card">
+      ${titleHtml}
+      ${signSpaceHtml}
+      ${lineHtml}
+      ${nameHtml}
+      ${roleHtml}
+      ${dateHtml}
+    </div>`;
+    }).join("\n");
+
+    signaturesHtml = `\n  <div class="markforge-signatures">\n${itemCards}\n  </div>\n`;
   }
 
   const hasMermaid = doc.nodes.some((n) => n.type === "mermaid");
@@ -291,11 +437,12 @@ ${baseThemeCss}
 ${customCss}
 ${inlinedCss}
 ${watermarkCss}
+${signaturesCss}
   </style>
 </head>
 <body>
 ${watermarkHtml}  <div class="document-container">
-${bodyHtml}  </div>
+${bodyHtml}${signaturesHtml}  </div>
   ${mermaidScript}
 </body>
 </html>`;

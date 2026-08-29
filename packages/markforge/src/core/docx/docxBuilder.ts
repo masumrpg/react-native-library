@@ -56,7 +56,11 @@ export function parseMarginToTwip(margin?: string | number, defaultTwip: number 
   return isNaN(val) ? defaultTwip : Math.round(val);
 }
 
-import { resolveDocumentConfig } from "../../config/resolveConfig.js";
+import {
+  resolveDocumentConfig,
+  type NormalizedSignatureItem,
+  type NormalizedSignatureBlock,
+} from "../../config/resolveConfig.js";
 
 export interface InlineRunOptions {
   font?: string;
@@ -885,6 +889,71 @@ export async function buildDocxDocument(
     }
   }
 
+  // 2.5 Signature and Approval Block
+  if (resolved.signatures && resolved.signatures.items.length > 0) {
+    const sig = resolved.signatures;
+    const numItems = sig.items.length;
+    const contentWidth = Math.max(
+      1000,
+      resolved.paperDimensions.widthTwip - resolved.margins.leftTwip - resolved.margins.rightTwip
+    );
+
+    // Spacing before signature block
+    docElements.push(new Paragraph({ spacing: { before: sig.spacingBeforeTwip } }));
+
+    const sigCells: TableCell[] = [];
+    const colWidths: number[] = [];
+
+    if (numItems === 1) {
+      const cardWidth = Math.min(3400, Math.floor(contentWidth * 0.42));
+      const spacerWidth = contentWidth - cardWidth;
+
+      const cardCell = await buildDocxSignatureCell(sig.items[0], sig, cardWidth, defaultFont, baseDir);
+
+      if (sig.align === "left") {
+        colWidths.push(cardWidth, spacerWidth);
+        sigCells.push(cardCell, createEmptyDocxCell(spacerWidth));
+      } else if (sig.align === "center") {
+        const sideWidth = Math.floor(spacerWidth / 2);
+        colWidths.push(sideWidth, cardWidth, sideWidth);
+        sigCells.push(createEmptyDocxCell(sideWidth), cardCell, createEmptyDocxCell(sideWidth));
+      } else {
+        // default "right"
+        colWidths.push(spacerWidth, cardWidth);
+        sigCells.push(createEmptyDocxCell(spacerWidth), cardCell);
+      }
+    } else {
+      // 2, 3, or 4 items in a row
+      const colWidth = Math.floor(contentWidth / numItems);
+      for (let i = 0; i < numItems; i++) {
+        colWidths.push(colWidth);
+        const cell = await buildDocxSignatureCell(sig.items[i], sig, colWidth, defaultFont, baseDir);
+        sigCells.push(cell);
+      }
+    }
+
+    const sigTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      columnWidths: colWidths,
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "auto" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "auto" },
+        left: { style: BorderStyle.NONE, size: 0, color: "auto" },
+        right: { style: BorderStyle.NONE, size: 0, color: "auto" },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "auto" },
+        insideVertical: { style: BorderStyle.NONE, size: 0, color: "auto" },
+      },
+      rows: [
+        new TableRow({
+          cantSplit: true,
+          children: sigCells,
+        }),
+      ],
+    });
+
+    docElements.push(sigTable);
+  }
+
   // 3. Configure Header & Footer using native Word Tab Stops (0% table boundaries, 100% clean)
   const contentWidthTwip = Math.max(
     1000,
@@ -1130,4 +1199,159 @@ export async function buildDocxDocument(
   });
 
   return await Packer.toBuffer(document);
+}
+
+async function buildDocxSignatureCell(
+  item: NormalizedSignatureItem,
+  sig: NormalizedSignatureBlock,
+  widthDxa: number,
+  defaultFont: string,
+  baseDir: string
+): Promise<TableCell> {
+  const cellParagraphs: Paragraph[] = [];
+
+  // Title / Sign-off header
+  if (item.title) {
+    cellParagraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: item.title,
+            font: defaultFont,
+            size: 18, // 9pt
+            color: sig.titleColor.replace("#", ""),
+            bold: true,
+          }),
+        ],
+        spacing: { after: 60 },
+      })
+    );
+  }
+
+  // Signature image or physical sign blank space
+  if (item.image) {
+    const resolvedImg = await resolveImage(item.image, baseDir);
+    if (resolvedImg) {
+      cellParagraphs.push(
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: resolvedImg.buffer,
+              transformation: {
+                width: 140,
+                height: 60,
+              },
+              type: "png",
+            }),
+          ],
+          spacing: { before: 40, after: 40 },
+        })
+      );
+    } else {
+      cellParagraphs.push(new Paragraph({ spacing: { before: 240, after: 240 } }));
+    }
+  } else {
+    // Blank space for handwriting signature
+    cellParagraphs.push(new Paragraph({ spacing: { before: 240, after: 240 } }));
+  }
+
+  // Underline divider line if style === "line"
+  if (sig.style === "line") {
+    cellParagraphs.push(
+      new Paragraph({
+        border: {
+          bottom: {
+            style: BorderStyle.SINGLE,
+            size: 6,
+            space: 2,
+            color: sig.borderColor.replace("#", ""),
+          },
+        },
+        spacing: { after: 60 },
+      })
+    );
+  }
+
+  // Signatory Name
+  cellParagraphs.push(
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: item.name,
+          font: defaultFont,
+          size: 21, // 10.5pt
+          bold: true,
+          color: sig.nameColor.replace("#", ""),
+        }),
+      ],
+      spacing: { before: sig.style === "line" ? 40 : 20, after: 20 },
+    })
+  );
+
+  // Role / Job Title
+  if (item.role) {
+    cellParagraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: item.role,
+            font: defaultFont,
+            size: 18, // 9pt
+            color: sig.roleColor.replace("#", ""),
+          }),
+        ],
+        spacing: { after: 20 },
+      })
+    );
+  }
+
+  // Date
+  if (item.date) {
+    cellParagraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `Date: ${item.date}`,
+            font: defaultFont,
+            size: 17, // 8.5pt
+            color: sig.roleColor.replace("#", ""),
+          }),
+        ],
+        spacing: { after: 20 },
+      })
+    );
+  }
+
+  const isBox = sig.style === "box";
+  const boxBorder = { style: BorderStyle.SINGLE, size: 4, color: sig.borderColor.replace("#", "") };
+  const noneBorder = { style: BorderStyle.NONE, size: 0, color: "auto" };
+
+  return new TableCell({
+    width: { size: widthDxa, type: WidthType.DXA },
+    shading: isBox ? { fill: "F8FAFC", type: ShadingType.CLEAR } : undefined,
+    margins: isBox
+      ? { top: 140, bottom: 140, left: 160, right: 160 }
+      : { top: 60, bottom: 60, left: 60, right: 60 },
+    borders: {
+      top: isBox ? boxBorder : noneBorder,
+      bottom: isBox ? boxBorder : noneBorder,
+      left: isBox ? boxBorder : noneBorder,
+      right: isBox ? boxBorder : noneBorder,
+    },
+    children: cellParagraphs,
+  });
+}
+
+function createEmptyDocxCell(widthDxa: number): TableCell {
+  const noneBorder = { style: BorderStyle.NONE, size: 0, color: "auto" };
+  return new TableCell({
+    width: { size: widthDxa, type: WidthType.DXA },
+    borders: {
+      top: noneBorder,
+      bottom: noneBorder,
+      left: noneBorder,
+      right: noneBorder,
+    },
+    children: [new Paragraph({})],
+  });
 }

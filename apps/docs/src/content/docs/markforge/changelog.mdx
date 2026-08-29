@@ -6,10 +6,39 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.3.0] - 2026-08-29
+
+### Features & Enhancements
+
+- **100% Unselectable Vector Watermarks in PDF**:
+  - Replaced SVG text nodes with dynamic high-DPI HTML5 Canvas 2D rasterization (`canvas.toDataURL('image/png')` at 3x DPR).
+  - Emitted as a pure PNG Image XObject background layer in Chromium PDF, completely eliminating selectable text layer glyphs.
+  - Ensures clean cursor dragging and text selection across all PDF reader applications.
+- **Comprehensive Programmatic API Suite**:
+  - Added full programmatic compilation examples in `apps/cli/markforge/examples/`:
+    - `1-minimal.ts`: Zero-configuration Markdown-to-MultiFormat execution.
+    - `2-intermediate.ts`: Themes, syntax palettes, TOC, and live progress callbacks.
+    - `3-full-custom.ts`: 100% feature utilization including dynamic tokens, per-zone header/footer slots, watermarks, signatures, and `ThemeProps`.
+    - `4-low-level-ast.ts`: Direct in-memory binary `Buffer` generation (`DOCX`, `PDF`, and `HTML`) without writing to disk.
+- **Terminal CLI ASCII Redesign & Author Branding**:
+  - Modernized Ink CLI layout with clean ASCII borders and tree-style file summaries.
+  - Added author attribution (`Author: Ma'sum (@masumrpg)`) and direct repository links.
+  - Removed all emojis across CLI terminal outputs for maximum shell compatibility.
+- **Author Identity & Workspace Normalization**:
+  - Replaced all legacy author references with `Ma'sum` and updated GitHub profiles to `https://github.com/masumrpg`.
+
+---
+
 ## [0.2.5] - 2026-08-29
 
-### 🚀 Features & Enhancements
+### Features & Enhancements
 
+- **Document Signatures & Approval Blocks (`signatures`)**:
+  - Add formal approval and sign-off blocks (*Lembar Pengesahan / Tanda Tangan*) with 1 to 4 signatory slots.
+  - Multi-alignment support (`left`, `center`, `right`, `space-between`).
+  - Multiple visual styles: `line` (classic underline divider), `box` (bordered card), and `clean` (borderless).
+  - Dynamic token interpolation (`{author}`, `{company}`, `{date}`, etc.) and optional digital signature image/seal embedding.
+  - Consistent and responsive rendering across **DOCX (Word)**, **Chromium PDF**, and **HTML**.
 - **Native Word Paragraph TabStops for Running Headers & Footers**: Replaced 3-column table headers and footers with native Microsoft Word OpenXML `TabStopType.CENTER` and `TabStopType.RIGHT` paragraph architecture. Eliminates 100% of table gridline boundaries/box outlines in LibreOffice Writer, Google Docs, and Microsoft Word when dividers are disabled.
 - **Synchronized Header & Footer Divider Lines**: Solid horizontal separator lines render cleanly via `border.bottom` / `border.top` on Word paragraphs and fixed print dividers (`@media print`) on Chromium PDF.
 - **DOCX Visual & Typography Overhaul**:

@@ -196,7 +196,7 @@ export default defineConfig({
   metadata: {
     title: "Unified Platform Architecture & Document Suite",
     subtitle: "Enterprise Specification & Feature Validation Guide",
-    author: "Masum RPG",
+    author: "Ma'sum",
     company: "Masum Dev Technologies",
     version: "1.0.0",
     date: "2026-08-29",
@@ -207,7 +207,7 @@ export default defineConfig({
 
 ---
 
-## 🎨 Custom Theme Customization (`ThemeProps`)
+## Custom Theme Customization (`ThemeProps`)
 
 You can completely rebrand all document styling by passing a `ThemeProps` object:
 
@@ -234,7 +234,37 @@ export default defineConfig({
 
 ---
 
-## 🚀 Programmatic API
+## Signatures & Approval Blocks (`signatures`)
+
+Add formal signature sign-offs (*Lembar Pengesahan / Tanda Tangan*) with 1-4 slots:
+
+```typescript
+export default defineConfig({
+  signatures: {
+    align: "space-between", // "left" | "center" | "right" | "space-between"
+    style: "line",          // "line" | "box" | "clean"
+    borderColor: "#CBD5E1",
+    items: [
+      {
+        title: "Prepared by",
+        name: "{author}",
+        role: "Lead Platform Architect",
+        date: "{date}",
+      },
+      {
+        title: "Approved by",
+        name: "Dr. Alexander Wright",
+        role: "Chief Technology Officer",
+        date: "{date}",
+      },
+    ],
+  },
+});
+```
+
+---
+
+## Programmatic API
 
 ### High-Level API (`compileMarkdown` / `markforge`)
 
@@ -247,7 +277,7 @@ const result = await compileMarkdown("./specification.md", {
   toc: true,
   metadata: {
     title: "API Reference Manual",
-    author: "Masum Dev",
+    author: "Ma'sum",
     version: "1.0.0",
   },
 });
@@ -294,6 +324,6 @@ fs.writeFileSync("./dist/report.html", htmlString, "utf-8");
 
 ---
 
-## 📄 License
+## License
 
-MIT © [Masum Dev](https://github.com/masumdev)
+MIT © [Ma'sum](https://github.com/masumrpg)
