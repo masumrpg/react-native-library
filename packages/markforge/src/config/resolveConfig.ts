@@ -7,6 +7,10 @@ import type {
   HeaderFooterItem,
   HeaderFooterSlot,
   WatermarkOptions,
+  SignatureAlign,
+  SignatureStyle,
+  SignatureItem,
+  SignatureBlockConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -102,6 +106,27 @@ export interface NormalizedHeaderFooter {
   dividerColor: string;
 }
 
+export interface NormalizedSignatureItem {
+  title?: string;
+  name: string;
+  role?: string;
+  date?: string;
+  image?: string;
+  signatureHeight: number;
+}
+
+export interface NormalizedSignatureBlock {
+  items: NormalizedSignatureItem[];
+  align: SignatureAlign;
+  style: SignatureStyle;
+  borderColor: string;
+  titleColor: string;
+  nameColor: string;
+  roleColor: string;
+  spacingBefore: string;
+  spacingBeforeTwip: number;
+}
+
 export interface ResolvedDocumentConfig {
   title: string;
   subtitle?: string;
@@ -121,6 +146,7 @@ export interface ResolvedDocumentConfig {
   header?: NormalizedHeaderFooter;
   footer?: NormalizedHeaderFooter;
   toc: boolean;
+  signatures?: NormalizedSignatureBlock;
   watermark?: NormalizedWatermark;
   css: string[];
   embedImages: boolean;
@@ -270,6 +296,95 @@ export function normalizeHeaderFooter(
 }
 
 /**
+ * Normalizes signature and approval block configuration.
+ */
+export function normalizeSignatures(
+  raw?: SignatureBlockConfig | SignatureItem[],
+  meta: Record<string, unknown> = {}
+): NormalizedSignatureBlock | undefined {
+  if (!raw) return undefined;
+
+  let rawItems: SignatureItem[] = [];
+  let rawConfig: Partial<SignatureBlockConfig> = {};
+
+  if (Array.isArray(raw)) {
+    rawItems = raw;
+  } else if (typeof raw === "object" && Array.isArray(raw.items)) {
+    rawItems = raw.items;
+    rawConfig = raw;
+  }
+
+  if (rawItems.length === 0) return undefined;
+
+  // Max 4 items supported in signature row/grid
+  const cappedItems = rawItems.slice(0, 4);
+
+  const items: NormalizedSignatureItem[] = cappedItems.map((item) => {
+    const tokenCtx = meta as {
+      title?: string;
+      subtitle?: string;
+      author?: string;
+      version?: string;
+      date?: string;
+      company?: string;
+    };
+    const rawName = typeof item.name === "string" ? item.name : "";
+    const name = replaceDocumentTokens(rawName, tokenCtx).trim();
+
+    const title = item.title ? replaceDocumentTokens(item.title, tokenCtx).trim() : undefined;
+    const role = item.role ? replaceDocumentTokens(item.role, tokenCtx).trim() : undefined;
+
+    let dateStr: string | undefined;
+    if (typeof item.date === "string") {
+      dateStr = replaceDocumentTokens(item.date, tokenCtx).trim();
+    } else if (item.date === true) {
+      dateStr = (meta.date as string) || new Date().toISOString().split("T")[0];
+    }
+
+    let signatureHeight = 60;
+    if (typeof item.signatureHeight === "number") {
+      signatureHeight = item.signatureHeight;
+    } else if (typeof item.signatureHeight === "string") {
+      const parsed = parseFloat(item.signatureHeight);
+      if (!isNaN(parsed)) signatureHeight = parsed;
+    }
+
+    return {
+      title,
+      name: name || "Authorized Signatory",
+      role,
+      date: dateStr,
+      image: item.image,
+      signatureHeight,
+    };
+  });
+
+  const align: SignatureAlign =
+    rawConfig.align || (items.length === 1 ? "right" : "space-between");
+  const style: SignatureStyle = rawConfig.style || "line";
+  const borderColor = rawConfig.borderColor || "#CBD5E1";
+  const titleColor = rawConfig.titleColor || "#64748B";
+  const nameColor = rawConfig.nameColor || "#0F172A";
+  const roleColor = rawConfig.roleColor || "#64748B";
+
+  const spacingBeforeRaw = rawConfig.spacingBefore ?? "2.5rem";
+  const spacingBefore = formatMarginCss(spacingBeforeRaw, "2.5rem");
+  const spacingBeforeTwip = parseMarginToTwip(spacingBeforeRaw, 600);
+
+  return {
+    items,
+    align,
+    style,
+    borderColor,
+    titleColor,
+    nameColor,
+    roleColor,
+    spacingBefore,
+    spacingBeforeTwip,
+  };
+}
+
+/**
  * Centralized Single Source of Truth for resolving document configuration.
  * Priority hierarchy: Frontmatter metadata > Project Config File / User Config > DEFAULT_CONFIG
  */
@@ -347,6 +462,11 @@ export function resolveDocumentConfig(
 
   const watermark = normalizeWatermark(rawWatermark);
 
+  // 5.5 Signatures and Approval Block
+  const rawSignatures = (mergedMeta.signatures as SignatureBlockConfig | SignatureItem[]) ||
+    userConfig.signatures;
+  const signatures = normalizeSignatures(rawSignatures, tokenContext);
+
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
   const cssList: string[] = [];
   const addCss = (item?: string | string[]) => {
@@ -378,6 +498,7 @@ export function resolveDocumentConfig(
     header,
     footer,
     toc,
+    signatures,
     watermark,
     css: cssList,
     embedImages,

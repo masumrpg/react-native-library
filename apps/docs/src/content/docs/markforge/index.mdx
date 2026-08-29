@@ -11,22 +11,22 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 **MarkForge** is an enterprise-grade Markdown & MDX document publishing engine and CLI. It compiles a single Markdown source into pixel-perfect **Microsoft Word (DOCX)**, **PDF**, and **standalone HTML** — with native Mermaid diagrams, GitHub-style callout alert boxes, dual-theme syntax highlighting, customizable `ThemeProps`, per-zone header/footer slots, and an interactive Ink terminal UI.
 
 <CardGrid>
-  <Card title="📄 Multi-Format Output" icon="document">
+  <Card title="Multi-Format Output" icon="document">
     Generate `.docx`, `.pdf`, and `.html` simultaneously from a single Markdown source.
   </Card>
-  <Card title="🎨 Theme.CORPORATE & ThemeProps" icon="palette">
+  <Card title="Theme.CORPORATE & ThemeProps" icon="palette">
     Flagship cyan corporate design system + full custom colors and fonts via `ThemeProps`.
   </Card>
-  <Card title="📐 Per-Zone Header & Footer" icon="setting">
+  <Card title="Per-Zone Header & Footer" icon="setting">
     Granular color, font size, font family, bold, and italic controls per `left`, `center`, and `right` slot.
   </Card>
-  <Card title="📊 Mermaid Diagrams" icon="seti:graphql">
+  <Card title="Mermaid Diagrams" icon="seti:graphql">
     Flowcharts, sequence diagrams, gantt charts, and class diagrams — rendered and embedded natively.
   </Card>
-  <Card title="📢 Callout / Alert Boxes" icon="warning">
+  <Card title="Callout / Alert Boxes" icon="warning">
     GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` with rich colored styling.
   </Card>
-  <Card title="🌈 Dual Syntax Highlighting" icon="seti:typescript">
+  <Card title="Dual Syntax Highlighting" icon="seti:typescript">
     Dark theme for PDF/HTML, Light theme for DOCX — optimized per document format.
   </Card>
 </CardGrid>
@@ -37,23 +37,24 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 | Element | DOCX | PDF | HTML |
 | :--- | :---: | :---: | :---: |
-| Headings H1–H6 | ✅ | ✅ | ✅ |
-| Paragraphs & inline formatting | ✅ | ✅ | ✅ |
-| GFM Tables | ✅ | ✅ | ✅ |
-| Ordered & unordered lists | ✅ | ✅ | ✅ |
-| Checklists (`- [x]`) | ✅ | ✅ | ✅ |
-| Blockquotes | ✅ | ✅ | ✅ |
-| **Callout / Alert Boxes** | ✅ | ✅ | ✅ |
-| Code blocks (syntax highlighted) | ✅ | ✅ | ✅ |
-| Inline code | ✅ | ✅ | ✅ |
-| **Mermaid Diagrams** | ✅ | ✅ | ✅ |
-| Images (local / URL / Base64) | ✅ | ✅ | ✅ |
-| Horizontal rules | ✅ | ✅ | ✅ |
-| Bold, italic, strikethrough | ✅ | ✅ | ✅ |
-| Auto Table of Contents | ✅ | ✅ | ✅ |
-| **Header & Footer (per-zone slots)** | ✅ | ✅ | — |
-| Embedded `<style>` / HTML | — | ✅ | ✅ |
-| **Watermark (background layer)** | ✅ | ✅ | — |
+| Headings H1–H6 | Yes | Yes | Yes |
+| Paragraphs & inline formatting | Yes | Yes | Yes |
+| GFM Tables | Yes | Yes | Yes |
+| Ordered & unordered lists | Yes | Yes | Yes |
+| Checklists (`- [x]`) | Yes | Yes | Yes |
+| Blockquotes | Yes | Yes | Yes |
+| **Callout / Alert Boxes** | Yes | Yes | Yes |
+| Code blocks (syntax highlighted) | Yes | Yes | Yes |
+| Inline code | Yes | Yes | Yes |
+| **Mermaid Diagrams** | Yes | Yes | Yes |
+| Images (local / URL / Base64) | Yes | Yes | Yes |
+| Horizontal rules | Yes | Yes | Yes |
+| Bold, italic, strikethrough | Yes | Yes | Yes |
+| Auto Table of Contents | Yes | Yes | Yes |
+| **Header & Footer (per-zone slots)** | Yes | Yes | — |
+| **Signatures & Approval Blocks** | Yes | Yes | Yes |
+| Embedded `<style>` / HTML | — | Yes | Yes |
+| **Watermark (100% unselectable)** | Yes | Yes | — |
 
 ---
 

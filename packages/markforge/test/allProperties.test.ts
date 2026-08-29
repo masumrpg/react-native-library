@@ -25,7 +25,7 @@ describe("All Properties Comprehensive Test Suite", () => {
   const fullMarkdown = `---
 title: "Unified Platform Architecture"
 subtitle: "High-Performance Document Engine"
-author: "Masum RPG"
+author: "Ma'sum"
 date: "2026-08-29"
 version: "1.0.0"
 company: "Masum Dev"
@@ -108,7 +108,7 @@ export function initializeEngine(): EngineConfig {
     // Metadata & Dynamic tokens
     expect(resolved.title).toBe("Unified Platform Architecture");
     expect(resolved.subtitle).toBe("High-Performance Document Engine");
-    expect(resolved.author).toBe("Masum RPG");
+    expect(resolved.author).toBe("Ma'sum");
     expect(resolved.date).toBe("2026-08-29");
     expect(resolved.version).toBe("1.0.0");
     expect(resolved.company).toBe("Masum Dev");
@@ -135,7 +135,7 @@ export function initializeEngine(): EngineConfig {
     expect(resolved.header?.right?.text).toBe("v1.0.0");
 
     // Footers with replaced tokens
-    expect(resolved.footer?.left?.text).toBe("Author: Masum RPG");
+    expect(resolved.footer?.left?.text).toBe("Author: Ma'sum");
 
     // Table of Contents & Watermark
     expect(resolved.toc).toBe(true);
@@ -169,7 +169,7 @@ export function initializeEngine(): EngineConfig {
     // Header metadata area
     expect(html).toContain('<h1 class="document-title">Unified Platform Architecture</h1>');
     expect(html).toContain('<div class="document-subtitle">High-Performance Document Engine</div>');
-    expect(html).toContain("<span>Author: Masum RPG</span>");
+    expect(html).toContain("<span>Author: Ma&#039;sum</span>");
     expect(html).toContain("<span>Version: 1.0.0</span>");
     expect(html).toContain("<span>Date: 2026-08-29</span>");
 
@@ -182,13 +182,11 @@ export function initializeEngine(): EngineConfig {
     expect(html).toContain(".custom-brand { color: #33CDCF; font-weight: bold; }");
     expect(html).toContain('<div class="custom-brand">Verified with Custom Brand CSS</div>');
 
-    // Watermark CSS & Element
+    // Watermark CSS & Canvas Bitmap Element
     expect(html).toContain(".document-watermark");
+    expect(html).toContain("markforge-watermark");
     expect(html).toContain("STRICTLY CONFIDENTIAL");
-    expect(html).toContain("color: #E11D48");
-    expect(html).toContain("opacity: 0.15");
-    expect(html).toContain("rotate(-35deg)");
-    expect(html).toContain("font-size: 48pt");
+    expect(html).toContain("#E11D48");
 
     // Callout boxes with color styling
     expect(html).toContain("callout-NOTE");
@@ -252,6 +250,56 @@ export function initializeEngine(): EngineConfig {
     expect(fs.existsSync(docxFile!.filePath)).toBe(true);
     expect(fs.existsSync(pdfFile!.filePath)).toBe(true);
     expect(fs.existsSync(htmlFile!.filePath)).toBe(true);
+  });
+
+  it("6. renders signature & approval block across DOCX, PDF, and HTML correctly", async () => {
+    const mdWithSignatures = `---
+title: "Approved Contract Specification"
+author: "Ma'sum"
+signatures:
+  align: "space-between"
+  style: "line"
+  items:
+    - title: "Prepared by"
+      name: "{author}"
+      role: "Lead Platform Architect"
+      date: "2026-08-29"
+    - title: "Approved by"
+      name: "Alex Johnson"
+      role: "Chief Technology Officer"
+      date: true
+---
+
+# Contract Overview
+This document contains formal signature approval blocks.
+`;
+
+    const doc = parseMarkdownDocument(mdWithSignatures);
+    const resolved = resolveDocumentConfig(doc.metadata, {});
+
+    expect(resolved.signatures).toBeDefined();
+    expect(resolved.signatures?.items.length).toBe(2);
+    expect(resolved.signatures?.items[0].name).toBe("Ma'sum");
+    expect(resolved.signatures?.items[1].name).toBe("Alex Johnson");
+
+    // HTML Output Verification
+    const html = await buildHtmlDocument(doc, resolved);
+    expect(html).toContain("markforge-signatures");
+    expect(html).toContain("Prepared by");
+    expect(html).toContain("Approved by");
+    expect(html).toContain("Ma&#039;sum");
+    expect(html).toContain("Alex Johnson");
+    expect(html).toContain("Chief Technology Officer");
+
+    // DOCX Output Verification
+    const docxBuf = await buildDocxDocument(doc, resolved);
+    expect(docxBuf).toBeInstanceOf(Buffer);
+    expect(docxBuf.length).toBeGreaterThan(1000);
+
+    // PDF Output Verification
+    const pdfBuf = await buildPdfDocument(doc, resolved);
+    expect(pdfBuf).toBeInstanceOf(Buffer);
+    expect(pdfBuf.subarray(0, 5).toString()).toBe("%PDF-");
   });
 });
 

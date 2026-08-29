@@ -18,12 +18,13 @@ const DEFAULT_CONFIG_FILENAMES = [
   "markforge.config.cjs",
 ];
 
-export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme">> & {
+export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures">> & {
   outputDir?: string;
   css?: string | string[];
   margins?: MarkforgeConfig["margins"];
   header?: MarkforgeConfig["header"];
   footer?: MarkforgeConfig["footer"];
+  signatures?: MarkforgeConfig["signatures"];
   watermark?: string;
   metadata?: MarkforgeConfig["metadata"];
   syntaxTheme?: string;

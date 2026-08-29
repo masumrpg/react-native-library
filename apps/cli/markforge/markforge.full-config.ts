@@ -105,11 +105,37 @@ export default defineConfig({
   embedImages: true,
   bundleHtml: true,
 
+  // Document signature & approval blocks (1 to 4 signatory slots with customizable style and alignment)
+  signatures: {
+    align: "space-between",
+    style: "line",
+    items: [
+      {
+        title: "Prepared by",
+        name: "{author}",
+        role: "Lead Platform Architect",
+        date: "{date}",
+      },
+      {
+        title: "Reviewed by",
+        name: "Sarah Jenkins",
+        role: "Head of Engineering",
+        date: "{date}",
+      },
+      {
+        title: "Approved by",
+        name: "Dr. Alexander Wright",
+        role: "Chief Technology Officer",
+        date: "{date}",
+      },
+    ],
+  },
+
   // Fallback metadata dictionary
   metadata: {
     title: "Complete MarkForge Reference Manual",
     subtitle: "Enterprise Document Compiler & Visual Architecture",
-    author: "Masum RPG",
+    author: "Ma'sum",
     company: "Masum Dev Technologies",
     version: "1.0.0",
     date: "2026-08-29",

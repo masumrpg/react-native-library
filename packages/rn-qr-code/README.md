@@ -103,4 +103,4 @@ import { Skeleton } from "@masumdev/rn-ui";
 
 ## License
 
-MIT © [Ma'sum](https://github.com/masumdev)
+MIT © [Ma'sum](https://github.com/masumrpg)

@@ -198,6 +198,94 @@ export interface DocumentMetadata {
   [key: string]: unknown;
 }
 
+export type SignatureAlign = "left" | "center" | "right" | "space-between";
+export type SignatureStyle = "line" | "box" | "clean";
+
+export interface SignatureItem {
+  /**
+   * Title or sign-off label above signature (e.g. "Prepared by", "Approved by", "Acknowledged by").
+   */
+  title?: string;
+
+  /**
+   * Signatory person name (supports metadata tokens like {author}, {company}).
+   */
+  name: string;
+
+  /**
+   * Signatory job title, role, or department (e.g. "Lead System Architect", "Chief Technology Officer").
+   */
+  role?: string;
+
+  /**
+   * Signature date string or template (e.g. "2026-08-29", "{date}", or true for auto-formatted current date).
+   */
+  date?: string | boolean;
+
+  /**
+   * Optional signature image path, URL, or Base64 data URI (stamp, digital seal, or handwritten signature).
+   */
+  image?: string;
+
+  /**
+   * Height reserved for physical handwriting signature (e.g. 60, "60px", "1.5cm").
+   * @default 60
+   */
+  signatureHeight?: number | string;
+}
+
+export interface SignatureBlockConfig {
+  /**
+   * List of 1 to 4 signature slots.
+   */
+  items: SignatureItem[];
+
+  /**
+   * Horizontal alignment of the signature block.
+   * @default "right" for 1 item, "space-between" for >= 2 items
+   */
+  align?: SignatureAlign;
+
+  /**
+   * Visual layout style of the signature block:
+   * - "line": Traditional signature with a horizontal separator line above name.
+   * - "box": Formal bordered rectangular approval card.
+   * - "clean": Minimalist blank vertical space without borders.
+   * @default "line"
+   */
+  style?: SignatureStyle;
+
+  /**
+   * Border or divider line color.
+   * @default "#CBD5E1"
+   */
+  borderColor?: string;
+
+  /**
+   * Color of the signature title / label.
+   * @default "#64748B"
+   */
+  titleColor?: string;
+
+  /**
+   * Color of the signatory name.
+   * @default "#0F172A"
+   */
+  nameColor?: string;
+
+  /**
+   * Color of the role and date text.
+   * @default "#64748B"
+   */
+  roleColor?: string;
+
+  /**
+   * Vertical spacing before the signature block (e.g. "2.5rem", 480).
+   * @default "2.5rem"
+   */
+  spacingBefore?: number | string;
+}
+
 /**
  * Document visual & layout options (theme, orientation, margins, headers, footers, etc.).
  */
@@ -240,6 +328,12 @@ export interface DocumentLayoutConfig {
    * @default false
    */
   toc?: boolean;
+
+  /**
+   * Document signature and approval block at the bottom of the document.
+   * Supports 1-4 signature items, flexible alignment, and multiple styles ("line", "box", "clean").
+   */
+  signatures?: SignatureBlockConfig | SignatureItem[];
 
   /**
    * Optional watermark configuration to display across pages.
