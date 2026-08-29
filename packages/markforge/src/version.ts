@@ -73,7 +73,9 @@ function getPackageDir(): string {
  */
 export const MARKFORGE_VERSION: string = readVersionFromPackageJson(getPackageDir());
 
-/** @deprecated Use MARKFORGE_VERSION directly. */
+/**
+ * Resolves the MarkForge version dynamically from package.json in the specified or current directory.
+ */
 export function getMarkforgeVersion(fromDir: string = getPackageDir()): string {
   return readVersionFromPackageJson(fromDir);
 }

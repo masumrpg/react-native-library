@@ -89,9 +89,9 @@ hr { border: none; border-top: 1px solid var(--mf-border); margin: 2rem 0; }
 `;
 
 /**
- * Default theme — full design system with Blu-by-BCA-Digital cyan palette.
+ * Flagship corporate theme — full design system with Blu-by-BCA-Digital cyan palette.
  */
-export const THEME_DEFAULT = `
+export const THEME_CORPORATE = `
 :root {
   --mf-bg: #ffffff;
   --mf-text: #0f172a;
@@ -103,51 +103,82 @@ export const THEME_DEFAULT = `
   --mf-card-bg: #f8fafc;
   --mf-code-bg: #0f172a;
   --mf-code-text: #f8fafc;
-  --mf-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --mf-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mf-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.65; margin: 0; padding: 2.5rem; }
-.document-container { max-width: 860px; margin: 0 auto; }
+.document-container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
 h1, h2, h3, h4, h5, h6 { color: var(--mf-text); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
-h1 { font-size: 2.2rem; border-bottom: 2px solid #33CDCF; padding-bottom: 0.5rem; }
-h2 { font-size: 1.6rem; color: #009DA0; border-bottom: 1px solid #CCFBF1; padding-bottom: 0.4rem; }
+h1 { font-size: 2.2rem; border-bottom: 2px solid var(--mf-primary); padding-bottom: 0.5rem; }
+h2 { font-size: 1.6rem; color: var(--mf-primary-dark); border-bottom: 1px solid #CCFBF1; padding-bottom: 0.4rem; }
 h3 { font-size: 1.3rem; }
 h4 { font-size: 1.1rem; }
 p  { margin: 0.8rem 0; }
 `;
 
-/**
- * Academic theme — serif typography for formal papers/reports.
- */
-export const THEME_ACADEMIC = `
-:root {
-  --mf-bg: #ffffff;
-  --mf-text: #1a1a1a;
-  --mf-text-muted: #555;
-  --mf-primary: #33CDCF;
-  --mf-primary-dark: #009DA0;
-  --mf-primary-light: #ECFDFD;
-  --mf-border: #ccc;
-  --mf-card-bg: #f9f9f9;
-  --mf-code-bg: #1e1e1e;
-  --mf-code-text: #d4d4d4;
-  --mf-font-family: "Merriweather", "Georgia", "Times New Roman", serif;
-  --mf-font-mono: "Courier New", Courier, monospace;
-}
-body { font-family: var(--mf-font-family); font-size: 16px; line-height: 1.8; padding: 3rem; color: var(--mf-text); }
-.document-container { max-width: 780px; margin: 0 auto; text-align: justify; }
-h1, h2, h3 { font-family: "Times New Roman", Times, serif; font-weight: bold; text-align: left; }
-h1 { font-size: 2rem; border-bottom: 1px solid #000; padding-bottom: 0.3rem; }
-h2 { font-size: 1.4rem; border-bottom: 1px solid #ccc; padding-bottom: 0.2rem; }
-h3 { font-size: 1.2rem; }
-p  { margin: 0.9rem 0; }
-`;
+export const THEME_DEFAULT = THEME_CORPORATE;
 
 export const THEMES: Record<string, string> = {
-  default:   THEME_DEFAULT,
-  academic:  THEME_ACADEMIC,
-  github:    THEME_DEFAULT,
-  corporate: THEME_DEFAULT,
-  minimal:   THEME_DEFAULT,
-  dracula:   THEME_DEFAULT,
+  corporate: THEME_CORPORATE,
+  default:   THEME_CORPORATE,
 };
+
+import type { MarkforgeTheme } from "../../config/types.js";
+import { Theme } from "../../config/types.js";
+
+/**
+ * Resolves theme CSS based on preset name or custom ThemeProps object.
+ */
+export function generateThemeCss(theme?: MarkforgeTheme): string {
+  if (!theme || theme === "corporate" || theme === "default" || theme === Theme.CORPORATE) {
+    return THEME_CORPORATE;
+  }
+
+  // If user passes a custom ThemeProps object
+  if (typeof theme === "object") {
+    const bg = theme.backgroundColor || "#ffffff";
+    const text = theme.textColor || "#0f172a";
+    const textMuted = theme.textMuted || "#64748b";
+    const primary = theme.primaryColor || "#33CDCF";
+    const primaryDark = theme.primaryDark || primary;
+    const primaryLight = theme.primaryLight || "#ECFDFD";
+    const border = theme.borderColor || "#e2e8f0";
+    const cardBg = theme.cardBackground || "#f8fafc";
+    const codeBg = theme.codeBackground || "#0f172a";
+    const codeText = theme.codeText || "#f8fafc";
+    const font = theme.fontFamily || "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const fontMono = theme.fontMono || "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+
+    return `
+:root {
+  --mf-bg: ${bg};
+  --mf-text: ${text};
+  --mf-text-muted: ${textMuted};
+  --mf-primary: ${primary};
+  --mf-primary-dark: ${primaryDark};
+  --mf-primary-light: ${primaryLight};
+  --mf-border: ${border};
+  --mf-card-bg: ${cardBg};
+  --mf-code-bg: ${codeBg};
+  --mf-code-text: ${codeText};
+  --mf-font-family: ${font};
+  --mf-font-mono: ${fontMono};
+}
+body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.65; margin: 0; padding: 2.5rem; }
+.document-container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-text); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
+h1 { font-size: 2.2rem; border-bottom: 2px solid var(--mf-primary); padding-bottom: 0.5rem; }
+h2 { font-size: 1.6rem; color: var(--mf-primary-dark); border-bottom: 1px solid var(--mf-border); padding-bottom: 0.4rem; }
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.1rem; }
+p  { margin: 0.8rem 0; }
+${theme.customCss || ""}
+`;
+  }
+
+  if (typeof theme === "string" && THEMES[theme]) {
+    return THEMES[theme];
+  }
+
+  return THEME_CORPORATE;
+}

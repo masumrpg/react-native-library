@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:all": "bun run test:ts && bun run test:json && bun run test:yaml && bun run test:rc && bun run test:auto",
+    "test:all": "bun run test:ts && bun run test:json && bun run test:yaml && bun run test:rc && bun run test:full-spec && bun run test:auto",
     "test:ts": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.ts",
     "test:json": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.json",
     "test:yaml": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.yaml",
     "test:rc": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./.markforgerc",
+    "test:full-spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-all-properties.md -c ./markforge.full-config.ts",
     "test:auto": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md",
     "build:sample": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --to docx,pdf,html -o .temp/output",
     "build:spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-specification.md --to docx,pdf,html -o .temp/output",

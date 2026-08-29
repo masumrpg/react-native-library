@@ -23,7 +23,7 @@ import {
 } from "docx";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import { parseInlineSpans } from "../parser.js";
-import type { MarkforgeConfig } from "../../config/types.js";
+import type { MarkforgeConfig, ThemeProps } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { tokenizeCodeLine } from "../syntax/syntaxHighlighter.js";
 import { renderMermaidToPng } from "../mermaid/mermaidRenderer.js";
@@ -56,12 +56,23 @@ export function parseMarginToTwip(margin?: string | number, defaultTwip: number 
   return isNaN(val) ? defaultTwip : Math.round(val);
 }
 
+import { resolveDocumentConfig } from "../../config/resolveConfig.js";
+
+export interface InlineRunOptions {
+  font?: string;
+  size?: number;
+  color?: string;
+  bold?: boolean;
+  italics?: boolean;
+}
+
 /**
  * Converts Markdown inline spans into Word TextRuns or Hyperlinks.
  */
 export async function convertInlinesToTextRuns(
   spans: MarkdownInlineSpan[] = [],
-  baseDir: string = process.cwd()
+  baseDir: string = process.cwd(),
+  options: InlineRunOptions = {}
 ): Promise<(TextRun | ExternalHyperlink | ImageRun)[]> {
   const runs: (TextRun | ExternalHyperlink | ImageRun)[] = [];
 
@@ -95,7 +106,10 @@ export async function convertInlinesToTextRuns(
             new TextRun({
               text: span.content,
               style: "Hyperlink",
-              color: "0969DA",
+              color: "009DA0",
+              font: options.font,
+              size: options.size,
+              bold: options.bold,
               underline: {},
             }),
           ],
@@ -110,6 +124,10 @@ export async function convertInlinesToTextRuns(
         new TextRun({
           text: span.content,
           bold: true,
+          font: options.font,
+          size: options.size,
+          color: options.color,
+          italics: options.italics,
         })
       );
       continue;
@@ -120,6 +138,10 @@ export async function convertInlinesToTextRuns(
         new TextRun({
           text: span.content,
           italics: true,
+          font: options.font,
+          size: options.size,
+          color: options.color,
+          bold: options.bold,
         })
       );
       continue;
@@ -130,6 +152,9 @@ export async function convertInlinesToTextRuns(
         new TextRun({
           text: span.content,
           strike: true,
+          font: options.font,
+          size: options.size,
+          color: options.color,
         })
       );
       continue;
@@ -138,12 +163,13 @@ export async function convertInlinesToTextRuns(
     if (span.type === "code") {
       runs.push(
         new TextRun({
-          text: ` ${span.content} `,
+          text: span.content,
           font: "Consolas",
+          size: options.size ? options.size - 2 : 19,
+          color: "0F172A",
           shading: {
             type: ShadingType.CLEAR,
             fill: "F1F5F9",
-            color: "0F172A",
           },
         })
       );
@@ -151,10 +177,10 @@ export async function convertInlinesToTextRuns(
     }
 
     if (span.type === "htmlInline") {
-      let colorHex: string | undefined;
+      let colorHex: string | undefined = options.color;
       let bgHex: string | undefined;
-      let isBold = false;
-      let isItalic = false;
+      let isBold = !!options.bold;
+      let isItalic = !!options.italics;
 
       if (span.style) {
         if (span.style.color) {
@@ -172,13 +198,9 @@ export async function convertInlinesToTextRuns(
       }
 
       if (span.children && span.children.length > 0) {
-        const childRuns = await convertInlinesToTextRuns(span.children, baseDir);
+        const childRuns = await convertInlinesToTextRuns(span.children, baseDir, options);
         for (const child of childRuns) {
-          if (child instanceof TextRun) {
-            runs.push(child);
-          } else {
-            runs.push(child);
-          }
+          runs.push(child);
         }
         continue;
       }
@@ -189,16 +211,23 @@ export async function convertInlinesToTextRuns(
           color: colorHex,
           bold: isBold,
           italics: isItalic,
+          font: options.font,
+          size: options.size,
           shading: bgHex ? { type: ShadingType.CLEAR, fill: bgHex } : undefined,
         })
       );
       continue;
     }
 
-    // Default plain text
+    // Plain text
     runs.push(
       new TextRun({
         text: span.content,
+        font: options.font,
+        size: options.size,
+        color: options.color,
+        bold: options.bold,
+        italics: options.italics,
       })
     );
   }
@@ -214,56 +243,77 @@ export async function buildDocxDocument(
   config: MarkforgeConfig,
   baseDir: string = process.cwd()
 ): Promise<Buffer> {
-  const metadata = { ...config.metadata, ...doc.metadata };
+  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
   const docElements: (Paragraph | Table)[] = [];
 
-  // 1. Cover / Title Area if metadata exists
-  if (metadata.title) {
+  // Theme Colors
+  const themeProps: ThemeProps = typeof resolved.theme === "object" ? resolved.theme : {};
+  const primaryHex = (themeProps.primaryColor || "#33CDCF").replace("#", "");
+  const primaryDarkHex = (themeProps.primaryDark || "#009DA0").replace("#", "");
+  const textHex = (themeProps.textColor || "#0F172A").replace("#", "");
+  const textMutedHex = (themeProps.textMuted || "#64748B").replace("#", "");
+  const borderHex = (themeProps.borderColor || "#E2E8F0").replace("#", "");
+  const cardBgHex = (themeProps.cardBackground || "#F8FAFC").replace("#", "");
+  const defaultFont = themeProps.fontFamily
+    ? themeProps.fontFamily.split(",")[0].replace(/['"]/g, "").trim()
+    : "Segoe UI";
+
+  // 1. Cover / Title Area if title exists
+  if (resolved.title) {
     docElements.push(
       new Paragraph({
-        text: metadata.title,
-        heading: HeadingLevel.TITLE,
-        spacing: { before: 200, after: 120 },
+        children: [
+          new TextRun({
+            text: resolved.title,
+            bold: true,
+            size: 44, // 22pt
+            color: textHex,
+            font: defaultFont,
+          }),
+        ],
+        spacing: { before: 120, after: 80 },
       })
     );
 
-    if (metadata.subtitle) {
+    if (resolved.subtitle) {
       docElements.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: metadata.subtitle,
-              italics: true,
-              color: "64748B",
+              text: resolved.subtitle,
+              color: textMutedHex,
               size: 24, // 12pt
+              font: defaultFont,
             }),
           ],
-          spacing: { after: 180 },
+          spacing: { before: 60, after: 120 },
         })
       );
     }
 
-    if (metadata.author || metadata.date) {
+    if (resolved.author || resolved.date || resolved.version || resolved.company) {
       const metaParts: string[] = [];
-      if (metadata.author) metaParts.push(`Author: ${Array.isArray(metadata.author) ? metadata.author.join(", ") : metadata.author}`);
-      if (metadata.date) metaParts.push(`Date: ${metadata.date}`);
+      if (resolved.author) metaParts.push(`Author: ${resolved.author}`);
+      if (resolved.version) metaParts.push(`Version: ${resolved.version}`);
+      if (resolved.date) metaParts.push(`Date: ${resolved.date}`);
 
       docElements.push(
         new Paragraph({
           children: [
             new TextRun({
-              text: metaParts.join("  |  "),
-              color: "94A3B8",
-              size: 20, // 10pt
+              text: metaParts.join("    "),
+              color: textMutedHex,
+              size: 18, // 9pt
+              font: defaultFont,
             }),
           ],
-          spacing: { after: 360 },
+          spacing: { before: 40, after: 240 },
           border: {
             bottom: {
-              color: "E2E8F0",
-              space: 10,
+              color: borderHex,
+              space: 12,
               style: BorderStyle.SINGLE,
-              size: 6,
+              size: 4,
             },
           },
         })
@@ -271,35 +321,165 @@ export async function buildDocxDocument(
     }
   }
 
+  // 1.5 Table of Contents (TOC) Card if enabled
+  if (resolved.toc) {
+    const headingNodes = doc.nodes.filter(
+      (n): n is typeof n & { type: "heading"; level: number; text: string } =>
+        n.type === "heading" && typeof n.level === "number" && n.level >= 1 && n.level <= 3
+    );
+
+    if (headingNodes.length > 0) {
+      const tocParagraphs: Paragraph[] = [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "TABLE OF CONTENTS",
+              bold: true,
+              size: 18, // 9pt
+              color: textMutedHex,
+              font: defaultFont,
+            }),
+          ],
+          spacing: { after: 120 },
+          border: {
+            bottom: {
+              color: borderHex,
+              space: 6,
+              style: BorderStyle.SINGLE,
+              size: 4,
+            },
+          },
+        }),
+      ];
+
+      for (const h of headingNodes) {
+        const indentLeft = (h.level - 1) * 240;
+        tocParagraphs.push(
+          new Paragraph({
+            indent: { left: indentLeft },
+            children: [
+              new TextRun({
+                text: h.text,
+                bold: h.level === 1,
+                color: primaryDarkHex,
+                size: h.level === 1 ? 21 : 20,
+                font: defaultFont,
+              }),
+            ],
+            spacing: { before: 20, after: 20 },
+          })
+        );
+      }
+
+      const tocCard = new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        columnWidths: [9000],
+        rows: [
+          new TableRow({
+            children: [
+              new TableCell({
+                width: { size: 9000, type: WidthType.DXA },
+                shading: { fill: cardBgHex, type: ShadingType.CLEAR },
+                margins: { top: 140, bottom: 140, left: 180, right: 180 },
+                borders: {
+                  top: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+                  bottom: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+                  left: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+                  right: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
+                },
+                children: tocParagraphs,
+              }),
+            ],
+          }),
+        ],
+      });
+
+      docElements.push(tocCard);
+      docElements.push(new Paragraph({ spacing: { after: 200 } }));
+    }
+  }
+
   // 2. Process AST Nodes
   for (const node of doc.nodes) {
     // Heading Nodes (H1-H6)
     if (node.type === "heading") {
-      let headingLevel: (typeof HeadingLevel)[keyof typeof HeadingLevel] = HeadingLevel.HEADING_1;
-      if (node.level === 2) headingLevel = HeadingLevel.HEADING_2;
-      if (node.level === 3) headingLevel = HeadingLevel.HEADING_3;
-      if (node.level === 4) headingLevel = HeadingLevel.HEADING_4;
-      if (node.level === 5) headingLevel = HeadingLevel.HEADING_5;
-      if (node.level === 6) headingLevel = HeadingLevel.HEADING_6;
+      if (node.level === 1) {
+        const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+          font: defaultFont,
+          size: 34, // 17pt
+          color: textHex,
+          bold: true,
+        });
 
-      const runs = await convertInlinesToTextRuns(node.inlines, baseDir);
-      docElements.push(
-        new Paragraph({
-          heading: headingLevel,
-          children: runs,
-          spacing: { before: 240, after: 120 },
-        })
-      );
+        docElements.push(
+          new Paragraph({
+            heading: HeadingLevel.HEADING_1,
+            children: runs,
+            spacing: { before: 360, after: 140 },
+            border: {
+              bottom: {
+                color: primaryHex,
+                space: 6,
+                style: BorderStyle.SINGLE,
+                size: 16,
+              },
+            },
+          })
+        );
+      } else if (node.level === 2) {
+        const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+          font: defaultFont,
+          size: 26, // 13pt
+          color: primaryDarkHex,
+          bold: true,
+        });
+
+        docElements.push(
+          new Paragraph({
+            heading: HeadingLevel.HEADING_2,
+            children: runs,
+            spacing: { before: 280, after: 100 },
+            border: {
+              bottom: {
+                color: borderHex,
+                space: 4,
+                style: BorderStyle.SINGLE,
+                size: 4,
+              },
+            },
+          })
+        );
+      } else {
+        const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+          font: defaultFont,
+          size: 22, // 11pt
+          color: textHex,
+          bold: true,
+        });
+
+        docElements.push(
+          new Paragraph({
+            heading: node.level === 3 ? HeadingLevel.HEADING_3 : HeadingLevel.HEADING_4,
+            children: runs,
+            spacing: { before: 200, after: 80 },
+          })
+        );
+      }
       continue;
     }
 
     // Paragraph Nodes
     if (node.type === "paragraph") {
-      const runs = await convertInlinesToTextRuns(node.inlines, baseDir);
+      const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+        font: defaultFont,
+        size: 22, // 11pt
+        color: "334155",
+      });
+
       docElements.push(
         new Paragraph({
           children: runs,
-          spacing: { before: 60, after: 140 },
+          spacing: { before: 40, after: 140, line: 280 },
         })
       );
       continue;
@@ -379,7 +559,11 @@ export async function buildDocxDocument(
         title = "IMPORTANT";
       }
 
-      const runs = await convertInlinesToTextRuns(node.inlines, baseDir);
+      const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+        font: defaultFont,
+        size: 21,
+        color: "334155",
+      });
 
       const calloutTable = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
@@ -395,7 +579,7 @@ export async function buildDocxDocument(
                   top: { style: BorderStyle.NONE },
                   bottom: { style: BorderStyle.NONE },
                   right: { style: BorderStyle.NONE },
-                  left: { style: BorderStyle.SINGLE, size: 16, color: borderColor },
+                  left: { style: BorderStyle.SINGLE, size: 20, color: borderColor },
                 },
                 children: [
                   new Paragraph({
@@ -404,13 +588,15 @@ export async function buildDocxDocument(
                         text: `[${title}]`,
                         bold: true,
                         color: borderColor,
+                        font: defaultFont,
                         size: 20,
                       }),
                     ],
-                    spacing: { after: 60 },
+                    spacing: { after: 40 },
                   }),
                   new Paragraph({
                     children: runs,
+                    spacing: { line: 270 },
                   }),
                 ],
               }),
@@ -431,17 +617,27 @@ export async function buildDocxDocument(
       if (lines.length > 0) {
         for (const lineText of lines) {
           const spans = parseInlineSpans(lineText.replace(/^>\s?/, "").trim());
-          const lineRuns = await convertInlinesToTextRuns(spans, baseDir);
+          const lineRuns = await convertInlinesToTextRuns(spans, baseDir, {
+            font: defaultFont,
+            size: 21,
+            color: "475569",
+            italics: true,
+          });
           quoteParagraphs.push(
             new Paragraph({
               children: lineRuns,
-              spacing: { before: 40, after: 40 },
+              spacing: { before: 20, after: 20, line: 260 },
             })
           );
         }
       } else {
-        const runs = await convertInlinesToTextRuns(node.inlines, baseDir);
-        quoteParagraphs.push(new Paragraph({ children: runs }));
+        const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
+          font: defaultFont,
+          size: 21,
+          color: "475569",
+          italics: true,
+        });
+        quoteParagraphs.push(new Paragraph({ children: runs, spacing: { line: 260 } }));
       }
 
       const quoteTable = new Table({
@@ -458,7 +654,7 @@ export async function buildDocxDocument(
                   top: { style: BorderStyle.NONE },
                   bottom: { style: BorderStyle.NONE },
                   right: { style: BorderStyle.NONE },
-                  left: { style: BorderStyle.SINGLE, size: 12, color: "33CDCF" },
+                  left: { style: BorderStyle.SINGLE, size: 16, color: primaryHex },
                 },
                 children: quoteParagraphs,
               }),
@@ -496,7 +692,7 @@ export async function buildDocxDocument(
         docElements.push(
           new Paragraph({
             children: [
-              new TextRun({ text: "[Mermaid Diagram: " + (node.text || "").slice(0, 40) + "...]", bold: true, color: "33CDCF" }),
+              new TextRun({ text: "[Mermaid Diagram: " + (node.text || "").slice(0, 40) + "...]", bold: true, color: primaryHex }),
             ],
             spacing: { before: 60, after: 60 },
           })
@@ -511,8 +707,12 @@ export async function buildDocxDocument(
       const numCols = node.children[0]?.children?.length || 1;
       const colWidth = Math.floor(9000 / numCols);
 
-      for (const rowNode of node.children) {
+      for (let rowIdx = 0; rowIdx < node.children.length; rowIdx++) {
+        const rowNode = node.children[rowIdx];
         const cells: TableCell[] = [];
+        const isHeader = rowNode.isHeader;
+        const rowBg = isHeader ? "F1F5F9" : rowIdx % 2 === 0 ? "FFFFFF" : "F8FAFC";
+
         if (rowNode.children) {
           for (let colIdx = 0; colIdx < rowNode.children.length; colIdx++) {
             const cellNode = rowNode.children[colIdx];
@@ -521,25 +721,28 @@ export async function buildDocxDocument(
             if (align === "center") alignment = AlignmentType.CENTER;
             if (align === "right") alignment = AlignmentType.RIGHT;
 
-            const runs = await convertInlinesToTextRuns(cellNode.inlines, baseDir);
+            const runs = await convertInlinesToTextRuns(cellNode.inlines, baseDir, {
+              font: defaultFont,
+              size: 20,
+              color: isHeader ? "0F172A" : "334155",
+              bold: isHeader,
+            });
 
             cells.push(
               new TableCell({
                 width: { size: colWidth, type: WidthType.DXA },
-                shading: rowNode.isHeader ? { fill: "F1F5F9", type: ShadingType.CLEAR } : undefined,
-                margins: { top: 100, bottom: 100, left: 120, right: 120 },
+                shading: { fill: rowBg, type: ShadingType.CLEAR },
+                margins: { top: 100, bottom: 100, left: 140, right: 140 },
                 borders: {
-                  top: { style: BorderStyle.SINGLE, size: 4, color: "CBD5E1" },
-                  bottom: { style: BorderStyle.SINGLE, size: 4, color: "CBD5E1" },
-                  left: { style: BorderStyle.SINGLE, size: 4, color: "CBD5E1" },
-                  right: { style: BorderStyle.SINGLE, size: 4, color: "CBD5E1" },
+                  top: { style: BorderStyle.SINGLE, size: 4, color: "E2E8F0" },
+                  bottom: { style: BorderStyle.SINGLE, size: isHeader ? 8 : 4, color: isHeader ? "CBD5E1" : "E2E8F0" },
+                  left: { style: BorderStyle.SINGLE, size: 4, color: "E2E8F0" },
+                  right: { style: BorderStyle.SINGLE, size: 4, color: "E2E8F0" },
                 },
                 children: [
                   new Paragraph({
                     alignment,
-                    children: rowNode.isHeader
-                      ? runs.map((r) => (r instanceof TextRun ? new TextRun({ ...r, bold: true, color: "0F172A" }) : r))
-                      : runs,
+                    children: runs,
                   }),
                 ],
               })
@@ -549,7 +752,7 @@ export async function buildDocxDocument(
 
         tableRows.push(
           new TableRow({
-            tableHeader: rowNode.isHeader,
+            tableHeader: isHeader,
             children: cells,
           })
         );
@@ -569,7 +772,11 @@ export async function buildDocxDocument(
     // List Item Nodes
     if (node.type === "list" && node.children) {
       for (const item of node.children) {
-        const runs = await convertInlinesToTextRuns(item.inlines, baseDir);
+        const runs = await convertInlinesToTextRuns(item.inlines, baseDir, {
+          font: defaultFont,
+          size: 21,
+          color: "334155",
+        });
         let prefix = "";
         if (item.checked !== undefined) {
           prefix = item.checked ? "[X] " : "[ ] ";
@@ -582,7 +789,7 @@ export async function buildDocxDocument(
               ...(prefix ? [new TextRun({ text: prefix, bold: true, font: "Consolas" })] : []),
               ...runs,
             ],
-            spacing: { before: 40, after: 40 },
+            spacing: { before: 20, after: 20, line: 260 },
           })
         );
       }
@@ -678,112 +885,220 @@ export async function buildDocxDocument(
     }
   }
 
-  // 3. Configure Header & Footer
-  const headerObj = metadata.header || config.header;
-  const footerObj = metadata.footer || config.footer;
+  // 3. Configure Header & Footer using native Word Tab Stops (0% table boundaries, 100% clean)
+  const contentWidthTwip = Math.max(
+    1000,
+    resolved.paperDimensions.widthTwip - resolved.margins.leftTwip - resolved.margins.rightTwip
+  );
+  const centerPos = Math.round(contentWidthTwip / 2);
+  const rightPos = contentWidthTwip;
 
-  // The standard Word header/footer layout uses two tab stops:
-  // one center tab at the middle of the page, one right tab at the end.
-  // We use 9026 (half of ~18000 twip usable width) for center and 9026*2 for right.
-  const headerTabStops = [
-    { type: TabStopType.CENTER, position: 4513 },
-    { type: TabStopType.RIGHT, position: 9026 },
-  ];
+  const headerRuns: TextRun[] = [];
+  if (resolved.header?.left) {
+    headerRuns.push(
+      new TextRun({
+        text: resolved.header.left.text,
+        color: resolved.header.left.color.replace("#", ""),
+        size: (resolved.header.left.fontSize || 9) * 2,
+        font: resolved.header.left.fontFamily || defaultFont,
+        bold: resolved.header.left.bold,
+        italics: resolved.header.left.italic,
+      })
+    );
+  }
+  headerRuns.push(new TextRun({ text: "\t" }));
+  if (resolved.header?.center) {
+    headerRuns.push(
+      new TextRun({
+        text: resolved.header.center.text,
+        color: resolved.header.center.color.replace("#", ""),
+        size: (resolved.header.center.fontSize || 9) * 2,
+        font: resolved.header.center.fontFamily || defaultFont,
+        bold: resolved.header.center.bold,
+        italics: resolved.header.center.italic,
+      })
+    );
+  }
+  headerRuns.push(new TextRun({ text: "\t" }));
+  if (resolved.header?.right) {
+    headerRuns.push(
+      new TextRun({
+        text: resolved.header.right.text,
+        color: resolved.header.right.color.replace("#", ""),
+        size: (resolved.header.right.fontSize || 9) * 2,
+        font: resolved.header.right.fontFamily || defaultFont,
+        bold: resolved.header.right.bold,
+        italics: resolved.header.right.italic,
+      })
+    );
+  }
 
-  const docHeader = headerObj
+  const docHeader = resolved.header
     ? new Header({
         children: [
           new Paragraph({
-            tabStops: headerTabStops,
-            children: [
-              // Left zone
-              ...(headerObj.left
-                ? [
-                    new TextRun({
-                      text: headerObj.left.replace("{title}", metadata.title || ""),
-                      color: "94A3B8",
-                      size: 18,
-                    }),
-                  ]
-                : []),
-              // Center zone (tab + text)
-              ...(headerObj.center
-                ? [
-                    new TextRun({ text: "\t", color: "94A3B8", size: 18 }),
-                    new TextRun({
-                      text: headerObj.center.replace("{title}", metadata.title || ""),
-                      color: "94A3B8",
-                      size: 18,
-                    }),
-                  ]
-                : []),
-              // Right zone (tab + text) — skip extra tab if center already used one
-              ...(headerObj.right
-                ? [
-                    new TextRun({
-                      text: (headerObj.left || headerObj.center) ? "\t" : "",
-                      color: "94A3B8",
-                      size: 18,
-                    }),
-                    new TextRun({
-                      text: headerObj.right.replace("{title}", metadata.title || ""),
-                      color: "94A3B8",
-                      size: 18,
-                    }),
-                  ]
-                : []),
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: centerPos,
+              },
+              {
+                type: TabStopType.RIGHT,
+                position: rightPos,
+              },
             ],
+            border: resolved.header.divider
+              ? {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 4,
+                    space: 6,
+                    color: (resolved.header.dividerColor || "#CBD5E1").replace("#", ""),
+                  },
+                }
+              : undefined,
+            children: headerRuns,
+            spacing: { after: 120 },
           }),
         ],
       })
     : undefined;
 
-  const docFooter = footerObj
+  const footerRuns: TextRun[] = [];
+  if (resolved.footer?.left) {
+    footerRuns.push(
+      new TextRun({
+        text: resolved.footer.left.text,
+        color: resolved.footer.left.color.replace("#", ""),
+        size: (resolved.footer.left.fontSize || 9) * 2,
+        font: resolved.footer.left.fontFamily || defaultFont,
+        bold: resolved.footer.left.bold,
+        italics: resolved.footer.left.italic,
+      })
+    );
+  }
+  footerRuns.push(new TextRun({ text: "\t" }));
+  if (resolved.footer?.center) {
+    footerRuns.push(
+      new TextRun({
+        text: resolved.footer.center.text,
+        color: resolved.footer.center.color.replace("#", ""),
+        size: (resolved.footer.center.fontSize || 9) * 2,
+        font: resolved.footer.center.fontFamily || defaultFont,
+        bold: resolved.footer.center.bold,
+        italics: resolved.footer.center.italic,
+      })
+    );
+  }
+  footerRuns.push(new TextRun({ text: "\t" }));
+  if (resolved.footer?.right) {
+    const rZone = resolved.footer.right;
+    const rColor = rZone.color.replace("#", "");
+    const rSize = (rZone.fontSize || 9) * 2;
+    const rFont = rZone.fontFamily || defaultFont;
+    const rBold = rZone.bold;
+    const rItalics = rZone.italic;
+
+    if (rZone.text.includes("{page}") || rZone.text.includes("{pages}")) {
+      const parts = rZone.text.split(/(\{page\}|\{pages\})/gi);
+      for (const part of parts) {
+        if (part.toLowerCase() === "{page}") {
+          footerRuns.push(
+            new TextRun({
+              children: [PageNumber.CURRENT],
+              color: rColor,
+              size: rSize,
+              font: rFont,
+              bold: rBold,
+              italics: rItalics,
+            })
+          );
+        } else if (part.toLowerCase() === "{pages}") {
+          footerRuns.push(
+            new TextRun({
+              children: [PageNumber.TOTAL_PAGES],
+              color: rColor,
+              size: rSize,
+              font: rFont,
+              bold: rBold,
+              italics: rItalics,
+            })
+          );
+        } else if (part) {
+          footerRuns.push(
+            new TextRun({
+              text: part,
+              color: rColor,
+              size: rSize,
+              font: rFont,
+              bold: rBold,
+              italics: rItalics,
+            })
+          );
+        }
+      }
+    } else {
+      footerRuns.push(
+        new TextRun({
+          text: rZone.text,
+          color: rColor,
+          size: rSize,
+          font: rFont,
+          bold: rBold,
+          italics: rItalics,
+        })
+      );
+    }
+  }
+
+  const docFooter = resolved.footer
     ? new Footer({
         children: [
           new Paragraph({
-            tabStops: headerTabStops,
-            children: [
-              // Left zone
-              ...(footerObj.left
-                ? [
-                    new TextRun({
-                      text: footerObj.left
-                        .replace("{page}", "")
-                        .replace("{pages}", "")
-                        .trim(),
-                      color: "94A3B8",
-                      size: 18,
-                    }),
-                  ]
-                : []),
-              // Right zone: always includes page number if right is configured or footer exists
-              new TextRun({ text: "\t", color: "94A3B8", size: 18 }),
-              new TextRun({ text: "Page ", color: "94A3B8", size: 18 }),
-              new TextRun({ children: [PageNumber.CURRENT], color: "94A3B8", size: 18 }),
-              new TextRun({ text: " of ", color: "94A3B8", size: 18 }),
-              new TextRun({ children: [PageNumber.TOTAL_PAGES], color: "94A3B8", size: 18 }),
+            tabStops: [
+              {
+                type: TabStopType.CENTER,
+                position: centerPos,
+              },
+              {
+                type: TabStopType.RIGHT,
+                position: rightPos,
+              },
             ],
+            border: resolved.footer.divider
+              ? {
+                  top: {
+                    style: BorderStyle.SINGLE,
+                    size: 4,
+                    space: 6,
+                    color: (resolved.footer.dividerColor || "#CBD5E1").replace("#", ""),
+                  },
+                }
+              : undefined,
+            children: footerRuns,
+            spacing: { before: 120 },
           }),
         ],
       })
     : undefined;
 
-  // 4. Page Margins & Orientation
-  const topMargin = parseMarginToTwip(metadata.margins?.top || config.margins?.top, 1440);
-  const bottomMargin = parseMarginToTwip(metadata.margins?.bottom || config.margins?.bottom, 1440);
-  const leftMargin = parseMarginToTwip(metadata.margins?.left || config.margins?.left, 1440);
-  const rightMargin = parseMarginToTwip(metadata.margins?.right || config.margins?.right, 1440);
-  const isLandscape = (metadata.orientation || config.orientation) === "landscape";
+  // 4. Page Dimensions & Margins
+  const isLandscape = resolved.orientation === "landscape";
 
   const document = new Document({
     styles: {
       default: {
         document: {
           run: {
-            font: "Segoe UI",
-            size: 22, // 11pt
-            color: "0F172A",
+            font: defaultFont,
+            size: 21, // 10.5pt
+            color: textHex,
+          },
+          paragraph: {
+            spacing: {
+              line: 276, // 1.15 line spacing
+              after: 140,
+            },
           },
         },
       },
@@ -793,13 +1108,15 @@ export async function buildDocxDocument(
         properties: {
           page: {
             size: {
+              width: resolved.paperDimensions.widthTwip,
+              height: resolved.paperDimensions.heightTwip,
               orientation: isLandscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT,
             },
             margin: {
-              top: topMargin,
-              bottom: bottomMargin,
-              left: leftMargin,
-              right: rightMargin,
+              top: resolved.margins.topTwip,
+              bottom: resolved.margins.bottomTwip,
+              left: resolved.margins.leftTwip,
+              right: resolved.margins.rightTwip,
               header: 720,
               footer: 720,
             },

@@ -34,10 +34,6 @@ export const SYNTAX_COLORS = {
   plain:       "E2E8F0", // Light gray        — identifiers / plain text
 };
 
-/**
- * Light-background palette — for DOCX (white/light code block backgrounds).
- * Based on GitHub Light / VS Code Light+ theme.
- */
 export const SYNTAX_COLORS_LIGHT = {
   keyword:     "D73A49", // Crimson red       — keywords
   string:      "0A7E5C", // Forest teal       — strings (readable on white)
@@ -50,6 +46,54 @@ export const SYNTAX_COLORS_LIGHT = {
   punctuation: "586069", // Dark gray         — punctuation
   plain:       "24292E", // Near-black        — identifiers
 };
+
+export const SYNTAX_THEMES: Record<string, typeof SYNTAX_COLORS> = {
+  "github-dark": SYNTAX_COLORS,
+  "dark": SYNTAX_COLORS,
+  "github-light": SYNTAX_COLORS_LIGHT,
+  "light": SYNTAX_COLORS_LIGHT,
+  "dracula": {
+    keyword:     "FF79C6",
+    string:      "F1FA8C",
+    comment:     "6272A4",
+    number:      "BD93F9",
+    boolean:     "BD93F9",
+    function:    "50FA7B",
+    type:        "8BE9FD",
+    operator:    "FF79C6",
+    punctuation: "F8F8F2",
+    plain:       "F8F8F2",
+  },
+  "monokai": {
+    keyword:     "F92672",
+    string:      "E6DB74",
+    comment:     "75715E",
+    number:      "AE81FF",
+    boolean:     "AE81FF",
+    function:    "A6E22E",
+    type:        "66D9EF",
+    operator:    "F92672",
+    punctuation: "F8F8F2",
+    plain:       "F8F8F2",
+  },
+  "nord": {
+    keyword:     "81A1C1",
+    string:      "A3BE8C",
+    comment:     "616E88",
+    number:      "B48EAD",
+    boolean:     "81A1C1",
+    function:    "88C0D0",
+    type:        "8FBCBB",
+    operator:    "81A1C1",
+    punctuation: "ECEFF4",
+    plain:       "D8DEE9",
+  },
+};
+
+export function getSyntaxPalette(themeName: string = "github-dark"): typeof SYNTAX_COLORS {
+  return SYNTAX_THEMES[themeName.toLowerCase()] || SYNTAX_THEMES["github-dark"];
+}
+
 
 const JS_KEYWORDS = new Set([
   "import", "from", "export", "default", "const", "let", "var", "function",
@@ -79,11 +123,12 @@ const SQL_KEYWORDS = new Set([
   "and", "or", "not", "null", "primary", "key", "foreign", "references"
 ]);
 
-/**
- * Tokenizes a single line of code into styled tokens based on language.
- */
-export function tokenizeCodeLine(line: string, lang: string = "", theme: "dark" | "light" = "dark"): SyntaxToken[] {
-  const COLORS = theme === "light" ? SYNTAX_COLORS_LIGHT : SYNTAX_COLORS;
+export function tokenizeCodeLine(
+  line: string,
+  lang: string = "",
+  theme: string = "github-dark"
+): SyntaxToken[] {
+  const COLORS = getSyntaxPalette(theme);
   if (!line) {
     return [{ text: " ", type: "plain", colorHex: COLORS.plain }];
   }
@@ -206,6 +251,12 @@ export function tokenizeCodeLine(line: string, lang: string = "", theme: "dark" 
         continue;
       }
 
+      // Check Types / Classes (starts with Capital letter)
+      if (/^[A-Z][a-zA-Z0-9_$]*$/.test(word)) {
+        tokens.push({ text: word, type: "type", colorHex: COLORS.type });
+        continue;
+      }
+
       // Check function call: word followed by (
       let nextNonWs = pos;
       while (nextNonWs < line.length && /\s/.test(line[nextNonWs])) {
@@ -213,12 +264,6 @@ export function tokenizeCodeLine(line: string, lang: string = "", theme: "dark" 
       }
       if (line[nextNonWs] === "(") {
         tokens.push({ text: word, type: "function", colorHex: COLORS.function });
-        continue;
-      }
-
-      // Check Types / Classes (starts with Capital letter)
-      if (/^[A-Z][a-zA-Z0-9_$]*$/.test(word)) {
-        tokens.push({ text: word, type: "type", colorHex: COLORS.type });
         continue;
       }
 
@@ -242,10 +287,14 @@ export function tokenizeCodeLine(line: string, lang: string = "", theme: "dark" 
 /**
  * Converts a code snippet to syntax-highlighted HTML with colored span tokens.
  */
-export function highlightCodeToHtml(code: string, lang: string = ""): string {
+export function highlightCodeToHtml(
+  code: string,
+  lang: string = "",
+  theme: string = "github-dark"
+): string {
   const lines = (code || "").split("\n");
   const htmlLines = lines.map((line) => {
-    const tokens = tokenizeCodeLine(line, lang);
+    const tokens = tokenizeCodeLine(line, lang, theme);
     return tokens
       .map((t) => {
         const escaped = t.text

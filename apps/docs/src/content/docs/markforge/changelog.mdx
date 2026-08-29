@@ -6,6 +6,18 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.2.4] - 2026-08-29
+
+### 🚀 Features & Enhancements
+
+- **Granular Header & Footer Slot Customization (`HeaderFooterSlot`)**: Each running header and footer zone (`left`, `center`, `right`) can now be individually styled with custom `color`, `fontSize` (in points), `fontFamily`, `bold`, and `italic`. Fully implemented across DOCX TextRuns and PDF CSS Paged Media (`@top-*` and `@bottom-*`).
+- **Flagship `Theme.CORPORATE` Preset & `ThemeProps` Interface**: Simplified built-in themes to `Theme.CORPORATE` while providing the typed `ThemeProps` interface for total custom document theming (`backgroundColor`, `textColor`, `primaryColor`, `fontFamily`, `fontMono`, `customCss`).
+- **TypeScript Enums**: Full autocompletion and type-safety with `OutputFormat`, `Theme`, `Orientation`, `PaperSizeEnum`, `SyntaxTheme`, and `WatermarkPosition`.
+- **Background-Layered Watermark**: Watermarks are positioned strictly at the background layer (`z-index: 0`) under content to avoid obscuring tables, text, or images.
+- **Enterprise Windows Sandboxing**: Headless Chromium runner is sandboxed with `--disable-sync`, isolated temp directory, and zero Google network requests, prioritizing `msedge.exe` on Windows.
+
+---
+
 ## [0.2.3] - 2026-08-28
 
 ### 🛠️ Fixed

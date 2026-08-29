@@ -3,7 +3,7 @@ title: Usage & Features Guide
 sidebar:
   label: Usage Guide
   order: 3
-description: Complete CLI usage, Mermaid diagrams, callout boxes, dual syntax highlighting, image inlining, and the programmatic API for @masumdev/markforge.
+description: Complete CLI usage, Mermaid diagrams, callout alert boxes, dual syntax highlighting, image inlining, and the programmatic TypeScript API for @masumdev/markforge.
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
@@ -16,29 +16,40 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 # Compile to DOCX + PDF (default formats)
 markforge document.md
 
-# Specify output formats and directory
+# Specify target output formats and destination directory
 markforge specification.md --to docx,pdf,html --output ./dist
 
-# Use a built-in theme with custom CSS overlay
-markforge report.md --theme academic --css ./styles/custom.css
+# Use a theme with custom CSS overlay
+markforge report.md --theme corporate --css ./styles/custom.css
 
 # Force Table of Contents + watch mode
 markforge guide.md --toc --watch
+
+# Start local HTTP preview server on port 4000
+markforge document.md --serve --port 4000 --open
 ```
 
 ---
 
-## CLI Options Reference
+## Complete CLI Options Reference
 
 | Flag | Alias | Description | Default |
 | :--- | :---: | :--- | :--- |
-| `--to <formats>` | `-t` | Comma-separated: `docx`, `pdf`, `html` | `docx,pdf` |
-| `--output <dir>` | `-o` | Target directory for generated files | Same as input |
-| `--theme <name>` | | Built-in theme (`default`, `academic`, `github`, `corporate`, `minimal`, `dracula`) | `default` |
-| `--css <path...>` | | Custom CSS file(s) to inject | |
+| `<file>` | | Markdown input file path | **Required** |
+| `--to <formats...>` | `-t` | Comma-separated: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
+| `--output <dir>` | `-o` | Target directory for generated files | Input file directory |
+| `--config <file>` | `-c` | Explicit configuration file path | Auto-detected |
+| `--theme <name>` | | Built-in theme (`corporate`, `default`) | `corporate` |
+| `--css <files...>` | | Custom CSS file(s) to inject | `undefined` |
+| `--orientation <type>` | | Page orientation (`portrait`, `landscape`) | `portrait` |
+| `--paper-size <size>` | | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) | `A4` |
 | `--toc` | | Force Table of Contents generation | `false` |
-| `--config <path>` | `-c` | Config file path | Auto-detected |
+| `--watermark <text>` | | Document watermark text | `undefined` |
+| `--syntax-theme <theme>`| | Code syntax highlighting theme | `github-dark` |
 | `--watch` | `-w` | Watch input file and recompile on change | `false` |
+| `--serve` | | Start local HTTP preview server | `false` |
+| `--port <number>` | `-p` | Local preview server port | `4000` |
+| `--open` | | Automatically open browser on preview | `false` |
 | `--version` | `-V` | Print version and exit | |
 | `--help` | `-h` | Show help screen | |
 
@@ -46,29 +57,59 @@ markforge guide.md --toc --watch
 
 ## Frontmatter Reference
 
+Frontmatter inside the Markdown file overrides configuration file settings for that specific document:
+
 ```markdown
 ---
 title: "Enterprise Architecture Specification"
 subtitle: "Cloud & Edge Infrastructure — Q3 2026"
-author: "Ma'sum"
-version: "2.4.0"
-date: "2026-08-27"
-theme: "default"          # default | academic | github | corporate | minimal | dracula
-toc: true                 # auto-generate Table of Contents
-orientation: "portrait"   # portrait | landscape
-paperSize: "A4"           # A4 | letter | legal
+author: "Masum RPG"
+company: "Masum Dev Technologies"
+version: "1.0.0"
+date: "2026-08-29"
+theme: "corporate"
+toc: true
+orientation: "portrait"
+paperSize: "A4"
+margins:
+  top: "3cm"
+  bottom: "2.5cm"
+  left: "2.5cm"
+  right: "2.5cm"
 watermark:
-  enabled: false          # no watermark by default
-  text: "CONFIDENTIAL"
-  opacity: 0.08
-  position: "diagonal"    # diagonal | center | top-left | top-right | bottom-left | bottom-right
+  text: "CONFIDENTIAL DRAFT"
+  color: "#E11D48"
+  opacity: 0.1
+  fontSize: 52
+  rotate: -45
+  position: "diagonal"
 header:
-  left: "My Company"
-  center: "{title}"
-  right: "Version {version}"
+  left:
+    text: "{company} - {title}"
+    color: "#0D998D"
+    fontSize: 9
+    bold: true
+  center: "Internal Technical Guide"
+  right:
+    text: "v{version}"
+    color: "#94A3B8"
+    fontSize: 8.5
+    italic: true
+  divider: true
+  dividerColor: "#CBD5E1"
 footer:
-  left: "Confidential - Internal Use Only"
-  right: "Page {page} of {pages}"
+  left:
+    text: "Author: {author}"
+    color: "#64748B"
+    fontSize: 8.5
+  center: "{date}"
+  right:
+    text: "Page {page} of {pages}"
+    color: "#0D998D"
+    fontSize: 9
+    bold: true
+  divider: true
+  dividerColor: "#CBD5E1"
 ---
 ```
 
@@ -92,7 +133,7 @@ MarkForge renders GitHub-flavored callout syntax with colored backgrounds and bo
 > Ensure all local relative file paths are relative to the root Markdown entry file.
 
 > [!CAUTION]
-> Modifying raw OpenXML schemas without the DOCX Builder validation layer can corrupt legacy Word viewers.
+> High-risk action — modifying OpenXML schemas directly without validation may corrupt Word documents.
 ```
 
 | Type | Border Color | Background |
@@ -103,15 +144,11 @@ MarkForge renders GitHub-flavored callout syntax with colored backgrounds and bo
 | `WARNING` | Amber `#f59e0b` | `#fffbeb` |
 | `CAUTION` | Red `#ef4444` | `#fef2f2` |
 
-<Aside type="note">
-Callout box colors are rendered using **inline `style` attributes** in the HTML output, which ensures they appear correctly in Chromium-rendered PDFs even without background-graphics enabled.
-</Aside>
-
 ---
 
 ## Mermaid Diagrams
 
-Mermaid code blocks are automatically rendered into rasterized images and embedded in all output formats:
+Mermaid code blocks are automatically rendered into rasterized diagrams and embedded across all formats:
 
 ````markdown
 ```mermaid
@@ -123,152 +160,98 @@ flowchart LR
 ```
 ````
 
-````markdown
-```mermaid
-sequenceDiagram
-  User->>CLI: markforge spec.md --to pdf
-  CLI->>Parser: Parse Markdown + Frontmatter
-  Parser->>ImageResolver: Resolve & embed assets
-  ImageResolver->>MermaidRenderer: Rasterize diagrams
-  MermaidRenderer->>PdfBuilder: Build Chromium PDF
-  PdfBuilder-->>User: spec.pdf ✓
-```
-````
-
-<Aside type="tip">
-For complex diagrams, MarkForge uses a `virtual-time-budget` of 8000ms in headless Chromium to ensure Mermaid.js fully renders before PDF capture.
-</Aside>
-
 ---
 
 ## Syntax-Highlighted Code Blocks
 
-All common languages are supported. MarkForge uses a **dual-theme** tokenizer:
-
-- **PDF / HTML**: VS Code Dark+ palette — bright, high-contrast colors on dark `#0f172a` backgrounds
-- **DOCX**: GitHub Light palette — deep, readable colors on white backgrounds
+MarkForge includes built-in syntax highlighting palettes: `github-dark`, `github-light`, `dracula`, `monokai`, and `nord`:
 
 ````markdown
 ```typescript
-import { markforge } from "@masumdev/markforge";
+import { compileMarkdown, OutputFormat, Theme } from "@masumdev/markforge";
 
-const result = await markforge("./spec.md", {
-  to: ["docx", "pdf", "html"],
-  theme: "academic",
+const result = await compileMarkdown("./spec.md", {
+  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
+  theme: Theme.CORPORATE,
 });
 ```
-
-```python
-def compile_docs(source: str) -> dict:
-    """Compile a Markdown document via subprocess."""
-    result = subprocess.run(["markforge", source], capture_output=True)
-    return {"status": "SUCCESS", "logs": result.stdout}
-```
-
-```sql
-SELECT id, document_title, duration_ms
-FROM document_compilations
-WHERE status = 'SUCCESS'
-ORDER BY created_at DESC;
-```
 ````
-
-**Supported languages**: `typescript`, `javascript`, `tsx`, `jsx`, `python`, `bash`, `shell`, `sql`, and more.
-
----
-
-## Image Inlining Engine
-
-```markdown
-<!-- Local relative image (embedded as Base64 in DOCX/PDF) -->
-![System Diagram](./assets/architecture.png)
-
-<!-- Remote URL (auto-fetched with exponential backoff retry) -->
-![Cloud Architecture](https://example.com/images/cloud.png)
-
-<!-- Base64 Data URI (used as-is) -->
-![Logo](data:image/png;base64,iVBORw0KGgoAAAA...)
-
-<!-- SVG vector (inlined as Base64) -->
-![Icon](./icons/logo.svg)
-```
-
----
-
-## Embedded HTML & CSS
-
-Inline HTML and `<style>` blocks are supported in PDF and HTML outputs:
-
-```markdown
-<style>
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin: 16px 0;
-}
-.metric-card {
-  background: #f8fafc;
-  border-left: 4px solid #33CDCF;
-  padding: 1rem;
-  border-radius: 6px;
-  text-align: center;
-}
-</style>
-
-<div class="metric-grid">
-  <div class="metric-card"><strong>91ms</strong><br>Compilation Time</div>
-  <div class="metric-card"><strong>100%</strong><br>Type Safety</div>
-  <div class="metric-card"><strong>3 Formats</strong><br>DOCX | PDF | HTML</div>
-</div>
-```
 
 ---
 
 ## Programmatic API
 
 <Tabs>
-  <TabItem label="High-level">
-    ```typescript
-    import { markforge } from "@masumdev/markforge";
-
-    const result = await markforge("./specification.md", {
-      to: ["docx", "pdf", "html"],
-      outputDir: "./dist",
-      theme: "academic",
-      metadata: {
-        title: "System Architecture Specification",
-        author: "Ma'sum",
-        version: "2.4.0",
-      },
-    });
-
-    console.log(`✓ ${result.files.length} files in ${result.durationMs}ms`);
-    for (const f of result.files) {
-      console.log(`  [${f.format.toUpperCase()}] ${f.filePath}`);
-    }
-    ```
-  </TabItem>
-  <TabItem label="Low-level">
+  <TabItem label="High-Level (compileMarkdown)">
     ```typescript
     import {
       compileMarkdown,
-      buildPdfDocument,
-      buildDocxDocument,
-      buildHtmlDocument,
+      OutputFormat,
+      Theme,
+      Orientation,
+      PaperSizeEnum,
+      WatermarkPosition,
     } from "@masumdev/markforge";
 
-    // Parse once — build each format independently
-    const { doc, config, baseDir } = await compileMarkdown("./report.md");
+    const result = await compileMarkdown("./specification.md", {
+      to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
+      outputDir: "./dist",
+      theme: Theme.CORPORATE,
+      orientation: Orientation.PORTRAIT,
+      paperSize: PaperSizeEnum.A4,
+      toc: true,
+      watermark: {
+        text: "CONFIDENTIAL",
+        color: "#E11D48",
+        opacity: 0.08,
+        position: WatermarkPosition.DIAGONAL,
+      },
+      metadata: {
+        title: "Platform Reference Manual",
+        author: "Masum RPG",
+        company: "Masum Dev Technologies",
+        version: "1.0.0",
+      },
+    }, (statusMessage) => {
+      console.log(`[PROGRESS] ${statusMessage}`);
+    });
 
-    const pdf  = await buildPdfDocument(doc, config, baseDir);
-    const docx = await buildDocxDocument(doc, config, baseDir);
-    const html = await buildHtmlDocument(doc, config, baseDir);
+    console.log(`✓ Compiled ${result.files.length} documents in ${result.durationMs}ms`);
+    for (const file of result.files) {
+      console.log(`  [${file.format.toUpperCase()}] ${file.filePath} (${file.sizeBytes} bytes)`);
+    }
+    ```
+  </TabItem>
+  <TabItem label="Low-Level (AST & Builders)">
+    ```typescript
+    import * as fs from "node:fs";
+    import {
+      parseMarkdownDocument,
+      buildDocxDocument,
+      buildPdfDocument,
+      buildHtmlDocument,
+      Theme,
+    } from "@masumdev/markforge";
 
-    // Use buffers/strings directly
-    await Bun.write("./dist/report.pdf", pdf);
-    await Bun.write("./dist/report.docx", docx);
-    await Bun.write("./dist/report.html", html);
+    // 1. Read and parse Markdown into AST
+    const rawMarkdown = fs.readFileSync("./report.md", "utf-8");
+    const doc = parseMarkdownDocument(rawMarkdown);
+
+    const config = {
+      theme: Theme.CORPORATE,
+      toc: true,
+      margins: { top: "2.5cm", bottom: "2.5cm", left: "2.5cm", right: "2.5cm" },
+    };
+
+    // 2. Build formats independently
+    const docxBuffer = await buildDocxDocument(doc, config);
+    const pdfBuffer  = await buildPdfDocument(doc, config);
+    const htmlString = await buildHtmlDocument(doc, config);
+
+    // 3. Save files
+    fs.writeFileSync("./dist/report.docx", docxBuffer);
+    fs.writeFileSync("./dist/report.pdf", pdfBuffer);
+    fs.writeFileSync("./dist/report.html", htmlString, "utf-8");
     ```
   </TabItem>
 </Tabs>

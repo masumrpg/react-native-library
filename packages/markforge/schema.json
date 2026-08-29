@@ -27,20 +27,36 @@
     },
     "outputDir": {
       "type": "string",
-      "description": "Output directory for compiled documents"
+      "description": "Output directory where compiled documents will be saved"
     },
     "theme": {
-      "type": "string",
-      "description": "Visual document theme name",
-      "enum": ["default", "academic", "github", "corporate", "minimal", "dracula"],
-      "default": "default"
-    },
-    "css": {
-      "description": "Custom CSS stylesheet path(s) to inject",
+      "description": "Visual document theme (preset 'corporate' or custom ThemeProps object)",
       "oneOf": [
-        { "type": "string" },
-        { "type": "array", "items": { "type": "string" } }
-      ]
+        {
+          "type": "string",
+          "enum": ["corporate", "default"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "primaryColor": { "type": "string" },
+            "primaryDark": { "type": "string" },
+            "primaryLight": { "type": "string" },
+            "backgroundColor": { "type": "string" },
+            "textColor": { "type": "string" },
+            "textMuted": { "type": "string" },
+            "borderColor": { "type": "string" },
+            "cardBackground": { "type": "string" },
+            "codeBackground": { "type": "string" },
+            "codeText": { "type": "string" },
+            "fontFamily": { "type": "string" },
+            "fontMono": { "type": "string" },
+            "customCss": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "default": "corporate"
     },
     "orientation": {
       "type": "string",
@@ -50,13 +66,13 @@
     },
     "paperSize": {
       "type": "string",
-      "description": "Physical page size",
+      "description": "Standard physical paper size",
       "enum": ["A4", "Letter", "Legal", "A3", "A5"],
       "default": "A4"
     },
     "margins": {
       "type": "object",
-      "description": "Document margins (supports units like '2.5cm', '1in', '20mm', or pt numbers)",
+      "description": "Document page margins (supports units like '2.5cm', '1in', '20mm', or pt numbers)",
       "properties": {
         "top": { "type": ["string", "number"] },
         "bottom": { "type": ["string", "number"] },
@@ -67,21 +83,133 @@
     },
     "header": {
       "type": "object",
-      "description": "Header text across pages",
+      "description": "Running header template across document pages (supports {title}, {subtitle}, {author}, {version}, {date}, {company})",
       "properties": {
-        "left": { "type": "string" },
-        "center": { "type": "string" },
-        "right": { "type": "string" }
+        "left": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "center": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "right": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "divider": { "type": "boolean" },
+        "dividerColor": { "type": "string" },
+        "font": { "type": "string" },
+        "size": { "type": "number" },
+        "color": { "type": "string" }
       },
       "additionalProperties": false
     },
     "footer": {
       "type": "object",
-      "description": "Footer text across pages (supports {page} and {pages} variables)",
+      "description": "Running footer template across document pages (supports {page}, {pages}, {title}, {author}, {date})",
       "properties": {
-        "left": { "type": "string" },
-        "center": { "type": "string" },
-        "right": { "type": "string" }
+        "left": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "center": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "right": {
+          "oneOf": [
+            { "type": "string" },
+            {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "color": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "fontFamily": { "type": "string" },
+                "bold": { "type": "boolean" },
+                "italic": { "type": "boolean" }
+              },
+              "required": ["text"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "divider": { "type": "boolean" },
+        "dividerColor": { "type": "string" },
+        "font": { "type": "string" },
+        "size": { "type": "number" },
+        "color": { "type": "string" }
       },
       "additionalProperties": false
     },
@@ -91,8 +219,60 @@
       "default": false
     },
     "watermark": {
+      "description": "Watermark configuration across document pages (string or WatermarkOptions object)",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" },
+            "color": { "type": "string" },
+            "opacity": { "type": "number" },
+            "fontSize": { "type": "number" },
+            "rotate": { "type": "number" },
+            "position": {
+              "type": "string",
+              "enum": ["diagonal", "center", "top-right", "bottom-right"]
+            }
+          },
+          "required": ["text"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "css": {
+      "description": "Custom CSS stylesheet path(s) to inject into the document",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "syntaxTheme": {
       "type": "string",
-      "description": "Diagonal watermark text across document pages"
+      "description": "Code block syntax highlighting color theme",
+      "enum": ["github-dark", "github-light", "dracula", "monokai", "nord"],
+      "default": "github-dark"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Default document metadata dictionary (used as fallback if not in markdown frontmatter)",
+      "properties": {
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "author": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "date": { "type": "string" },
+        "version": { "type": "string" },
+        "company": { "type": "string" },
+        "lang": { "type": "string" },
+        "coverPage": { "type": "boolean" }
+      },
+      "additionalProperties": true
     },
     "embedImages": {
       "type": "boolean",
@@ -103,24 +283,6 @@
       "type": "boolean",
       "description": "Produce self-contained HTML with embedded styles and scripts",
       "default": true
-    },
-    "syntaxTheme": {
-      "type": "string",
-      "description": "Code block syntax highlighting color scheme",
-      "enum": ["github-dark", "github-light", "dracula", "monokai", "nord"],
-      "default": "github-dark"
-    },
-    "metadata": {
-      "type": "object",
-      "description": "Document frontmatter metadata defaults",
-      "properties": {
-        "title": { "type": "string" },
-        "author": { "type": "string" },
-        "date": { "type": "string" },
-        "version": { "type": "string" },
-        "company": { "type": "string" }
-      },
-      "additionalProperties": true
     },
     "watch": {
       "type": "boolean",
