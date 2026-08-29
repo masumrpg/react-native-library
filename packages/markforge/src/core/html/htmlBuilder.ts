@@ -3,8 +3,9 @@ import * as path from "node:path";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
-import { THEMES, THEME_COMPONENTS } from "./htmlThemes.js";
+import { generateThemeCss, THEME_COMPONENTS } from "./htmlThemes.js";
 import { highlightCodeToHtml } from "../syntax/syntaxHighlighter.js";
+import { resolveDocumentConfig } from "../../config/resolveConfig.js";
 
 /**
  * Escapes HTML characters safely.
@@ -89,19 +90,15 @@ export async function buildHtmlDocument(
   config: MarkforgeConfig,
   baseDir: string = process.cwd()
 ): Promise<string> {
-  const metadata = { ...config.metadata, ...doc.metadata };
-  const themeName = metadata.theme || config.theme || "default";
-  const baseThemeCss = THEMES[themeName] || THEMES.default;
+  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const baseThemeCss = generateThemeCss(resolved.theme);
 
   // Load custom external CSS if provided
   let customCss = "";
-  if (config.css) {
-    const cssList = Array.isArray(config.css) ? config.css : [config.css];
-    for (const cssPath of cssList) {
-      const fullCssPath = path.isAbsolute(cssPath) ? cssPath : path.resolve(baseDir, cssPath);
-      if (fs.existsSync(fullCssPath)) {
-        customCss += `\n/* Custom CSS: ${cssPath} */\n` + fs.readFileSync(fullCssPath, "utf-8");
-      }
+  for (const cssPath of resolved.css) {
+    const fullCssPath = path.isAbsolute(cssPath) ? cssPath : path.resolve(baseDir, cssPath);
+    if (fs.existsSync(fullCssPath)) {
+      customCss += `\n/* Custom CSS: ${cssPath} */\n` + fs.readFileSync(fullCssPath, "utf-8");
     }
   }
 
@@ -110,21 +107,23 @@ export async function buildHtmlDocument(
 
   let bodyHtml = "";
 
-  // 1. Header Area if metadata exists
-  if (metadata.title) {
+  // 1. Header Area if title exists
+  if (resolved.title) {
     bodyHtml += `  <header class="document-header">\n`;
-    bodyHtml += `    <h1 class="document-title">${escapeHtml(metadata.title)}</h1>\n`;
-    if (metadata.subtitle) {
-      bodyHtml += `    <div class="document-subtitle">${escapeHtml(metadata.subtitle)}</div>\n`;
+    bodyHtml += `    <h1 class="document-title">${escapeHtml(resolved.title)}</h1>\n`;
+    if (resolved.subtitle) {
+      bodyHtml += `    <div class="document-subtitle">${escapeHtml(resolved.subtitle)}</div>\n`;
     }
-    if (metadata.author || metadata.date) {
+    if (resolved.author || resolved.date || resolved.version) {
       bodyHtml += `    <div class="document-meta">\n`;
-      if (metadata.author) {
-        const authors = Array.isArray(metadata.author) ? metadata.author.join(", ") : metadata.author;
-        bodyHtml += `      <span>Author: ${escapeHtml(authors)}</span>\n`;
+      if (resolved.author) {
+        bodyHtml += `      <span>Author: ${escapeHtml(resolved.author)}</span>\n`;
       }
-      if (metadata.date) {
-        bodyHtml += `      <span>Date: ${escapeHtml(metadata.date)}</span>\n`;
+      if (resolved.version) {
+        bodyHtml += `      <span>Version: ${escapeHtml(resolved.version)}</span>\n`;
+      }
+      if (resolved.date) {
+        bodyHtml += `      <span>Date: ${escapeHtml(resolved.date)}</span>\n`;
       }
       bodyHtml += `    </div>\n`;
     }
@@ -132,16 +131,14 @@ export async function buildHtmlDocument(
   }
 
   // 2. Table of Contents if enabled
-  if (config.toc || metadata.toc) {
-    if (doc.tocEntries.length > 0) {
-      bodyHtml += `  <nav class="table-of-contents">\n`;
-      bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
-      for (const entry of doc.tocEntries) {
-        const indent = "  ".repeat(entry.level);
-        bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
-      }
-      bodyHtml += `    </ul>\n  </nav>\n`;
+  if (resolved.toc && doc.tocEntries.length > 0) {
+    bodyHtml += `  <nav class="table-of-contents">\n`;
+    bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
+    for (const entry of doc.tocEntries) {
+      const indent = "  ".repeat(entry.level);
+      bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
     }
+    bodyHtml += `    </ul>\n  </nav>\n`;
   }
 
   // 3. Render AST Nodes
@@ -161,7 +158,7 @@ export async function buildHtmlDocument(
     if (node.type === "codeBlock") {
       const lang = node.language || "";
       const langClass = lang ? ` class="language-${escapeHtml(lang)}"` : "";
-      const highlighted = highlightCodeToHtml(node.text || "", lang);
+      const highlighted = highlightCodeToHtml(node.text || "", lang, resolved.syntaxTheme);
       bodyHtml += `  <pre><code${langClass}>${highlighted}</code></pre>\n`;
       continue;
     }
@@ -199,14 +196,11 @@ export async function buildHtmlDocument(
       bodyHtml += `  <table>\n`;
       for (const row of node.children) {
         bodyHtml += `    <tr>\n`;
-        if (row.children) {
-          for (let colIdx = 0; colIdx < row.children.length; colIdx++) {
-            const cell = row.children[colIdx];
-            const tag = row.isHeader ? "th" : "td";
-            const align = node.align?.[colIdx] ? ` style="text-align: ${node.align[colIdx]}"` : "";
-            const cellInner = await renderInlinesToHtml(cell.inlines, baseDir);
-            bodyHtml += `      <${tag}${align}>${cellInner}</${tag}>\n`;
-          }
+        for (const cell of row.children || []) {
+          const tag = cell.isHeader ? "th" : "td";
+          const align = cell.align ? ` align="${cell.align}"` : "";
+          const inner = await renderInlinesToHtml(cell.inlines, baseDir);
+          bodyHtml += `      <${tag}${align}>${inner}</${tag}>\n`;
         }
         bodyHtml += `    </tr>\n`;
       }
@@ -218,19 +212,10 @@ export async function buildHtmlDocument(
       const tag = node.ordered ? "ol" : "ul";
       bodyHtml += `  <${tag}>\n`;
       for (const item of node.children) {
-        const itemInner = await renderInlinesToHtml(item.inlines, baseDir);
-        let prefix = "";
-        if (item.checked !== undefined) {
-          prefix = `<input type="checkbox" disabled ${item.checked ? "checked" : ""}/> `;
-        }
-        bodyHtml += `    <li>${prefix}${itemInner}</li>\n`;
+        const inner = await renderInlinesToHtml(item.inlines, baseDir);
+        bodyHtml += `    <li>${inner}</li>\n`;
       }
       bodyHtml += `  </${tag}>\n`;
-      continue;
-    }
-
-    if (node.type === "htmlBlock") {
-      bodyHtml += `  ${node.rawHtml}\n`;
       continue;
     }
 
@@ -238,38 +223,41 @@ export async function buildHtmlDocument(
       bodyHtml += `  <hr />\n`;
       continue;
     }
+
+    if (node.type === "htmlBlock") {
+      bodyHtml += `  ${node.text}\n`;
+      continue;
+    }
   }
 
-  // Watermark support (only when explicitly configured)
-  const wmConfig = config.watermark ?? metadata.watermark;
-  let watermarkHtml = "";
+  // 4. Watermark if enabled
   let watermarkCss = "";
-  if (wmConfig) {
-    const wmText = typeof wmConfig === "string" ? wmConfig : wmConfig.text;
-    const opacity = typeof wmConfig === "object" && wmConfig.opacity !== undefined ? wmConfig.opacity : 0.12;
-    const rotate = typeof wmConfig === "object" && wmConfig.rotate !== undefined ? wmConfig.rotate : -45;
-    const color = typeof wmConfig === "object" && wmConfig.color ? wmConfig.color : "#94A3B8";
-    const fontSize = typeof wmConfig === "object" && wmConfig.fontSize ? `${wmConfig.fontSize}pt` : "52pt";
-
+  let watermarkHtml = "";
+  if (resolved.watermark) {
+    const wm = resolved.watermark;
     watermarkCss = `
   .document-watermark {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) rotate(${rotate}deg);
-    font-size: ${fontSize};
-    font-weight: 800;
-    color: ${color};
-    opacity: ${opacity};
+    transform: translate(-50%, -50%) rotate(${wm.rotate}deg);
+    font-size: ${wm.fontSize}pt;
+    font-weight: 900;
+    color: ${wm.color};
+    opacity: ${wm.opacity};
     pointer-events: none;
+    z-index: 0;
     user-select: none;
-    z-index: 9999;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     white-space: nowrap;
   }
+  .document-container {
+    position: relative;
+    z-index: 1;
+  }
   `;
-    watermarkHtml = `  <div class="document-watermark">${escapeHtml(wmText)}</div>\n`;
+    watermarkHtml = `  <div class="document-watermark">${escapeHtml(wm.text)}</div>\n`;
   }
 
   const hasMermaid = doc.nodes.some((n) => n.type === "mermaid");
@@ -291,14 +279,12 @@ export async function buildHtmlDocument(
   </script>`
     : "";
 
-  const documentTitle = metadata.title || "MarkForge Document";
-
   return `<!DOCTYPE html>
-<html lang="${metadata.lang || "en"}">
+<html lang="${resolved.lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(documentTitle)}</title>
+  <title>${escapeHtml(resolved.title)}</title>
   <style>
 ${THEME_COMPONENTS}
 ${baseThemeCss}

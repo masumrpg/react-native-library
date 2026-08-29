@@ -2,12 +2,16 @@ import React from "react";
 import { Box, Text } from "ink";
 import { MARKFORGE_VERSION } from "../version.js";
 
+import type { MarkforgeTheme } from "../config/types.js";
+
 export interface HeaderProps {
   inputFile?: string;
-  theme?: string;
+  theme?: MarkforgeTheme;
 }
 
-export const Header: React.FC<HeaderProps> = ({ inputFile, theme = "default" }) => {
+export const Header: React.FC<HeaderProps> = ({ inputFile, theme = "corporate" }) => {
+  const themeLabel = typeof theme === "object" ? "custom (ThemeProps)" : String(theme || "corporate");
+
   return (
     <Box flexDirection="column" marginY={1}>
       <Box
@@ -33,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({ inputFile, theme = "default" }) 
         )}
         <Box>
           <Text color="gray">Theme:  </Text>
-          <Text color="blue">{theme}</Text>
+          <Text color="blue">{themeLabel}</Text>
         </Box>
       </Box>
     </Box>

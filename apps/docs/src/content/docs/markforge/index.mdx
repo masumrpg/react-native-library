@@ -6,28 +6,28 @@ sidebar:
 description: Modern, high-performance Markdown & MDX multi-format publishing engine. Convert Markdown to DOCX, PDF, and HTML with Mermaid diagrams, callout boxes, syntax highlighting, and a beautiful Ink terminal UI.
 ---
 
-import { Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
 
-**MarkForge** is a high-performance Markdown & MDX document publishing engine and CLI. It converts a single Markdown source into pixel-perfect **Microsoft Word (DOCX)**, **PDF**, and **standalone HTML** — with Mermaid diagrams, GitHub-style callout boxes, dual-theme syntax highlighting, image inlining, and a beautiful Ink terminal UI.
+**MarkForge** is an enterprise-grade Markdown & MDX document publishing engine and CLI. It compiles a single Markdown source into pixel-perfect **Microsoft Word (DOCX)**, **PDF**, and **standalone HTML** — with native Mermaid diagrams, GitHub-style callout alert boxes, dual-theme syntax highlighting, customizable `ThemeProps`, per-zone header/footer slots, and an interactive Ink terminal UI.
 
 <CardGrid>
   <Card title="📄 Multi-Format Output" icon="document">
     Generate `.docx`, `.pdf`, and `.html` simultaneously from a single Markdown source.
   </Card>
-  <Card title="🎨 Mermaid Diagrams" icon="seti:graphql">
-    Flowcharts, sequence diagrams, gantt charts, and class diagrams — rendered and embedded in all formats.
+  <Card title="🎨 Theme.CORPORATE & ThemeProps" icon="palette">
+    Flagship cyan corporate design system + full custom colors and fonts via `ThemeProps`.
+  </Card>
+  <Card title="📐 Per-Zone Header & Footer" icon="setting">
+    Granular color, font size, font family, bold, and italic controls per `left`, `center`, and `right` slot.
+  </Card>
+  <Card title="📊 Mermaid Diagrams" icon="seti:graphql">
+    Flowcharts, sequence diagrams, gantt charts, and class diagrams — rendered and embedded natively.
   </Card>
   <Card title="📢 Callout / Alert Boxes" icon="warning">
-    GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` with full color styling.
+    GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` with rich colored styling.
   </Card>
   <Card title="🌈 Dual Syntax Highlighting" icon="seti:typescript">
-    Dark theme for PDF/HTML, Light theme for DOCX — automatically selected per format.
-  </Card>
-  <Card title="🖼️ Image Inlining Engine" icon="seti:image">
-    Resolves local paths, remote URLs (auto-fetched), Base64 data URIs, and SVG vectors.
-  </Card>
-  <Card title="📐 Header & Footer Zones" icon="information">
-    Left / Center / Right multi-zone headers and footers with `{title}`, `{page}`, `{pages}` tokens.
+    Dark theme for PDF/HTML, Light theme for DOCX — optimized per document format.
   </Card>
 </CardGrid>
 
@@ -51,43 +51,66 @@ import { Card, CardGrid, Badge } from '@astrojs/starlight/components';
 | Horizontal rules | ✅ | ✅ | ✅ |
 | Bold, italic, strikethrough | ✅ | ✅ | ✅ |
 | Auto Table of Contents | ✅ | ✅ | ✅ |
-| **Header & Footer (multi-zone)** | ✅ | ✅ | — |
+| **Header & Footer (per-zone slots)** | ✅ | ✅ | — |
 | Embedded `<style>` / HTML | — | ✅ | ✅ |
-| **Watermark** | ✅ | ✅ | — |
+| **Watermark (background layer)** | ✅ | ✅ | — |
 
 ---
 
-## Built-in Themes
+## Document Theming
 
-| Theme | Description |
-| :--- | :--- |
-| `default` | Blu by BCA Digital cyan palette, modern sans-serif |
-| `academic` | Serif typography (Merriweather), justified text for formal papers |
-| `github` | GitHub Markdown rendering style |
-| `corporate` | Clean professional layout |
-| `minimal` | Minimal whitespace-focused design |
-| `dracula` | Dark-mode inspired color scheme |
+MarkForge uses **`Theme.CORPORATE`** as its flagship built-in theme (featuring the clean Blu-by-BCA-Digital cyan palette). You can also pass a typed **`ThemeProps`** object to configure custom background colors, text tones, brand accents, and typography:
 
-All themes inherit a shared **`THEME_COMPONENTS`** base layer that provides consistent callout boxes, code blocks, tables, and TOC styles — so switching themes never breaks component styling.
+```typescript
+// markforge.config.ts
+import { defineConfig, Theme } from "@masumdev/markforge";
+
+export default defineConfig({
+  theme: Theme.CORPORATE, // Flagship preset
+});
+```
+
+```typescript
+// Custom ThemeProps
+export default defineConfig({
+  theme: {
+    primaryColor: "#0D998D",
+    primaryDark: "#008073",
+    primaryLight: "#D9F1F0",
+    backgroundColor: "#FFFFFF",
+    textColor: "#0F172A",
+    textMuted: "#64748B",
+    borderColor: "#E2E8F0",
+    cardBackground: "#F8FAFC",
+    fontFamily: "'Inter', sans-serif",
+    fontMono: "'Fira Code', monospace",
+  },
+});
+```
+
+All themes inherit a shared **`THEME_COMPONENTS`** foundation layer providing consistent callout alert boxes, code blocks, tables, and TOC styles.
 
 ---
 
 ## Quick Example
 
 ```bash
-markforge spec.md --to docx,pdf,html --theme academic -o ./dist
+markforge spec.md --to docx,pdf,html -o ./dist
 ```
 
 ```markdown
 ---
 title: "Enterprise System Specification"
-author: "Ma'sum"
-version: "2.4.0"
-theme: "default"
+author: "Masum Dev"
+version: "1.0.0"
+theme: "corporate"
 toc: true
 header:
-  left: "My Company"
-  right: "{title}"
+  left:
+    text: "Masum Dev Technologies"
+    color: "#0D998D"
+    bold: true
+  right: "v{version}"
 footer:
   right: "Page {page} of {pages}"
 ---
@@ -101,6 +124,9 @@ footer:
 
 ```mermaid
 flowchart LR
-  A[Markdown] --> B[AST Parser]
-  B --> C[DOCX] & D[PDF] & E[HTML]
+    MD[Markdown Source] --> P[MarkForge Parser]
+    P --> DOCX[Word DOCX]
+    P --> PDF[Vector PDF]
+    P --> HTML[Bundled HTML]
+```
 ```

@@ -95,4 +95,67 @@ describe("config", () => {
   it("loadConfig throws error if explicit file path does not exist", async () => {
     expect(loadConfig("/non/existent/path/markforge.json")).rejects.toThrow();
   });
+
+  it("resolveDocumentConfig correctly resolves priority, replaces tokens, and normalizes margins/watermark", async () => {
+    const { resolveDocumentConfig, replaceDocumentTokens, normalizeWatermark } = await import(
+      "../src/config/resolveConfig.js"
+    );
+
+    // 1. Token replacement test
+    const tokenStr = replaceDocumentTokens("{title} by {author} (v{version}) - {company}", {
+      title: "API Manual",
+      author: "Masum",
+      version: "1.2.0",
+      company: "Masum Dev",
+    });
+    expect(tokenStr).toBe("API Manual by Masum (v1.2.0) - Masum Dev");
+
+    // 2. Watermark normalization
+    const wmString = normalizeWatermark("CONFIDENTIAL");
+    expect(wmString?.text).toBe("CONFIDENTIAL");
+    expect(wmString?.rotate).toBe(-45);
+    expect(wmString?.opacity).toBe(0.08);
+
+    const wmObj = normalizeWatermark({ text: "INTERNAL", opacity: 0.2, rotate: 0 });
+    expect(wmObj?.text).toBe("INTERNAL");
+    expect(wmObj?.opacity).toBe(0.2);
+    expect(wmObj?.rotate).toBe(0);
+
+    expect(normalizeWatermark(false)).toBeUndefined();
+    expect(normalizeWatermark(undefined)).toBeUndefined();
+
+    // 3. Full document resolution (Frontmatter overrides userConfig and DEFAULT_CONFIG)
+    const resolved = resolveDocumentConfig(
+      {
+        title: "Frontmatter Title",
+        theme: "academic",
+        margins: { top: "3.5cm" },
+        watermark: "DRAFT",
+      },
+      {
+        theme: "minimal",
+        margins: { top: "2cm", bottom: "1.5cm" },
+        metadata: {
+          author: "Monorepo Team",
+          version: "2.0.0",
+        },
+        header: {
+          left: "{title}",
+          right: "{author}",
+        },
+      }
+    );
+
+    expect(resolved.title).toBe("Frontmatter Title");
+    expect(resolved.author).toBe("Monorepo Team");
+    expect(resolved.version).toBe("2.0.0");
+    expect(resolved.theme).toBe("academic"); // Frontmatter overrides userConfig
+    expect(resolved.margins.top).toBe("3.5cm"); // Frontmatter overrides
+    expect(resolved.margins.bottom).toBe("1.5cm"); // userConfig fallback preserved
+    expect(resolved.margins.left).toBe("2.5cm"); // default fallback preserved
+    expect(resolved.header?.left?.text).toBe("Frontmatter Title"); // token replaced!
+    expect(resolved.header?.right?.text).toBe("Monorepo Team"); // token replaced!
+    expect(resolved.watermark?.text).toBe("DRAFT");
+  });
 });
+

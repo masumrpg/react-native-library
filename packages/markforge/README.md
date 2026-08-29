@@ -2,8 +2,8 @@
 
 # @masumdev/markforge
 
-**Modern, high-performance Markdown & MDX multi-format publishing engine & CLI.**  
-Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with syntax highlighting, Mermaid diagrams, callout boxes, and a beautiful Ink terminal UI.
+**Enterprise Markdown & MDX Multi-Format Publishing Engine & CLI.**  
+Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native typography, syntax highlighting, Mermaid diagrams, callout boxes, customizable `ThemeProps`, and an interactive Ink terminal UI.
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -18,381 +18,282 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with syntax 
 
 | Feature | Description |
 | :--- | :--- |
-| 📄 **Multi-Format Output** | Generate `.docx`, `.pdf`, and `.html` from a single Markdown source |
-| 🎨 **Mermaid Diagrams** | Full Mermaid.js support — flowcharts, sequence, gantt, class diagrams |
-| 📢 **Callout / Alert Boxes** | GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]` |
-| 🌈 **Dual Syntax Highlighting** | Dark theme for PDF/HTML, Light theme for DOCX — 100% readable in both |
-| 🖼️ **Image Inlining Engine** | Auto-resolves local paths, remote URLs, Base64 URIs, and SVGs |
-| 📑 **Auto Table of Contents** | Anchored TOC generated from heading structure |
-| 📐 **Header & Footer Zones** | Left / Center / Right multi-zone headers and footers per format |
-| 🎨 **Curated Themes** | `default`, `academic`, `github`, `corporate`, `minimal`, `dracula` |
-| 💧 **Watermark Support** | Optional configurable watermark (position, opacity, text) — off by default |
-| ⚙️ **Type-Safe Config** | `markforge.config.ts`, `.markforgerc.json`, or YAML with JSON Schema |
-| 🚀 **Programmatic API** | Full TypeScript API for Node.js & Bun integration |
-| 🖥️ **Ink Terminal UI** | Rich interactive TUI with progress indicators and build summary |
+| 📄 **Multi-Format Output** | Generate `.docx`, `.pdf`, and `.html` from a single Markdown source simultaneously |
+| 🎨 **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system + full custom colors & fonts via `ThemeProps` |
+| 📐 **Per-Zone Header & Footer** | Granular color, font size, font family, bold & italic controls per `left`, `center`, `right` slot |
+| 📊 **Mermaid Diagrams** | Full Mermaid.js diagram engine — flowcharts, sequence, state, class, gantt |
+| 📢 **Callout / Alert Boxes** | GitHub-style `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` |
+| 🌈 **Syntax Highlighting** | Tokenized multi-language code blocks (`dracula`, `github-dark`, `monokai`, `nord`, etc.) |
+| 🖼️ **Image Inlining Engine** | Resolves local files, remote URLs, Base64 data URIs, and SVGs into embedded assets |
+| 📑 **Auto Table of Contents** | Anchored TOC generated from heading structure (`#` to `####`) |
+| 💧 **Non-Intrusive Watermark** | Background-layer watermark with custom text, color, opacity, rotation, and position |
+| ⚙️ **Type-Safe Config** | `markforge.config.ts` with Enums, `.markforgerc.json`, or YAML with JSON Schema |
+| 🚀 **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js & Bun |
+| 🖥️ **Ink Terminal UI** | Interactive TUI with live spinners, progress tracking, and compilation metrics |
 
 ---
 
 ## 📦 Installation
 
 ```bash
-# Global CLI
+# Global CLI Installation
 npm install -g @masumdev/markforge
+# or with bun:
 bun add -g @masumdev/markforge
 
-# Dev dependency
+# Project Local Dependency
 npm install -D @masumdev/markforge
+# or with bun:
 bun add -d @masumdev/markforge
 ```
 
 ---
 
-## 🚀 Quick Start
+## 💻 CLI Usage
 
 ```bash
-# Convert to DOCX + PDF (default)
+# Basic conversion to DOCX and PDF (defaults)
 markforge document.md
 
-# Specify output formats
+# Specify target formats and output folder
 markforge document.md --to docx,pdf,html -o ./dist
 
-# Use a theme and custom CSS
-markforge report.md --theme academic --css ./styles/corp.css
+# Use custom CSS styling and force Table of Contents
+markforge specification.md --css ./styles/custom.css --toc
 
-# Force Table of Contents
-markforge specification.md --toc
+# Watch mode for live re-compilation
+markforge report.md --watch
 
-# Watch mode
-markforge document.md --watch
+# Launch local preview server and open in browser
+markforge document.md --serve --port 4000 --open
 ```
+
+### CLI Flags Reference
+
+| Flag | Alias | Description | Default |
+| :--- | :---: | :--- | :--- |
+| `<file>` | | Markdown input file path | **Required** |
+| `--to <formats...>` | `-t` | Output formats: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
+| `--output <dir>` | `-o` | Output directory | Same as input file |
+| `--config <file>` | `-c` | Explicit configuration file path | Auto-discovered |
+| `--theme <name>` | | Visual theme preset (`corporate`, `default`) | `corporate` |
+| `--css <files...>` | | Custom CSS stylesheets to inject | `undefined` |
+| `--orientation <type>` | | Page orientation (`portrait`, `landscape`) | `portrait` |
+| `--paper-size <size>` | | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) | `A4` |
+| `--toc` | | Force Table of Contents generation | `false` |
+| `--watermark <text>` | | Document watermark text | `undefined` |
+| `--syntax-theme <theme>`| | Code syntax highlighting theme | `github-dark` |
+| `--watch` | `-w` | Watch input file and re-compile on change | `false` |
+| `--serve` | | Start local HTTP preview server | `false` |
+| `--port <number>` | `-p` | Local preview server port | `4000` |
+| `--open` | | Automatically open browser on preview | `false` |
+| `--version` | `-V` | Output version number | |
+| `--help` | `-h` | Display CLI help menu | |
 
 ---
 
-## 🖊️ Markdown Source Features
+## ⚙️ Configuration (`markforge.config.ts`)
 
-### Callout / Alert Boxes
+MarkForge supports type-safe configuration with full TypeScript Enums:
 
-MarkForge supports GitHub-style alert syntax with full color-coded styling in all output formats:
-
-```markdown
-> [!NOTE]
-> This is a note — rendered with cyan left border.
-
-> [!TIP]
-> This is a tip — rendered with green styling.
-
-> [!IMPORTANT]
-> Critical information — rendered with purple styling.
-
-> [!WARNING]
-> A warning — rendered with amber/yellow styling.
-
-> [!CAUTION]
-> High-risk action — rendered with red styling.
-```
-
-### Mermaid Diagrams
-
-Mermaid code blocks are automatically rendered into images embedded in all output formats:
-
-````markdown
-```mermaid
-flowchart LR
-  A[Markdown Source] --> B[AST Parser]
-  B --> C[DOCX Builder]
-  B --> D[PDF Builder]
-  B --> E[HTML Builder]
-```
-````
-
-### Syntax-Highlighted Code Blocks
-
-All common languages are supported with proper token coloring:
-
-````markdown
 ```typescript
-import { markforge } from "@masumdev/markforge";
+import {
+  defineConfig,
+  OutputFormat,
+  Theme,
+  Orientation,
+  PaperSizeEnum,
+  SyntaxTheme,
+  WatermarkPosition,
+} from "@masumdev/markforge";
 
-const result = await markforge("./spec.md", { to: ["pdf", "docx"] });
+export default defineConfig({
+  // Target output formats
+  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
+
+  // Output destination directory
+  outputDir: ".temp/output-docs",
+
+  // Visual document theme (Theme.CORPORATE preset or a custom ThemeProps object)
+  theme: Theme.CORPORATE,
+
+  // Page orientation & standard physical paper size
+  orientation: Orientation.PORTRAIT,
+  paperSize: PaperSizeEnum.A4,
+
+  // Document page margins
+  margins: {
+    top: "3cm",
+    bottom: "2.5cm",
+    left: "2.5cm",
+    right: "2.5cm",
+  },
+
+  // Running headers with dynamic tokens & per-zone slot styling
+  header: {
+    left: {
+      text: "{company} - {title}",
+      color: "#0D998D",
+      fontSize: 9,
+      fontFamily: "Inter, Segoe UI, sans-serif",
+      bold: true,
+    },
+    center: "Internal Technical Guide",
+    right: {
+      text: "v{version}",
+      color: "#94A3B8",
+      fontSize: 8.5,
+      italic: true,
+    },
+    divider: true,
+    dividerColor: "#CBD5E1",
+  },
+
+  // Running footers with dynamic page numbering & per-zone slot styling
+  footer: {
+    left: {
+      text: "Author: {author}",
+      color: "#64748B",
+      fontSize: 8.5,
+    },
+    center: {
+      text: "{date}",
+      color: "#94A3B8",
+      fontSize: 8.5,
+      italic: true,
+    },
+    right: {
+      text: "Page {page} of {pages}",
+      color: "#0D998D",
+      fontSize: 9,
+      bold: true,
+    },
+    divider: true,
+    dividerColor: "#CBD5E1",
+  },
+
+  // Automatic Table of Contents
+  toc: true,
+
+  // Watermark configuration (placed at lowest background layer)
+  watermark: {
+    text: "CONFIDENTIAL DRAFT",
+    color: "#E11D48",
+    opacity: 0.1,
+    fontSize: 52,
+    rotate: -45,
+    position: WatermarkPosition.DIAGONAL,
+  },
+
+  // Syntax highlighting theme
+  syntaxTheme: SyntaxTheme.DRACULA,
+
+  // Asset embedding & bundling flags
+  embedImages: true,
+  bundleHtml: true,
+
+  // Global document metadata
+  metadata: {
+    title: "Unified Platform Architecture & Document Suite",
+    subtitle: "Enterprise Specification & Feature Validation Guide",
+    author: "Masum RPG",
+    company: "Masum Dev Technologies",
+    version: "1.0.0",
+    date: "2026-08-29",
+    lang: "en",
+  },
+});
 ```
-````
-
-**Dual-theme coloring:**
-- **PDF / HTML**: VS Code Dark+ palette (bright colors on dark background)
-- **DOCX**: GitHub Light palette (deep colors on white background)
-
-### Table of Contents
-
-Add `toc: true` in frontmatter or use `--toc` CLI flag to auto-generate:
-
-```markdown
----
-toc: true
----
-
-# My Document
-```
 
 ---
 
-## 📋 Frontmatter Reference
+## 🎨 Custom Theme Customization (`ThemeProps`)
 
-```markdown
----
-title: "Enterprise Architecture Specification"
-subtitle: "Cloud & Edge Infrastructure — Q3 2026"
-author: "Ma'sum"
-version: "2.4.0"
-date: "2026-08-27"
-theme: "default"          # default | academic | github | corporate | minimal | dracula
-toc: true                 # auto-generate Table of Contents
-orientation: "portrait"   # portrait | landscape
-paperSize: "A4"           # A4 | letter | legal
-watermark:
-  enabled: false          # no watermark by default
-  text: "CONFIDENTIAL"
-  opacity: 0.08
-  position: "diagonal"    # diagonal | center | top-left | top-right | bottom-left | bottom-right
-header:
-  left: "My Company"
-  center: "{title}"
-  right: "Version {version}"
-footer:
-  left: "Confidential"
-  right: "Page {page} of {pages}"
----
-```
-
----
-
-## ⚙️ Configuration Reference
-
-MarkForge automatically discovers configuration files starting from the input file's directory up to the workspace root, or via the `-c, --config <path>` CLI flag.
-
-### 1. TypeScript (`markforge.config.ts`)
+You can completely rebrand all document styling by passing a `ThemeProps` object:
 
 ```typescript
 import { defineConfig } from "@masumdev/markforge";
 
 export default defineConfig({
-  // Output formats: "docx" | "pdf" | "html"
-  to: ["docx", "pdf", "html"],
-  outputDir: "./dist/documents",
-
-  // Theme: "default" | "academic" | "github" | "corporate" | "minimal" | "dracula"
-  theme: "academic",
-
-  // Custom CSS stylesheet(s) to inject
-  css: ["./styles/custom.css"],
-
-  // Page layout & dimensions
-  orientation: "portrait", // "portrait" | "landscape"
-  paperSize: "A4",         // "A4" | "Letter" | "Legal" | "A3" | "A5"
-  margins: {
-    top: "2.5cm",
-    bottom: "2.5cm",
-    left: "3cm",
-    right: "3cm",
+  theme: {
+    primaryColor: "#0D998D",
+    primaryDark: "#008073",
+    primaryLight: "#D9F1F0",
+    backgroundColor: "#0F172A",
+    textColor: "#E2E8F0",
+    textMuted: "#94A3B8",
+    borderColor: "#334155",
+    cardBackground: "#1E293B",
+    codeBackground: "#020617",
+    codeText: "#E2E8F0",
+    fontFamily: "'Inter', sans-serif",
+    fontMono: "'Fira Code', monospace",
   },
-
-  // Multi-zone header & footer (supports tokens: {title}, {author}, {version}, {date}, {page}, {pages})
-  header: {
-    left: "Enterprise Architecture",
-    center: "{title}",
-    right: "v{version}",
-  },
-  footer: {
-    left: "Confidential — Internal Use Only",
-    right: "Page {page} of {pages}",
-  },
-
-  // Document features
-  toc: true,                 // Auto-generate Table of Contents
-  embedImages: true,         // Embed/inline all images as Base64 data URIs
-  bundleHtml: true,          // Self-contained HTML with embedded styles and scripts
-  syntaxTheme: "github-dark", // "github-dark" | "github-light" | "dracula" | "monokai" | "nord"
-
-  // Diagonal page watermark
-  watermark: "CONFIDENTIAL",
-
-  // Default document metadata
-  metadata: {
-    title: "System Architecture Specification",
-    author: "Ma'sum",
-    version: "1.0.0",
-    company: "My Organization",
-  },
-
-  // Server & watch options
-  watch: false,
-  serve: false,
-  port: 4000,
-  open: false,
 });
 ```
 
-### 2. JSON with `$schema` (`markforge.config.json`)
-
-Adding `$schema` enables **instant autocompletion and validation** in VS Code, WebStorm, and other IDEs:
-
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/masumdev/react-native-library/main/packages/markforge/schema.json",
-  "to": ["docx", "pdf", "html"],
-  "outputDir": "./dist/documents",
-  "theme": "academic",
-  "orientation": "portrait",
-  "paperSize": "A4",
-  "margins": {
-    "top": "2.5cm",
-    "bottom": "2.5cm",
-    "left": "3cm",
-    "right": "3cm"
-  },
-  "header": {
-    "left": "Enterprise Architecture",
-    "right": "{title}"
-  },
-  "footer": {
-    "left": "Confidential",
-    "right": "Page {page} of {pages}"
-  },
-  "toc": true,
-  "embedImages": true,
-  "syntaxTheme": "github-dark",
-  "watermark": "CONFIDENTIAL"
-}
-```
-
-### 3. YAML (`markforge.config.yaml` / `.markforgerc.yaml`)
-
-```yaml
-to:
-  - docx
-  - pdf
-  - html
-outputDir: ./dist/documents
-theme: academic
-orientation: portrait
-paperSize: A4
-margins:
-  top: 2.5cm
-  bottom: 2.5cm
-  left: 3cm
-  right: 3cm
-header:
-  left: Enterprise Architecture
-  right: "{title}"
-footer:
-  left: Confidential
-  right: "Page {page} of {pages}"
-toc: true
-embedImages: true
-watermark: CONFIDENTIAL
-```
-
-
 ---
 
-## 💻 Programmatic API
+## 🚀 Programmatic API
+
+### High-Level API (`compileMarkdown` / `markforge`)
 
 ```typescript
-import { markforge, compileMarkdown } from "@masumdev/markforge";
+import { compileMarkdown, OutputFormat } from "@masumdev/markforge";
 
-// High-level: compile file → write to disk
-const result = await markforge("./specification.md", {
-  to: ["docx", "pdf", "html"],
+const result = await compileMarkdown("./specification.md", {
+  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
   outputDir: "./dist",
-  theme: "academic",
+  toc: true,
   metadata: {
-    title: "System Architecture Specification",
-    author: "Ma'sum",
-    version: "2.4.0",
+    title: "API Reference Manual",
+    author: "Masum Dev",
+    version: "1.0.0",
   },
 });
 
-console.log(`✓ Generated ${result.files.length} files in ${result.durationMs}ms`);
-
+console.log(`✓ Compiled ${result.files.length} documents in ${result.durationMs}ms:`);
 for (const file of result.files) {
-  console.log(`  [${file.format.toUpperCase()}] ${file.filePath} — ${file.sizeBytes} bytes`);
+  console.log(`  [${file.format.toUpperCase()}] ${file.filePath} (${file.sizeBytes} bytes)`);
 }
 ```
 
+### Low-Level API (AST & Individual Document Builders)
+
 ```typescript
-import { compileMarkdown, buildPdfDocument, buildDocxDocument, buildHtmlDocument } from "@masumdev/markforge";
+import * as fs from "node:fs";
+import {
+  parseMarkdownDocument,
+  buildDocxDocument,
+  buildPdfDocument,
+  buildHtmlDocument,
+  Theme,
+} from "@masumdev/markforge";
 
-// Low-level: parse → build each format independently
-const parsed = await compileMarkdown("./report.md");
+const markdownContent = fs.readFileSync("./report.md", "utf-8");
 
-const pdfBuffer   = await buildPdfDocument(parsed.doc, parsed.config, parsed.baseDir);
-const docxBuffer  = await buildDocxDocument(parsed.doc, parsed.config, parsed.baseDir);
-const htmlString  = await buildHtmlDocument(parsed.doc, parsed.config, parsed.baseDir);
+// 1. Parse Markdown into structured AST
+const doc = parseMarkdownDocument(markdownContent);
+
+const config = {
+  theme: Theme.CORPORATE,
+  toc: true,
+  margins: { top: "2.5cm", bottom: "2.5cm", left: "2.5cm", right: "2.5cm" },
+};
+
+// 2. Build formats independently into binary buffers or HTML strings
+const docxBuffer = await buildDocxDocument(doc, config);
+const pdfBuffer = await buildPdfDocument(doc, config);
+const htmlString = await buildHtmlDocument(doc, config);
+
+// 3. Write output files
+fs.writeFileSync("./dist/report.docx", docxBuffer);
+fs.writeFileSync("./dist/report.pdf", pdfBuffer);
+fs.writeFileSync("./dist/report.html", htmlString, "utf-8");
 ```
-
----
-
-## 🎨 Built-in Themes
-
-| Theme | Description | Best For |
-| :--- | :--- | :--- |
-| `default` | Blu by BCA Digital cyan palette, modern sans-serif | Tech docs, specifications |
-| `academic` | Serif typography (Merriweather/Georgia), justified text | Papers, reports, theses |
-| `github` | GitHub Markdown rendering style | READMEs, open-source docs |
-| `corporate` | Clean professional layout | Business documents |
-| `minimal` | Minimal whitespace-focused design | Simple notes |
-| `dracula` | Dark-mode inspired color scheme | Developer docs |
-
-All themes automatically inherit shared component styles (callouts, code blocks, tables, badges) via the `THEME_COMPONENTS` base layer.
-
----
-
-## 🖥️ CLI Flags
-
-| Flag | Alias | Description | Default |
-| :--- | :---: | :--- | :--- |
-| `--to <formats>` | `-t` | Comma-separated output formats: `docx`, `pdf`, `html` | `docx,pdf` |
-| `--output <dir>` | `-o` | Output directory | Same as input file dir |
-| `--theme <name>` | | Built-in theme name | `default` |
-| `--css <path...>` | | Custom CSS file(s) to inject | |
-| `--toc` | | Force Table of Contents generation | `false` |
-| `--config <path>` | `-c` | Config file path (`markforge.config.ts`, `.json`, `.yaml`) | Auto-discovered |
-| `--watch` | `-w` | Watch input and re-compile on change | `false` |
-| `--version` | `-V` | Print version and exit | |
-| `--help` | `-h` | Show help | |
-
----
-
-## 🏗️ Architecture
-
-```
-Markdown / MDX source
-         │
-         ▼
-  ┌─────────────┐
-  │  AST Parser  │  → Frontmatter + Node tree
-  └──────┬──────┘
-         │
-   ┌─────┼─────┐
-   │     │     │
-   ▼     ▼     ▼
- DOCX   PDF   HTML
-Builder Builder Builder
-   │     │     │
-   │  Chromium │
-   │  (headless│
-   │   PDF)    │
-   ▼     ▼     ▼
- .docx  .pdf  .html
-```
-
-**Sub-systems:**
-- `imageResolver` — Local / URL / Base64 / SVG asset resolution
-- `mermaidRenderer` — Headless Mermaid.js diagram rasterization
-- `syntaxHighlighter` — Dual dark/light theme tokenizer (no external deps)
-- `htmlThemes` — `THEME_COMPONENTS` base + per-theme typography overrides
 
 ---
 
 ## 📄 License
 
-MIT © [Ma'sum](https://github.com/masumrpg)
+MIT © [Masum Dev](https://github.com/masumdev)

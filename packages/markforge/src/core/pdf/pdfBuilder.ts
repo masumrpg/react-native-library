@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
@@ -40,14 +40,14 @@ export function findChromeExecutable(): string | null {
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
     "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+    // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
+    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
     // Windows — Google Chrome
     `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
-    // Windows — Microsoft Edge (ships with Windows 10/11)
-    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
     // Windows — Brave Browser
     `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
     `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
@@ -89,6 +89,8 @@ export function findChromeExecutable(): string | null {
 
 
 
+import { resolveDocumentConfig } from "../../config/resolveConfig.js";
+
 /**
  * Injects CSS Paged Media styles into HTML for print & PDF formatting.
  */
@@ -97,27 +99,54 @@ export function injectPagedMediaStyles(
   config: MarkforgeConfig,
   metadata?: Record<string, unknown>
 ): string {
-  const merged = { ...config.metadata, ...metadata };
-  const orientation = (merged.orientation as string) || config.orientation || "portrait";
-  const size = (merged.paperSize as string) || config.paperSize || "A4";
-  const margins = (merged.margins as Record<string, string> | undefined) || config.margins || {};
-  const top = margins.top || config.margins?.top || "2.5cm";
-  const bottom = margins.bottom || config.margins?.bottom || "2.5cm";
-  const left = margins.left || config.margins?.left || "2.5cm";
-  const right = margins.right || config.margins?.right || "2.5cm";
+  const resolved = resolveDocumentConfig(metadata || {}, config);
+  const size = resolved.paperSize;
+  const orientation = resolved.orientation;
+  const top = resolved.margins.top;
+  const bottom = resolved.margins.bottom;
+  const left = resolved.margins.left;
+  const right = resolved.margins.right;
 
-  // Extract header/footer from merged frontmatter
-  const headerCfg = merged.header as { left?: string; center?: string; right?: string } | undefined;
-  const footerCfg = merged.footer as { left?: string } | undefined;
-  const headerLeft = headerCfg?.left ?? "";
-  const headerCenter = headerCfg?.center ?? "";
-  const headerRight = headerCfg?.right ?? "";
-  const footerLeft = (footerCfg?.left ?? "")
-    .replace("{page}", "")
-    .replace("{pages}", "")
-    .trim();
+  const esc = (s: string) => s.replace(/"/g, '\\"').replace(/\\/g, "\\\\");
 
-  const esc = (s: string) => s.replace(/"/g, '"').replace(/\\/g, "\\\\");
+  const buildZoneCss = (pos: string, zone?: import("../../config/resolveConfig.js").NormalizedHeaderFooterZone, isPageCounter: boolean = false): string => {
+    if (!zone && !isPageCounter) return "";
+    const color = zone?.color || "#94a3b8";
+    const fontSize = zone?.fontSize ? `${zone.fontSize}pt` : "9pt";
+    const fontFamily = zone?.fontFamily ? `font-family: ${zone.fontFamily};` : "";
+    const fontWeight = zone?.bold ? "font-weight: bold;" : "";
+    const fontStyle = zone?.italic ? "font-style: italic;" : "";
+
+    let content = "";
+    if (isPageCounter) {
+      if (zone?.text && (zone.text.includes("{page}") || zone.text.includes("{pages}"))) {
+        const parts = zone.text.split(/(\{page\}|\{pages\})/gi);
+        const cssParts = parts.map((part) => {
+          if (part.toLowerCase() === "{page}") return "counter(page)";
+          if (part.toLowerCase() === "{pages}") return "counter(pages)";
+          return `"${esc(part)}"`;
+        });
+        content = cssParts.join(" ");
+      } else if (zone?.text) {
+        content = `"${esc(zone.text)}"`;
+      } else {
+        content = `"Page " counter(page) " of " counter(pages)`;
+      }
+    } else if (zone?.text) {
+      content = `"${esc(zone.text)}"`;
+    }
+
+    if (!content) return "";
+
+    return `@${pos} {
+      content: ${content};
+      font-size: ${fontSize};
+      color: ${color};
+      ${fontFamily}
+      ${fontWeight}
+      ${fontStyle}
+    }`;
+  };
 
   const pagedCss = `
   @page {
@@ -126,15 +155,12 @@ export function injectPagedMediaStyles(
     margin-bottom: ${bottom};
     margin-left: ${left};
     margin-right: ${right};
-    ${headerLeft ? `@top-left { content: "${esc(headerLeft)}"; font-size: 9pt; color: #94a3b8; }` : ""}
-    ${headerCenter ? `@top-center { content: "${esc(headerCenter)}"; font-size: 9pt; color: #94a3b8; }` : ""}
-    ${headerRight ? `@top-right { content: "${esc(headerRight)}"; font-size: 9pt; color: #94a3b8; }` : ""}
-    ${footerLeft ? `@bottom-left { content: "${esc(footerLeft)}"; font-size: 9pt; color: #94a3b8; }` : ""}
-    @bottom-right {
-      content: "Page " counter(page) " of " counter(pages);
-      font-size: 9pt;
-      color: #94a3b8;
-    }
+    ${buildZoneCss("top-left", resolved.header?.left)}
+    ${buildZoneCss("top-center", resolved.header?.center)}
+    ${buildZoneCss("top-right", resolved.header?.right)}
+    ${buildZoneCss("bottom-left", resolved.footer?.left)}
+    ${buildZoneCss("bottom-center", resolved.footer?.center)}
+    ${buildZoneCss("bottom-right", resolved.footer?.right, true)}
   }
   @media print {
     body { padding: 0; }
@@ -146,6 +172,7 @@ export function injectPagedMediaStyles(
 
   return html.replace("</head>", `<style>${pagedCss}</style></head>`);
 }
+
 
 /**
  * Generates a minimal valid PDF-1.4 binary buffer fallback.
@@ -209,6 +236,35 @@ export async function buildPdfDocument(
     const tmpDir = os.tmpdir();
     const tmpHtml = path.join(tmpDir, `markforge_${tmpId}.html`);
     const tmpPdf = path.join(tmpDir, `markforge_${tmpId}.pdf`);
+    const tmpProfile = path.join(tmpDir, `markforge_prof_${tmpId}`);
+
+    // Enterprise-isolated flags: Prevents Chrome/Edge from accessing user Google accounts, syncing, or sending telemetry
+    const isolatedFlags = [
+      `--user-data-dir=${tmpProfile}`,
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--disable-sync",
+      "--disable-background-networking",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-extensions",
+      "--disable-domain-reliability",
+      "--disable-client-side-phishing-detection",
+      "--disable-breakpad",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-features=Translate,OptimizationHints,MediaRouter,DialMediaRouteProvider,CalculatedNewTabPage,ChromeWhatsNewUI,PrivacySandboxSettings4",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--mute-audio",
+      "--no-service-autorun",
+      "--disable-gpu",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--allow-file-access-from-files",
+      "--disable-web-security",
+      "--force-color-profile=srgb",
+      "--no-pdf-header-footer",
+    ];
 
     try {
       fs.writeFileSync(tmpHtml, pagedHtml, "utf-8");
@@ -218,15 +274,9 @@ export async function buildPdfDocument(
         chromePath,
         [
           "--headless=new",
-          "--disable-gpu",
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--allow-file-access-from-files",
-          "--disable-web-security",
-          "--force-color-profile=srgb",
+          ...isolatedFlags,
           "--run-all-compositor-stages-before-draw",
           "--virtual-time-budget=8000",
-          "--no-pdf-header-footer",
           `--print-to-pdf=${tmpPdf}`,
           fileUrl,
         ],
@@ -239,13 +289,7 @@ export async function buildPdfDocument(
           chromePath,
           [
             "--headless",
-            "--disable-gpu",
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--allow-file-access-from-files",
-            "--disable-web-security",
-            "--force-color-profile=srgb",
-            "--no-pdf-header-footer",
+            ...isolatedFlags,
             `--print-to-pdf=${tmpPdf}`,
             fileUrl,
           ],
@@ -263,6 +307,7 @@ export async function buildPdfDocument(
       try {
         if (fs.existsSync(tmpHtml)) fs.unlinkSync(tmpHtml);
         if (fs.existsSync(tmpPdf)) fs.unlinkSync(tmpPdf);
+        if (fs.existsSync(tmpProfile)) fs.rmSync(tmpProfile, { recursive: true, force: true });
       } catch {
         // ignore cleanup errors
       }

@@ -15,11 +15,36 @@ export type { ResolvedImage } from "./core/imageResolver.js";
 export { tokenizeCodeLine, highlightCodeToHtml, SYNTAX_COLORS } from "./core/syntax/syntaxHighlighter.js";
 export type { SyntaxToken } from "./core/syntax/syntaxHighlighter.js";
 export { renderMermaidToPng } from "./core/mermaid/mermaidRenderer.js";
-export { THEMES, THEME_DEFAULT, THEME_ACADEMIC } from "./core/html/htmlThemes.js";
+export { THEMES, THEME_DEFAULT, THEME_CORPORATE, generateThemeCss } from "./core/html/htmlThemes.js";
 
 export { defineConfig } from "./config/defineConfig.js";
 export { loadConfig, DEFAULT_CONFIG } from "./config/loadConfig.js";
+export {
+  resolveDocumentConfig,
+  replaceDocumentTokens,
+  normalizeWatermark,
+  normalizeHeaderFooter,
+  normalizeHeaderFooterSlot,
+  PAPER_DIMENSIONS_TWIP,
+} from "./config/resolveConfig.js";
 export type {
+  ResolvedDocumentConfig,
+  NormalizedMargins,
+  NormalizedWatermark,
+  NormalizedHeaderFooter,
+  NormalizedHeaderFooterZone,
+} from "./config/resolveConfig.js";
+export {
+  OutputFormat,
+  Theme,
+  Orientation,
+  PaperSizeEnum,
+  SyntaxTheme,
+  WatermarkPosition,
+} from "./config/types.js";
+export type {
+  ThemeProps,
+  HeaderFooterSlot,
   MarkforgeConfig,
   MarkforgeFormat,
   MarkforgeTheme,
@@ -27,6 +52,8 @@ export type {
   PaperSize,
   PageMargins,
   HeaderFooterItem,
+  DocumentMetadata,
+  DocumentLayoutConfig,
   FrontmatterMetadata,
   WatermarkOptions,
   GeneratedOutputFile,

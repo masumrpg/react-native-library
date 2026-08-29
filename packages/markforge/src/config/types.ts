@@ -1,17 +1,128 @@
-export type MarkforgeFormat = "docx" | "pdf" | "html" | "png";
+export enum OutputFormat {
+  DOCX = "docx",
+  PDF = "pdf",
+  HTML = "html",
+  PNG = "png",
+}
 
-export type MarkforgeTheme =
-  | "default"
-  | "academic"
-  | "github"
-  | "corporate"
-  | "minimal"
-  | "dracula"
-  | (string & {});
+export type MarkforgeFormat = "docx" | "pdf" | "html" | "png" | OutputFormat;
 
-export type DocumentOrientation = "portrait" | "landscape";
+export interface ThemeProps {
+  /**
+   * Primary brand accent color (e.g. "#33CDCF", "#2563EB", "#7C3AED", "#E11D48").
+   * @default "#33CDCF"
+   */
+  primaryColor?: string;
 
-export type PaperSize = "A4" | "Letter" | "Legal" | "A3" | "A5";
+  /**
+   * Dark primary tone for headings, active links, and prominent badges.
+   * @default "#009DA0"
+   */
+  primaryDark?: string;
+
+  /**
+   * Light primary background tint for callouts and active pills.
+   * @default "#ECFDFD"
+   */
+  primaryLight?: string;
+
+  /**
+   * Document page background color.
+   * @default "#FFFFFF"
+   */
+  backgroundColor?: string;
+
+  /**
+   * Primary body copy text color.
+   * @default "#0F172A"
+   */
+  textColor?: string;
+
+  /**
+   * Muted secondary text color for subtitles, dates, and footers.
+   * @default "#64748B"
+   */
+  textMuted?: string;
+
+  /**
+   * Border color for tables, dividers, and card containers.
+   * @default "#E2E8F0"
+   */
+  borderColor?: string;
+
+  /**
+   * Background color for cards, table headers, and blockquotes.
+   * @default "#F8FAFC"
+   */
+  cardBackground?: string;
+
+  /**
+   * Background color for code blocks.
+   * @default "#0F172A"
+   */
+  codeBackground?: string;
+
+  /**
+   * Text color for code blocks.
+   * @default "#F8FAFC"
+   */
+  codeText?: string;
+
+  /**
+   * Primary body and heading font family.
+   * @default "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+   */
+  fontFamily?: string;
+
+  /**
+   * Monospace font family for code blocks and inline code.
+   * @default "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+   */
+  fontMono?: string;
+
+  /**
+   * Optional custom raw CSS styles appended directly to the stylesheet.
+   */
+  customCss?: string;
+}
+
+export enum Theme {
+  CORPORATE = "corporate",
+}
+
+export type MarkforgeTheme = Theme | ThemeProps | "corporate" | (string & {});
+
+export enum Orientation {
+  PORTRAIT = "portrait",
+  LANDSCAPE = "landscape",
+}
+
+export type DocumentOrientation = "portrait" | "landscape" | Orientation;
+
+export enum PaperSizeEnum {
+  A4 = "A4",
+  LETTER = "Letter",
+  LEGAL = "Legal",
+  A3 = "A3",
+  A5 = "A5",
+}
+
+export type PaperSize = "A4" | "Letter" | "Legal" | "A3" | "A5" | PaperSizeEnum;
+
+export enum SyntaxTheme {
+  GITHUB_DARK = "github-dark",
+  GITHUB_LIGHT = "github-light",
+  DRACULA = "dracula",
+  MONOKAI = "monokai",
+  NORD = "nord",
+}
+
+export enum WatermarkPosition {
+  DIAGONAL = "diagonal",
+  CENTER = "center",
+  TOP_RIGHT = "top-right",
+  BOTTOM_RIGHT = "bottom-right",
+}
 
 export interface PageMargins {
   top?: string | number;
@@ -20,14 +131,47 @@ export interface PageMargins {
   right?: string | number;
 }
 
+export interface HeaderFooterSlot {
+  /**
+   * Header or footer template text (supports tokens like {title}, {author}, {version}, {date}, {company}, {page}, {pages}).
+   */
+  text: string;
+
+  /**
+   * Custom text color for this zone (e.g. "#0D998D", "#94A3B8").
+   */
+  color?: string;
+
+  /**
+   * Custom font size in points (e.g. 9, 10).
+   */
+  fontSize?: number;
+
+  /**
+   * Custom font family for this zone (e.g. "Segoe UI", "Inter").
+   */
+  fontFamily?: string;
+
+  /**
+   * Whether to render this zone in bold weight.
+   */
+  bold?: boolean;
+
+  /**
+   * Whether to render this zone in italics.
+   */
+  italic?: boolean;
+}
+
 export interface HeaderFooterItem {
-  left?: string;
-  center?: string;
-  right?: string;
+  left?: string | HeaderFooterSlot;
+  center?: string | HeaderFooterSlot;
+  right?: string | HeaderFooterSlot;
   font?: string;
   size?: number;
   color?: string;
   divider?: boolean;
+  dividerColor?: string;
 }
 
 export interface WatermarkOptions {
@@ -36,30 +180,103 @@ export interface WatermarkOptions {
   opacity?: number;
   fontSize?: number;
   rotate?: number;
-  position?: "diagonal" | "center" | "top-right" | "bottom-right";
+  position?: "diagonal" | "center" | "top-right" | "bottom-right" | WatermarkPosition;
 }
 
-export interface FrontmatterMetadata {
+/**
+ * Pure document metadata dictionary (author, title, date, version, etc.).
+ */
+export interface DocumentMetadata {
   title?: string;
   subtitle?: string;
   author?: string | string[];
   date?: string;
   version?: string;
-  theme?: MarkforgeTheme;
-  orientation?: DocumentOrientation;
-  paperSize?: PaperSize;
-  margins?: PageMargins;
-  header?: HeaderFooterItem;
-  footer?: HeaderFooterItem;
-  toc?: boolean;
-  watermark?: string | WatermarkOptions | false;
-  css?: string | string[];
-  coverPage?: boolean;
+  company?: string;
   lang?: string;
+  coverPage?: boolean;
   [key: string]: unknown;
 }
 
-export interface MarkforgeConfig {
+/**
+ * Document visual & layout options (theme, orientation, margins, headers, footers, etc.).
+ */
+export interface DocumentLayoutConfig {
+  /**
+   * Built-in visual theme name.
+   * @default "default"
+   */
+  theme?: MarkforgeTheme;
+
+  /**
+   * Page orientation.
+   * @default "portrait"
+   */
+  orientation?: DocumentOrientation;
+
+  /**
+   * Standard paper size.
+   * @default "A4"
+   */
+  paperSize?: PaperSize;
+
+  /**
+   * Custom page margins.
+   */
+  margins?: PageMargins;
+
+  /**
+   * Running header template configuration.
+   */
+  header?: HeaderFooterItem;
+
+  /**
+   * Running footer template configuration.
+   */
+  footer?: HeaderFooterItem;
+
+  /**
+   * Whether to automatically generate a Table of Contents (TOC).
+   * @default false
+   */
+  toc?: boolean;
+
+  /**
+   * Optional watermark configuration to display across pages.
+   * @default false
+   */
+  watermark?: string | WatermarkOptions | false;
+
+  /**
+   * Path(s) to custom CSS stylesheets to inject into the document.
+   */
+  css?: string | string[];
+
+  /**
+   * Code syntax highlighting theme.
+   * @default "github-dark"
+   */
+  syntaxTheme?:
+    | "github-dark"
+    | "github-light"
+    | "dracula"
+    | "monokai"
+    | "nord"
+    | SyntaxTheme
+    | (string & {});
+}
+
+/**
+ * Complete metadata extracted from Markdown frontmatter.
+ * Combines document metadata and layout overrides.
+ */
+export type FrontmatterMetadata = DocumentMetadata & DocumentLayoutConfig;
+
+/**
+ * Top-level MarkForge configuration (from config file, CLI, or API).
+ * Clean, 100% intuitive, and zero-duplicate architecture.
+ */
+export interface MarkforgeConfig extends DocumentLayoutConfig {
   /**
    * Target format(s) to compile markdown to.
    * @default ["docx", "pdf"]
@@ -73,54 +290,9 @@ export interface MarkforgeConfig {
   outputDir?: string;
 
   /**
-   * Built-in visual theme name.
-   * @default "default"
+   * Default document metadata (title, author, date, etc.) used when not provided in frontmatter.
    */
-  theme?: MarkforgeTheme;
-
-  /**
-   * Path(s) to custom CSS stylesheets to inject into the document.
-   */
-  css?: string | string[];
-
-  /**
-   * Page orientation.
-   * @default "portrait"
-   */
-  orientation?: DocumentOrientation;
-
-  /**
-   * Paper size.
-   * @default "A4"
-   */
-  paperSize?: PaperSize;
-
-  /**
-   * Custom page margins.
-   */
-  margins?: PageMargins;
-
-  /**
-   * Header template configuration.
-   */
-  header?: HeaderFooterItem;
-
-  /**
-   * Footer template configuration.
-   */
-  footer?: HeaderFooterItem;
-
-  /**
-   * Whether to automatically generate a Table of Contents (TOC).
-   * @default false
-   */
-  toc?: boolean;
-
-  /**
-   * Optional watermark configuration to display across pages.
-   * By default, no watermark is displayed.
-   */
-  watermark?: string | WatermarkOptions | false;
+  metadata?: DocumentMetadata;
 
   /**
    * Whether to embed all images (local and remote) directly into the document.
@@ -129,9 +301,10 @@ export interface MarkforgeConfig {
   embedImages?: boolean;
 
   /**
-   * Custom metadata overrides for title, author, date, etc.
+   * Whether to generate standalone self-contained HTML bundle.
+   * @default true
    */
-  metadata?: Partial<FrontmatterMetadata>;
+  bundleHtml?: boolean;
 
   /**
    * Watch files and automatically recompile on changes.
@@ -156,18 +329,6 @@ export interface MarkforgeConfig {
    * @default false
    */
   open?: boolean;
-
-  /**
-   * Whether to generate standalone self-contained HTML bundle.
-   * @default true
-   */
-  bundleHtml?: boolean;
-
-  /**
-   * Code syntax highlighting theme.
-   * @default "github-dark"
-   */
-  syntaxTheme?: string;
 }
 
 export interface GeneratedOutputFile {
