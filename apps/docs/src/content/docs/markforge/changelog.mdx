@@ -6,6 +6,38 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.4.1] - 2026-08-30
+
+### Enhancements, Security, CLI, and Configuration Refinements
+
+- **Watermark Suppression on Front & Back Covers**:
+  - Excluded the vector/PNG watermark overlay from both the Front Cover Page (page 0) and the Back Cover Closing Page (final page) in PDF generation.
+  - Suppressed the HTML fixed canvas watermark in print media (`@media print { .document-watermark { display: none !important; } }`) to ensure only explicit `pdf-lib` page indexing controls watermark rendering.
+- **Symmetric & Unified Cover & Back Cover Styling Configuration**:
+  - Unified configuration property names across `CoverPageConfig` and `BackCoverConfig` for complete API consistency.
+  - Added support for `backgroundColor`, `bgGradient`, `textColor`, `titleColor`, `subtitleColor`, `accentColor`, `badge`, `badgeColor`, `badgeTextColor`, `logo`, `logoWidth`, `footerText`, `copyright`, `address`, `email`, `phone`, `website`, and `social` across front and back covers in HTML, PDF, and DOCX.
+- **Heading Color Harmonization (`h1` through `h6`)**:
+  - Unified all heading levels (`h1`, `h2`, `h3`, `h4`, `h5`, `h6`) to use brand primary dark styling (`var(--mf-primary-dark)`) across HTML, PDF, and DOCX for visual consistency.
+  - `h1`: 2.5px solid primary border underline; `h2`: 1px subtle teal border underline.
+- **Strict Package.json Version Resolution**:
+  - Removed fallback version constant in `version.ts`. The engine now resolves version strictly from the nearest `@masumdev/markforge` `package.json` at runtime and throws an explicit error if missing or unreadable.
+- **Comprehensive Terminal CLI Parameter & Configuration Banner**:
+  - Ink CLI header box and Live Preview banner (`--serve`) now display all resolved configuration details: source path, config path, visual theme, syntax highlighter, layout, output directory, and active module list (TOC, Numbering, Cover, BackCover, Watermark, Security, Math, Syntax).
+- **Arbitrary Dynamic Metadata & Nested Record Token Interpolation**:
+  - Enhanced `replaceDocumentTokens` to dynamically unpack and replace tokens defined in top-level `metadata` or nested `metadata` dictionaries (e.g. `{metakuda}` or `{custom_key}`).
+  - Fixed AST parser inline text chunking to merge adjacent plain text spans, ensuring token names containing underscores (`_`) or hyphens are not split across separate tokens.
+- **Table of Contents (TOC) Page Break Isolation**:
+  - Table of Contents is now fully isolated from subsequent document body content via `page-break-after: always; break-after: page;` in PDF/HTML and a dedicated section break in Microsoft Word DOCX.
+- **Academic & Enterprise Page Numbering Schema**:
+  - Front Cover: Unnumbered, running headers/footers suppressed.
+  - Table of Contents: Formal lowercase Roman numerals (`i`, `ii`, ...).
+  - Main Document Body: Counter reset (`counter-reset: page 1;`) with standard decimal numbers (`1, 2, ...`).
+  - Back Cover: Unnumbered, isolated final closing section.
+- **Config-Driven Section Numbering (`numberHeadings`)**:
+  - Propagated top-level configuration options (`numberHeadings: { enabled, depth, skipH1, prefix }`) directly into AST parsing and compilation across HTML, PDF, and DOCX.
+
+---
+
 ## [0.4.0] - 2026-08-29
 
 ### Major Enterprise Features & Security Release

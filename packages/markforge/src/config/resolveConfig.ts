@@ -146,8 +146,18 @@ export interface NormalizedCoverPage {
   logo?: string;
   logoWidth?: number | string;
   bgGradient?: string;
+  backgroundColor?: string;
   textColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
   footerText?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  social?: Record<string, string>;
+  copyright?: string;
 }
 
 export interface NormalizedBackCover {
@@ -155,20 +165,28 @@ export interface NormalizedBackCover {
   preset: "modern" | "corporate" | "minimal" | "contact-card";
   title: string;
   subtitle?: string;
+  author?: string;
   company?: string;
+  version?: string;
+  date?: string;
   address?: string;
   email?: string;
   phone?: string;
   website?: string;
   social?: Record<string, string>;
   copyright?: string;
+  footerText?: string;
   badge?: string;
   badgeColor?: string;
   badgeTextColor?: string;
   logo?: string;
   logoWidth?: number | string;
   bgGradient?: string;
+  backgroundColor?: string;
   textColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
 }
 
 export interface NormalizedNumberHeadings {
@@ -225,44 +243,65 @@ export interface ResolvedDocumentConfig {
 }
 
 /**
- * Replaces dynamic variables ({title}, {subtitle}, {author}, {version}, {date}, {company}) in text templates.
+ * Replaces dynamic variables ({title}, {subtitle}, {author}, {version}, {date}, {company}, {year}, and any custom metadata keys) in text templates.
  */
 export function replaceDocumentTokens(
   template: string = "",
-  meta: {
-    title?: string;
-    subtitle?: string;
-    author?: string;
-    version?: string;
-    date?: string;
-    company?: string;
-    year?: string;
-    [key: string]: string | undefined;
-  }
+  meta: Record<string, unknown> = {}
 ): string {
-  const currentYear = meta.year || new Date().getFullYear().toString();
-  return template
-    .replace(/\{title\}/gi, meta.title || "")
-    .replace(/\{subtitle\}/gi, meta.subtitle || "")
-    .replace(/\{author\}/gi, meta.author || "")
-    .replace(/\{version\}/gi, meta.version || "")
-    .replace(/\{date\}/gi, meta.date || "")
-    .replace(/\{year\}/gi, currentYear)
-    .replace(/\{company\}/gi, meta.company || "");
+  if (!template) return "";
+  const currentYear = meta.year ? String(meta.year) : new Date().getFullYear().toString();
+
+  // Normalized lowercase token map
+  const tokenMap: Record<string, string> = {
+    title: meta.title ? String(meta.title) : "",
+    subtitle: meta.subtitle ? String(meta.subtitle) : "",
+    author: meta.author ? (Array.isArray(meta.author) ? meta.author.join(", ") : String(meta.author)) : "",
+    version: meta.version ? String(meta.version) : "",
+    date: meta.date ? String(meta.date) : "",
+    company: meta.company ? String(meta.company) : "",
+    year: currentYear,
+  };
+
+  // Merge all custom metadata keys dynamically (including nested metadata object if present)
+  if (meta.metadata && typeof meta.metadata === "object") {
+    for (const [key, val] of Object.entries(meta.metadata as Record<string, unknown>)) {
+      if (val !== undefined && val !== null) {
+        tokenMap[key.toLowerCase()] = String(val);
+      }
+    }
+  }
+
+  for (const [key, val] of Object.entries(meta)) {
+    if (val !== undefined && val !== null && typeof val !== "object") {
+      tokenMap[key.toLowerCase()] = String(val);
+    }
+  }
+
+  // Replace any {token} dynamically (case-insensitive)
+  return template.replace(/\{([a-zA-Z0-9_\-]+)\}/gi, (match, tokenKey) => {
+    const lowerKey = tokenKey.toLowerCase();
+    if (lowerKey in tokenMap) {
+      return tokenMap[lowerKey];
+    }
+    return match;
+  });
 }
 
 /**
- * Normalizes watermark configuration into a consistent structured object.
+ * Normalizes watermark configuration into a consistent structured object with dynamic token replacement.
  */
 export function normalizeWatermark(
-  rawWatermark?: string | WatermarkOptions | false
+  rawWatermark?: string | WatermarkOptions | false,
+  tokens?: Record<string, unknown>
 ): NormalizedWatermark | undefined {
   if (!rawWatermark) {
     return undefined;
   }
 
   if (typeof rawWatermark === "string") {
-    const text = rawWatermark.trim();
+    let text = rawWatermark.trim();
+    if (tokens) text = replaceDocumentTokens(text, tokens);
     if (!text) return undefined;
     return {
       text,
@@ -276,8 +315,10 @@ export function normalizeWatermark(
 
   if (typeof rawWatermark === "object") {
     if (!rawWatermark.text || !rawWatermark.text.trim()) return undefined;
+    let text = rawWatermark.text.trim();
+    if (tokens) text = replaceDocumentTokens(text, tokens);
     return {
-      text: rawWatermark.text.trim(),
+      text,
       color: rawWatermark.color || "#94a3b8",
       opacity: typeof rawWatermark.opacity === "number" ? rawWatermark.opacity : 0.08,
       fontSize: rawWatermark.fontSize || 54,
@@ -463,14 +504,7 @@ export function normalizeSignatures(
  */
 export function normalizeCoverPage(
   rawCover?: boolean | CoverPageConfig | Record<string, unknown>,
-  tokenCtx: {
-    title?: string;
-    subtitle?: string;
-    author?: string;
-    version?: string;
-    date?: string;
-    company?: string;
-  } = {}
+  tokenCtx: Record<string, unknown> = {}
 ): NormalizedCoverPage | undefined {
   if (!rawCover) return undefined;
 
@@ -478,21 +512,21 @@ export function normalizeCoverPage(
   if (cfg.enabled === false) return undefined;
 
   const preset = (cfg.preset as NormalizedCoverPage["preset"]) || "modern";
-  const title = cfg.title ? replaceDocumentTokens(String(cfg.title), tokenCtx) : tokenCtx.title || "Document Title";
-  const subtitle = cfg.subtitle ? replaceDocumentTokens(String(cfg.subtitle), tokenCtx) : tokenCtx.subtitle;
+  const title = cfg.title ? replaceDocumentTokens(String(cfg.title), tokenCtx) : tokenCtx.title ? String(tokenCtx.title) : "Document Title";
+  const subtitle = cfg.subtitle ? replaceDocumentTokens(String(cfg.subtitle), tokenCtx) : tokenCtx.subtitle ? String(tokenCtx.subtitle) : undefined;
   const author = Array.isArray(cfg.author)
     ? cfg.author.join(", ")
-    : cfg.author ? replaceDocumentTokens(String(cfg.author), tokenCtx) : tokenCtx.author;
-  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company;
-  const version = cfg.version ? replaceDocumentTokens(String(cfg.version), tokenCtx) : tokenCtx.version;
+    : cfg.author ? replaceDocumentTokens(String(cfg.author), tokenCtx) : tokenCtx.author ? String(tokenCtx.author) : undefined;
+  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company ? String(tokenCtx.company) : undefined;
+  const version = cfg.version ? replaceDocumentTokens(String(cfg.version), tokenCtx) : tokenCtx.version ? String(tokenCtx.version) : undefined;
 
   let dateStr: string | undefined;
   if (typeof cfg.date === "string") {
     dateStr = replaceDocumentTokens(cfg.date, tokenCtx);
   } else if (cfg.date === true) {
-    dateStr = tokenCtx.date || new Date().toISOString().split("T")[0];
+    dateStr = tokenCtx.date ? String(tokenCtx.date) : new Date().toISOString().split("T")[0];
   } else {
-    dateStr = tokenCtx.date;
+    dateStr = tokenCtx.date ? String(tokenCtx.date) : undefined;
   }
 
   const badge = cfg.badge ? replaceDocumentTokens(String(cfg.badge), tokenCtx) : undefined;
@@ -500,9 +534,32 @@ export function normalizeCoverPage(
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
-  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : undefined;
+  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
+  const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
+  const titleColor = typeof cfg.titleColor === "string" ? cfg.titleColor : undefined;
+  const subtitleColor = typeof cfg.subtitleColor === "string" ? cfg.subtitleColor : undefined;
+  const accentColor = typeof cfg.accentColor === "string" ? cfg.accentColor : undefined;
   const footerText = cfg.footerText ? replaceDocumentTokens(String(cfg.footerText), tokenCtx) : undefined;
+  const address = cfg.address ? replaceDocumentTokens(String(cfg.address), tokenCtx) : undefined;
+  const email = cfg.email ? replaceDocumentTokens(String(cfg.email), tokenCtx) : undefined;
+  const phone = cfg.phone ? replaceDocumentTokens(String(cfg.phone), tokenCtx) : undefined;
+  const website = cfg.website ? replaceDocumentTokens(String(cfg.website), tokenCtx) : undefined;
+
+  let socialMap: Record<string, string> | undefined;
+  if (cfg.social && typeof cfg.social === "object") {
+    socialMap = {};
+    for (const [k, v] of Object.entries(cfg.social)) {
+      if (typeof v === "string") {
+        socialMap[k] = replaceDocumentTokens(v, tokenCtx);
+      }
+    }
+  }
+
+  const currentYear = new Date().getFullYear().toString();
+  const copyright = cfg.copyright
+    ? replaceDocumentTokens(String(cfg.copyright), { ...tokenCtx, year: currentYear })
+    : undefined;
 
   return {
     enabled: true,
@@ -519,8 +576,18 @@ export function normalizeCoverPage(
     logo,
     logoWidth,
     bgGradient,
+    backgroundColor,
     textColor,
+    titleColor,
+    subtitleColor,
+    accentColor,
     footerText,
+    address,
+    email,
+    phone,
+    website,
+    social: socialMap,
+    copyright,
   };
 }
 
@@ -529,14 +596,7 @@ export function normalizeCoverPage(
  */
 export function normalizeBackCover(
   rawBack?: boolean | BackCoverConfig | Record<string, unknown>,
-  tokenCtx: {
-    title?: string;
-    subtitle?: string;
-    author?: string;
-    version?: string;
-    date?: string;
-    company?: string;
-  } = {}
+  tokenCtx: Record<string, unknown> = {}
 ): NormalizedBackCover | undefined {
   if (!rawBack) return undefined;
 
@@ -546,7 +606,12 @@ export function normalizeBackCover(
   const preset = (cfg.preset as NormalizedBackCover["preset"]) || "modern";
   const title = cfg.title ? replaceDocumentTokens(String(cfg.title), tokenCtx) : "Thank You";
   const subtitle = cfg.subtitle ? replaceDocumentTokens(String(cfg.subtitle), tokenCtx) : undefined;
-  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company;
+  const author = Array.isArray(cfg.author)
+    ? cfg.author.join(", ")
+    : cfg.author ? replaceDocumentTokens(String(cfg.author), tokenCtx) : tokenCtx.author ? String(tokenCtx.author) : undefined;
+  const company = cfg.company ? replaceDocumentTokens(String(cfg.company), tokenCtx) : tokenCtx.company ? String(tokenCtx.company) : undefined;
+  const version = cfg.version ? replaceDocumentTokens(String(cfg.version), tokenCtx) : tokenCtx.version ? String(tokenCtx.version) : undefined;
+  const date = typeof cfg.date === "string" ? replaceDocumentTokens(cfg.date, tokenCtx) : tokenCtx.date ? String(tokenCtx.date) : undefined;
   const address = cfg.address ? replaceDocumentTokens(String(cfg.address), tokenCtx) : undefined;
   const email = cfg.email ? replaceDocumentTokens(String(cfg.email), tokenCtx) : undefined;
   const phone = cfg.phone ? replaceDocumentTokens(String(cfg.phone), tokenCtx) : undefined;
@@ -569,33 +634,46 @@ export function normalizeBackCover(
     ? `Copyright (c) ${currentYear} ${company}. All Rights Reserved.`
     : undefined;
 
+  const footerText = cfg.footerText ? replaceDocumentTokens(String(cfg.footerText), tokenCtx) : undefined;
   const badge = cfg.badge ? replaceDocumentTokens(String(cfg.badge), tokenCtx) : undefined;
   const badgeColor = typeof cfg.badgeColor === "string" ? cfg.badgeColor : undefined;
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
-  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : undefined;
+  const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
+  const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
+  const titleColor = typeof cfg.titleColor === "string" ? cfg.titleColor : undefined;
+  const subtitleColor = typeof cfg.subtitleColor === "string" ? cfg.subtitleColor : undefined;
+  const accentColor = typeof cfg.accentColor === "string" ? cfg.accentColor : undefined;
 
   return {
     enabled: true,
     preset,
     title,
     subtitle,
+    author,
     company,
+    version,
+    date,
     address,
     email,
     phone,
     website,
     social: socialMap,
     copyright,
+    footerText,
     badge,
     badgeColor,
     badgeTextColor,
     logo,
     logoWidth,
     bgGradient,
+    backgroundColor,
     textColor,
+    titleColor,
+    subtitleColor,
+    accentColor,
   };
 }
 
@@ -660,7 +738,15 @@ export function resolveDocumentConfig(
   const company = (mergedMeta.company as string) || undefined;
   const lang = (mergedMeta.lang as string) || "en";
 
-  const tokenContext = { title, subtitle, author, version, date, company };
+  const tokenContext: Record<string, unknown> = {
+    ...mergedMeta,
+    title,
+    subtitle,
+    author,
+    version,
+    date,
+    company,
+  };
 
   // 2. Visual Theme & Layout (Frontmatter > Config > Default)
   const theme = (mergedMeta.theme as MarkforgeTheme) || userConfig.theme || DEFAULT_CONFIG.theme;
@@ -714,7 +800,7 @@ export function resolveDocumentConfig(
     ? userConfig.watermark
     : DEFAULT_CONFIG.watermark;
 
-  const watermark = normalizeWatermark(rawWatermark);
+  const watermark = normalizeWatermark(rawWatermark, tokenContext);
 
   // 5.5 Signatures and Approval Block
   const rawSignatures = (mergedMeta.signatures as SignatureBlockConfig | SignatureItem[]) ||

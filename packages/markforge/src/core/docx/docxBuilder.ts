@@ -20,9 +20,11 @@ import {
   ShadingType,
   ExternalHyperlink,
   TabStopType,
+  PageBreak,
+  NumberFormat,
 } from "docx";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
-import { parseInlineSpans } from "../parser.js";
+import { parseInlineSpans, applyHeadingNumbering } from "../parser.js";
 import type { MarkforgeConfig, ThemeProps } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { tokenizeCodeLine } from "../syntax/syntaxHighlighter.js";
@@ -352,6 +354,11 @@ export async function buildDocxDocument(
     }
   }
 
+  // 1.4 Apply heading numbering if enabled
+  if (resolved.numberHeadings?.enabled !== false && resolved.numberHeadings) {
+    applyHeadingNumbering(doc.nodes, doc.tocEntries, resolved.numberHeadings);
+  }
+
   // 1.5 Table of Contents (TOC) Card if enabled
   if (resolved.toc) {
     const headingNodes = doc.nodes.filter(
@@ -426,7 +433,12 @@ export async function buildDocxDocument(
       });
 
       docElements.push(tocCard);
-      docElements.push(new Paragraph({ spacing: { after: 200 } }));
+      // Hard page break after Table of Contents so main content starts on fresh page
+      docElements.push(
+        new Paragraph({
+          children: [new PageBreak()],
+        })
+      );
     }
   }
 
@@ -438,7 +450,7 @@ export async function buildDocxDocument(
         const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
           font: defaultFont,
           size: 34, // 17pt
-          color: textHex,
+          color: primaryDarkHex,
           bold: true,
         });
 
@@ -484,7 +496,7 @@ export async function buildDocxDocument(
         const runs = await convertInlinesToTextRuns(node.inlines, baseDir, {
           font: defaultFont,
           size: 22, // 11pt
-          color: textHex,
+          color: primaryDarkHex,
           bold: true,
         });
 
@@ -1332,6 +1344,10 @@ export async function buildDocxDocument(
   docSections.push({
     properties: {
       page: {
+        pageNumbers: {
+          start: 1,
+          formatType: NumberFormat.DECIMAL,
+        },
         size: {
           width: resolved.paperDimensions.widthTwip,
           height: resolved.paperDimensions.heightTwip,

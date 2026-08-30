@@ -281,7 +281,18 @@ export function parseInlineSpans(text: string): MarkdownInlineSpan[] {
     }
   }
 
-  return spans;
+  // Merge adjacent plain text spans
+  const merged: MarkdownInlineSpan[] = [];
+  for (const s of spans) {
+    const prev = merged[merged.length - 1];
+    if (prev && prev.type === "text" && s.type === "text") {
+      prev.content += s.content;
+    } else {
+      merged.push(s);
+    }
+  }
+
+  return merged;
 }
 
 /**
@@ -296,9 +307,9 @@ export function slugify(text: string): string {
 }
 
 /**
- * Applies hierarchical numbering to headings (e.g. "1.", "1.1", "1.1.1").
+ * Applies hierarchical numbering to headings (e.g. "1.", "1.1.", "1.1.1.").
  */
-function applyHeadingNumbering(
+export function applyHeadingNumbering(
   nodes: MarkdownASTNode[],
   tocEntries: { id: string; text: string; level: number }[],
   options: NumberHeadingsOptions
@@ -311,6 +322,8 @@ function applyHeadingNumbering(
 
   for (const node of nodes) {
     if (node.type === "heading" && node.level) {
+      if ((node as { _numbered?: boolean })._numbered) continue;
+
       const lvl = node.level;
       if (lvl > depth) continue;
       if (lvl === 1 && skipH1) continue;
@@ -331,6 +344,7 @@ function applyHeadingNumbering(
       const originalText = node.text || "";
       node.text = fullPrefix + originalText;
       node.inlines = parseInlineSpans(node.text);
+      (node as { _numbered?: boolean })._numbered = true;
 
       // Update matching TOC entry
       const toc = tocEntries.find((t) => t.id === node.id);

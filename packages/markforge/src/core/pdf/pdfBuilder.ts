@@ -284,6 +284,37 @@ export function injectPagedMediaStyles(
     min-height: 100vh;
     height: 100vh;
     box-sizing: border-box;
+    break-before: page;
+    break-after: avoid;
+  }`
+    : "";
+
+  const tocPageCss = resolved.toc
+    ? `
+  @page toc-page {
+    size: ${size} ${orientation};
+    margin-top: ${top};
+    margin-bottom: ${bottom};
+    margin-left: ${left};
+    margin-right: ${right};
+    ${buildZoneCss("top-left", resolved.header?.left)}
+    ${buildZoneCss("top-center", resolved.header?.center)}
+    ${buildZoneCss("top-right", resolved.header?.right)}
+    ${buildZoneCss("bottom-left", resolved.footer?.left)}
+    ${buildZoneCss("bottom-center", resolved.footer?.center)}
+    @bottom-right {
+      content: counter(page, lower-roman);
+      font-size: 9pt;
+      color: #94a3b8;
+    }
+  }
+  .table-of-contents {
+    page: toc-page;
+    page-break-after: always;
+    break-after: page;
+  }
+  .markforge-content-body {
+    counter-reset: page 1;
   }`
     : "";
 
@@ -302,6 +333,7 @@ export function injectPagedMediaStyles(
     ${buildZoneCss("bottom-right", resolved.footer?.right, true)}
   }
   ${coverPageCss}
+  ${tocPageCss}
   ${backCoverCss}
   @media print {
     body { padding: 0; }
@@ -449,6 +481,8 @@ export async function buildPdfDocument(
           pdfDoc.setProducer("MarkForge (by Ma'sum)");
           pdfDoc.setModificationDate(new Date());
 
+
+
           // When backCover is enabled, Chromium headless print generates a trailing overflow page after the 100vh back cover section.
           // Remove this trailing blank page so the back cover is the true final page.
           if (resolved.backCover?.enabled && pdfDoc.getPageCount() > 2) {
@@ -459,9 +493,10 @@ export async function buildPdfDocument(
             const wmPng = generateWatermarkPngBuffer(chromePath, resolved.watermark);
             if (wmPng) {
               const embeddedPng = await pdfDoc.embedPng(wmPng);
+              const totalPages = pdfDoc.getPageCount();
               const pages = pdfDoc.getPages();
               const startPageIndex = resolved.coverPage?.enabled ? 1 : 0;
-              const endPageIndex = resolved.backCover?.enabled ? pages.length - 1 : pages.length;
+              const endPageIndex = resolved.backCover?.enabled ? totalPages - 1 : totalPages;
 
               for (let i = startPageIndex; i < endPageIndex; i++) {
                 const page = pages[i];

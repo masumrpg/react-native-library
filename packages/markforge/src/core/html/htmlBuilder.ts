@@ -1,11 +1,17 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { ParsedMarkdownDocument, MarkdownInlineSpan, MarkdownASTNode } from "../parser.js";
+import { type ParsedMarkdownDocument, type MarkdownInlineSpan, type MarkdownASTNode, applyHeadingNumbering } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { generateThemeCss, THEME_COMPONENTS } from "./htmlThemes.js";
 import { highlightCodeToHtml } from "../syntax/syntaxHighlighter.js";
-import { resolveDocumentConfig, type NormalizedCoverPage, type NormalizedBackCover, type ResolvedDocumentConfig } from "../../config/resolveConfig.js";
+import {
+  resolveDocumentConfig,
+  replaceDocumentTokens,
+  type NormalizedCoverPage,
+  type NormalizedBackCover,
+  type ResolvedDocumentConfig,
+} from "../../config/resolveConfig.js";
 import { renderMathToHtml, KATEX_INLINE_CSS } from "../math/mathRenderer.js";
 
 /**
@@ -21,11 +27,12 @@ export function escapeHtml(str: string): string {
 }
 
 /**
- * Converts Markdown inline spans to HTML markup.
+ * Renders inline Markdown spans (bold, italic, links, images, footnotes, math, etc.) to HTML with token replacement.
  */
 export async function renderInlinesToHtml(
   spans: MarkdownInlineSpan[] = [],
-  baseDir: string = process.cwd()
+  baseDir: string = process.cwd(),
+  tokens?: Record<string, unknown>
 ): Promise<string> {
   let result = "";
 
@@ -43,26 +50,26 @@ export async function renderInlinesToHtml(
     }
 
     if (span.type === "link" && span.url) {
-      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir) : escapeHtml(span.content);
+      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir, tokens) : escapeHtml(tokens ? replaceDocumentTokens(span.content, tokens) : span.content);
       const title = span.title ? ` title="${escapeHtml(span.title)}"` : "";
       result += `<a href="${escapeHtml(span.url)}"${title}>${inner}</a>`;
       continue;
     }
 
     if (span.type === "bold") {
-      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir) : escapeHtml(span.content);
+      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir, tokens) : escapeHtml(tokens ? replaceDocumentTokens(span.content, tokens) : span.content);
       result += `<strong>${inner}</strong>`;
       continue;
     }
 
     if (span.type === "italic") {
-      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir) : escapeHtml(span.content);
+      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir, tokens) : escapeHtml(tokens ? replaceDocumentTokens(span.content, tokens) : span.content);
       result += `<em>${inner}</em>`;
       continue;
     }
 
     if (span.type === "strikethrough") {
-      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir) : escapeHtml(span.content);
+      const inner = span.children ? await renderInlinesToHtml(span.children, baseDir, tokens) : escapeHtml(tokens ? replaceDocumentTokens(span.content, tokens) : span.content);
       result += `<del>${inner}</del>`;
       continue;
     }
@@ -88,7 +95,8 @@ export async function renderInlinesToHtml(
       continue;
     }
 
-    result += escapeHtml(span.content);
+    const content = tokens ? replaceDocumentTokens(span.content, tokens) : span.content;
+    result += escapeHtml(content);
   }
 
   return result;
@@ -100,19 +108,21 @@ export async function renderInlinesToHtml(
 export async function renderNodesToHtml(
   nodes: MarkdownASTNode[],
   resolved: ResolvedDocumentConfig,
-  baseDir: string = process.cwd()
+  baseDir: string = process.cwd(),
+  tokens?: Record<string, unknown>
 ): Promise<string> {
   let bodyHtml = "";
+  const tokenCtx = tokens || (resolved as unknown as Record<string, unknown>);
 
   for (const node of nodes) {
     if (node.type === "heading") {
-      const inner = await renderInlinesToHtml(node.inlines, baseDir);
+      const inner = await renderInlinesToHtml(node.inlines, baseDir, tokenCtx);
       bodyHtml += `  <h${node.level} id="${node.id}">${inner}</h${node.level}>\n`;
       continue;
     }
 
     if (node.type === "paragraph") {
-      const inner = await renderInlinesToHtml(node.inlines, baseDir);
+      const inner = await renderInlinesToHtml(node.inlines, baseDir, tokenCtx);
       bodyHtml += `  <p>${inner}</p>\n`;
       continue;
     }
@@ -128,7 +138,7 @@ export async function renderNodesToHtml(
       let colChildrenHtml = "";
 
       for (const col of node.children || []) {
-        const colInner = await renderNodesToHtml(col.children || [], resolved, baseDir);
+        const colInner = await renderNodesToHtml(col.children || [], resolved, baseDir, tokenCtx);
         colChildrenHtml += `    <div class="markforge-col">\n${colInner}    </div>\n`;
       }
 
@@ -150,7 +160,7 @@ export async function renderNodesToHtml(
     }
 
     if (node.type === "callout") {
-      const inner = await renderInlinesToHtml(node.inlines, baseDir);
+      const inner = await renderInlinesToHtml(node.inlines, baseDir, tokenCtx);
       const CALLOUT_STYLES: Record<string, { bg: string; border: string; titleColor: string }> = {
         NOTE:      { bg: "#ECFDFD", border: "#33CDCF", titleColor: "#009DA0" },
         TIP:       { bg: "#ecfdf5", border: "#10b981", titleColor: "#10b981" },
@@ -167,7 +177,7 @@ export async function renderNodesToHtml(
     }
 
     if (node.type === "blockquote") {
-      const inner = await renderInlinesToHtml(node.inlines, baseDir);
+      const inner = await renderInlinesToHtml(node.inlines, baseDir, tokenCtx);
       bodyHtml += `  <blockquote>${inner}</blockquote>\n`;
       continue;
     }
@@ -179,7 +189,7 @@ export async function renderNodesToHtml(
         for (const cell of row.children || []) {
           const tag = cell.isHeader ? "th" : "td";
           const align = cell.align ? ` align="${cell.align}"` : "";
-          const inner = await renderInlinesToHtml(cell.inlines, baseDir);
+          const inner = await renderInlinesToHtml(cell.inlines, baseDir, tokenCtx);
           bodyHtml += `      <${tag}${align}>${inner}</${tag}>\n`;
         }
         bodyHtml += `    </tr>\n`;
@@ -192,7 +202,7 @@ export async function renderNodesToHtml(
       const tag = node.ordered ? "ol" : "ul";
       bodyHtml += `  <${tag}>\n`;
       for (const item of node.children) {
-        const inner = await renderInlinesToHtml(item.inlines, baseDir);
+        const inner = await renderInlinesToHtml(item.inlines, baseDir, tokenCtx);
         bodyHtml += `    <li>${inner}</li>\n`;
       }
       bodyHtml += `  </${tag}>\n`;
@@ -644,6 +654,11 @@ export async function buildHtmlDocument(
     bodyHtml += `  </header>\n`;
   }
 
+  // 1.5 Apply heading numbering if configured
+  if (resolved.numberHeadings?.enabled !== false && resolved.numberHeadings) {
+    applyHeadingNumbering(doc.nodes, doc.tocEntries, resolved.numberHeadings);
+  }
+
   // 2. Table of Contents if enabled
   if (resolved.toc && doc.tocEntries.length > 0) {
     bodyHtml += `  <nav class="table-of-contents">\n`;
@@ -655,15 +670,27 @@ export async function buildHtmlDocument(
     bodyHtml += `    </ul>\n  </nav>\n`;
   }
 
-  // 3. Render AST Nodes
-  bodyHtml += await renderNodesToHtml(doc.nodes, resolved, baseDir);
+  // 3. Render AST Nodes with dynamic token interpolation
+  const mergedTokens: Record<string, unknown> = {
+    ...config.metadata,
+    ...doc.metadata,
+    ...(resolved as unknown as Record<string, unknown>),
+    title: resolved.title,
+    subtitle: resolved.subtitle,
+    author: resolved.author,
+    version: resolved.version,
+    date: resolved.date,
+    company: resolved.company,
+  };
+  const nodesHtml = await renderNodesToHtml(doc.nodes, resolved, baseDir, mergedTokens);
+  bodyHtml += `  <main class="markforge-content-body">\n${nodesHtml}  </main>\n`;
 
   // 3.5 Footnotes Section
   let footnotesHtml = "";
   if (doc.footnoteDefs && doc.footnoteDefs.length > 0) {
     let fnListHtml = "";
     for (const def of doc.footnoteDefs) {
-      const defInner = await renderInlinesToHtml(def.inlines, baseDir);
+      const defInner = await renderInlinesToHtml(def.inlines, baseDir, mergedTokens);
       fnListHtml += `    <li id="fn-${escapeHtml(def.id)}">${defInner} <a href="#fnref-${escapeHtml(def.id)}" class="markforge-fn-return">&#8617;</a></li>\n`;
     }
     footnotesHtml = `\n  <footer class="markforge-footnotes">\n    <hr />\n    <ol>\n${fnListHtml}    </ol>\n  </footer>\n`;
@@ -696,17 +723,7 @@ export async function buildHtmlDocument(
   }
   @media print {
     .document-watermark {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+      display: none !important;
     }
   }
   `;
