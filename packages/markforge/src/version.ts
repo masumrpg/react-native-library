@@ -25,16 +25,14 @@ try {
   // ignore
 }
 
-/** Hardcoded fallback — only used if package.json cannot be found at runtime. */
-const FALLBACK_VERSION = "0.4.0";
-
 /**
  * Walks up the directory tree from `fromDir` to find the nearest
  * `package.json` belonging to `@masumdev/markforge` and returns its version.
+ * Throws an explicit error if package.json cannot be found or is missing version.
  */
 function readVersionFromPackageJson(fromDir: string): string {
   let currentDir = fromDir;
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 10; i++) {
     try {
       const pkgJsonPath = path.join(currentDir, "package.json");
       if (fs.existsSync(pkgJsonPath)) {
@@ -53,7 +51,9 @@ function readVersionFromPackageJson(fromDir: string): string {
     if (parentDir === currentDir) break;
     currentDir = parentDir;
   }
-  return FALLBACK_VERSION;
+  throw new Error(
+    "Failed to resolve '@masumdev/markforge' package version: package.json was not found or is missing a valid 'version' field."
+  );
 }
 
 function getPackageDir(): string {
@@ -68,8 +68,7 @@ function getPackageDir(): string {
 }
 
 /**
- * Dynamically resolved version — reads from the nearest package.json at runtime.
- * Falls back to the hardcoded FALLBACK_VERSION constant if not found.
+ * Dynamically resolved version — reads strictly from the nearest package.json at runtime.
  */
 export const MARKFORGE_VERSION: string = readVersionFromPackageJson(getPackageDir());
 

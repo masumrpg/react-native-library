@@ -260,11 +260,25 @@ export interface CoverPageConfig {
    * Custom background color or CSS gradient for the cover page.
    */
   bgGradient?: string;
+  backgroundColor?: string;
 
   /**
-   * Custom text color for cover typography.
+   * Custom typography colors.
    */
   textColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
+
+  /**
+   * Contact details (for covers that render organization cards).
+   */
+  address?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  social?: BackCoverSocial;
+  copyright?: string;
 
   /**
    * Custom footer notes at the bottom of the cover page.
@@ -311,9 +325,24 @@ export interface BackCoverConfig {
   subtitle?: string;
 
   /**
+   * Author / signatory shown on the closing page.
+   */
+  author?: string | string[];
+
+  /**
    * Organization or company name (falls back to document company).
    */
   company?: string;
+
+  /**
+   * Document version shown on the back cover.
+   */
+  version?: string;
+
+  /**
+   * Date shown on the back cover.
+   */
+  date?: string | boolean;
 
   /**
    * Office address or headquarters location.
@@ -346,6 +375,11 @@ export interface BackCoverConfig {
   copyright?: string;
 
   /**
+   * Custom footer text at the bottom.
+   */
+  footerText?: string;
+
+  /**
    * Brand logo path, URL, or Base64 data URI.
    */
   logo?: string;
@@ -370,11 +404,15 @@ export interface BackCoverConfig {
    * Custom CSS background gradient or solid hex color for the back cover.
    */
   bgGradient?: string;
+  backgroundColor?: string;
 
   /**
-   * Custom text color for back cover typography.
+   * Custom typography colors.
    */
   textColor?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  accentColor?: string;
 }
 
 export interface NumberHeadingsOptions {

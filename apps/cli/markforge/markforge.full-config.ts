@@ -138,24 +138,24 @@ export default defineConfig({
   math: true,
 
   // PDF Document Security & Password Encryption
-  security: {
-    userPassword: "masumdev_secret", // Password required to open document
-    ownerPassword: "masumdev_admin", // Master password required to modify permissions
-    permissions: {
-      printing: "highResolution", // "highResolution" | "lowResolution" | false
-      modifying: false,
-      copying: true,
-      annotating: true,
-      fillingForms: true,
-      contentAccessibility: true,
-      documentAssembly: false,
-    },
-  },
+  // security: {
+  //   userPassword: "masumdev_secret", // Password required to open document
+  //   ownerPassword: "masumdev_admin", // Master password required to modify permissions
+  //   permissions: {
+  //     printing: "highResolution", // "highResolution" | "lowResolution" | false
+  //     modifying: false,
+  //     copying: true,
+  //     annotating: true,
+  //     fillingForms: true,
+  //     contentAccessibility: true,
+  //     documentAssembly: false,
+  //   },
+  // },
   // security: undefined, // Omit or leave undefined for unrestricted standard PDF
 
   // Watermark configuration (using WatermarkPosition enum or strings)
   watermark: {
-    text: "CONFIDENTIAL DRAFT",
+    text: "{metakuda}",
     color: "#E11D48",
     opacity: 0.1,
     fontSize: 52,
@@ -211,14 +211,15 @@ export default defineConfig({
     company: "{company}",
     address: "Jakarta, Indonesia",
     email: "contact@masumdev.com",
-    phone: "+62 812 3456 7890",
+    // phone: "+62 812 3456 7890",
     website: "https://react-native-library-docs.netlify.app",
-    social: {
-      github: "https://github.com/masumrpg",
-      // twitter: "https://x.com/masumdev",
-      // linkedin: "https://linkedin.com/in/masumdev",
-    },
+    // social: {
+    //   github: "https://github.com/masumrpg",
+    //   // twitter: "https://x.com/masumdev",
+    //   // linkedin: "https://linkedin.com/in/masumdev",
+    // },
     copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
+    // bgGradient: "#fff",
   },
   // backCover: false, // Set to false to disable back cover closing page
 
@@ -231,6 +232,7 @@ export default defineConfig({
     version: "1.0.0",
     date: "2026-08-29",
     lang: "en",
+    metakuda: "Kuda"
   },
 
   // Custom external stylesheet path(s) to inject into HTML and PDF documents

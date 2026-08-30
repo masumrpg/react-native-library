@@ -14,6 +14,7 @@ import {
   normalizeBackCover,
   normalizeNumberHeadings,
   normalizeSecurity,
+  type MarkdownASTNode,
 } from "../src/index.js";
 
 describe("MarkForge Enterprise Features", () => {
@@ -65,7 +66,7 @@ Document contents after cover page.
 
     const md = `# Physics Formula\n\nThe mass-energy equivalence is $E = mc^2$.\n\n$$\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$\n`;
     const doc = parseMarkdown(md);
-    expect(doc.nodes.some((n) => n.type === "mathBlock")).toBe(true);
+    expect(doc.nodes.some((n: MarkdownASTNode) => n.type === "mathBlock")).toBe(true);
 
     const html = await buildHtmlDocument(doc, {});
     expect(html).toContain("katex");
@@ -86,7 +87,7 @@ This is the right column content.
 :::
 `;
     const doc = parseMarkdown(md);
-    const colNode = doc.nodes.find((n) => n.type === "columns");
+    const colNode = doc.nodes.find((n: MarkdownASTNode) => n.type === "columns");
     expect(colNode).toBeDefined();
     expect(colNode?.columnsCount).toBe(2);
     expect(colNode?.children?.length).toBe(2);
@@ -165,7 +166,7 @@ numberHeadings:
 ## Approach
 `;
     const doc = parseMarkdown(md);
-    const headings = doc.nodes.filter((n) => n.type === "heading");
+    const headings = doc.nodes.filter((n: MarkdownASTNode) => n.type === "heading");
 
     expect(headings[0].text).toBe("1. Introduction");
     expect(headings[1].text).toBe("1.1. Background");
@@ -303,5 +304,56 @@ Body paragraph before closing page.
     expect(resolved.company).toBe("Masum Dev Technologies Corp");
     expect(resolved.version).toBe("1.0.0");
     expect(resolved.lang).toBe("en");
+  });
+
+  it("Feature 9: Arbitrary Metadata Record Token Interpolation & Watermark Tokens", async () => {
+    const md = `---
+title: "System Design"
+---
+# Overview
+This document references {metakuda} and {custom_key}.
+`;
+    const doc = parseMarkdown(md);
+    const config = {
+      watermark: "CONFIDENTIAL {METAKUDA}",
+      metadata: {
+        metakuda: "Kuda",
+        custom_key: "CustomValue123",
+      },
+    };
+
+    const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+    expect(resolved.watermark?.text).toBe("CONFIDENTIAL Kuda");
+
+    const html = await buildHtmlDocument(doc, config);
+    expect(html).toContain("CONFIDENTIAL KUDA");
+    expect(html).toContain("This document references Kuda and CustomValue123.");
+  });
+
+  it("Feature 10: numberHeadings Config Propagation & TOC Page Break", async () => {
+    const md = `# First Section
+## Subsection
+### Detail Level
+# Second Section
+`;
+    const doc = parseMarkdown(md);
+    const config = {
+      toc: true,
+      numberHeadings: {
+        enabled: true,
+        depth: 3,
+        skipH1: false,
+      },
+    };
+
+    const html = await buildHtmlDocument(doc, config);
+    expect(html).toContain("1. First Section");
+    expect(html).toContain("1.1. Subsection");
+    expect(html).toContain("1.1.1. Detail Level");
+    expect(html).toContain("2. Second Section");
+    expect(html).toContain("page-break-after: always; break-after: page;");
+
+    const docxBuf = await buildDocxDocument(doc, config);
+    expect(docxBuf.length).toBeGreaterThan(1000);
   });
 });

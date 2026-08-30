@@ -308,7 +308,7 @@ numberHeadings: {
 
 ### Cover Page Builder (`coverPage`)
 
-Generates a dedicated, unnumbered title page before the main document content:
+Generates a dedicated, unnumbered title page before the main document content with full custom styling support:
 
 ```typescript
 coverPage: {
@@ -326,6 +326,12 @@ coverPage: {
   badgeColor: "#ECFDFD",                    // Badge background color
   badgeTextColor: "#0D998D",                // Badge text color
   footerText: "Strictly Confidential",      // Bottom disclaimer text
+  backgroundColor: "#0A192F",               // Optional custom background color
+  bgGradient: "linear-gradient(135deg, #0A192F 0%, #172A45 100%)", // Custom CSS gradient
+  titleColor: "#FFFFFF",                    // Custom title color
+  subtitleColor: "#64FFDA",                 // Custom subtitle color
+  textColor: "#8892B0",                     // Custom text color
+  accentColor: "#64FFDA",                   // Custom accent color
 }
 ```
 
@@ -333,7 +339,7 @@ coverPage: {
 
 ### Back Cover / Closing Page (`backCover`)
 
-Generates an isolated closing back cover card at the end of the document:
+Generates an isolated closing back cover card at the end of the document with symmetric styling properties matching `coverPage`:
 
 ```typescript
 backCover: {
@@ -352,6 +358,12 @@ backCover: {
     github: "https://github.com/masumrpg",
   },
   copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
+  backgroundColor: "#0A192F",               // Custom background color
+  bgGradient: "linear-gradient(135deg, #0A192F 0%, #172A45 100%)", // Custom gradient
+  titleColor: "#FFFFFF",                    // Custom title color
+  subtitleColor: "#64FFDA",                 // Custom subtitle color
+  textColor: "#8892B0",                     // Custom text color
+  accentColor: "#64FFDA",                   // Custom accent color
 }
 ```
 
@@ -399,12 +411,12 @@ watermark: {
 
 ---
 
-### Signatures & Approval Block (`signatureBlock`)
+### Signatures & Approval Block (`signatures`)
 
 Appends a formal multi-signatory approval grid to the document:
 
 ```typescript
-signatureBlock: {
+signatures: {
   align: SignatureAlign.SPACE_BETWEEN, // "left" | "center" | "right" | "space-between"
   style: SignatureStyle.BOX,           // "line" | "box" | "clean"
   spacingBefore: "2.5cm",

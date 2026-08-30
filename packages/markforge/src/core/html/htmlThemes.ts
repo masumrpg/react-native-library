@@ -31,7 +31,7 @@ export const THEME_COMPONENTS = `
 .document-meta { font-size: 0.9rem; color: var(--mf-text-muted); display: flex; gap: 1.5rem; flex-wrap: wrap; }
 
 /* Table of Contents */
-.table-of-contents { background: var(--mf-card-bg); border: 1px solid var(--mf-border); border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; }
+.table-of-contents { background: var(--mf-card-bg); border: 1px solid var(--mf-border); border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; page-break-after: always; break-after: page; }
 .table-of-contents h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mf-text-muted); margin: 0 0 1rem 0; }
 .table-of-contents ul { list-style: none; padding: 0; margin: 0; }
 .table-of-contents li { padding: 0.25rem 0; }
@@ -108,11 +108,13 @@ export const THEME_CORPORATE = `
 }
 body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.65; margin: 0; padding: 2.5rem; }
 .document-container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
-h1, h2, h3, h4, h5, h6 { color: var(--mf-text); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
-h1 { font-size: 2.2rem; border-bottom: 2px solid var(--mf-primary); padding-bottom: 0.5rem; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-primary-dark); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
+h1 { font-size: 2.2rem; color: var(--mf-primary-dark); border-bottom: 2.5px solid var(--mf-primary); padding-bottom: 0.5rem; }
 h2 { font-size: 1.6rem; color: var(--mf-primary-dark); border-bottom: 1px solid #CCFBF1; padding-bottom: 0.4rem; }
-h3 { font-size: 1.3rem; }
-h4 { font-size: 1.1rem; }
+h3 { font-size: 1.3rem; color: var(--mf-primary-dark); }
+h4 { font-size: 1.1rem; color: var(--mf-primary-dark); }
+h5 { font-size: 1.0rem; color: var(--mf-primary-dark); }
+h6 { font-size: 0.9rem; color: var(--mf-primary-dark); }
 p  { margin: 0.8rem 0; }
 `;
 
@@ -166,11 +168,13 @@ export function generateThemeCss(theme?: MarkforgeTheme): string {
 }
 body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.65; margin: 0; padding: 2.5rem; }
 .document-container { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
-h1, h2, h3, h4, h5, h6 { color: var(--mf-text); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
-h1 { font-size: 2.2rem; border-bottom: 2px solid var(--mf-primary); padding-bottom: 0.5rem; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-primary-dark); font-weight: 700; margin-top: 1.8rem; margin-bottom: 0.8rem; line-height: 1.25; }
+h1 { font-size: 2.2rem; color: var(--mf-primary-dark); border-bottom: 2.5px solid var(--mf-primary); padding-bottom: 0.5rem; }
 h2 { font-size: 1.6rem; color: var(--mf-primary-dark); border-bottom: 1px solid var(--mf-border); padding-bottom: 0.4rem; }
-h3 { font-size: 1.3rem; }
-h4 { font-size: 1.1rem; }
+h3 { font-size: 1.3rem; color: var(--mf-primary-dark); }
+h4 { font-size: 1.1rem; color: var(--mf-primary-dark); }
+h5 { font-size: 1.0rem; color: var(--mf-primary-dark); }
+h6 { font-size: 0.9rem; color: var(--mf-primary-dark); }
 p  { margin: 0.8rem 0; }
 ${theme.customCss || ""}
 `;

@@ -248,7 +248,7 @@ export default defineConfig({
   },
 
   // Document signatures and approval block
-  signatureBlock: {
+  signatures: {
     align: SignatureAlign.SPACE_BETWEEN,
     style: SignatureStyle.BOX,
     spacingBefore: "2.5cm",
@@ -303,7 +303,7 @@ export default defineConfig({
 | `numberHeadings` | `boolean \| object` | `false` | Automated hierarchical decimal numbering for headings (`1.`, `1.1.`, etc.) |
 | `coverPage` | `boolean \| object` | `false` | Isolated front cover page builder with presets and company logo |
 | `backCover` | `boolean \| object` | `false` | Isolated closing back cover page builder with corporate contact info |
-| `signatureBlock` | `object` | `undefined` | Formal multi-signatory approval and signing block |
+| `signatures` | `object` | `undefined` | Formal multi-signatory approval and signing block |
 | `math` | `boolean` | `false` | KaTeX LaTeX math equation rendering (`$inline$` and `$$block$$`) |
 | `security` | `object` | `undefined` | ISO 32000-2 AES-256 PDF encryption, user/owner passwords, and permissions |
 | `watermark` | `string \| object` | `undefined` | 100% unselectable diagonal watermark configuration |

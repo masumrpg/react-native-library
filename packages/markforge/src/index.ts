@@ -1,5 +1,5 @@
 export { compileMarkdown, compileMarkdown as markforge, formatServerTimestamp } from "./core/engine.js";
-export { parseMarkdownDocument, parseMarkdown, parseInlineSpans, slugify } from "./core/parser.js";
+export { parseMarkdownDocument, parseMarkdown, parseInlineSpans, slugify, applyHeadingNumbering } from "./core/parser.js";
 export type {
   MarkdownNodeType,
   MarkdownInlineSpan,

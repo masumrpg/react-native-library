@@ -79,7 +79,7 @@ async function main() {
   const { loadConfig } = await import("./config/loadConfig.js");
 
   // Load config (auto-discover starting from input file's dir or explicit -c path)
-  const { config: fileConfig } = await loadConfig(
+  const { config: fileConfig, configPath } = await loadConfig(
     options.config as string | undefined,
     path.dirname(resolvedInputPath)
   );
@@ -107,11 +107,20 @@ async function main() {
       config: mergedConfig,
     });
 
+    const themeLabel =
+      typeof mergedConfig.theme === "object" ? "Custom (ThemeProps)" : String(mergedConfig.theme || "corporate");
+
     console.log(`\n======================================================`);
-    console.log(`  MarkForge Live Reload Preview Server`);
+    console.log(`  MarkForge Live Reload Preview Server        v${MARKFORGE_VERSION}`);
+    console.log(`======================================================`);
     console.log(`  Target File : ${resolvedInputPath}`);
+    console.log(`  Config File : ${configPath || "(default auto-discovery)"}`);
+    console.log(`  Theme       : ${themeLabel} | Syntax: ${mergedConfig.syntaxTheme || "github-dark"}`);
+    console.log(`  Layout      : ${mergedConfig.paperSize || "A4"} (${mergedConfig.orientation || "portrait"})`);
     console.log(`  Server URL  : ${instance.url}`);
-    console.log(`  Author      : Ma'sum (https://github.com/masumrpg)`);
+    console.log(`  Auto-Open   : ${Boolean(options.open) ? "Enabled" : "Disabled"}`);
+    console.log(`  Author      : Ma'sum (@masumrpg)`);
+    console.log(`  GitHub      : https://github.com/masumrpg`);
     console.log(`======================================================\n`);
     console.log(`[READY] Watching for markdown and style changes. Press Ctrl+C to exit.\n`);
     return;
@@ -127,6 +136,7 @@ async function main() {
     <App
       inputFile={resolvedInputPath}
       config={mergedConfig}
+      configPath={configPath}
       onComplete={(res) => {
         if (res.errors && res.errors.length > 0) {
           process.exitCode = 1;

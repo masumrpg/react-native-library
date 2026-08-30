@@ -9,10 +9,11 @@ import { compileMarkdown } from "../core/engine.js";
 export interface AppProps {
   inputFile: string;
   config: MarkforgeConfig;
+  configPath?: string | null;
   onComplete?: (result: CompilationResult) => void;
 }
 
-export const App: React.FC<AppProps> = ({ inputFile, config, onComplete }) => {
+export const App: React.FC<AppProps> = ({ inputFile, config, configPath, onComplete }) => {
   const [status, setStatus] = useState<string>("Initializing...");
   const [isCompiling, setIsCompiling] = useState<boolean>(true);
   const [result, setResult] = useState<CompilationResult | null>(null);
@@ -51,6 +52,8 @@ export const App: React.FC<AppProps> = ({ inputFile, config, onComplete }) => {
     <Box flexDirection="column">
       <Header
         inputFile={inputFile}
+        configPath={configPath}
+        config={config}
         theme={config.theme}
         targetFormats={targetFormats}
       />
