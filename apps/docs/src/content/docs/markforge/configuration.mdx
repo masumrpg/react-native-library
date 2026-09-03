@@ -39,7 +39,7 @@ import {
 
 export default defineConfig({
   // Target output formats
-  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
+  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML, OutputFormat.TXT],
 
   // Output destination directory
   outputDir: ".temp/output",
@@ -210,7 +210,7 @@ export default defineConfig({
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `to` | `OutputFormat[]` | `['docx', 'pdf']` | Array of output file formats to compile: `OutputFormat.DOCX`, `OutputFormat.PDF`, `OutputFormat.HTML`, `OutputFormat.PNG`. |
+| `to` | `OutputFormat[]` | `['docx', 'pdf']` | Array of output file formats to compile: `OutputFormat.DOCX`, `OutputFormat.PDF`, `OutputFormat.HTML`, `OutputFormat.TXT`, `OutputFormat.PNG`. |
 | `outputDir` | `string` | `'.'` | Destination folder for compiled document files. Created automatically if it does not exist. |
 | `clean` | `boolean` | `false` | When `true`, removes existing compiled documents in `outputDir` prior to compilation. |
 

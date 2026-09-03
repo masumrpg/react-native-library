@@ -6,6 +6,19 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.5.0] - 2026-09-03
+
+### Plain Text (.txt) Document Publishing Engine
+
+- **Plain Text (.txt) Output Format**:
+  - Added native support for compiling Markdown documents into structured plain text files (`OutputFormat.TXT` or `"txt"` in `to:` array / `--to txt`).
+  - Structured document rendering with centered title banner, Table of Contents, double (`=`) and single (`-`) divider rules, callout tags (`| [NOTE]`), blockquotes (`> text`), code blocks with language annotations, and task item checkboxes (`[x]` / `[ ]`).
+  - ASCII grid-aligned tables with dynamic column width calculation and text padding.
+  - Complete support for footnotes (`[1] text`), approval signatures, and back cover closing card with dynamic metadata token replacement.
+  - Terminal CLI and Ink UI integration with green badge color highlighting for `[TXT]` documents in the compilation summary table.
+
+---
+
 ## [0.4.1] - 2026-08-30
 
 ### Enhancements, Security, CLI, and Configuration Refinements

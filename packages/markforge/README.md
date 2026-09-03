@@ -18,7 +18,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 
 | Feature | Description |
 | :--- | :--- |
-| **Multi-Format Output** | Generate `.docx`, `.pdf`, and `.html` from a single Markdown source simultaneously |
+| **Multi-Format Output** | Generate `.docx`, `.pdf`, `.html`, and `.txt` from a single Markdown source simultaneously |
 | **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system plus full custom colors and fonts via `ThemeProps` |
 | **Cover Page Builder** | Four professional cover page presets (`modern`, `corporate-split`, `minimal`, `card`) with company logo |
 | **Back Cover / Closing Page** | Dedicated closing page with company details, contact info, social links, and copyright notice |
@@ -82,7 +82,7 @@ markforge document.md --serve --port 4000 --open
 | Flag | Alias | Description | Default |
 | :--- | :---: | :--- | :--- |
 | `<file>` | | Markdown input file path | **Required** |
-| `--to <formats...>` | `-t` | Output formats: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
+| `--to <formats...>` | `-t` | Output formats: `docx`, `pdf`, `html`, `txt`, `png` | `docx,pdf` |
 | `--output <dir>` | `-o` | Output directory | Same as input file |
 | `--config <file>` | `-c` | Explicit configuration file path | Auto-discovered |
 | `--theme <name>` | | Visual theme preset (`corporate`, `default`, `academic`, `github`, `minimal`) | `corporate` |

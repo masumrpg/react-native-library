@@ -6,6 +6,9 @@ import {
   PaperSizeEnum,
   SyntaxTheme,
   WatermarkPosition,
+  SignatureAlign,
+  SignatureStyle,
+  CoverPagePreset,
 } from "@masumdev/markforge";
 
 /**
@@ -14,8 +17,8 @@ import {
  * Any property that is optional or alternative is also presented as a commented line for quick toggling.
  */
 export default defineConfig({
-  // Target output formats (using OutputFormat enum or strings: "docx" | "pdf" | "html" | "png")
-  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML],
+  // Target output formats (using OutputFormat enum or strings: "docx" | "pdf" | "html" | "txt" | "png")
+  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML, OutputFormat.TXT, OutputFormat.PNG],
   // to: [OutputFormat.PDF], // Single target compilation
 
   // Output directory where compiled documents will be saved
@@ -39,29 +42,25 @@ export default defineConfig({
   //   fontMono: "Fira Code, monospace",
   // },
 
-  // Page orientation (Orientation.PORTRAIT or Orientation.LANDSCAPE)
-  orientation: Orientation.PORTRAIT,
-  // orientation: Orientation.LANDSCAPE,
+  // Page geometry and layout
+  orientation: Orientation.PORTRAIT, // "portrait" | "landscape"
+  paperSize: PaperSizeEnum.A4,        // "A4" | "Letter" | "Legal" | "A3" | "A5"
 
-  // Standard paper size (A4, Letter, Legal, A3, A5)
-  paperSize: PaperSizeEnum.A4,
-
-  // Page margins (supports CSS units: "3cm", "25mm", "1in", or numbers in pt)
+  // Precise document margins with standard units (cm, mm, in, pt)
   margins: {
-    top: "3cm",
+    top: "2.5cm",
     bottom: "2.5cm",
     left: "2.5cm",
     right: "2.5cm",
   },
 
-  // Document running headers with dynamic variable substitution & per-zone slot styling
+  // Document running headers with dynamic token interpolation & per-zone slot styling
   header: {
-    // Left slot: Can be a plain string template OR a rich HeaderFooterSlot object
+    // Left slot: Custom colored title token
     left: {
-      text: "{company}",
+      text: "{title}",
       color: "#0D998D",
-      fontSize: 9,
-      fontFamily: "Inter, Segoe UI, sans-serif",
+      fontSize: 8.5,
       bold: true,
     },
     // Center slot: Plain string template using default header styles
@@ -75,6 +74,7 @@ export default defineConfig({
     },
     // Horizontal separator line under header
     divider: false,
+    // dividerColor: "#E2E8F0",
   },
 
   // Document running footers with dynamic page numbering & per-zone slot styling
@@ -101,15 +101,18 @@ export default defineConfig({
     },
     // Horizontal separator line above footer
     divider: false,
+    // dividerColor: "#E2E8F0",
   },
 
   // Automatic Table of Contents generation
   toc: true,
+  // tocTitle: "TABLE OF CONTENTS",
+  // tocDepth: 3,
 
   // Dedicated Standalone Front Cover Page Builder
   coverPage: {
     enabled: true,
-    preset: "modern", // Options: "modern" | "corporate-split" | "minimal" | "card"
+    preset: CoverPagePreset.MODERN, // Options: "modern" | "corporate-split" | "minimal" | "card" or CoverPagePreset Enum
     title: "{title}",
     subtitle: "{subtitle}",
     author: "{author}",
@@ -120,17 +123,35 @@ export default defineConfig({
     badgeColor: "#ECFDFD",
     badgeTextColor: "#0D998D",
     logo: "./assets/company-logo.png", // Company logo path or Base64 data URI
-    logoWidth: 120, // Logo display width in px
+    logoWidth: 120,                    // Logo display width in px or css string (e.g. "120px")
     footerText: "Proprietary & Confidential — Masum Dev Technologies",
+
+    // Symmetric Custom Styling Properties (uncomment to customize):
+    // backgroundColor: "#0A192F",
+    // bgGradient: "linear-gradient(135deg, #0A192F 0%, #0D998D 100%)",
+    // textColor: "#F8FAFC",
+    // titleColor: "#38BDF8",
+    // subtitleColor: "#94A3B8",
+    // accentColor: "#0D998D",
+    // address: "Jakarta, Indonesia",
+    // email: "contact@masumdev.com",
+    // phone: "+62 812 3456 7890",
+    // website: "https://react-native-library-docs.netlify.app",
+    // social: {
+    //   github: "https://github.com/masumrpg",
+    //   twitter: "https://x.com/masumdev",
+    //   linkedin: "https://linkedin.com/in/masumdev",
+    // },
+    // copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
   },
   // coverPage: false, // Set to false to disable front cover page entirely
 
   // Hierarchical decimal section numbering (e.g. 1., 1.1, 1.1.1)
   numberHeadings: {
     enabled: true,
-    depth: 3, // Max heading depth to number (H1..H3)
+    depth: 3,      // Max heading depth to number (H1..H3)
     skipH1: false, // Number from H1 downwards (set true if H1 is document title)
-    prefix: "", // Optional prefix (e.g. "Section ")
+    prefix: "",    // Optional prefix (e.g. "Section ")
   },
   // numberHeadings: false, // Set to false to disable section numbering
 
@@ -140,9 +161,9 @@ export default defineConfig({
   // PDF Document Security & Password Encryption
   // security: {
   //   userPassword: "masumdev_secret", // Password required to open document
-  //   ownerPassword: "masumdev_admin", // Master password required to modify permissions
+  //   ownerPassword: "masumdev_admin",  // Master password required to modify permissions
   //   permissions: {
-  //     printing: "highResolution", // "highResolution" | "lowResolution" | false
+  //     printing: "highResolution",    // "highResolution" | "lowResolution" | false
   //     modifying: false,
   //     copying: true,
   //     annotating: true,
@@ -174,8 +195,8 @@ export default defineConfig({
 
   // Document signature & approval blocks (1 to 4 signatory slots with customizable style and alignment)
   signatures: {
-    align: "space-between", // "space-between" | "center" | "left" | "right"
-    style: "line", // "line" | "box" | "clean"
+    align: SignatureAlign.SPACE_BETWEEN, // SignatureAlign.SPACE_BETWEEN | SignatureAlign.CENTER | SignatureAlign.LEFT | SignatureAlign.RIGHT
+    style: SignatureStyle.LINE,          // SignatureStyle.LINE | SignatureStyle.BOX | SignatureStyle.CLEAN
     items: [
       {
         title: "Prepared by",
@@ -211,19 +232,30 @@ export default defineConfig({
     company: "{company}",
     address: "Jakarta, Indonesia",
     email: "contact@masumdev.com",
-    // phone: "+62 812 3456 7890",
+    phone: "+62 812 3456 7890",
     website: "https://react-native-library-docs.netlify.app",
-    // social: {
-    //   github: "https://github.com/masumrpg",
-    //   // twitter: "https://x.com/masumdev",
-    //   // linkedin: "https://linkedin.com/in/masumdev",
-    // },
+    social: {
+      github: "https://github.com/masumrpg",
+      twitter: "https://x.com/masumdev",
+      linkedin: "https://linkedin.com/in/masumdev",
+    },
     copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
-    // bgGradient: "#fff",
+
+    // Symmetric Custom Styling Properties (uncomment to customize):
+    // backgroundColor: "#0A192F",
+    // bgGradient: "linear-gradient(135deg, #0A192F 0%, #0D998D 100%)",
+    // textColor: "#F8FAFC",
+    // titleColor: "#38BDF8",
+    // subtitleColor: "#94A3B8",
+    // accentColor: "#0D998D",
+    // badge: "MASUM DEV TECHNOLOGIES",
+    // badgeColor: "#0D998D",
+    // badgeTextColor: "#FFFFFF",
+    // footerText: "End of Official Specification Document",
   },
   // backCover: false, // Set to false to disable back cover closing page
 
-  // Fallback metadata dictionary
+  // Fallback metadata dictionary & arbitrary dynamic token interpolation
   metadata: {
     title: "Complete MarkForge Reference Manual",
     subtitle: "Enterprise Document Compiler & Visual Architecture",
@@ -231,8 +263,10 @@ export default defineConfig({
     company: "Masum Dev Technologies",
     version: "1.0.0",
     date: "2026-08-29",
+    year: "2026",
     lang: "en",
-    metakuda: "Kuda"
+    metakuda: "CONFIDENTIAL DRAFT",
+    custom_project_code: "MF-2026-PROD",
   },
 
   // Custom external stylesheet path(s) to inject into HTML and PDF documents

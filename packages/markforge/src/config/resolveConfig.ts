@@ -7,14 +7,14 @@ import type {
   HeaderFooterItem,
   HeaderFooterSlot,
   WatermarkOptions,
-  SignatureAlign,
-  SignatureStyle,
   SignatureItem,
   SignatureBlockConfig,
   CoverPageConfig,
   BackCoverConfig,
   NumberHeadingsConfig,
   SecurityConfig,
+  SignatureAlignOption,
+  SignatureStyleOption,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -121,8 +121,8 @@ export interface NormalizedSignatureItem {
 
 export interface NormalizedSignatureBlock {
   items: NormalizedSignatureItem[];
-  align: SignatureAlign;
-  style: SignatureStyle;
+  align: SignatureAlignOption;
+  style: SignatureStyleOption;
   borderColor: string;
   titleColor: string;
   nameColor: string;
@@ -474,9 +474,9 @@ export function normalizeSignatures(
     };
   });
 
-  const align: SignatureAlign =
+  const align: SignatureAlignOption =
     rawConfig.align || (items.length === 1 ? "right" : "space-between");
-  const style: SignatureStyle = rawConfig.style || "line";
+  const style: SignatureStyleOption = rawConfig.style || "line";
   const borderColor = rawConfig.borderColor || "#CBD5E1";
   const titleColor = rawConfig.titleColor || "#64748B";
   const nameColor = rawConfig.nameColor || "#0F172A";

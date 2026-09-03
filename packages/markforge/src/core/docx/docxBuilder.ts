@@ -22,6 +22,7 @@ import {
   TabStopType,
   PageBreak,
   NumberFormat,
+  SectionType,
 } from "docx";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import { parseInlineSpans, applyHeadingNumbering } from "../parser.js";
@@ -1321,6 +1322,7 @@ export async function buildDocxDocument(
 
     docSections.push({
       properties: {
+        type: SectionType.NEXT_PAGE,
         page: {
           size: {
             width: resolved.paperDimensions.widthTwip,
@@ -1335,14 +1337,15 @@ export async function buildDocxDocument(
           },
         },
       },
-      headers: undefined,
-      footers: undefined,
+      headers: { default: new Header({ children: [] }) },
+      footers: { default: new Footer({ children: [] }) },
       children: coverElements,
     });
   }
 
   docSections.push({
     properties: {
+      type: SectionType.NEXT_PAGE,
       page: {
         pageNumbers: {
           start: 1,
@@ -1363,8 +1366,8 @@ export async function buildDocxDocument(
         },
       },
     },
-    headers: docHeader ? { default: docHeader } : undefined,
-    footers: docFooter ? { default: docFooter } : undefined,
+    headers: docHeader ? { default: docHeader } : { default: new Header({ children: [] }) },
+    footers: docFooter ? { default: docFooter } : { default: new Footer({ children: [] }) },
     children: docElements,
   });
 
@@ -1381,6 +1384,7 @@ export async function buildDocxDocument(
 
     docSections.push({
       properties: {
+        type: SectionType.NEXT_PAGE,
         page: {
           size: {
             width: resolved.paperDimensions.widthTwip,
@@ -1395,8 +1399,8 @@ export async function buildDocxDocument(
           },
         },
       },
-      headers: undefined,
-      footers: undefined,
+      headers: { default: new Header({ children: [] }) },
+      footers: { default: new Footer({ children: [] }) },
       children: backElements,
     });
   }

@@ -7,9 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-09-03
+
+### Plain Text (.txt) Document Publishing Engine
+
+- **Plain Text (.txt) Output Format**:
+  - Added native support for compiling Markdown documents into structured plain text files (`OutputFormat.TXT` or `"txt"` in `to:` array / `--to txt`).
+  - Structured document rendering with centered title banner, Table of Contents, double (`=`) and single (`-`) divider rules, callout tags (`| [NOTE]`), blockquotes (`> text`), code blocks with language annotations, and task item checkboxes (`[x]` / `[ ]`).
+  - ASCII grid-aligned tables with dynamic column width calculation and text padding.
+  - Complete support for footnotes (`[1] text`), approval signatures, and back cover closing card with dynamic metadata token replacement.
+  - Terminal CLI and Ink UI integration with green badge color highlighting for `[TXT]` documents in the compilation summary table.
+
+---
+
+## [0.4.1] - 2026-08-30
+
+### Enhancements, Security, CLI, and Configuration Refinements
+
+- **Watermark Suppression on Front & Back Covers**:
+  - Excluded the vector/PNG watermark overlay from both the Front Cover Page (page 0) and the Back Cover Closing Page (final page) in PDF generation.
+  - Suppressed the HTML fixed canvas watermark in print media (`@media print { .document-watermark { display: none !important; } }`) to ensure only explicit `pdf-lib` page indexing controls watermark rendering.
+- **Symmetric & Unified Cover & Back Cover Styling Configuration**:
+  - Unified configuration property names across `CoverPageConfig` and `BackCoverConfig` for complete API consistency.
+  - Added support for `backgroundColor`, `bgGradient`, `textColor`, `titleColor`, `subtitleColor`, `accentColor`, `badge`, `badgeColor`, `badgeTextColor`, `logo`, `logoWidth`, `footerText`, `copyright`, `address`, `email`, `phone`, `website`, and `social` across front and back covers in HTML, PDF, and DOCX.
+- **Heading Color Harmonization (`h1` through `h6`)**:
+  - Unified all heading levels (`h1`, `h2`, `h3`, `h4`, `h5`, `h6`) to use brand primary dark styling (`var(--mf-primary-dark)`) across HTML, PDF, and DOCX for visual consistency.
+  - `h1`: 2.5px solid primary border underline; `h2`: 1px subtle teal border underline.
+- **Strict Package.json Version Resolution**:
+  - Removed fallback version constant in `version.ts`. The engine now resolves version strictly from the nearest `@masumdev/markforge` `package.json` at runtime and throws an explicit error if missing or unreadable.
+- **Comprehensive Terminal CLI Parameter & Configuration Banner**:
+  - Ink CLI header box and Live Preview banner (`--serve`) now display all resolved configuration details: source path, config path, visual theme, syntax highlighter, layout, output directory, and active module list (TOC, Numbering, Cover, BackCover, Watermark, Security, Math, Syntax).
+- **Arbitrary Dynamic Metadata & Nested Record Token Interpolation**:
+  - Enhanced `replaceDocumentTokens` to dynamically unpack and replace tokens defined in top-level `metadata` or nested `metadata` dictionaries (e.g. `{metakuda}` or `{custom_key}`).
+  - Fixed AST parser inline text chunking to merge adjacent plain text spans, ensuring token names containing underscores (`_`) or hyphens are not split across separate tokens.
+- **Table of Contents (TOC) Page Break Isolation**:
+  - Table of Contents is now fully isolated from subsequent document body content via `page-break-after: always; break-after: page;` in PDF/HTML and a dedicated section break in Microsoft Word DOCX.
+- **Academic & Enterprise Page Numbering Schema**:
+  - Front Cover: Unnumbered, running headers/footers suppressed.
+  - Table of Contents: Formal lowercase Roman numerals (`i`, `ii`, ...).
+  - Main Document Body: Counter reset (`counter-reset: page 1;`) with standard decimal numbers (`1, 2, ...`).
+  - Back Cover: Unnumbered, isolated final closing section.
+- **Config-Driven Section Numbering (`numberHeadings`)**:
+  - Propagated top-level configuration options (`numberHeadings: { enabled, depth, skipH1, prefix }`) directly into AST parsing and compilation across HTML, PDF, and DOCX.
+
+---
+
+## [0.4.0] - 2026-08-29
+
+### Major Enterprise Features & Security Release
+
+- **ISO 32000-2 AES-256 PDF Security & Password Encryption (`security`)**:
+  - Native standard PDF encryption with independent `userPassword` (password required to open the document) and `ownerPassword` (master password required to modify document permissions).
+  - Granular permissions enforcement: `printing`, `modifying`, `copying`, `annotating`, `fillingForms`, `contentAccessibility`, and `documentAssembly`.
+- **Closing Page / Back Cover Builder (`backCover`)**:
+  - Dedicated closing page builder supporting presets (`corporate`, `modern`, `minimal`, `card`), custom backgrounds, logos, company details, and social channels.
+- **Multi-Signatory Approval Block (`signatureBlock`)**:
+  - Multi-column signature blocks with custom alignment (`left`, `center`, `right`, `space-between`, `grid`), border styles (`line`, `box`, `card`), and digital signature support across DOCX, PDF, and HTML.
+
+---
+
 ## [0.2.3] - 2026-08-28
 
-### 🛠️ Fixed
+### Fixed
 
 - **Node.js 22/25 `--localstorage-file` warning**: The `docx` library accesses `globalThis.localStorage` during its module evaluation. In ESM, static `import` declarations are evaluated before any user code in the entry point. Refactored `cli.tsx` to dynamically import `App`, `Ink`, and `loadConfig`, ensuring the `globalThis.localStorage` stub is active before `docx` is loaded by Node.js.
 - **CLI Compilation Error (`expected input to be a string or buffer`)**: Fixed a prop name mismatch in `cli.tsx` where `inputPath` was passed instead of `inputFile` to the Ink `<App />` component.
@@ -19,68 +78,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.2] - 2026-08-28
 
-### 🛠️ Fixed
+### Fixed
 
-- **CLI warning still showing after 0.2.1**: The `--localstorage-file` warning suppression in `cli.tsx` was broken due to incorrect listener registration order. `process.removeAllListeners("warning")` was called *after* `process.on("warning", handler)`, which immediately removed the handler we just added. Fixed by calling `removeAllListeners` **before** registering the filter handler.
-- **Dynamic version**: `MARKFORGE_VERSION` in `version.ts` is now resolved at runtime by walking up the directory tree to find `package.json`. The hardcoded string is only a fallback. Version bumps in `package.json` are now automatically reflected in `markforge -V` output without needing to touch `version.ts`.
+- **CLI warning still showing after 0.2.1**: The `--localstorage-file` warning suppression in `cli.tsx` was broken due to incorrect listener registration order. Fixed by calling `removeAllListeners` before registering the filter handler.
+- **Dynamic version**: `MARKFORGE_VERSION` in `version.ts` is now resolved at runtime by walking up the directory tree to find `package.json`.
 
 ---
 
 ## [0.2.1] - 2026-08-28
 
-### 🛠️ Fixed
+### Fixed
 
-- **Windows PDF not using Chromium (fallback)**: `findChromeExecutable()` now resolves Windows browser paths using runtime environment variables instead of hardcoded strings:
-  - `%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe` — user-level Chrome install (most common on Windows)
-  - `%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` — system-level Chrome
-  - `%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe` — Microsoft Edge (bundled with Windows 10/11)
-  - `%PROGRAMFILES%\Microsoft\Edge\Application\msedge.exe` — system Edge
-  - `%LOCALAPPDATA%\Chromium\Application\chrome.exe` — Chromium standalone
-  - Also added `where chrome` and `where msedge` to PATH search on Windows.
-  - Set `CHROME_PATH` or `PUPPETEER_EXECUTABLE_PATH` env variable to override auto-detection.
-- **CLI `--localstorage-file` warning**: Suppressed the noisy Bun startup warning `--localstorage-file was provided without a valid path`. This fired because Bun's built-in localStorage API is enabled by default but no file path was configured. MarkForge never uses localStorage, so the warning is harmless — it is now silently filtered at process startup.
-- **Mermaid renderer**: Added `--virtual-time-budget=5000` and `--disable-software-rasterizer` flags to Chromium invocation for more reliable diagram capture on Windows and lower-end hardware.
+- **Windows PDF not using Chromium (fallback)**: `findChromeExecutable()` now resolves Windows browser paths using runtime environment variables.
+- **CLI `--localstorage-file` warning**: Suppressed the noisy Bun startup warning.
+- **Mermaid renderer**: Added `--virtual-time-budget=5000` and `--disable-software-rasterizer` flags to Chromium invocation.
 
 ---
 
 ## [0.2.0] - 2026-08-27
 
-### 🚀 Added
+### Added
 
-- **Mermaid Diagram Support**: Full Mermaid.js rendering for all output formats. Diagrams in ` ```mermaid ``` ` blocks are rasterized via headless browser and embedded as images in DOCX, PDF, and HTML. Configurable `--virtual-time-budget=8000ms` ensures complex diagrams fully render before capture.
-- **Callout / Alert Boxes**: GitHub-flavored callout syntax (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, `> [!CAUTION]`, `> [!IMPORTANT]`) now renders with colored left-border and background in all three output formats.
-- **Watermark Configuration**: Optional per-document watermark support via `markforge.config.ts` or frontmatter. Disabled by default. Configurable text, opacity, and position (`diagonal`, `center`, `top-left`, `top-right`, `bottom-left`, `bottom-right`).
-- **Multi-Zone Header & Footer**: Left / Center / Right header and footer zones now work correctly in both DOCX (via OpenXML tab-stop logic) and PDF (via CSS Paged Media `@top-*` / `@bottom-*` rules).
-- **`THEME_COMPONENTS` Base Layer**: Extracted all shared component CSS (callouts, blockquotes, code blocks, tables, images, TOC, document header) into a `THEME_COMPONENTS` constant that is always injected regardless of the chosen theme. Fixes missing styles in `academic` and other non-default themes.
+- **Mermaid Diagram Support**: Full Mermaid.js rendering for all output formats.
+- **Callout / Alert Boxes**: GitHub-flavored callout syntax across all output formats.
+- **Watermark Configuration**: Optional per-document watermark support via configuration or frontmatter.
+- **Multi-Zone Header & Footer**: Left / Center / Right header and footer zones.
+- **`THEME_COMPONENTS` Base Layer**: Extracted shared component CSS.
 
-### 🎨 Changed
+### Changed
 
-- **Primary Color Palette**: Updated to Blu by BCA Digital cyan — primary `#33CDCF`, deep `#009DA0`, tint `#ECFDFD` — across all themes and component styles.
-- **Dual Syntax Highlight Themes**:
-  - **PDF / HTML (dark)**: New VS Code Dark+-inspired palette — strings in warm orange `#E07C4F`, keywords in coral `#FF7B72`, plain text in light gray `#E2E8F0`. All colors have sufficient contrast on dark `#0f172a` backgrounds.
-  - **DOCX (light)**: GitHub Light-inspired palette — strings in forest teal `#0A7E5C`, keywords in crimson `#D73A49`, plain text near-black `#24292E`. All colors readable on white backgrounds.
-  - `tokenizeCodeLine()` now accepts a `theme: "dark" | "light"` parameter. `docxBuilder` passes `"light"`, HTML/PDF builders use `"dark"` (default).
-- **PDF Code Block Scrollbar Removed**: Added `@media print { pre { overflow: visible; white-space: pre-wrap; } }` — scrollbars no longer appear in PDF output.
-- **Callout Inline Styles**: Callout boxes now use inline `style` attributes for background and border colors (in addition to CSS classes). This bypasses Chromium's headless PDF background-graphics suppression, ensuring colors render without needing `--print-background-graphics`.
-- **`THEME_ACADEMIC`**: Now includes a full `:root` CSS variable block compatible with `THEME_COMPONENTS` (adds `--mf-card-bg`, `--mf-primary`, `--mf-border`, etc.), enabling all component styles to apply correctly.
+- **Primary Color Palette**: Updated to Blu by BCA Digital cyan (`#33CDCF`, `#009DA0`, `#ECFDFD`).
+- **Dual Syntax Highlight Themes**: VS Code Dark+ for PDF/HTML and GitHub Light for DOCX.
+- **PDF Code Block Scrollbar Removed**: Added print stylesheet overrides.
+- **Callout Inline Styles**: Callout boxes use inline style attributes to ensure print background rendering.
 
-### 🛠️ Fixed
+### Fixed
 
-- **PDF Header/Footer not rendering**: Refactored `injectPagedMediaStyles` in `pdfBuilder.ts` to inject frontmatter header/footer config into CSS `@page` rules using `@top-left`, `@top-center`, `@top-right`, `@bottom-*` selectors.
-- **DOCX Header/Footer single-zone bug**: Implemented `TabStopType` logic to correctly split headers into Left/Center/Right zones using tab characters in OpenXML paragraphs.
-- **Callout styles missing in PDF**: Root cause was `THEME_ACADEMIC` missing component CSS. Fixed by the `THEME_COMPONENTS` extraction and injection approach.
-- **Chromium PDF color suppression**: Added `--force-color-profile=srgb` Chrome flag. Callout box colors now render with inline styles that bypass print background suppression.
+- **PDF Header/Footer not rendering**: Refactored CSS Paged Media `@page` injection.
+- **DOCX Header/Footer single-zone bug**: Implemented `TabStopType` logic.
+- **Callout styles missing in PDF**: Injected base component styles.
+- **Chromium PDF color suppression**: Added `--force-color-profile=srgb` Chrome flag.
 
 ---
 
 ## [0.1.0] - 2026-08-27
 
-### 🚀 Initial Release
+### Initial Release
 
 - **Multi-Format Document Engine**: Full compiler pipeline producing Microsoft Word (`.docx`), Print-ready (`.pdf`), and Standalone (`.html`).
-- **Embedded HTML & CSS Support**: Native parsing of inline HTML tags (`<div>`, `<span>`, `<table>`, `<img>`, `<style>`) inside Markdown & MDX.
+- **Embedded HTML & CSS Support**: Native parsing of inline HTML tags inside Markdown & MDX.
 - **Image Resolver Engine**: Local relative path resolution, remote Web URL fetching with caching, Base64 data URIs, and SVG vector support.
 - **Built-in Curated Themes**: `default`, `academic`, `github`, `corporate`, `minimal`, and `dracula`.
-- **Interactive Terminal UI**: Built with **Ink** (React for Terminal) with progress indicators and summary table.
-- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts`, `.markforgerc.json`, and YAML support with JSON Schema autocomplete.
+- **Interactive Terminal UI**: Built with Ink.
+- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts`, `.markforgerc.json`, and YAML support.
 - **Programmatic TypeScript API**: Direct functions `markforge()`, `compileMarkdown()`, `buildDocxDocument()`, `buildHtmlDocument()`, and `buildPdfDocument()`.

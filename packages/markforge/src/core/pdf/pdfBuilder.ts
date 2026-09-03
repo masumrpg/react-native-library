@@ -25,8 +25,11 @@ export function generateWatermarkPngBuffer(
   chromePath: string,
   wm: { text: string; color?: string; opacity?: number; fontSize?: number; rotate?: number }
 ): Buffer | null {
-  const tmpHtml = path.join(os.tmpdir(), `markforge-wm-${Date.now()}-${Math.random().toString(36).slice(2)}.html`);
-  const tmpPng = path.join(os.tmpdir(), `markforge-wm-${Date.now()}-${Math.random().toString(36).slice(2)}.png`);
+  const tmpId = Math.random().toString(36).substring(2, 9);
+  const tmpDir = os.tmpdir();
+  const tmpHtml = path.join(tmpDir, `markforge-wm-${tmpId}.html`);
+  const tmpPng = path.join(tmpDir, `markforge-wm-${tmpId}.png`);
+  const tmpProfile = path.join(tmpDir, `markforge-wm-prof-${tmpId}`);
 
   try {
     const text = escapeXml(wm.text.toUpperCase());
@@ -81,6 +84,9 @@ export function generateWatermarkPngBuffer(
       chromePath,
       [
         "--headless=new",
+        `--user-data-dir=${tmpProfile}`,
+        "--no-first-run",
+        "--no-default-browser-check",
         "--disable-gpu",
         "--disable-sync",
         "--disable-extensions",
@@ -103,6 +109,7 @@ export function generateWatermarkPngBuffer(
     try {
       if (fs.existsSync(tmpHtml)) fs.unlinkSync(tmpHtml);
       if (fs.existsSync(tmpPng)) fs.unlinkSync(tmpPng);
+      if (fs.existsSync(tmpProfile)) fs.rmSync(tmpProfile, { recursive: true, force: true });
     } catch {}
   }
 }
@@ -124,6 +131,8 @@ export function findChromeExecutable(): string | null {
   const winLocalAppData = process.env.LOCALAPPDATA ?? "";
   const winProgramFiles = process.env.PROGRAMFILES ?? "C:\\Program Files";
   const winProgramFilesX86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
+  const winProgramW6432 = process.env.ProgramW6432 ?? "C:\\Program Files";
+  const winUserProfile = process.env.USERPROFILE ?? "";
 
   const candidates: string[] = [
     // Linux
@@ -143,17 +152,34 @@ export function findChromeExecutable(): string | null {
     // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
     `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
     `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramW6432}\\Microsoft\\Edge\\Application\\msedge.exe`,
     `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    // Windows — Google Chrome
+    `${winLocalAppData}\\Microsoft\\Edge Dev\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge Beta\\Application\\msedge.exe`,
+    // Windows — Google Chrome & Chrome SxS (Canary)
     `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramW6432}\\Google\\Chrome\\Application\\chrome.exe`,
     `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome SxS\\Application\\chrome.exe`,
     // Windows — Brave Browser
     `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
     `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramW6432}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
     `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
     // Windows — Chromium
     `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
+    // Windows — Scoop Package Manager
+    `${winUserProfile}\\scoop\\apps\\googlechrome\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\chromium\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\brave\\current\\brave.exe`,
+    `${winUserProfile}\\scoop\\apps\\msedge\\current\\msedge.exe`,
+    `${winUserProfile}\\scoop\\shims\\chrome.exe`,
+    `${winUserProfile}\\scoop\\shims\\msedge.exe`,
+    // Windows — Chocolatey
+    "C:\\ProgramData\\chocolatey\\bin\\chrome.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\msedge.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\brave.exe",
   ].filter(Boolean);
 
   for (const candidate of candidates) {
@@ -168,16 +194,18 @@ export function findChromeExecutable(): string | null {
 
   // Check PATH via which/where (including msedge and brave on Windows)
   try {
-    const cmd = isWin ? "where" : "which";
+    const cmd = isWin ? "where.exe" : "which";
     const names = isWin
-      ? ["chrome", "msedge", "brave", "google-chrome", "chromium", "chromium-browser"]
+      ? ["chrome.exe", "msedge.exe", "brave.exe", "chrome", "msedge", "brave", "google-chrome", "chromium", "chromium-browser"]
       : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "brave-browser"];
 
     for (const name of names) {
-      const res = spawnSync(cmd, [name], { encoding: "utf-8" });
+      const res = spawnSync(cmd, [name], { encoding: "utf-8", windowsHide: true });
       if (res.status === 0 && res.stdout.trim()) {
-        const binPath = res.stdout.split(/\r?\n/)[0].trim();
-        if (fs.existsSync(binPath)) return binPath;
+        const lines = res.stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+        for (const line of lines) {
+          if (fs.existsSync(line)) return line;
+        }
       }
     }
   } catch {
