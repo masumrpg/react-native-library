@@ -34,7 +34,7 @@
   ],
   "author": "Ma'sum",
   "license": "MIT",
-  "homepage": "https://react-native-library-docs.netlify.app/rn-qr-code/",
+  "homepage": "https://react-native-library-docs.vercel.app/rn-qr-code/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/masumdev/react-native-library.git",

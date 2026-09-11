@@ -20,15 +20,16 @@ program
   .version(VERSION)
   .option("-c, --config <path>", "Path to custom tscheck configuration file")
   .option("-o, --output <dir>", "Custom directory to write audit reports")
-  .option("-s, --serve [port]", "Start local HTTP server to view the interactive HTML report (default: 5500)")
+  .option("-s, --serve [port]", "Start local HTTP server to view the interactive HTML report (default port: 5500)")
+  .option("-p, --port <number>", "Port for local HTTP server (default: 5500)")
   .option("--no-serve", "Do not start local HTTP report server")
   .option("-O, --open", "Automatically open the HTML report in your default web browser")
-  .option("--editor <editor>", "Default editor scheme (vscode, cursor, antigravity, windsurf, zed, webstorm, sublime)", "vscode")
+  .option("--editor <editor>", "Default editor scheme (vscode, cursor, antigravity, windsurf, zed, webstorm, sublime)")
   .option("--ai", "Output token-efficient AI prompt markdown to stdout (shorthand for --format ai)")
   .option("--staged", "Only scan files currently staged in Git")
   .option("--since <ref>", "Only scan files changed since a specific git branch or commit")
   .option("--fix", "Automatically fix safe issues like prefixing unused variables/parameters with _")
-  .option("-f, --format <format>", "Output format: pretty (default), json, github, or ai", "pretty")
+  .option("-f, --format <format>", "Output format: pretty (default), json, github, or ai")
   .option("--no-deprecated", "Disable deprecated API usages check")
   .option("--no-unused", "Disable unused variables and imports check")
   .option("--no-any", "Disable explicit any usages check")
@@ -48,6 +49,10 @@ program
         shouldServe = false;
       } else if (options.serve !== undefined) {
         shouldServe = true;
+      } else if (options.port !== undefined) {
+        shouldServe = true;
+      } else if (options.open) {
+        shouldServe = true;
       } else if (isCI) {
         shouldServe = false;
       } else if (config.serve !== undefined) {
@@ -55,14 +60,30 @@ program
       } else if (config.reporters?.serve !== undefined) {
         shouldServe = config.reporters.serve;
       } else {
-        shouldServe = true;
+        shouldServe = false;
       }
 
-      const serverPort = typeof options.serve === "string" && !isNaN(Number(options.serve))
+      let shouldOpen: boolean;
+      if (options.serve === false) {
+        shouldOpen = false;
+      } else if (options.open !== undefined) {
+        shouldOpen = Boolean(options.open);
+      } else if (isCI) {
+        shouldOpen = false;
+      } else if (config.open !== undefined) {
+        shouldOpen = Boolean(config.open);
+      } else if (config.reporters?.open !== undefined) {
+        shouldOpen = Boolean(config.reporters.open);
+      } else {
+        shouldOpen = false;
+      }
+
+      const serverPort = options.port
+        ? Number(options.port)
+        : typeof options.serve === "string" && !isNaN(Number(options.serve))
         ? Number(options.serve)
         : (config.port || config.reporters?.port || 5500);
 
-      const shouldOpen = options.open || config.open || config.reporters?.open;
       const editor: SupportedEditor = (options.editor || config.editor || config.reporters?.editor || "vscode") as SupportedEditor;
 
       // CLI flags override config
@@ -86,6 +107,9 @@ program
         reporters: {
           ...config.reporters,
           ...(options.output ? { outputDir: options.output } : {}),
+          serve: shouldServe,
+          open: shouldOpen,
+          port: serverPort,
           editor,
         },
         failOnWarning: options.failOnWarning ?? config.failOnWarning,
@@ -152,7 +176,7 @@ program
       let exitCode = 0;
       let generatedReportFiles: { json?: string; markdown?: string; html?: string; ai?: string } | undefined;
 
-      const { waitUntilExit } = render(
+      const { waitUntilExit, unmount } = render(
         <App
           config={finalConfig}
           configPath={configPath}
@@ -169,6 +193,12 @@ program
               exitCode = 1;
             }
             generatedReportFiles = report.reportFiles;
+
+            if (!options.interactive) {
+              setTimeout(() => {
+                unmount();
+              }, 50);
+            }
           }}
         />
       );

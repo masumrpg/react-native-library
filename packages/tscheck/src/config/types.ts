@@ -83,7 +83,7 @@ export interface TsCheckReporterConfig {
 
   /**
    * Whether to start a local HTTP server to view the HTML report.
-   * @default true
+   * @default false
    */
   serve?: boolean;
 
@@ -190,7 +190,7 @@ export interface TsCheckConfig {
 
   /**
    * Whether to start a local HTTP server to view the HTML report.
-   * @default true
+   * @default false
    */
   serve?: boolean;
 

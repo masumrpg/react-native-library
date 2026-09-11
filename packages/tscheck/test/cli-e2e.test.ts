@@ -11,13 +11,15 @@ describe("CLI E2E", () => {
   const bunPath = process.execPath;
   const expectedVersion = getTscheckVersion();
 
-  it("outputs help screen on --help", () => {
-    const stdout = execSync(`"${bunPath}" "${cliPath}" --help`, { encoding: "utf-8" });
+  it("outputs help screen on --help and -h", () => {
+    const stdout = execSync(`"${bunPath}" "${cliPath}" -h`, { encoding: "utf-8" });
     expect(stdout).toContain("tscheck [options]");
     expect(stdout).toContain("--staged");
     expect(stdout).toContain("--fix");
     expect(stdout).toContain("--format");
     expect(stdout).toContain("--serve");
+    expect(stdout).toContain("--port");
+    expect(stdout).toContain("--no-serve");
     expect(stdout).toContain("--ai");
   });
 

@@ -118,8 +118,10 @@ describe("loadConfig", () => {
     expect(config.reporters?.json).toBe(true);
     expect(config.reporters?.markdown).toBe(true);
     expect(config.reporters?.html).toBe(true);
-    expect(config.serve).toBe(true);
-    expect(config.reporters?.serve).toBe(true);
+    expect(config.serve).toBe(false);
+    expect(config.open).toBe(false);
+    expect(config.reporters?.serve).toBe(false);
+    expect(config.reporters?.open).toBe(false);
 
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });

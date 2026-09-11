@@ -136,7 +136,7 @@ export default defineConfig({
     // address: "Jakarta, Indonesia",
     // email: "contact@masumdev.com",
     // phone: "+62 812 3456 7890",
-    // website: "https://react-native-library-docs.netlify.app",
+    // website: "https://react-native-library-docs.vercel.app",
     // social: {
     //   github: "https://github.com/masumrpg",
     //   twitter: "https://x.com/masumdev",
@@ -233,7 +233,7 @@ export default defineConfig({
     address: "Jakarta, Indonesia",
     email: "contact@masumdev.com",
     phone: "+62 812 3456 7890",
-    website: "https://react-native-library-docs.netlify.app",
+    website: "https://react-native-library-docs.vercel.app",
     social: {
       github: "https://github.com/masumrpg",
       twitter: "https://x.com/masumdev",

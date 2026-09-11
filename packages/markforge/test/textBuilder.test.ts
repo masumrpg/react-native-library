@@ -167,7 +167,7 @@ This is the primary agreement content with a footnote reference[^1].
         company: "{company}",
         address: "Jakarta, Indonesia",
         email: "contact@masumdev.com",
-        website: "https://react-native-library-docs.netlify.app",
+        website: "https://react-native-library-docs.vercel.app",
         copyright: "Copyright (c) {year} {company}. All Rights Reserved.",
         social: { github: "https://github.com/masumrpg" },
       },

@@ -6,6 +6,19 @@ sidebar:
 description: Release history and version notes for @masumdev/tscheck.
 ---
 
+### v0.2.3
+
+#### Bug Fixes & Improvements
+- **Default Report Server Behavior**:
+  - Changed default `serve` option to `false`. Running `tscheck` now executes the audit and exits cleanly without starting an HTTP background server or blocking the shell.
+  - Report server is only launched when explicitly enabled via `-s` / `--serve [port]`, `-p` / `--port <number>`, or `-O` / `--open`.
+- **CLI Options & Configuration Precedence**:
+  - Fixed Commander option defaults so that configuration file values for `editor` and `format` are properly respected when CLI flags are omitted.
+  - Added `-p, --port <number>` flag for configuring the local report server port.
+  - Added clean terminal unmounting on non-interactive audit completion.
+
+---
+
 ### v0.2.2
 
 #### New Features

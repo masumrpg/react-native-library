@@ -2,8 +2,8 @@
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
 [![CI](https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/react-native-library/actions)
-[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.netlify.app/tscheck/)
-[![Tests](https://img.shields.io/badge/Tests-61%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.netlify.app/tscheck/)
+[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
+[![Tests](https://img.shields.io/badge/Tests-62%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 > **Modern, high-performance TypeScript AST code audit CLI & engine for Turborepos and Monorepos.**
@@ -90,8 +90,9 @@ tscheck --json
 | :--- | :--- | :--- |
 | `-c, --config <path>` | Path to custom tscheck configuration file | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
-| `-s, --serve [port]` | Start local HTTP server to view the interactive HTML report | `true` (port: `5500`) |
-| `--no-serve` | Disable starting local HTTP report server after audit | `false` |
+| `-s, --serve [port]` | Start local HTTP server to view the interactive HTML report | `false` (port: `5500`) |
+| `-p, --port <number>` | Port for the local HTML report server | `5500` |
+| `--no-serve` | Disable starting local HTTP report server after audit | `true` |
 | `-O, --open` | Automatically open the HTML report in your default browser | `false` |
 | `--editor <editor>` | Default editor scheme (`vscode`, `cursor`, `antigravity`, `windsurf`, `zed`, `webstorm`, `sublime`) | `vscode` |
 | `--ai` | Output token-efficient AI prompt markdown to stdout | `false` |
@@ -153,7 +154,7 @@ Created with ❤️ by **[Ma'sum](https://github.com/masumrpg)**
 
 - **GitHub Profile**: [@masumrpg](https://github.com/masumrpg)
 - **Monorepo Repository**: [react-native-library](https://github.com/masumrpg/react-native-library)
-- **Documentation Portal**: [https://react-native-library-docs.netlify.app](https://react-native-library-docs.netlify.app)
+- **Documentation Portal**: [https://react-native-library-docs.vercel.app](https://react-native-library-docs.vercel.app)
 
 ---
 
