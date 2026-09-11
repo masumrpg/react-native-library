@@ -1,6 +1,7 @@
 {
   "name": "react-native-library",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "turbo run dev",
     "dev:native": "turbo dev --filter='@masumdev/*' --filter=native",

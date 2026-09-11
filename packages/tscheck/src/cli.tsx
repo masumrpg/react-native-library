@@ -10,6 +10,17 @@ import { generateAiPrompt } from "./core/aiPrompt.js";
 import { startReportServer, openInBrowser } from "./core/server.js";
 import { getTscheckVersion } from "./version.js";
 
+// Suppress Node.js v22+ typeless package.json ESM warning during dynamic config import
+process.on("warning", (warning: Error & { code?: string }) => {
+  if (
+    warning.name === "MODULE_TYPELESS_PACKAGE_JSON" ||
+    warning.code === "MODULE_TYPELESS_PACKAGE_JSON"
+  ) {
+    return;
+  }
+  console.warn(warning);
+});
+
 const VERSION = getTscheckVersion();
 
 const program = new Command();

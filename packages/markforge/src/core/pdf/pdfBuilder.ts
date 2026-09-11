@@ -309,11 +309,16 @@ export function injectPagedMediaStyles(
   }
   .markforge-back-cover {
     page: back-cover-page;
-    min-height: 100vh;
-    height: 100vh;
+    min-height: calc(100vh - 2px);
+    height: calc(100vh - 2px);
+    max-height: calc(100vh - 2px);
+    margin: 0;
     box-sizing: border-box;
+    overflow: hidden;
     break-before: page;
+    page-break-before: always;
     break-after: avoid;
+    page-break-after: avoid;
   }`
     : "";
 
@@ -510,12 +515,6 @@ export async function buildPdfDocument(
           pdfDoc.setModificationDate(new Date());
 
 
-
-          // When backCover is enabled, Chromium headless print generates a trailing overflow page after the 100vh back cover section.
-          // Remove this trailing blank page so the back cover is the true final page.
-          if (resolved.backCover?.enabled && pdfDoc.getPageCount() > 2) {
-            pdfDoc.removePage(pdfDoc.getPageCount() - 1);
-          }
 
           if (resolved.watermark) {
             const wmPng = generateWatermarkPngBuffer(chromePath, resolved.watermark);
