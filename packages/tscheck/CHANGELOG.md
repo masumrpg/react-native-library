@@ -5,6 +5,14 @@ All notable changes to `@masumdev/tscheck` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-09-11
+
+### Fixed
+- **Node.js ESM Typeless Package Warning Suppression**:
+  - Filtered out Node.js v22+ `MODULE_TYPELESS_PACKAGE_JSON` warning during dynamic configuration module loading, ensuring a completely clean terminal experience across all project environments.
+
+---
+
 ## [0.2.4] - 2026-09-11
 
 ### Fixed
