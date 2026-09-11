@@ -1,4 +1,4 @@
-import { defineConfig } from "./packages/tscheck/src/index.js";
+import { defineConfig } from "@masumdev/tscheck";
 
 export default defineConfig({
   rootDir: process.cwd(),
