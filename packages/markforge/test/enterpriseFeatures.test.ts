@@ -275,6 +275,9 @@ Body paragraph before closing page.
 
     const docxBuf = await buildDocxDocument(doc, {});
     expect(docxBuf.length).toBeGreaterThan(1000);
+
+    const pdfBuf = await buildPdfDocument(doc, {});
+    expect(pdfBuf.length).toBeGreaterThan(500);
   });
 
   it("Metadata Cascading Priority: Frontmatter vs Config File", () => {

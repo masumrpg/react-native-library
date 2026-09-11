@@ -5,6 +5,13 @@ All notable changes to **@masumdev/markforge** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-09-11
+
+### Fixed
+- **Cross-Platform PDF Back Cover Preservation**:
+  - Standardized `.markforge-back-cover` print media CSS height to `calc(100vh - 2px)` with `overflow: hidden;` and explicit `page-break-after: avoid; break-after: avoid;`, eliminating subpixel page overflow across Windows (DirectWrite / Edge / Chrome) and Linux (FreeType).
+  - Removed blind trailing page truncation (`pdfDoc.removePage`) that previously caused the back cover page to be incorrectly deleted on Windows multi-page documents.
+
 ---
 
 ## [0.5.0] - 2026-09-03

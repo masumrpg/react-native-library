@@ -522,9 +522,9 @@ export async function renderBackCoverHtml(
       break-before: page;
       page-break-after: avoid;
       break-after: avoid;
-      min-height: 100vh;
-      height: 100vh;
-      max-height: 100vh;
+      min-height: calc(100vh - 2px);
+      height: calc(100vh - 2px);
+      max-height: calc(100vh - 2px);
       margin: 0;
       box-sizing: border-box;
       overflow: hidden;

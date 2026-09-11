@@ -6,6 +6,17 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.5.1] - 2026-09-11
+
+### Cross-Platform PDF Back Cover Preservation
+
+- **CSS Height Standardizing**:
+  - Adjusted `.markforge-back-cover` print media CSS height to `calc(100vh - 2px)` with `overflow: hidden;` and `page-break-after: avoid; break-after: avoid;`, eliminating subpixel page overflow across Windows (DirectWrite / Edge / Chrome) and Linux (FreeType).
+- **Eliminated Blind Page Truncation**:
+  - Removed trailing page deletion (`pdfDoc.removePage`) in the PDF builder pipeline that previously led to the back cover closing card being inadvertently deleted on Windows multi-page documents.
+
+---
+
 ## [0.5.0] - 2026-09-03
 
 ### Plain Text (.txt) Document Publishing Engine
