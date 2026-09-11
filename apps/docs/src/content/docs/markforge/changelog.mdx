@@ -6,6 +6,15 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.5.2] - 2026-09-11
+
+### OS-Specific PDF Page Normalization
+
+- **Platform-Aware Blank Page Pruning**:
+  - Implemented platform-aware handling for Chromium headless print. On Windows (`win32`), DirectWrite renders page bounds with subpixel precision without trailing pages, while on Linux/Unix, trailing overflow blank pages after 100vh sections are cleanly pruned, ensuring exact and consistent page counts across all operating systems.
+
+---
+
 ## [0.5.1] - 2026-09-11
 
 ### Cross-Platform PDF Back Cover Preservation

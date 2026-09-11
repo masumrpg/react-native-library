@@ -516,6 +516,14 @@ export async function buildPdfDocument(
 
 
 
+          // OS-Specific Handling for Chromium Headless Print:
+          // In Linux / Unix, Chromium's font rasterizer generates a trailing overflow page after the 100vh back cover section.
+          // On Windows (DirectWrite / Edge / Chrome), Chromium computes layout with subpixel precision and does NOT produce this trailing page.
+          // We conditionally remove the trailing overflow page only on non-Windows environments to ensure cross-platform consistency.
+          if (process.platform !== "win32" && resolved.backCover?.enabled && pdfDoc.getPageCount() > 2) {
+            pdfDoc.removePage(pdfDoc.getPageCount() - 1);
+          }
+
           if (resolved.watermark) {
             const wmPng = generateWatermarkPngBuffer(chromePath, resolved.watermark);
             if (wmPng) {
