@@ -3,9 +3,10 @@ export enum OutputFormat {
   PDF = "pdf",
   HTML = "html",
   PNG = "png",
+  TXT = "txt",
 }
 
-export type MarkforgeFormat = "docx" | "pdf" | "html" | "png" | OutputFormat;
+export type MarkforgeFormat = "docx" | "pdf" | "html" | "png" | "txt" | OutputFormat;
 
 export interface ThemeProps {
   /**
@@ -286,7 +287,14 @@ export interface CoverPageConfig {
   footerText?: string;
 }
 
-export type BackCoverPreset = "modern" | "corporate" | "minimal" | "contact-card";
+export enum BackCoverPreset {
+  MODERN = "modern",
+  CORPORATE = "corporate",
+  MINIMAL = "minimal",
+  CONTACT_CARD = "contact-card",
+}
+
+export type BackCoverPresetType = "modern" | "corporate" | "minimal" | "contact-card" | BackCoverPreset;
 
 export interface BackCoverSocial {
   github?: string;
@@ -311,7 +319,7 @@ export interface BackCoverConfig {
    * - "contact-card": Floating elevated glassmorphic contact card with full metadata grid.
    * @default "modern"
    */
-  preset?: BackCoverPreset;
+  preset?: BackCoverPresetType;
 
   /**
    * Headline title shown on the back cover.
@@ -486,8 +494,22 @@ export interface DocumentMetadata {
   [key: string]: unknown;
 }
 
-export type SignatureAlign = "left" | "center" | "right" | "space-between";
-export type SignatureStyle = "line" | "box" | "clean";
+export enum SignatureAlign {
+  LEFT = "left",
+  CENTER = "center",
+  RIGHT = "right",
+  SPACE_BETWEEN = "space-between",
+}
+
+export type SignatureAlignOption = "left" | "center" | "right" | "space-between" | SignatureAlign;
+
+export enum SignatureStyle {
+  LINE = "line",
+  BOX = "box",
+  CLEAN = "clean",
+}
+
+export type SignatureStyleOption = "line" | "box" | "clean" | SignatureStyle;
 
 export interface SignatureItem {
   /**
@@ -532,7 +554,7 @@ export interface SignatureBlockConfig {
    * Horizontal alignment of the signature block.
    * @default "right" for 1 item, "space-between" for >= 2 items
    */
-  align?: SignatureAlign;
+  align?: SignatureAlignOption;
 
   /**
    * Visual layout style of the signature block:
@@ -541,7 +563,7 @@ export interface SignatureBlockConfig {
    * - "clean": Minimalist blank vertical space without borders.
    * @default "line"
    */
-  style?: SignatureStyle;
+  style?: SignatureStyleOption;
 
   /**
    * Border or divider line color.

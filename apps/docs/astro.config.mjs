@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://react-native-library-docs.netlify.app',
+  site: 'https://react-native-library-docs.vercel.app',
   integrations: [
     starlight({
       title: 'Masum Dev',

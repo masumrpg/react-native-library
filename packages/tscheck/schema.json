@@ -47,7 +47,7 @@
     "serve": {
       "type": "boolean",
       "description": "Start a local HTTP server to view the HTML report.",
-      "default": true
+      "default": false
     },
     "open": {
       "type": "boolean",
@@ -129,7 +129,7 @@
         "serve": {
           "type": "boolean",
           "description": "Start a local HTTP server to view the HTML report.",
-          "default": true
+          "default": false
         },
         "open": {
           "type": "boolean",

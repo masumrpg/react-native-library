@@ -4,6 +4,8 @@ import { parseMarkdownDocument } from "./parser.js";
 import { buildDocxDocument } from "./docx/docxBuilder.js";
 import { buildHtmlDocument } from "./html/htmlBuilder.js";
 import { buildPdfDocument } from "./pdf/pdfBuilder.js";
+import { buildTextDocument } from "./text/textBuilder.js";
+import { buildPngDocument } from "./png/pngBuilder.js";
 import type {
   MarkforgeConfig,
   MarkforgeFormat,
@@ -116,6 +118,30 @@ export async function compileMarkdown(
           filePath: pdfPath,
           fileName: `${baseName}.pdf`,
           sizeBytes: pdfBuffer.length,
+        });
+      } else if (fmt === "txt") {
+        onProgress?.(`Generating Plain Text document: ${baseName}.txt...`);
+        const textContent = await buildTextDocument(parsedDoc, config, baseDir);
+        const textPath = path.join(outputDir, `${baseName}.txt`);
+        fs.writeFileSync(textPath, textContent, "utf-8");
+
+        generatedFiles.push({
+          format: "txt",
+          filePath: textPath,
+          fileName: `${baseName}.txt`,
+          sizeBytes: Buffer.byteLength(textContent, "utf-8"),
+        });
+      } else if (fmt === "png") {
+        onProgress?.(`Generating PNG document: ${baseName}.png...`);
+        const pngBuffer = await buildPngDocument(parsedDoc, config, baseDir);
+        const pngPath = path.join(outputDir, `${baseName}.png`);
+        fs.writeFileSync(pngPath, pngBuffer);
+
+        generatedFiles.push({
+          format: "png",
+          filePath: pngPath,
+          fileName: `${baseName}.png`,
+          sizeBytes: pngBuffer.length,
         });
       }
     } catch (err: unknown) {

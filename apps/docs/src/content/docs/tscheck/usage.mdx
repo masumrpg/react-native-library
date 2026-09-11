@@ -26,8 +26,9 @@ tscheck
 | :--- | :--- | :--- |
 | `-c, --config <path>` | Path to custom configuration file (`.json`, `.yaml`, `.ts`) | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
-| `-s, --serve [port]` | Start local HTTP server to host and inspect interactive HTML reports | `true` (port: `5500`) |
-| `--no-serve` | Disable starting local HTTP report server after audit | `false` |
+| `-s, --serve [port]` | Start local HTTP server to host and inspect interactive HTML reports | `false` (port: `5500`) |
+| `-p, --port <number>` | Port for the local HTML report server | `5500` |
+| `--no-serve` | Disable starting local HTTP report server after audit | `true` |
 | `-O, --open` | Automatically open the HTML report in your default browser | `false` |
 | `--editor <editor>` | Default editor scheme (`vscode`, `cursor`, `antigravity`, `windsurf`, `zed`, `webstorm`, `sublime`) | `vscode` |
 | `--ai` | Output token-efficient AI prompt markdown to stdout | `false` |

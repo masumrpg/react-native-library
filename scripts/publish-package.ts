@@ -58,10 +58,15 @@ function getAvailablePackages(): Map<string, PackageMeta> {
 
 function runCommand(command: string, args: string[], cwd: string = process.cwd()): boolean {
   console.log(`${colors.dim}$ ${command} ${args.join(" ")}${colors.reset}`);
+  const env = {
+    ...process.env,
+    PATH: `${join(process.env.HOME || "", ".bun/bin")}:${join(process.cwd(), "node_modules/.bin")}:${process.env.PATH}`,
+  };
   const result = spawnSync(command, args, {
     cwd,
     stdio: "inherit",
     shell: true,
+    env,
   });
   return result.status === 0;
 }

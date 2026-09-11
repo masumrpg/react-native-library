@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/markforge",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Modern, high-performance Markdown & MDX multi-format document publishing engine and CLI (DOCX, PDF, HTML, and Images) with embedded HTML/CSS, image inliner, and Ink terminal UI.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -46,7 +46,7 @@
   ],
   "author": "Ma'sum",
   "license": "MIT",
-  "homepage": "https://react-native-library-docs.netlify.app/markforge/",
+  "homepage": "https://react-native-library-docs.vercel.app/markforge/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/masumrpg/react-native-library.git",

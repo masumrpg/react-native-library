@@ -21,6 +21,8 @@ export async function renderMermaidToPng(
   const tmpDir = os.tmpdir();
   const tmpHtml = path.join(tmpDir, `mermaid_${tmpId}.html`);
   const tmpScreenshot = path.join(tmpDir, `mermaid_${tmpId}.png`);
+  const tmpProfile = path.join(tmpDir, `mermaid_prof_${tmpId}`);
+  const isWin = process.platform === "win32";
 
   const htmlContent = `<!DOCTYPE html>
 <html>
@@ -67,10 +69,14 @@ ${mermaidCode}
     const res = spawnSync(
       chromePath,
       [
-        "--headless",
+        "--headless=new",
+        `--user-data-dir=${tmpProfile}`,
+        "--no-first-run",
+        "--no-default-browser-check",
         "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
+        "--disable-sync",
+        "--disable-extensions",
+        ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
         "--allow-file-access-from-files",
         "--disable-web-security",
         "--disable-software-rasterizer",
@@ -79,7 +85,7 @@ ${mermaidCode}
         `--screenshot=${tmpScreenshot}`,
         fileUrl,
       ],
-      { timeout: 15000 }
+      { timeout: 15000, windowsHide: true }
     );
 
     if (res.status === 0 && fs.existsSync(tmpScreenshot)) {
@@ -92,6 +98,7 @@ ${mermaidCode}
     try {
       if (fs.existsSync(tmpHtml)) fs.unlinkSync(tmpHtml);
       if (fs.existsSync(tmpScreenshot)) fs.unlinkSync(tmpScreenshot);
+      if (fs.existsSync(tmpProfile)) fs.rmSync(tmpProfile, { recursive: true, force: true });
     } catch {
       // ignore
     }

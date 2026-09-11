@@ -555,7 +555,7 @@ export async function renderBackCoverHtml(
  */
 export async function buildHtmlDocument(
   doc: ParsedMarkdownDocument,
-  config: MarkforgeConfig,
+  config: MarkforgeConfig = {},
   baseDir: string = process.cwd()
 ): Promise<string> {
   const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);

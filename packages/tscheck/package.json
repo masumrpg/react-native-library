@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/tscheck",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Modern, high-performance TypeScript AST code audit CLI and engine with beautiful Ink terminal UI and type-safe config.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -43,7 +43,7 @@
   ],
   "author": "Ma'sum",
   "license": "MIT",
-  "homepage": "https://react-native-library-docs.netlify.app/tscheck/",
+  "homepage": "https://react-native-library-docs.vercel.app/tscheck/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/masumrpg/react-native-library.git",

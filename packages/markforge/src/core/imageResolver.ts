@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export interface ResolvedImage {
   src: string;
@@ -85,10 +86,21 @@ export async function resolveImage(
       return resolved;
     }
 
-    // 3. Local File Path
-    let localPath = path.isAbsolute(src) ? src : path.resolve(baseDir, src);
+    // 3. Local File Path (including file:// URIs)
+    let localPath = src;
+    if (src.startsWith("file://")) {
+      try {
+        localPath = fileURLToPath(src);
+      } catch {
+        localPath = src;
+      }
+    }
+
+    if (!path.isAbsolute(localPath)) {
+      localPath = path.resolve(baseDir, localPath);
+    }
     if (!fs.existsSync(localPath)) {
-      const cwdPath = path.resolve(process.cwd(), src);
+      const cwdPath = path.resolve(process.cwd(), src.startsWith("file://") ? localPath : src);
       if (fs.existsSync(cwdPath)) {
         localPath = cwdPath;
       } else {

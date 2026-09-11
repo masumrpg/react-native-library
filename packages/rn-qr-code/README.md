@@ -48,7 +48,7 @@ export function MyComponent() {
   return (
     <QRCode
       variant="BASIC"
-      value="https://react-native-library-docs.netlify.app/rn-qr-code/"
+      value="https://react-native-library-docs.vercel.app/rn-qr-code/"
       size={240}
     />
   );
@@ -61,9 +61,9 @@ export function MyComponent() {
 import { QRCode, QR_CODE_CONFIGS } from "@masumdev/rn-qr-code";
 
 // Using predefined variant name
-<QRCode variant="HEART" value="https://react-native-library-docs.netlify.app" size={200} />
-<QRCode variant="RAIN" value="https://react-native-library-docs.netlify.app" size={200} />
-<QRCode variant="LINEAR_GRADIENT" value="https://react-native-library-docs.netlify.app" size={200} />
+<QRCode variant="HEART" value="https://react-native-library-docs.vercel.app" size={200} />
+<QRCode variant="RAIN" value="https://react-native-library-docs.vercel.app" size={200} />
+<QRCode variant="LINEAR_GRADIENT" value="https://react-native-library-docs.vercel.app" size={200} />
 ```
 
 ### Non-blocking Async Rendering
@@ -73,7 +73,7 @@ import { QRCode } from "@masumdev/rn-qr-code";
 import { Skeleton } from "@masumdev/rn-ui";
 
 <QRCode
-  value="https://react-native-library-docs.netlify.app/rn-qr-code/"
+  value="https://react-native-library-docs.vercel.app/rn-qr-code/"
   size={200}
   isAsync
   renderLoading={() => <Skeleton style={{ width: 200, height: 200 }} radius="md" />}

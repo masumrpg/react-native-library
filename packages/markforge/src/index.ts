@@ -11,6 +11,8 @@ export type {
 export { buildDocxDocument, parseMarginToTwip } from "./core/docx/docxBuilder.js";
 export { buildHtmlDocument, escapeHtml, renderInlinesToHtml, renderNodesToHtml, renderCoverPageHtml, renderBackCoverHtml } from "./core/html/htmlBuilder.js";
 export { buildPdfDocument, injectPagedMediaStyles, findChromeExecutable } from "./core/pdf/pdfBuilder.js";
+export { buildTextDocument, buildTextDocument as buildTxtDocument, renderInlinesToText } from "./core/text/textBuilder.js";
+export { buildPngDocument } from "./core/png/pngBuilder.js";
 export { resolveImage, inlineHtmlImages, getMimeType } from "./core/imageResolver.js";
 export type { ResolvedImage } from "./core/imageResolver.js";
 export { tokenizeCodeLine, highlightCodeToHtml, SYNTAX_COLORS } from "./core/syntax/syntaxHighlighter.js";
@@ -57,6 +59,10 @@ export {
   PaperSizeEnum,
   SyntaxTheme,
   WatermarkPosition,
+  CoverPagePreset,
+  BackCoverPreset,
+  SignatureAlign,
+  SignatureStyle,
 } from "./config/types.js";
 export type {
   ThemeProps,
@@ -72,13 +78,13 @@ export type {
   DocumentLayoutConfig,
   FrontmatterMetadata,
   WatermarkOptions,
-  SignatureAlign,
-  SignatureStyle,
+  SignatureAlignOption,
+  SignatureStyleOption,
   SignatureItem,
   SignatureBlockConfig,
-  CoverPagePreset,
+  CoverPreset,
   CoverPageConfig,
-  BackCoverPreset,
+  BackCoverPresetType,
   BackCoverSocial,
   BackCoverConfig,
   NumberHeadingsConfig,

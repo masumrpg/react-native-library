@@ -62,7 +62,15 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({ result }) => {
             </Text>
             {result.files.map((f, i) => {
               const formatColor =
-                f.format === "docx" ? "blue" : f.format === "pdf" ? "red" : "yellow";
+                f.format === "docx"
+                  ? "blue"
+                  : f.format === "pdf"
+                  ? "red"
+                  : f.format === "html"
+                  ? "yellow"
+                  : f.format === "png"
+                  ? "magenta"
+                  : "green";
               const paddedBadge = `[${f.format.toUpperCase()}]`.padEnd(7, " ");
 
               return (

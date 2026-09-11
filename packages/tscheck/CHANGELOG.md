@@ -5,6 +5,19 @@ All notable changes to `@masumdev/tscheck` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-09-11
+
+### Fixed
+- **Default Report Server Behavior**:
+  - Changed default `serve` option to `false`. Running `tscheck` without flags now executes the audit and exits cleanly without hanging or opening an HTTP server.
+  - Report server is now exclusively started when explicitly requested via `-s` / `--serve [port]`, `-p` / `--port <number>`, or `-O` / `--open`.
+- **CLI Options & Configuration Precedence**:
+  - Fixed Commander CLI option defaults for `--editor` and `--format` so that settings defined in `tscheck.config.json` / `.tscheckrc.json` take effect when the CLI flag is omitted.
+  - Added dedicated `-p, --port <number>` CLI parameter for explicitly configuring the local report server port (default: `5500`).
+  - Added clean Ink terminal unmounting on non-interactive audit completion.
+
+---
+
 ## [0.2.2] - 2026-08-26
 
 ### Added

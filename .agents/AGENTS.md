@@ -15,7 +15,7 @@ This workspace is a **Turborepo** monorepo using **Bun** workspaces for high-per
 │   └── tscheck/               # TypeScript & AST checking module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
-│   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.netlify.app)
+│   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.vercel.app)
 ├── scripts/                   # Workspace maintenance & audit scripts (e.g. audit-codebase.ts)
 └── .agents/                   # Centralized AI rules, skills, and configuration
 ```
