@@ -5,6 +5,14 @@ All notable changes to **@masumdev/markforge** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-09-11
+
+### Fixed
+- **OS-Specific PDF Page Normalization**:
+  - Implemented platform-aware handling for Chromium headless print. On Windows (`win32`), DirectWrite renders page bounds with subpixel precision without trailing pages, while on Linux/Unix, trailing overflow blank pages after 100vh sections are cleanly pruned, ensuring exact and consistent page counts across all operating systems.
+
+---
+
 ## [0.5.1] - 2026-09-11
 
 ### Fixed
