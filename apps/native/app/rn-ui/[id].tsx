@@ -64,6 +64,7 @@ import {
   SegmentedControlSection,
   ChipSection,
   SignaturePadSection,
+  SpinnerSection,
 } from "../../components/rn-ui";
 
 export default function RnUiComponentDetailScreen() {
@@ -210,6 +211,9 @@ export default function RnUiComponentDetailScreen() {
         return <ChipSection ctx={ctx} />;
       case "signature-pad":
         return <SignaturePadSection ctx={ctx} />;
+      case "spinner":
+      case "loader":
+        return <SpinnerSection ctx={ctx} />;
 
       default:
         return <ButtonsSection ctx={ctx} />;

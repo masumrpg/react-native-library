@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import type { ThemeColors } from "../theme";
 
 export type ThemeColorName = keyof ThemeColors;
@@ -8,12 +8,26 @@ export type RenderIcon =
   | ((props: { color: string; size: number }) => ReactNode);
 
 export function renderIcon(
-  icon: RenderIcon | undefined,
+  icon: RenderIcon | React.ComponentType<{ color?: string; size?: number }> | undefined,
   color: string,
   size: number,
-) {
+): ReactNode {
   if (!icon) return null;
-  return typeof icon === "function" ? icon({ color, size }) : icon;
+  if (React.isValidElement(icon)) return icon;
+  if (typeof icon === "function") {
+    try {
+      const result = (icon as (props: { color: string; size: number }) => ReactNode)({ color, size });
+      if (React.isValidElement(result)) return result;
+    } catch {
+      const Component = icon as React.ComponentType<{ color?: string; size?: number }>;
+      return React.createElement(Component, { color, size });
+    }
+  }
+  if (typeof icon === "object" && icon !== null && "$$typeof" in icon) {
+    const Component = icon as unknown as React.ComponentType<{ color?: string; size?: number }>;
+    return React.createElement(Component, { color, size });
+  }
+  return icon as ReactNode;
 }
 
 /**

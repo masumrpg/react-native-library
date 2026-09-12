@@ -9,10 +9,30 @@ import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
 
 export const releases = [
   {
-    version: 'v0.3.0',
-    date: '2026-08-25',
+    version: 'v0.3.1',
+    date: '2026-09-12',
     tag: 'Latest Feature Release',
     isLatest: true,
+    changes: [
+      {
+        type: 'feat',
+        text: '<strong>Spinner & Loader Components</strong>: Dedicated high-performance loader component with 4 distinct animation variants (<code>circular</code>, <code>ring</code>, <code>dots</code>, <code>bars</code>), customizable speeds, size scales, semantic color tones, and descriptive labels.',
+      },
+      {
+        type: 'perf',
+        text: '<strong>Ultra-Lightweight Skeleton with SkeletonGroup</strong>: Reduced SharedValues by 75%, removed native <code>onLayout</code> bridge listeners, and added <code>SkeletonGroup</code> for synchronized single-clock multi-skeleton screens with zero layout shift and safe unmount cleanup.',
+      },
+      {
+        type: 'fix',
+        text: '<strong>Button & renderIcon Defensive Rendering</strong>: Safeguarded mixed children rendering to prevent un-wrapped text string errors in React Native and added automatic support for React forwardRef components.',
+      },
+    ],
+  },
+  {
+    version: 'v0.3.0',
+    date: '2026-08-25',
+    tag: 'Feature Release',
+    isLatest: false,
     changes: [
       {
         type: 'feat',
