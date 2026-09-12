@@ -348,8 +348,21 @@ export type {
   SheetHeaderProps,
   SheetTitleProps,
 } from "./Sheet";
-export { Skeleton } from "./Skeleton";
-export type { SkeletonProps, SkeletonShimmerDirection } from "./Skeleton";
+export { Skeleton, SkeletonGroup, SkeletonContext } from "./Skeleton";
+export type {
+  SkeletonProps,
+  SkeletonGroupProps,
+  SkeletonGroupContextValue,
+  SkeletonShimmerDirection,
+} from "./Skeleton";
+export { Spinner, Loader } from "./Spinner";
+export type {
+  SpinnerProps,
+  SpinnerVariant,
+  SpinnerSize,
+  SpinnerSpeed,
+  SpinnerLabelPlacement,
+} from "./Spinner";
 export { Slider } from "./Slider";
 export type { SliderProps, SliderTone } from "./Slider";
 export { Stepper } from "./Stepper";

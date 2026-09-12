@@ -15,7 +15,7 @@ Comprehensive guides, component previews, prop tables, and interactive examples 
 
 - 📖 **[Installation Guide](https://react-native-library-docs.vercel.app/rn-ui/installation)**
 - 🎨 **[Theming & Dark Mode](https://react-native-library-docs.vercel.app/rn-ui/theming)**
-- 🧩 **[55+ Component Catalog](https://react-native-library-docs.vercel.app/rn-ui/components)**
+- 🧩 **[64+ Component Catalog](https://react-native-library-docs.vercel.app/rn-ui/components)**
 - 🛠️ **[Building Custom Components](https://react-native-library-docs.vercel.app/rn-ui/custom-components)**
 - 📜 **[Architectural Rules](./RULES.md)**
 - 🚀 **[Changelog](https://react-native-library-docs.vercel.app/rn-ui/changelog)**
@@ -26,7 +26,7 @@ Comprehensive guides, component previews, prop tables, and interactive examples 
 
 - **Flat Aesthetic**: Border-based, clean UI primitives with zero elevation/shadow by default.
 - **Dynamic Theme Engine**: Light, dark, and system preference support via `ThemeProvider`.
-- **55+ Typed Components**: Forms, feedback, overlays, navigation, data display, and chat UI primitives.
+- **64+ Typed Components**: Forms, feedback, overlays, navigation, data display, and chat UI primitives.
 - **Pluggable Architecture**: Zero lock-in for fonts, icons, navigation, storage, or haptics.
 - **Reanimated Powered**: Smooth 60fps micro-animations powered by `react-native-reanimated`.
 - **Strict Type Safety**: 100% TypeScript with zero `any` types and shared base UI prop interfaces.

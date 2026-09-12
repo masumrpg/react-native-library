@@ -432,6 +432,13 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
         tone: "primary",
       },
       {
+        id: "spinner",
+        name: "Spinner",
+        description:
+          "High-performance circular, dots, bars, and dual-ring loader spinners.",
+        tone: "primary",
+      },
+      {
         id: "avatar",
         name: "Avatar",
         description:

@@ -1,8 +1,7 @@
-import React from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import {
   Dimensions,
   StyleSheet,
-  type LayoutChangeEvent,
   type StyleProp,
   type ViewProps,
   type ViewStyle,
@@ -10,10 +9,12 @@ import {
 import Animated, {
   cancelAnimation,
   Easing,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 
 import { useTheme } from "../theme";
@@ -24,54 +25,44 @@ export type SkeletonShimmerDirection =
   | "top-to-bottom"
   | "top-right-to-bottom-left";
 
-export interface SkeletonProps extends ViewProps {
-  animated?: boolean;
-  radius?: keyof ReturnType<typeof useTheme>["radii"];
-  direction?: SkeletonShimmerDirection;
-  style?: StyleProp<ViewStyle>;
+export interface SkeletonGroupContextValue {
+  progress: SharedValue<number>;
+  animated: boolean;
 }
 
-const INITIAL_WIDTH = Dimensions.get("window").width || 300;
+export const SkeletonContext = createContext<SkeletonGroupContextValue | null>(null);
 
-function SkeletonComponent({
+export interface SkeletonGroupProps {
+  /** Whether the shared shimmer animation is actively running */
+  animated?: boolean;
+  /** Duration of one shimmer sweep in milliseconds. Defaults to 1400ms */
+  duration?: number;
+  children: React.ReactNode;
+}
+
+/**
+ * SkeletonGroup optimizes multi-skeleton screens by driving all child Skeleton
+ * components with a single, shared animation clock on the UI thread.
+ * This drastically reduces UI thread worklet overhead, memory footprint, and frame drops.
+ */
+export function SkeletonGroup({
   animated = true,
-  radius = "md",
-  direction = "top-left-to-bottom-right",
-  style,
-  onLayout,
-  ...props
-}: SkeletonProps) {
-  const { colors, radii } = useTheme();
+  duration = 1400,
+  children,
+}: SkeletonGroupProps) {
+  const progress = useSharedValue(0);
 
-  const widthSV = useSharedValue(INITIAL_WIDTH);
-  const heightSV = useSharedValue(100);
-  const opacity = useSharedValue(0.65);
-  const translateProgress = useSharedValue(-1);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (!animated) {
-      cancelAnimation(opacity);
-      cancelAnimation(translateProgress);
-      opacity.value = 1;
+      cancelAnimation(progress);
+      progress.value = 0;
       return;
     }
 
-    // Subtle background pulse
-    opacity.value = 0.65;
-    opacity.value = withRepeat(
-      withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
-      -1,
-      true,
-    );
-
-    // Continuous -1 to 1 loop on UI thread
-    const startProgress = direction === "top-right-to-bottom-left" ? 1 : -1;
-    const endProgress = direction === "top-right-to-bottom-left" ? -1 : 1;
-
-    translateProgress.value = startProgress;
-    translateProgress.value = withRepeat(
-      withTiming(endProgress, {
-        duration: 1500,
+    progress.value = 0;
+    progress.value = withRepeat(
+      withTiming(1, {
+        duration,
         easing: Easing.linear,
       }),
       -1,
@@ -79,51 +70,113 @@ function SkeletonComponent({
     );
 
     return () => {
-      cancelAnimation(opacity);
-      cancelAnimation(translateProgress);
+      cancelAnimation(progress);
     };
-  }, [animated, direction]);
+  }, [animated, duration, progress]);
 
-  const handleLayout = (e: LayoutChangeEvent) => {
-    const { width, height } = e.nativeEvent.layout;
-    if (width > 0) {
-      widthSV.value = width;
-      heightSV.value = height;
+  const value = useMemo(
+    () => ({
+      progress,
+      animated,
+    }),
+    [progress, animated],
+  );
+
+  return (
+    <SkeletonContext.Provider value={value}>
+      {children}
+    </SkeletonContext.Provider>
+  );
+}
+
+export interface SkeletonProps extends ViewProps {
+  /** Whether shimmer animation is enabled. Defaults to true */
+  animated?: boolean;
+  /** Border radius token from the theme. Defaults to "md" */
+  radius?: keyof ReturnType<typeof useTheme>["radii"];
+  /** Direction of the shimmer wave sweep */
+  direction?: SkeletonShimmerDirection;
+  /** Additional styling applied to the skeleton placeholder */
+  style?: StyleProp<ViewStyle>;
+  /** Optional inner children */
+  children?: React.ReactNode;
+}
+
+const SCREEN_WIDTH = Dimensions.get("window").width || 380;
+const SWEEP_DISTANCE = SCREEN_WIDTH * 1.5;
+const SHIMMER_BAR_WIDTH = Math.max(60, Math.min(SCREEN_WIDTH * 0.35, 120));
+
+function SkeletonComponent({
+  animated = true,
+  radius = "md",
+  direction = "top-left-to-bottom-right",
+  style,
+  children,
+  ...props
+}: SkeletonProps) {
+  const { colors, radii } = useTheme();
+  const groupContext = useContext(SkeletonContext);
+
+  // If inside a SkeletonGroup, inherit the shared UI-thread clock; otherwise use a single local clock.
+  const localProgress = useSharedValue(0);
+  const progress = groupContext ? groupContext.progress : localProgress;
+  const isAnimated = groupContext ? groupContext.animated && animated : animated;
+
+  useEffect(() => {
+    if (groupContext) return; // Managed by SkeletonGroup
+
+    if (!isAnimated) {
+      cancelAnimation(localProgress);
+      localProgress.value = 0;
+      return;
     }
-    onLayout?.(e);
-  };
 
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+    localProgress.value = 0;
+    localProgress.value = withRepeat(
+      withTiming(1, {
+        duration: 1400,
+        easing: Easing.linear,
+      }),
+      -1,
+      false,
+    );
 
+    return () => {
+      cancelAnimation(localProgress);
+    };
+  }, [groupContext, isAnimated, localProgress]);
+
+  // Subtle breathing pulse on the container
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    if (!isAnimated) return { opacity: 1 };
+    const opacity = interpolate(progress.value, [0, 0.5, 1], [0.75, 1, 0.75]);
+    return { opacity };
+  });
+
+  // Single performant transform worklet for the shimmer wave
   const shimmerAnimatedStyle = useAnimatedStyle(() => {
-    const w = widthSV.value || INITIAL_WIDTH;
-    const h = heightSV.value || 100;
-    const sweepDistance = (w + h) * 1.5;
-    const currentTranslate = translateProgress.value * sweepDistance;
-    const shimmerWidth = Math.max(40, Math.min(w * 0.3, 100));
+    if (!isAnimated) return { opacity: 0 };
+
+    const startPos = direction === "top-right-to-bottom-left" ? SWEEP_DISTANCE : -SWEEP_DISTANCE;
+    const endPos = direction === "top-right-to-bottom-left" ? -SWEEP_DISTANCE : SWEEP_DISTANCE;
+    const currentTranslate = interpolate(progress.value, [0, 1], [startPos, endPos]);
 
     switch (direction) {
       case "top-to-bottom":
         return {
-          width: shimmerWidth,
           transform: [{ translateY: currentTranslate }],
         };
       case "top-right-to-bottom-left":
         return {
-          width: shimmerWidth,
           transform: [{ translateX: currentTranslate }, { rotate: "-25deg" }],
         };
       case "left-to-right":
         return {
-          width: shimmerWidth,
           transform: [{ translateX: currentTranslate }],
         };
       case "top-left-to-bottom-right":
       default:
         return {
-          width: shimmerWidth,
           transform: [{ translateX: currentTranslate }, { rotate: "25deg" }],
         };
     }
@@ -141,23 +194,24 @@ function SkeletonComponent({
         style,
         containerAnimatedStyle,
       ]}
-      onLayout={handleLayout}
       {...props}
     >
-      {animated && (
+      {isAnimated && (
         <Animated.View
           style={[
             StyleSheet.absoluteFill,
             {
               top: -60,
               bottom: -60,
+              width: SHIMMER_BAR_WIDTH,
               backgroundColor: colors.surface,
-              opacity: 0.25,
+              opacity: 0.28,
             },
             shimmerAnimatedStyle,
           ]}
         />
       )}
+      {children}
     </Animated.View>
   );
 }

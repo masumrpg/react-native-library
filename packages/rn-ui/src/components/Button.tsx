@@ -194,7 +194,7 @@ export function Button({
       ) : (
         <>
           {renderIcon(leftIcon, foregroundColor, iconSize)}
-          {typeof children === "string" ? (
+          {typeof children === "string" || typeof children === "number" ? (
             <Text
               style={[
                 typography.label,
@@ -207,6 +207,26 @@ export function Button({
             >
               {children}
             </Text>
+          ) : Array.isArray(children) ? (
+            children.map((child, idx) =>
+              typeof child === "string" || typeof child === "number" ? (
+                <Text
+                  key={idx}
+                  style={[
+                    typography.label,
+                    {
+                      color: foregroundColor,
+                      textAlign: "center",
+                    },
+                    textStyle,
+                  ]}
+                >
+                  {child}
+                </Text>
+              ) : (
+                child
+              )
+            )
           ) : (
             children
           )}

@@ -56,4 +56,4 @@ export { SwipeableItemSection } from './sections/SwipeableItemSection';
 export { SegmentedControlSection } from './sections/SegmentedControlSection';
 export { ChipSection } from './sections/ChipSection';
 export { SignaturePadSection } from './sections/SignaturePadSection';
-
+export { SpinnerSection } from './sections/SpinnerSection';

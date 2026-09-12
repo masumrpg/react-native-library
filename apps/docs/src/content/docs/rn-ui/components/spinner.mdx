@@ -1,0 +1,75 @@
+---
+title: Spinner
+description: High-performance animated loading spinner with circular arc, dual-ring, wave dots, and equalizer bar variants.
+sidebar:
+  badge:
+    text: "New"
+    variant: "tip"
+---
+
+import TypeTable from '@/components/TypeTable.astro';
+
+The **Spinner** component (also exported as `Loader`) provides fluid 60–120fps UI thread loading indicators with 4 distinct animation variants, semantic design tokens, and optional descriptive labels.
+
+## Usage
+
+```tsx
+import React from 'react';
+import { Spinner, Box, Card, Text } from '@masumdev/rn-ui';
+
+export function SpinnerExample() {
+  return (
+    <Box gap="lg">
+      {/* 4 Animation Variants */}
+      <Box row gap="xl" center>
+        <Spinner variant="circular" tone="primary" size="default" />
+        <Spinner variant="ring" tone="accent" size="default" />
+        <Spinner variant="dots" tone="success" size="default" />
+        <Spinner variant="bars" tone="warning" size="default" />
+      </Box>
+
+      {/* Sizes Scale (xs, sm, default, lg, xl) */}
+      <Box row gap="md" center>
+        <Spinner size="xs" tone="primary" />
+        <Spinner size="sm" tone="primary" />
+        <Spinner size="default" tone="primary" />
+        <Spinner size="lg" tone="primary" />
+        <Spinner size="xl" tone="primary" />
+      </Box>
+
+      {/* Spinner with Descriptive Label */}
+      <Spinner
+        variant="ring"
+        tone="primary"
+        size="lg"
+        label="Synchronizing data..."
+        labelPlacement="bottom"
+      />
+    </Box>
+  );
+}
+```
+
+## Variants
+
+- **`circular`**: Classic high-performance SVG arc with background track ring.
+- **`ring`**: Elegant dual concentric rings with counter-rotating inner arc.
+- **`dots`**: Three phase-shifted pulsing wave dots.
+- **`bars`**: Four vertical soundwave equalizer bars.
+
+## Props API
+
+<TypeTable
+  type={{
+    variant: { type: "'circular' | 'ring' | 'dots' | 'bars'", default: "'circular'", description: 'Visual animation structure style.' },
+    size: { type: "'xs' | 'sm' | 'default' | 'lg' | 'xl' | number", default: "'default'", description: 'Predefined size scale (16px, 22px, 32px, 44px, 58px) or custom numeric diameter.' },
+    tone: { type: "'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'default'", default: "'primary'", description: 'Semantic color palette from design tokens.' },
+    speed: { type: "'slow' | 'normal' | 'fast' | number", default: "'normal'", description: 'Animation cycle duration (slow=1400ms, normal=850ms, fast=550ms, or custom ms).' },
+    strokeWidth: { type: 'number', default: 'Auto', description: 'Custom ring stroke thickness for circular/ring variants.' },
+    label: { type: 'string', default: 'undefined', description: 'Optional descriptive label text next to or below the spinner.' },
+    labelPlacement: { type: "'bottom' | 'right' | 'top' | 'left'", default: "'bottom'", description: 'Placement of the descriptive label.' },
+    trackColor: { type: 'string', default: 'colors.backgroundSubtle', description: 'Custom background circle track color.' },
+    color: { type: 'string', default: 'undefined', description: 'Direct color override, bypassing semantic tone mapping.' },
+    animated: { type: 'boolean', default: 'true', description: 'Controls whether the animation loop is running.' },
+  }}
+/>
