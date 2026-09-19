@@ -13,10 +13,10 @@ export const pnpmInstall = `pnpm add @masumdev/rn-ui react-native-reanimated rea
 export const yarnInstall = `yarn add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
 export const bunInstall = `bun add @masumdev/rn-ui react-native-reanimated react-native-gesture-handler react-native-worklets react-native-safe-area-context`;
 
-export const npmOptional = `npm i @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
-export const pnpmOptional = `pnpm add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
-export const yarnOptional = `yarn add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
-export const bunOptional = `bun add @gorhom/bottom-sheet react-native-calendars expo-secure-store`;
+export const npmOptional = `npm i react-native-calendars expo-secure-store`;
+export const pnpmOptional = `pnpm add react-native-calendars expo-secure-store`;
+export const yarnOptional = `yarn add react-native-calendars expo-secure-store`;
+export const bunOptional = `bun add react-native-calendars expo-secure-store`;
 
 export const babelCode = `module.exports = {
   presets: ['babel-preset-expo'],
@@ -72,7 +72,7 @@ Install `@masumdev/rn-ui` along with required peer dependencies using your prefe
   </TabItem>
 </Tabs>
 
-If you plan to use `BottomSheet`, `Calendar`, or persistent theme storage (`SecureStore`), install optional dependencies:
+If you plan to use `Calendar` or persistent theme storage (`SecureStore`), install optional dependencies:
 
 <Tabs syncKey="pkg">
   <TabItem label="npm" icon="seti:npm">

@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { useTheme, useToast, type RenderIcon, type BottomSheetMethods } from "@masumdev/rn-ui";
+import { useTheme, useToast, type RenderIcon } from "@masumdev/rn-ui";
 
 const icon =
   (Icon: React.ComponentType<{ color?: string; size?: number }>): RenderIcon =>
@@ -10,7 +10,6 @@ export function useSectionContext() {
   const theme = useTheme();
   const { colors, colorScheme, isDark, setColorScheme, radii, spacing, typography, shadows, components } = theme;
   const toast = useToast();
-  const sheetRef = React.useRef<BottomSheetMethods>(null);
 
   const [sampleInput, setSampleInput] = React.useState("Hello @masumdev/rn-ui");
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -22,7 +21,6 @@ export function useSectionContext() {
   const [ratingValue, setRatingValue] = React.useState(4.5);
   const [selectValue, setSelectValue] = React.useState("react-native");
   const [framework, setFramework] = React.useState("expo");
-  const [activeTab, setActiveTab] = React.useState("tab1");
   const [activeStep, setActiveStep] = React.useState(2);
   const [commandVisible, setCommandVisible] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState("2026-08-23");
@@ -64,9 +62,6 @@ export function useSectionContext() {
     []
   );
 
-  const openSheet = React.useCallback(() => {
-    sheetRef.current?.expand();
-  }, []);
 
   return {
     colors,
@@ -81,8 +76,6 @@ export function useSectionContext() {
     shadows,
     components,
     toast,
-    sheetRef,
-    openSheet,
     icon,
     styles,
     sampleInput,
@@ -105,8 +98,6 @@ export function useSectionContext() {
     setSelectValue,
     framework,
     setFramework,
-    activeTab,
-    setActiveTab,
     activeStep,
     setActiveStep,
     commandVisible,

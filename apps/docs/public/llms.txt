@@ -1,0 +1,69 @@
+# Masum Dev — LLM Knowledge Base & Monorepo Index
+
+> High-performance, open-source React Native & Expo component libraries and tools.
+> Website: https://react-native-library-docs.vercel.app
+
+This repository provides open-source libraries under the `@masumdev/*` namespace, built using a Turborepo + Bun monorepo architecture for mobile (iOS / Android / Web) and developer tooling.
+
+---
+
+## 🎯 Primary Focus: @masumdev/rn-ui (React Native UI Kit)
+
+`@masumdev/rn-ui` is a production-grade, typed, flat-aesthetic React Native UI library with 61 components, a dynamic theme engine, zero-elevation defaults, and zero-bounce micro-animations.
+
+👉 **[Read the Full React Native Context & Native Recipes Guide](/rn-ui/llms.txt)**
+- File path: `/rn-ui/llms.txt`
+- Contains complete production recipes: Root setup (`_layout.tsx`), Theme tokens (`useTheme`), Form validation architecture, High-performance loading (`Spinner`, `SkeletonGroup`), Dialogs (`AlertDialog`), Cupertino segment switcher (`SegmentedControl`), Lucide icon adapter (`renderIcon`), and anti-patterns.
+
+### Quick Start
+```bash
+# Expo
+npx expo install react-native-reanimated react-native-worklets react-native-gesture-handler react-native-safe-area-context
+bun add @masumdev/rn-ui
+
+# React Native CLI
+bun add @masumdev/rn-ui react-native-reanimated react-native-worklets react-native-gesture-handler react-native-safe-area-context
+```
+
+### Essential Rules for AI Agents:
+- **Variant**: The filled button/badge variant is strictly `"filled"` (NEVER use `"solid"`).
+- **Tone**: The neutral tone is strictly `"default"` (NEVER use `"neutral"`).
+- **Icons**: Always wrap icon objects with `renderIcon` or render props — NEVER pass raw forwardRef icon objects as JSX children.
+- **Animations**: Zero-bounce policy — always use linear or cubic easing (never bouncy spring overshoot).
+- **Removed in v0.4.0**: `@gorhom/bottom-sheet`, `BottomSheet`, `Sheet`, and `Tabs` have been purged. Use native `<Modal>`, `<AlertDialog>`, or `<SegmentedControl>`.
+
+---
+
+## 📦 Other Open-Source Libraries in Monorepo
+
+### 1. @masumdev/rn-qr-code
+High-performance SVG QR code generator for React Native and Expo with custom eye shapes and presets.
+- **Install**: `bun add @masumdev/rn-qr-code react-native-svg`
+- **Key Features**: Supports custom corner eye shapes (`square`, `circle`, `rounded`, `leaf`), embedded central logos, gradient colors, and instant export/sharing.
+- **Documentation**: https://react-native-library-docs.vercel.app/rn-qr-code/
+
+### 2. @masumdev/rn-tajweed-verse
+Tajweed Quranic verse parser and renderer with interactive color-coded pronunciation rules and tooltips.
+- **Install**: `bun add @masumdev/rn-tajweed-verse react-native-svg`
+- **Key Features**: Color-coded Tajweed rules (Ghunnah, Ikhfa, Idgham, Qalqalah, Madd), interactive tapping for rule explanation tooltips, customizable fonts and color schemes.
+- **Documentation**: https://react-native-library-docs.vercel.app/rn-tajweed-verse/
+
+### 3. @masumdev/tscheck
+High-speed TypeScript and AST checking CLI tool for monorepos and libraries.
+- **Key Features**: Deprecation scanner, unused variable/import detector, explicit `any` finder, and circular dependency cycle analyzer.
+- **Documentation**: https://react-native-library-docs.vercel.app/tscheck/
+
+### 4. @masumdev/markforge
+Markdown and documentation generator with terminal ink UI and AST parsing.
+- **Documentation**: https://react-native-library-docs.vercel.app/markforge/
+
+---
+
+## 🔗 Documentation Links
+
+- **RN UI Overview**: https://react-native-library-docs.vercel.app/rn-ui/
+- **RN UI 61+ Component Catalog**: https://react-native-library-docs.vercel.app/rn-ui/components/
+- **RN UI Theming Guide**: https://react-native-library-docs.vercel.app/rn-ui/theming/
+- **RN UI Installation**: https://react-native-library-docs.vercel.app/rn-ui/installation/
+- **RN UI Changelog**: https://react-native-library-docs.vercel.app/rn-ui/changelog/
+- **GitHub Repository**: https://github.com/masumrpg/react-native-library

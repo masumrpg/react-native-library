@@ -9,10 +9,30 @@ import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
 
 export const releases = [
   {
+    version: 'v0.4.0',
+    date: '2026-09-19',
+    tag: 'Breaking Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'refactor',
+        text: '<strong>Removed @gorhom/bottom-sheet Dependency</strong>: Completely removed <code>@gorhom/bottom-sheet</code> from peer dependencies and purged the <code>BottomSheet</code> wrapper to keep @masumdev/rn-ui lean and zero-dependency on external gesture bottom sheets.',
+      },
+      {
+        type: 'refactor',
+        text: '<strong>Removed Sheet & Tabs Components</strong>: Deprecated and removed <code>Sheet</code> and <code>Tabs</code> components in favor of simpler native modal patterns and segmented controls.',
+      },
+      {
+        type: 'feat',
+        text: '<strong>Standalone Command Component</strong>: Refactored <code>Command</code> palette to use a self-contained modal overlay without requiring external <code>Sheet</code> abstractions.',
+      },
+    ],
+  },
+  {
     version: 'v0.3.1',
     date: '2026-09-12',
-    tag: 'Latest Feature Release',
-    isLatest: true,
+    tag: 'Feature Release',
+    isLatest: false,
     changes: [
       {
         type: 'feat',

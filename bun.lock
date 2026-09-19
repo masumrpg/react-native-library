@@ -5,9 +5,9 @@
     "": {
       "name": "react-native-library",
       "devDependencies": {
-        "@turbo/gen": "^2.9.8",
-        "prettier": "^3.1.1",
-        "turbo": "^2.10.7",
+        "@turbo/gen": "^2.10.12",
+        "prettier": "^3.9.6",
+        "turbo": "^2.10.12",
       },
     },
     "apps/cli/markforge": {
@@ -53,7 +53,6 @@
       "version": "1.0.0",
       "dependencies": {
         "@expo-google-fonts/outfit": "^0.4.3",
-        "@gorhom/bottom-sheet": "^5.2.14",
         "@masumdev/rn-qr-code": "workspace:*",
         "@masumdev/rn-tajweed-verse": "workspace:*",
         "@masumdev/rn-ui": "workspace:*",
@@ -93,7 +92,7 @@
     },
     "packages/markforge": {
       "name": "@masumdev/markforge",
-      "version": "0.5.0",
+      "version": "0.5.2",
       "bin": {
         "markforge": "./dist/cli.mjs",
       },
@@ -157,7 +156,7 @@
     },
     "packages/rn-ui": {
       "name": "@masumdev/rn-ui",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "devDependencies": {
         "@babel/core": "^7.25.0",
         "@babel/preset-env": "^7.25.0",
@@ -167,7 +166,6 @@
         "typescript": "^5.0.0",
       },
       "peerDependencies": {
-        "@gorhom/bottom-sheet": "*",
         "react": ">=16",
         "react-native": "*",
         "react-native-calendars": "*",
@@ -179,7 +177,7 @@
     },
     "packages/tscheck": {
       "name": "@masumdev/tscheck",
-      "version": "0.2.3",
+      "version": "0.2.5",
       "bin": {
         "tscheck": "./dist/cli.mjs",
       },
@@ -208,7 +206,6 @@
   "overrides": {
     "@babel/core": "^7.25.0",
     "@babel/preset-env": "^7.25.0",
-    "@gorhom/bottom-sheet": "^5.2.14",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "css-tree": "^3.0.1",
@@ -613,10 +610,6 @@
     "@expressive-code/plugin-text-markers": ["@expressive-code/plugin-text-markers@0.40.2", "", { "dependencies": { "@expressive-code/core": "^0.40.2" } }, "sha512-/XoLjD67K9nfM4TgDlXAExzMJp6ewFKxNpfUw4F7q5Ecy+IU3/9zQQG/O70Zy+RxYTwKGw2MA9kd7yelsxnSmw=="],
 
     "@fontsource-variable/outfit": ["@fontsource-variable/outfit@5.3.0", "", {}, "sha512-fPb5XnYK0k7SbR++HEmm4+ZqDszmLKQ+sPRUr8oQ/KNC0vy6r6hazJFe8iYozv4cqlHbvJ/JECkJWrfDodUMVQ=="],
-
-    "@gorhom/bottom-sheet": ["@gorhom/bottom-sheet@5.2.14", "", { "dependencies": { "@gorhom/portal": "1.0.14", "invariant": "^2.2.4" }, "peerDependencies": { "@types/react": "*", "@types/react-native": "*", "react": "*", "react-native": "*", "react-native-gesture-handler": ">=2.16.1", "react-native-reanimated": ">=3.16.0 || >=4.0.0-" }, "optionalPeers": ["@types/react", "@types/react-native"] }, "sha512-uLQFlDjp9z+jrOFcMSEldPqL5JdaXL3vXOh+juhwoNvXgTsEorJLjHTugXu+YccAG/0KJnShzKCrb71MHBsvJg=="],
-
-    "@gorhom/portal": ["@gorhom/portal@1.0.14", "", { "dependencies": { "nanoid": "^3.3.1" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A=="],
 
     "@img/colour": ["@img/colour@1.1.0", "", {}, "sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ=="],
 
@@ -2539,8 +2532,6 @@
     "@expo/xcpretty/js-yaml": ["js-yaml@4.3.1", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ=="],
 
     "@expressive-code/plugin-shiki/shiki": ["shiki@1.29.2", "", { "dependencies": { "@shikijs/core": "1.29.2", "@shikijs/engine-javascript": "1.29.2", "@shikijs/engine-oniguruma": "1.29.2", "@shikijs/langs": "1.29.2", "@shikijs/themes": "1.29.2", "@shikijs/types": "1.29.2", "@shikijs/vscode-textmate": "^10.0.1", "@types/hast": "^3.0.4" } }, "sha512-njXuliz/cP+67jU2hukkxCNuH1yUi4QfdZZY+sMr5PPrIyXSu5iTb/qYC4BiWWB0vZ+7TbdvYUCeL23zpwCfbg=="],
-
-    "@gorhom/portal/nanoid": ["nanoid@3.3.18", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w=="],
 
     "@inquirer/core/signal-exit": ["signal-exit@4.1.0", "", {}, "sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw=="],
 

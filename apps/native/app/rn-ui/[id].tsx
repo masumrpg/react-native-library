@@ -14,7 +14,6 @@ import {
   AttachmentsSection,
   AvatarSection,
   BadgesSection,
-  BottomSheetSection,
   BoxSection,
   CardSection,
   DividerSection,
@@ -44,9 +43,7 @@ import {
   SliderSection,
   ProgressSection,
   SkeletonSection,
-  TabsSection,
   StepperSection,
-  SheetSection,
   TextareaSection,
   SelectSection,
   CommandSection,
@@ -153,8 +150,6 @@ export default function RnUiComponentDetailScreen() {
         return <FormSection ctx={ctx} />;
 
       // Navigation & Indicators
-      case "tabs":
-        return <TabsSection ctx={ctx} />;
       case "breadcrumb":
         return <BreadcrumbSection ctx={ctx} />;
       case "pagination":
@@ -167,10 +162,6 @@ export default function RnUiComponentDetailScreen() {
         return <AlertSection ctx={ctx} />;
       case "alert-dialog":
         return <AlertDialogSection ctx={ctx} />;
-      case "sheet":
-        return <SheetSection ctx={ctx} />;
-      case "bottom-sheet":
-        return <BottomSheetSection ctx={ctx} />;
       case "popover":
         return <PopoverSection ctx={ctx} />;
       case "hover-card":

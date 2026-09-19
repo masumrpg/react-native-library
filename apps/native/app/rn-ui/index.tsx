@@ -289,12 +289,6 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
         tone: "warning",
       },
       {
-        id: "tabs",
-        name: "Tabs",
-        description: "Tabbed view navigator with animated indicator.",
-        tone: "warning",
-      },
-      {
         id: "breadcrumb",
         name: "Breadcrumb",
         description: "Navigation path breadcrumb trail.",
@@ -317,7 +311,7 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
   {
     title: "Overlays & Feedback",
     description:
-      "Alerts, sheets, popovers, dropdown menus, context menus, and toasts.",
+      "Alerts, popovers, dropdown menus, context menus, and toasts.",
     iconName: "Sparkles",
     items: [
       {
@@ -330,18 +324,6 @@ export const CATALOG_CATEGORIES: ComponentCategory[] = [
         id: "alert-dialog",
         name: "AlertDialog",
         description: "Confirmation modal dialog with backdrop blur.",
-        tone: "danger",
-      },
-      {
-        id: "sheet",
-        name: "Sheet",
-        description: "Custom bottom sheet modal overlay.",
-        tone: "danger",
-      },
-      {
-        id: "bottom-sheet",
-        name: "BottomSheet",
-        description: "Gorhom-powered gesture bottom sheet.",
         tone: "danger",
       },
       {

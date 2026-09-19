@@ -142,26 +142,6 @@ export type {
   BreadcrumbProps,
   BreadcrumbSeparatorProps,
 } from "./Breadcrumb";
-export {
-  BottomSheet,
-  BottomSheetFlatList,
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetScrollView,
-  BottomSheetSectionList,
-  BottomSheetTextInput,
-  BottomSheetView,
-  useBottomSheet,
-  useBottomSheetModal,
-} from "./BottomSheet";
-export type {
-  BottomSheetBackdropProps,
-  BottomSheetMethods,
-  BottomSheetModalMethods,
-  BottomSheetModalProps,
-  BottomSheetProps,
-  GorhomBottomSheetProps,
-} from "./BottomSheet";
 export { Button } from "./Button";
 export type {
   ButtonProps,
@@ -334,20 +314,6 @@ export type {
   RadioGroupProps,
   RadioGroupVariant,
 } from "./RadioGroup";
-export {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "./Sheet";
-export type {
-  SheetDescriptionProps,
-  SheetFooterProps,
-  SheetHeaderProps,
-  SheetTitleProps,
-} from "./Sheet";
 export { Skeleton, SkeletonGroup, SkeletonContext } from "./Skeleton";
 export type {
   SkeletonProps,
@@ -369,14 +335,6 @@ export { Stepper } from "./Stepper";
 export type { StepperProps } from "./Stepper";
 export { Switch } from "./Switch";
 export type { SwitchProps, SwitchSize, SwitchTone, SwitchVariant } from "./Switch";
-export { Tabs, TabsContent, TabsList, TabsTrigger } from "./Tabs";
-export type {
-  TabsContentProps,
-  TabsContextValue,
-  TabsListProps,
-  TabsProps,
-  TabsTriggerProps,
-} from "./Tabs";
 export { Text } from "./Text";
 export type { TextProps } from "./Text";
 export { Textarea } from "./Textarea";
