@@ -29,11 +29,35 @@ import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
 
 ---
 
+## AI & LLM Integration (llms.txt)
+
+Feed native `@masumdev/rn-ui` context directly to AI coding tools (Cursor, Claude, Copilot, ChatGPT) for accurate code generation with real React Native recipes, theme conventions, and zero hallucinations:
+
+<CardGrid>
+  <LinkCard
+    title="AI Context & Native Recipes (llms.txt)"
+    href="/rn-ui/llms.txt"
+    description="Machine-readable guide with real native implementations: Form validation, Dialogs, SegmentedControl, Lucide icons, and 61 component specifications."
+  />
+  <LinkCard
+    title="Monorepo LLM Index"
+    href="/llms.txt"
+    description="High-level LLM index covering all packages in the Masum Dev monorepo ecosystem."
+  />
+</CardGrid>
+
+```bash
+# Add directly to Cursor or your AI tool context
+curl https://react-native-library-docs.vercel.app/rn-ui/llms.txt
+```
+
+---
+
 ## Features
 
 <CardGrid>
-  <Card title="55+ Production Components" icon="laptop">
-    From basic Buttons and Avatars to complex Calendars, Comboboxes, ContextMenus, and BottomSheets.
+  <Card title="61 Production Primitives" icon="laptop">
+    From basic Buttons and Avatars to complex Calendars, Comboboxes, ContextMenus, and Spinners.
   </Card>
   <Card title="Typed Design System" icon="setting">
     Unified token system for colors, typography, spacing, radii, and component-specific theme overrides.
@@ -62,7 +86,7 @@ import { LinkCard, CardGrid, Card } from '@astrojs/starlight/components';
   <LinkCard
     title="Component Library"
     href="/rn-ui/components/"
-    description="Browse all 55+ components with interactive code examples and Props API specifications."
+    description="Browse all 60+ components with interactive code examples and Props API specifications."
   />
   <LinkCard
     title="Building Custom Components"

@@ -5,6 +5,18 @@ All notable changes to **@masumdev/rn-ui** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-19
+
+### Removed
+- **Removed `@gorhom/bottom-sheet` and Related Components**:
+  - Removed `BottomSheet` wrapper and all related exports (`BottomSheetModal`, `BottomSheetFlatList`, `BottomSheetScrollView`, `BottomSheetSectionList`, `BottomSheetTextInput`, `BottomSheetView`, `useBottomSheet`, `useBottomSheetModal`).
+  - Removed `@gorhom/bottom-sheet` from `peerDependencies`.
+  - Removed `Sheet` component and compound subcomponents (`SheetHeader`, `SheetTitle`, `SheetDescription`, `SheetContent`, `SheetFooter`).
+  - Removed `Tabs` component and compound subcomponents (`TabsList`, `TabsTrigger`, `TabsContent`).
+  - Decoupled `Command` component from `Sheet` by migrating to a standalone native `Modal` overlay.
+
+---
+
 ## [0.3.1] - 2026-09-12
 
 ### Added

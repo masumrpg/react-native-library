@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -13,7 +14,6 @@ import { useTheme } from "../theme";
 import { triggerHaptic } from "../utils/haptics";
 import { Badge } from "./Badge";
 import { Input } from "./Input";
-import { Sheet } from "./Sheet";
 import { Text } from "./Text";
 import { renderIcon, type RenderIcon } from "./types";
 
@@ -72,123 +72,186 @@ export function Command({
   };
 
   return (
-    <Sheet
+    <Modal
       visible={visible}
-      onClose={onClose}
-      title={title}
-      style={style}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ gap: spacing.md }}
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "flex-end",
+          backgroundColor: "rgba(0, 0, 0, 0.45)",
+        }}
       >
-        {/* Search Input */}
-        <Input
-          value={query}
-          onChangeText={setQuery}
-          placeholder={placeholder}
-          size="md"
-          autoCapitalize="none"
-          autoCorrect={false}
+        <Pressable
+          style={{ flex: 1 }}
+          onPress={onClose}
+          accessibilityLabel="Close command palette"
         />
-
-        {/* Command Items List */}
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          style={{ maxHeight: 380 }}
-          contentContainerStyle={{ paddingVertical: spacing.xs, gap: spacing.md }}
+        <View
+          style={[
+            {
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: radii.xxl,
+              borderTopRightRadius: radii.xxl,
+              borderWidth: 1,
+              borderColor: colors.border,
+              padding: spacing.lg,
+              gap: spacing.md,
+              maxHeight: "85%",
+            },
+            style,
+          ]}
         >
-          {filtered.length === 0 ? (
-            <View style={{ paddingVertical: spacing.xl, alignItems: "center" }}>
-              <Text color="textMuted" align="center">
-                {emptyText}
+          {/* Header */}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text variant="title" weight="700">
+              {title}
+            </Text>
+            <Pressable
+              onPress={() => {
+                triggerHaptic("selection");
+                onClose();
+              }}
+              hitSlop={8}
+              style={({ pressed }) => ({
+                padding: spacing.xs,
+                borderRadius: radii.full,
+                opacity: pressed ? 0.6 : 1,
+              })}
+              accessibilityLabel="Close"
+            >
+              <Text
+                variant="body"
+                color="textMuted"
+                style={{ fontSize: 18, fontWeight: "600" }}
+              >
+                ✕
               </Text>
-            </View>
-          ) : (
-            Object.entries(groupedItems).map(([groupName, groupList]) => (
-              <View key={groupName} style={{ gap: spacing.xs }}>
-                <Text
-                  variant="labelSmall"
-                  color="textMuted"
-                  style={{
-                    textTransform: "uppercase",
-                    letterSpacing: 0.8,
-                    fontSize: 11,
-                    fontWeight: "700",
-                    paddingHorizontal: spacing.xs,
-                  }}
-                >
-                  {groupName}
-                </Text>
+            </Pressable>
+          </View>
 
-                {groupList.map((item) => (
-                  <Pressable
-                    key={item.value}
-                    disabled={item.disabled}
-                    onPress={() => handleSelect(item)}
-                    style={({ pressed }) => ({
-                      minHeight: 48,
-                      borderRadius: radii.xl,
-                      paddingVertical: spacing.md,
-                      paddingHorizontal: spacing.md,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: spacing.md,
-                      backgroundColor: pressed
-                        ? colors.backgroundMuted
-                        : colors.surfaceMuted,
-                      borderWidth: 1,
-                      borderColor: pressed ? colors.border : colors.borderMuted,
-                      opacity: item.disabled ? 0.5 : 1,
-                    })}
-                  >
-                    {item.icon ? renderIcon(item.icon, colors.primary, 18) : null}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={{ gap: spacing.md }}
+          >
+            {/* Search Input */}
+            <Input
+              value={query}
+              onChangeText={setQuery}
+              placeholder={placeholder}
+              size="md"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
 
-                    <View style={{ flex: 1, gap: 2 }}>
-                      <Text variant="label" weight="600">
-                        {item.label}
-                      </Text>
-                      {item.description ? (
-                        <Text variant="bodySmall" color="textMuted">
-                          {item.description}
-                        </Text>
-                      ) : null}
-                    </View>
+            {/* Command Items List */}
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 380 }}
+              contentContainerStyle={{ paddingVertical: spacing.xs, gap: spacing.md }}
+            >
+              {filtered.length === 0 ? (
+                <View style={{ paddingVertical: spacing.xl, alignItems: "center" }}>
+                  <Text color="textMuted" align="center">
+                    {emptyText}
+                  </Text>
+                </View>
+              ) : (
+                Object.entries(groupedItems).map(([groupName, groupList]) => (
+                  <View key={groupName} style={{ gap: spacing.xs }}>
+                    <Text
+                      variant="labelSmall"
+                      color="textMuted"
+                      style={{
+                        textTransform: "uppercase",
+                        letterSpacing: 0.8,
+                        fontSize: 11,
+                        fontWeight: "700",
+                        paddingHorizontal: spacing.xs,
+                      }}
+                    >
+                      {groupName}
+                    </Text>
 
-                    {item.badge ? (
-                      <Badge tone="accent" size="sm">
-                        {item.badge}
-                      </Badge>
-                    ) : null}
-
-                    {item.shortcut ? (
-                      <View
-                        style={{
-                          backgroundColor: colors.backgroundMuted,
-                          paddingHorizontal: 8,
-                          paddingVertical: 3,
-                          borderRadius: radii.sm,
+                    {groupList.map((item) => (
+                      <Pressable
+                        key={item.value}
+                        disabled={item.disabled}
+                        onPress={() => handleSelect(item)}
+                        style={({ pressed }) => ({
+                          minHeight: 48,
+                          borderRadius: radii.xl,
+                          paddingVertical: spacing.md,
+                          paddingHorizontal: spacing.md,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: spacing.md,
+                          backgroundColor: pressed
+                            ? colors.backgroundMuted
+                            : colors.surfaceMuted,
                           borderWidth: 1,
-                          borderColor: colors.borderMuted,
-                        }}
+                          borderColor: pressed ? colors.border : colors.borderMuted,
+                          opacity: item.disabled ? 0.5 : 1,
+                        })}
                       >
-                        <Text
-                          variant="caption"
-                          color="textMuted"
-                          style={{ fontWeight: "700" }}
-                        >
-                          {item.shortcut}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </Pressable>
-                ))}
-              </View>
-            ))
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Sheet>
+                        {item.icon ? renderIcon(item.icon, colors.primary, 18) : null}
+
+                        <View style={{ flex: 1, gap: 2 }}>
+                          <Text variant="label" weight="600">
+                            {item.label}
+                          </Text>
+                          {item.description ? (
+                            <Text variant="bodySmall" color="textMuted">
+                              {item.description}
+                            </Text>
+                          ) : null}
+                        </View>
+
+                        {item.badge ? (
+                          <Badge tone="accent" size="sm">
+                            {item.badge}
+                          </Badge>
+                        ) : null}
+
+                        {item.shortcut ? (
+                          <View
+                            style={{
+                              backgroundColor: colors.backgroundMuted,
+                              paddingHorizontal: 8,
+                              paddingVertical: 3,
+                              borderRadius: radii.sm,
+                              borderWidth: 1,
+                              borderColor: colors.borderMuted,
+                            }}
+                          >
+                            <Text
+                              variant="caption"
+                              color="textMuted"
+                              style={{ fontWeight: "700" }}
+                            >
+                              {item.shortcut}
+                            </Text>
+                          </View>
+                        ) : null}
+                      </Pressable>
+                    ))}
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </View>
+      </View>
+    </Modal>
   );
 }

@@ -10,7 +10,6 @@ import {
 } from "@expo-google-fonts/outfit";
 import * as SecureStore from "expo-secure-store";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   ThemeProvider,
   ToastProvider,
@@ -144,9 +143,7 @@ const AppLayout = () => {
         onColorSchemeChange={handleColorSchemeChange}
       >
         <ToastProvider placement="top" maxToasts={7} duration={5000}>
-          <BottomSheetModalProvider>
-            <Stack screenOptions={{ headerShown: false }} />
-          </BottomSheetModalProvider>
+          <Stack screenOptions={{ headerShown: false }} />
         </ToastProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

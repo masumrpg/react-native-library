@@ -1,0 +1,527 @@
+# @masumdev/rn-ui — AI Developer & Context Guide
+
+> Production-ready, typed, flat-aesthetic React Native & Expo component library.
+> Version: 0.4.0 | 61 Components | Monorepo: Masum Dev
+
+This document is optimized for LLMs and AI coding assistants writing React Native / Expo applications using `@masumdev/rn-ui`.
+
+---
+
+## 🏛️ Core Design Philosophy & Architectural Rules
+
+1. **Flat Aesthetic (Zero Elevation Default)**:
+   - Components use clean borders, subtle tonal tinting, and translucent surfaces instead of drop shadows or heavy skeuomorphic elevations.
+   - Avoid adding random shadow styles unless explicitly instructed.
+2. **Strict Orthogonal `tone` vs `variant`**:
+   - **`tone` (Semantic Intent)**: `"default"` | `"primary"` | `"secondary"` | `"accent"` | `"success"` | `"warning"` | `"danger"` | `"info"`.
+   - **`variant` (Visual Treatment)**: `"filled"` | `"outline"` | `"ghost"` | `"soft"`.
+   - ⚠️ **CRITICAL GOTCHA**:
+     - Do **NOT** use `variant="solid"` (use `"filled"`).
+     - Do **NOT** use `tone="neutral"` (use `"default"`).
+3. **Zero-Bounce Animation Policy**:
+   - All Reanimated transitions MUST use linear or cubic easing (e.g., `Easing.bezier(0.25, 0.1, 0.25, 1)` or `withTiming` duration 150–250ms).
+   - Spring overshoots and bounces are strictly disallowed.
+4. **Zero Dependency on `@gorhom/bottom-sheet`**:
+   - In `v0.4.0+`, `BottomSheet`, `Sheet`, and `Tabs` have been completely removed.
+   - For bottom sheets / modals, use React Native's native `<Modal>` or `<AlertDialog>`.
+   - For tab switching, use `<SegmentedControl>`.
+5. **Pluggable Iconography (`renderIcon`)**:
+   - Icons are not hardcoded to any icon library.
+   - When passing icons (e.g. from `lucide-react-native`), use the `renderIcon` helper or standard render prop: `({ color, size }) => <Icon color={color} size={size} />`.
+   - ⚠️ Never pass a Lucide icon component directly as raw JSX children (e.g. `<Button><Heart /></Button>`), as it causes React child object errors.
+
+---
+
+## 📦 Installation & Setup
+
+### Required Peer Dependencies
+```bash
+# Expo
+npx expo install react-native-reanimated react-native-worklets react-native-gesture-handler react-native-safe-area-context
+bun add @masumdev/rn-ui
+
+# React Native CLI
+bun add @masumdev/rn-ui react-native-reanimated react-native-worklets react-native-gesture-handler react-native-safe-area-context
+```
+
+### App Root Configuration (`app/_layout.tsx` / `App.tsx`)
+Always wrap the application root with `GestureHandlerRootView`, `ThemeProvider`, and `ToastProvider`:
+
+```tsx
+import React from 'react';
+import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as SecureStore from 'expo-secure-store';
+import {
+  ThemeProvider,
+  ToastProvider,
+  defaultThemes,
+  type ThemeStorage,
+} from '@masumdev/rn-ui';
+
+// Optional: Persistent theme storage via SecureStore or AsyncStorage
+const themeStorage: ThemeStorage = {
+  getItem: (key: string) => SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
+};
+
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider
+        defaultColorScheme="system"
+        storage={themeStorage}
+        storageKey="app_theme_mode"
+      >
+        <ToastProvider placement="top" maxToasts={5} duration={4000}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </ToastProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
+  );
+}
+```
+
+---
+
+## 🎨 Theme Engine & Design Tokens
+
+Access theme colors, spacing, typography, and color schemes via `useTheme()`:
+
+```tsx
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { useTheme, useThemeStyles, Text } from '@masumdev/rn-ui';
+
+export function ThemedCard() {
+  const { colors, radii, spacing, typography, isDark, setColorScheme } = useTheme();
+
+  // Or use memoized theme styles factory:
+  const styles = useThemeStyles((theme) => ({
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderColor: theme.colors.border,
+      borderWidth: 1,
+      borderRadius: theme.radii.xl,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.sm,
+    },
+  }));
+
+  return (
+    <View style={styles.card}>
+      <Text variant="title" weight="700">Themed Surface</Text>
+      <Text color="textMuted">Current mode: {isDark ? 'Dark' : 'Light'}</Text>
+    </View>
+  );
+}
+```
+
+### Token Palette Reference
+- **Colors**: `primary`, `primarySoft`, `secondary`, `accent`, `success`, `warning`, `danger`, `info`, `background`, `backgroundMuted`, `surface`, `surfaceMuted`, `surfaceRaised`, `border`, `borderMuted`, `text`, `textMuted`, `textSubtle`, `textInverse`.
+- **Spacing**: `none` (0), `xxs` (2), `xs` (4), `sm` (8), `md` (12), `lg` (16), `xl` (24), `xxl` (32), `xxxl` (40).
+- **Radii**: `none` (0), `xs` (4), `sm` (6), `md` (8), `lg` (12), `xl` (16), `xxl` (24), `full` (9999).
+- **Typography Variants**: `display`, `h1`, `h2`, `h3`, `title`, `subtitle`, `body`, `bodySmall`, `label`, `labelSmall`, `caption`.
+
+---
+
+## 🛠️ Real Native Production Recipes
+
+### 1. Interactive Buttons with Lucide Icons
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import { Button, IconButton, ButtonGroup } from '@masumdev/rn-ui';
+import { ArrowRight, Trash2, Send } from 'lucide-react-native';
+
+export function ButtonExamples() {
+  const [loading, setLoading] = React.useState(false);
+
+  return (
+    <View style={{ gap: 12 }}>
+      {/* Standard Filled Button with Right Icon */}
+      <Button
+        variant="filled"
+        tone="primary"
+        size="lg"
+        loading={loading}
+        onPress={() => setLoading(true)}
+        iconRight={({ color, size }) => <ArrowRight color={color} size={size} />}
+      >
+        Continue Checkout
+      </Button>
+
+      {/* Danger Outline with Left Icon */}
+      <Button
+        variant="outline"
+        tone="danger"
+        size="md"
+        iconLeft={({ color, size }) => <Trash2 color={color} size={size} />}
+      >
+        Delete Account
+      </Button>
+
+      {/* Standalone Icon Button */}
+      <IconButton
+        icon={({ color, size }) => <Send color={color} size={size} />}
+        tone="primary"
+        variant="soft"
+        size="md"
+        accessibilityLabel="Send message"
+        onPress={() => console.log('Sent')}
+      />
+    </View>
+  );
+}
+```
+
+### 2. Comprehensive Form Validation Recipe
+```tsx
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import {
+  FormField,
+  Label,
+  Input,
+  InputGroup,
+  Select,
+  Checkbox,
+  Switch,
+  Button,
+} from '@masumdev/rn-ui';
+import { Mail } from 'lucide-react-native';
+
+export function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('developer');
+  const [remember, setRemember] = useState(true);
+  const [notifications, setNotifications] = useState(false);
+  const [emailError, setEmailError] = useState<string | undefined>();
+
+  const handleSubmit = () => {
+    if (!email.includes('@')) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    setEmailError(undefined);
+    console.log({ email, role, remember, notifications });
+  };
+
+  return (
+    <View style={{ gap: 16 }}>
+      {/* Input inside FormField with error helper */}
+      <FormField
+        label="Email Address"
+        required
+        error={emailError}
+        helperText="We'll send your magic login link here"
+      >
+        <InputGroup
+          addonLeft={({ color, size }) => <Mail color={color} size={size} />}
+        >
+          <Input
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              if (emailError) setEmailError(undefined);
+            }}
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </InputGroup>
+      </FormField>
+
+      {/* Dropdown Select */}
+      <FormField label="Role Selection">
+        <Select
+          value={role}
+          onValueChange={setRole}
+          options={[
+            { label: 'Frontend Developer', value: 'developer' },
+            { label: 'UI/UX Designer', value: 'designer' },
+            { label: 'Product Manager', value: 'pm' },
+          ]}
+        />
+      </FormField>
+
+      {/* Checkbox and Switch */}
+      <Checkbox
+        checked={remember}
+        onChange={setRemember}
+        label="Keep me signed in on this device"
+      />
+
+      <Switch
+        checked={notifications}
+        onChange={setNotifications}
+        label="Receive daily digest notifications"
+      />
+
+      <Button variant="filled" tone="primary" size="lg" onPress={handleSubmit}>
+        Sign In
+      </Button>
+    </View>
+  );
+}
+```
+
+### 3. High-Performance Loading: Spinner & SkeletonGroup
+```tsx
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import {
+  Spinner,
+  Skeleton,
+  SkeletonGroup,
+  Card,
+  Text,
+  Avatar,
+  Button,
+} from '@masumdev/rn-ui';
+
+export function ProfileLoadingDemo() {
+  const [loading, setLoading] = useState(true);
+
+  return (
+    <View style={{ gap: 16 }}>
+      {/* Standalone Spinners */}
+      <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
+        <Spinner variant="circular" tone="primary" size="default" />
+        <Spinner variant="ring" tone="accent" size="lg" />
+        <Spinner variant="dots" tone="success" size="default" label="Syncing..." />
+      </View>
+
+      {/* Synchronized Multi-Skeleton with SkeletonGroup (O(1) UI thread clock) */}
+      <Card style={{ padding: 16 }}>
+        {loading ? (
+          <SkeletonGroup active>
+            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+              <Skeleton circle size={48} />
+              <View style={{ flex: 1, gap: 8 }}>
+                <Skeleton width="60%" height={16} />
+                <Skeleton width="40%" height={12} />
+              </View>
+            </View>
+            <View style={{ marginTop: 16, gap: 8 }}>
+              <Skeleton width="100%" height={14} />
+              <Skeleton width="85%" height={14} />
+            </View>
+          </SkeletonGroup>
+        ) : (
+          <View>
+            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+              <Avatar name="Sarah Connor" size="lg" />
+              <View>
+                <Text variant="title" weight="700">Sarah Connor</Text>
+                <Text color="textMuted">Lead Mobile Engineer</Text>
+              </View>
+            </View>
+            <Text style={{ marginTop: 12 }}>
+              Building ultra-fast offline React Native applications.
+            </Text>
+          </View>
+        )}
+      </Card>
+
+      <Button
+        variant="outline"
+        tone="default"
+        onPress={() => setLoading(!loading)}
+      >
+        Toggle Skeleton State
+      </Button>
+    </View>
+  );
+}
+```
+
+### 4. Overlays & Feedback: AlertDialog & Toast
+```tsx
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { AlertDialog, Button, useToast } from '@masumdev/rn-ui';
+
+export function OverlaysDemo() {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const toast = useToast();
+
+  const handleConfirmDelete = () => {
+    setConfirmOpen(false);
+    toast.success('Workspace deleted permanently');
+  };
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Button
+        variant="filled"
+        tone="danger"
+        onPress={() => setConfirmOpen(true)}
+      >
+        Delete Workspace
+      </Button>
+
+      {/* Confirmation Modal */}
+      <AlertDialog
+        visible={confirmOpen}
+        tone="danger"
+        title="Delete Workspace?"
+        description="This action cannot be undone. All project files, team members, and databases will be permanently destroyed."
+        confirmText="Yes, Delete Permanently"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+      {/* Toast Notification Trigger Examples */}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Button
+          size="sm"
+          variant="soft"
+          tone="success"
+          onPress={() => toast.success('Changes saved successfully!')}
+        >
+          Success Toast
+        </Button>
+        <Button
+          size="sm"
+          variant="soft"
+          tone="danger"
+          onPress={() => toast.error('Connection timed out!')}
+        >
+          Error Toast
+        </Button>
+      </View>
+    </View>
+  );
+}
+```
+
+### 5. Cupertino Segment Switcher (Replaces Tabs)
+```tsx
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { SegmentedControl, Text } from '@masumdev/rn-ui';
+
+export function SegmentSwitcher() {
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'settings'>('overview');
+
+  return (
+    <View style={{ gap: 16 }}>
+      <SegmentedControl
+        value={activeTab}
+        onValueChange={(val) => setActiveTab(val as typeof activeTab)}
+        options={[
+          { label: 'Overview', value: 'overview' },
+          { label: 'Analytics', value: 'analytics' },
+          { label: 'Settings', value: 'settings' },
+        ]}
+      />
+
+      {activeTab === 'overview' && <Text>Overview dashboard metrics</Text>}
+      {activeTab === 'analytics' && <Text>Detailed traffic analytics</Text>}
+      {activeTab === 'settings' && <Text>User and account settings</Text>}
+    </View>
+  );
+}
+```
+
+---
+
+## ⚠️ Anti-Patterns & Common Pitfalls
+
+| ❌ Anti-Pattern | ✅ Correct Pattern | Rationale |
+|---|---|---|
+| `<Button variant="solid">` | `<Button variant="filled">` | The filled visual variant is strictly named `"filled"`. |
+| `<Badge tone="neutral">` | `<Badge tone="default">` | Neutral tone is strictly named `"default"`. |
+| `<Button><UserIcon /></Button>` | `iconLeft={({ color, size }) => <UserIcon color={color} size={size} />}` | Passing raw forwardRef icons as JSX children causes React child object errors. |
+| `withSpring(val, { bounciness: 12 })` | `withTiming(val, { duration: 200, easing: Easing.bezier(...) })` | Strict Zero-Bounce monorepo policy. |
+| `import { BottomSheet } from '@masumdev/rn-ui'` | Use native `<Modal>` or `<AlertDialog>` | `BottomSheet`, `Sheet`, and `Tabs` were purged in `v0.4.0`. |
+| `import { Tabs } from '@masumdev/rn-ui'` | Use `<SegmentedControl>` | `Tabs` was removed; use `SegmentedControl` for sliding pill tab switching. |
+
+---
+
+## 📋 Full Catalog of 61 Components
+
+All components are imported directly from `@masumdev/rn-ui`:
+
+### Layout & Surface (11)
+- `Box`: Flex container primitive with shorthand layout props.
+- `Card`: Flat bordered surface card.
+- `Item`: Structured list item with title, subtitle, and accessory slots.
+- `DataList`: Key-value pair definition list.
+- `MetricCard`: KPI metric summary card with trending indicators.
+- `Table`: Responsive data table primitive.
+- `Timeline`: Vertical activity event timeline.
+- `Divider`: Hairline content separator.
+- `AspectRatio`: Ratio-constrained container (e.g. 16/9, 1/1).
+- `KeyboardAvoiding`: Safe keyboard avoiding layout container.
+- `Empty`: Empty state placeholder with media and action buttons.
+
+### Typography & Actions (7)
+- `Text`: Theme-aware typography primitive with predefined variants.
+- `Button`: Pressable button with loading spinner, icon slots, variants (`filled`, `outline`, `ghost`, `soft`), and tones.
+- `IconButton`: Square or circular icon pressable.
+- `ButtonGroup`: Horizontally attached button cluster.
+- `FloatingActionButton`: Fixed floating action button with icon and text.
+- `SwipeableItem`: Gesture-driven swipeable container with left/right actions.
+- `SignaturePad`: Touch and stylus drawing pad for user signatures.
+
+### Form Inputs & Selectors (15)
+- `Input`: Bordered text input with clear button and focus states.
+- `InputGroup`: Compound input container with prefix/suffix addons.
+- `InputOTP`: Segmented PIN and 2FA verification code boxes.
+- `Textarea`: Multi-line text entry input with character counting.
+- `Checkbox`: Accessible toggle checkbox with custom checkmark.
+- `Switch`: Smooth iOS-style toggle switch.
+- `RadioGroup`: Single-choice option list.
+- `Select`: Dropdown select picker.
+- `Combobox`: Searchable filterable select dropdown.
+- `Slider`: Single-thumb value track slider.
+- `RangeSlider`: Dual-thumb min/max range track slider.
+- `Rating`: Interactive star rating bar with half-star support.
+- `FormField`: Form wrapper injecting labels, helper text, and error states.
+- `Label`: Input label with optional required asterisk.
+- `SegmentedControl`: Cupertino sliding pill tab switcher with haptics.
+
+### Overlays, Menus & Dialogs (8)
+- `Alert`: Inline feedback banner callout.
+- `AlertDialog`: Modal confirmation dialog with backdrop blur.
+- `Toast`, `ToastProvider`, `useToast`: Global toast notification engine.
+- `Popover`: Anchored floating card positioned relative to a trigger.
+- `HoverCard`: Secondary popover triggered on press or hover.
+- `DropdownMenu`: Floating action list anchored to an element.
+- `ContextMenu`: Long-press native gesture context menu popup.
+- `Command`: Searchable command palette overlay modal.
+
+### Disclosure & Navigation (6)
+- `Accordion`: Multi-panel expandable collapsible FAQ drawer.
+- `Collapsible`: Single-panel animated disclosure.
+- `Carousel`: Horizontal swipe image gallery with indicators.
+- `Breadcrumb`: Navigation path hierarchy breadcrumb trail.
+- `Pagination`: Multi-page number navigation controls.
+- `Stepper`: Multi-step progress wizard tracker.
+
+### Advanced Date & Time Pickers (5)
+- `Calendar`: Month-view calendar with single date or range selection.
+- `ExpandableCalendar`: Collapsible week/month calendar with agenda view.
+- `TimelineCalendar`: Packed hourly timeline schedule view.
+- `DatePicker`: Full-featured date picker modal and card.
+- `TimePicker`: Hour, minute, and meridiem wheel/column picker.
+
+### Feedback, Media & Loading (8)
+- `Avatar`: Image avatar with automatic initial fallback and status badges.
+- `Badge`: Compact numerical or status tag.
+- `Chip`: Interactive tag with delete button and toggle selection.
+- `Bubble`: Chat message bubble with incoming/outgoing styling.
+- `Attachment`: File upload and attachment preview tile.
+- `Progress`: Linear progress bar with semantic tone coloring.
+- `Skeleton`, `SkeletonGroup`: Shimmering skeleton loader with shared UI thread clock.
+- `Spinner`, `Loader`: Dedicated multi-variant loading spinner (`circular`, `ring`, `dots`, `bars`).
+
+### Theme Engine & Provider (1)
+- `ThemeProvider`: Flat theme context provider managing light/dark tokens, custom palettes, and runtime mode switches.
+
+---
+
+*For additional documentation, component previews, and live web examples, visit: https://react-native-library-docs.vercel.app/rn-ui/*
