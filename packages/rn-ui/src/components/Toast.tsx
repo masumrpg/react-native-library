@@ -583,9 +583,13 @@ export function Toast({
     ],
   }));
 
-  const animatedIconStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotateValue.value}deg` }],
-  }));
+  const animatedIconStyle = useAnimatedStyle(() => {
+    const raw = Number.isFinite(rotateValue.value) ? rotateValue.value : 0;
+    const safeDeg = ((raw % 360) + 360) % 360;
+    return {
+      transform: [{ rotate: `${safeDeg.toFixed(1)}deg` }],
+    };
+  });
 
   const isSolid = toast.variant === "solid";
   const isFlat = toast.variant === "flat";

@@ -9,10 +9,42 @@ import ChangelogTimeline from '@/components/ChangelogTimeline.astro';
 
 export const releases = [
   {
+    version: 'v0.4.2',
+    date: '2026-09-21',
+    tag: 'Patch Release',
+    isLatest: true,
+    changes: [
+      {
+        type: 'fix',
+        text: '<strong>Progress Animation Memory Leak</strong>: Added <code>cancelAnimation</code> cleanup to the <code>Progress</code> component for both indeterminate (<code>withRepeat</code>) and determinate (<code>withTiming</code>) animation branches, preventing orphaned UI-thread worklets on unmount or prop changes.',
+      },
+    ],
+  },
+  {
+    version: 'v0.4.1',
+    date: '2026-09-21',
+    tag: 'Patch Release',
+    isLatest: false,
+    changes: [
+      {
+        type: 'fix',
+        text: '<strong>Spinner / Loader Rotation Crash-Proofing</strong>: Implemented safe degree normalization worklet (<code>toSafeDeg</code>) that strictly constrains rotation angles to finite positive values in <code>[0, 360)</code>. Completely eliminated <code>--&lt;num&gt;deg</code> and <code>NaNdeg</code> errors that caused fatal React Native transform parser exceptions.',
+      },
+      {
+        type: 'perf',
+        text: '<strong>Ultra-Lightweight Spinner Execution</strong>: Extracted <code>DotItem</code> and <code>BarItem</code> as memoized components outside render loops to eliminate React Hook rule violations and memory leaks. Implemented selective animation execution (rotation for circular/ring, pulse for dots/bars) to save UI thread cycles.',
+      },
+      {
+        type: 'fix',
+        text: '<strong>Defensive SVG & Transform Bounds</strong>: Clamped dimensions and radii to strictly positive numbers to prevent invalid SVG circle rendering, and safeguarded rotation transforms across <code>Toast</code> and <code>DatePicker</code>.',
+      },
+    ],
+  },
+  {
     version: 'v0.4.0',
     date: '2026-09-19',
     tag: 'Breaking Release',
-    isLatest: true,
+    isLatest: false,
     changes: [
       {
         type: 'refactor',

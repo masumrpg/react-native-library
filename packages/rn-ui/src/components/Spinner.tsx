@@ -15,6 +15,7 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
 
@@ -59,7 +60,7 @@ const SIZE_MAP: Record<Exclude<SpinnerSize, number>, number> = {
 };
 
 function resolveDuration(speed: SpinnerSpeed): number {
-  if (typeof speed === "number") return speed;
+  if (typeof speed === "number" && Number.isFinite(speed) && speed > 0) return speed;
   switch (speed) {
     case "fast":
       return 550;
@@ -72,18 +73,122 @@ function resolveDuration(speed: SpinnerSpeed): number {
 }
 
 function resolveDimension(size: SpinnerSize): number {
-  if (typeof size === "number") return size;
+  if (typeof size === "number") {
+    return Number.isFinite(size) && size > 0 ? size : 32;
+  }
   return SIZE_MAP[size] ?? 32;
 }
 
 function resolveStrokeWidth(dimension: number, customWidth?: number): number {
-  if (typeof customWidth === "number") return customWidth;
+  if (typeof customWidth === "number" && Number.isFinite(customWidth) && customWidth > 0) {
+    return Math.min(customWidth, dimension / 2.5);
+  }
   if (dimension <= 18) return 2;
   if (dimension <= 26) return 2.5;
   if (dimension <= 36) return 3.2;
   if (dimension <= 48) return 4;
   return 5;
 }
+
+/**
+ * Worklet helper to calculate safe, positive rotation degrees strictly in the range [0, 360).
+ * Prevents invalid double negatives (e.g. "--10deg") or "NaNdeg" that cause fatal native crashes.
+ */
+function toSafeDeg(val: number, multiplier = 1): string {
+  "worklet";
+  if (!Number.isFinite(val)) return "0deg";
+  const raw = (val * multiplier) % 360;
+  const normalized = (raw + 360) % 360;
+  return `${normalized.toFixed(1)}deg`;
+}
+
+// ---------------------------------------------------------------------------
+// Standalone Memoized Items for Dots & Bars (Resolves Hook Rule Violation)
+// ---------------------------------------------------------------------------
+
+interface DotItemProps {
+  pulse: SharedValue<number>;
+  offset: number;
+  size: number;
+  color: string;
+}
+
+const DotItem = React.memo(function DotItem({
+  pulse,
+  offset,
+  size,
+  color,
+}: DotItemProps) {
+  const dotStyle = useAnimatedStyle(() => {
+    const p = Number.isFinite(pulse.value) ? pulse.value : 0;
+    const phase = (p + offset) % 1;
+    const scale = interpolate(phase, [0, 0.5, 1], [0.4, 1.15, 0.4]);
+    const opacity = interpolate(phase, [0, 0.5, 1], [0.35, 1, 0.35]);
+    return {
+      transform: [{ scale: Number.isFinite(scale) ? scale : 1 }],
+      opacity: Number.isFinite(opacity) ? opacity : 1,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: color,
+        },
+        dotStyle,
+      ]}
+    />
+  );
+});
+
+interface BarItemProps {
+  pulse: SharedValue<number>;
+  offset: number;
+  width: number;
+  height: number;
+  color: string;
+}
+
+const BarItem = React.memo(function BarItem({
+  pulse,
+  offset,
+  width,
+  height,
+  color,
+}: BarItemProps) {
+  const barStyle = useAnimatedStyle(() => {
+    const p = Number.isFinite(pulse.value) ? pulse.value : 0;
+    const phase = (p + offset) % 1;
+    const scaleY = interpolate(phase, [0, 0.5, 1], [0.28, 1, 0.28]);
+    const opacity = interpolate(phase, [0, 0.5, 1], [0.4, 1, 0.4]);
+    return {
+      transform: [{ scaleY: Number.isFinite(scaleY) ? scaleY : 1 }],
+      opacity: Number.isFinite(opacity) ? opacity : 1,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          width,
+          height,
+          borderRadius: width / 2,
+          backgroundColor: color,
+        },
+        barStyle,
+      ]}
+    />
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
 
 function SpinnerComponent({
   variant = "circular",
@@ -119,9 +224,13 @@ function SpinnerComponent({
       ? colors.info
       : colors.primary);
 
-  const dimension = resolveDimension(size);
-  const strokeWidth = resolveStrokeWidth(dimension, customStrokeWidth);
+  const dimension = Math.max(8, resolveDimension(size));
+  const strokeWidth = Math.max(1, resolveStrokeWidth(dimension, customStrokeWidth));
   const duration = resolveDuration(speed);
+
+  // Selective animation requirement flags
+  const needsRotation = variant === "circular" || variant === "ring";
+  const needsPulse = variant === "dots" || variant === "bars";
 
   // Animation drivers
   const rotation = useSharedValue(0);
@@ -136,55 +245,65 @@ function SpinnerComponent({
       return;
     }
 
-    rotation.value = 0;
-    rotation.value = withRepeat(
-      withTiming(360, {
-        duration,
-        easing: Easing.linear,
-      }),
-      -1,
-      false,
-    );
+    if (needsRotation) {
+      rotation.value = 0;
+      rotation.value = withRepeat(
+        withTiming(360, {
+          duration,
+          easing: Easing.linear,
+        }),
+        -1,
+        false,
+      );
+    } else {
+      cancelAnimation(rotation);
+      rotation.value = 0;
+    }
 
-    pulse.value = 0;
-    pulse.value = withRepeat(
-      withTiming(1, {
-        duration: Math.round(duration * 1.2),
-        easing: Easing.inOut(Easing.ease),
-      }),
-      -1,
-      true,
-    );
+    if (needsPulse) {
+      pulse.value = 0;
+      pulse.value = withRepeat(
+        withTiming(1, {
+          duration: Math.round(duration * 1.2),
+          easing: Easing.inOut(Easing.ease),
+        }),
+        -1,
+        true,
+      );
+    } else {
+      cancelAnimation(pulse);
+      pulse.value = 0;
+    }
 
     return () => {
       cancelAnimation(rotation);
       cancelAnimation(pulse);
     };
-  }, [animated, duration, pulse, rotation]);
+  }, [animated, duration, needsPulse, needsRotation, pulse, rotation]);
 
-  // Animated styles
+  // Animated styles with crash-proof safe degrees
   const spinStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
+    transform: [{ rotate: toSafeDeg(rotation.value, 1) }],
   }));
 
   const counterSpinStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `-${rotation.value * 1.3}deg` }],
+    transform: [{ rotate: toSafeDeg(rotation.value, -1.3) }],
   }));
 
-  // Calculations for circular arc
-  const radius = (dimension - strokeWidth) / 2;
+  // Calculations for circular arc with defensive bounds
+  const radius = Math.max(1, (dimension - strokeWidth) / 2);
   const circumference = 2 * Math.PI * radius;
   const arcLength = circumference * 0.72;
-  const strokeDashoffset = circumference - arcLength;
+  const strokeDashoffset = Math.max(0, circumference - arcLength);
   const backgroundTrackColor = trackColor || colors.backgroundSubtle;
 
   // Render core loader based on variant
   const renderLoader = () => {
     switch (variant) {
       case "ring": {
-        const innerDimension = Math.max(8, dimension * 0.65);
-        const innerStroke = Math.max(1.5, strokeWidth * 0.75);
-        const innerRadius = (innerDimension - innerStroke) / 2;
+        const innerDimension = Math.max(6, dimension * 0.65);
+        const innerStroke = Math.max(1, strokeWidth * 0.75);
+        const innerRadius = Math.max(1, (innerDimension - innerStroke) / 2);
         const innerCircumference = 2 * Math.PI * innerRadius;
 
         return (
@@ -246,36 +365,15 @@ function SpinnerComponent({
 
         return (
           <View style={{ flexDirection: "row", alignItems: "center", gap }}>
-            {[0, 0.33, 0.66].map((offset, idx) => {
-              const DotAnimatedView = () => {
-                const dotStyle = useAnimatedStyle(() => {
-                  const phase = (pulse.value + offset) % 1;
-                  const scale = interpolate(phase, [0, 0.5, 1], [0.4, 1.15, 0.4]);
-                  const opacity = interpolate(phase, [0, 0.5, 1], [0.35, 1, 0.35]);
-                  return {
-                    transform: [{ scale }],
-                    opacity,
-                  };
-                });
-
-                return (
-                  <Animated.View
-                    key={idx}
-                    style={[
-                      {
-                        width: dotSize,
-                        height: dotSize,
-                        borderRadius: dotSize / 2,
-                        backgroundColor: toneColor,
-                      },
-                      dotStyle,
-                    ]}
-                  />
-                );
-              };
-
-              return <DotAnimatedView key={idx} />;
-            })}
+            {[0, 0.33, 0.66].map((offset, idx) => (
+              <DotItem
+                key={idx}
+                pulse={pulse}
+                offset={offset}
+                size={dotSize}
+                color={toneColor}
+              />
+            ))}
           </View>
         );
       }
@@ -295,36 +393,16 @@ function SpinnerComponent({
               gap,
             }}
           >
-            {[0, 0.25, 0.5, 0.75].map((offset, idx) => {
-              const BarAnimatedView = () => {
-                const barStyle = useAnimatedStyle(() => {
-                  const phase = (pulse.value + offset) % 1;
-                  const scaleY = interpolate(phase, [0, 0.5, 1], [0.28, 1, 0.28]);
-                  const opacity = interpolate(phase, [0, 0.5, 1], [0.4, 1, 0.4]);
-                  return {
-                    transform: [{ scaleY }],
-                    opacity,
-                  };
-                });
-
-                return (
-                  <Animated.View
-                    key={idx}
-                    style={[
-                      {
-                        width: barWidth,
-                        height: barMaxHeight,
-                        borderRadius: barWidth / 2,
-                        backgroundColor: toneColor,
-                      },
-                      barStyle,
-                    ]}
-                  />
-                );
-              };
-
-              return <BarAnimatedView key={idx} />;
-            })}
+            {[0, 0.25, 0.5, 0.75].map((offset, idx) => (
+              <BarItem
+                key={idx}
+                pulse={pulse}
+                offset={offset}
+                width={barWidth}
+                height={barMaxHeight}
+                color={toneColor}
+              />
+            ))}
           </View>
         );
       }
