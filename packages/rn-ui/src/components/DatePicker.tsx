@@ -127,12 +127,14 @@ function AnimatedWheelItem({
       "clamp",
     );
 
-    const rotateX = `${interpolate(
-      (scrollY.value - itemPosition) / itemHeight,
+    const rawVal = itemHeight > 0 ? (scrollY.value - itemPosition) / itemHeight : 0;
+    const interpDeg = interpolate(
+      Number.isFinite(rawVal) ? rawVal : 0,
       [-2, -1, 0, 1, 2],
       [36, 18, 0, -18, -36],
       "clamp",
-    )}deg`;
+    );
+    const rotateX = `${Number.isFinite(interpDeg) ? interpDeg : 0}deg`;
 
     return {
       opacity,

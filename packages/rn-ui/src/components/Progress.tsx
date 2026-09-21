@@ -6,6 +6,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import Animated, {
+  cancelAnimation,
   Easing,
   useAnimatedStyle,
   useSharedValue,
@@ -77,14 +78,21 @@ export function Progress({
         -1,
         false,
       );
-      return;
+      return () => {
+        cancelAnimation(indeterminateOffset);
+      };
     }
 
     if (!animated) {
+      cancelAnimation(width);
       width.value = progress;
       return;
     }
     width.value = withTiming(progress, { duration: 220, easing: Easing.out(Easing.quad) });
+
+    return () => {
+      cancelAnimation(width);
+    };
   }, [animated, indeterminate, progress, width, indeterminateOffset]);
 
   const indicatorAnimatedStyle = useAnimatedStyle(() => {

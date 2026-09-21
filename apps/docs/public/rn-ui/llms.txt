@@ -1,7 +1,7 @@
 # @masumdev/rn-ui — AI Developer & Context Guide
 
 > Production-ready, typed, flat-aesthetic React Native & Expo component library.
-> Version: 0.4.0 | 61 Components | Monorepo: Masum Dev
+> Version: 0.4.2 | 61 Components | Monorepo: Masum Dev
 
 This document is optimized for LLMs and AI coding assistants writing React Native / Expo applications using `@masumdev/rn-ui`.
 

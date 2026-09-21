@@ -5,6 +5,30 @@ All notable changes to **@masumdev/rn-ui** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-09-21
+
+### Fixed
+- **Progress Animation Memory Leak**: Added `cancelAnimation` cleanup to the `Progress` component's `useEffect` for both indeterminate (`withRepeat`) and determinate (`withTiming`) animation branches. Previously, unmounting or toggling `indeterminate`/`animated` props could leave orphaned animation worklets on the UI thread.
+
+---
+
+## [0.4.1] - 2026-09-21
+
+### Fixed
+- **Spinner / Loader Crash-Proofing & Safe Degrees**:
+  - Implemented worklet angle normalization (`toSafeDeg`) ensuring rotation angles are strictly finite positive numbers in the range `[0, 360)`.
+  - Eliminated the double negative crash (`--<num>deg`) in counter-clockwise and reverse rotations which caused fatal native parser exceptions in React Native (`Invalid transform rotate: "--...deg"`).
+  - Eliminated `NaNdeg` and `-NaNdeg` exceptions caused by uninitialized or non-finite shared values.
+  - Safeguarded rotation transforms in `<Toast>` and `<DatePicker>` against `NaNdeg`.
+
+### Optimized
+- **Ultra-Lightweight Spinner Execution & Hook Compliance**:
+  - Extracted `DotItem` and `BarItem` outside array render loops as top-level `React.memo` components, eliminating React Hook rule violations, preventing memory leaks, and removing GC stuttering.
+  - Implemented selective animation execution: `rotation` only runs for `circular` and `ring` variants, while `pulse` only runs for `dots` and `bars`. Idle animations are cancelled and reset to 0 to save UI thread cycles.
+  - Added defensive clamping for dimensions (`dimension >= 8`, `strokeWidth >= 1`, `radius >= 1`) to guarantee SVG `<Circle>` attributes never receive non-positive or NaN values.
+
+---
+
 ## [0.4.0] - 2026-09-19
 
 ### Removed
