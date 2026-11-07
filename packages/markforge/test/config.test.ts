@@ -17,7 +17,7 @@ describe("config", () => {
     // Passing emptyTmpDir with non-existent filename won't find anything
     const { config } = await loadConfig(undefined, emptyTmpDir);
     expect(config.to).toEqual(["docx", "pdf"]);
-    expect(config.theme).toBe("default");
+    expect(config.theme).toBe("corporate");
 
     fs.rmSync(emptyTmpDir, { recursive: true, force: true });
   });

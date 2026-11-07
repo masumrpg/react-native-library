@@ -4,25 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:all": "bun run test:ts && bun run test:json && bun run test:yaml && bun run test:rc && bun run test:full-spec && bun run test:auto",
-    "test:ts": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.ts",
-    "test:json": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.json",
-    "test:yaml": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./markforge.config.yaml",
-    "test:rc": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md -c ./.markforgerc",
-    "test:full-spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-all-properties.md -c ./markforge.full-config.ts",
-    "test:auto": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md",
-    "build:sample": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --to docx,pdf,html -o .temp/output",
-    "build:spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-specification.md --to docx,pdf,html -o .temp/output",
-    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --watch -o .temp/output",
-    "serve": "bun ../../../packages/markforge/dist/cli.mjs ./docs/sample.md --serve 3000 --open",
-    "serve:spec": "bun ../../../packages/markforge/dist/cli.mjs ./docs/full-all-properties.md -c ./markforge.full-config.ts --serve 3000 --open",
-    "example:minimal": "bun ./examples/1-minimal.ts",
-    "example:intermediate": "bun ./examples/2-intermediate.ts",
-    "example:full": "bun ./examples/3-full-custom.ts",
-    "example:ast": "bun ./examples/4-low-level-ast.ts",
-    "example:serve": "bun ./examples/5-preview-server.ts",
-    "example:bulk": "bun ./examples/6-bulk-generation.ts",
-    "example:all": "bun run example:minimal && bun run example:intermediate && bun run example:full && bun run example:ast && bun run example:bulk"
+    "build": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md",
+    "build:open": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md -O",
+    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md -w",
+    "serve": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md --serve 3000 --open"
   },
   "dependencies": {
     "@masumdev/markforge": "workspace:*"

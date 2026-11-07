@@ -32,8 +32,27 @@ process.on("warning", (w) => {
 import { Command } from "commander";
 import * as path from "node:path";
 import * as fs from "node:fs";
+import { spawn } from "node:child_process";
 import { MARKFORGE_VERSION } from "./version.js";
 import type { MarkforgeFormat } from "./config/types.js";
+
+/**
+ * Opens a local file or URL in the default system browser or file viewer.
+ */
+export function openInDefaultApp(target: string): void {
+  try {
+    const platform = process.platform;
+    if (platform === "darwin") {
+      spawn("open", [target], { stdio: "ignore", detached: true }).unref();
+    } else if (platform === "win32") {
+      spawn("cmd.exe", ["/c", "start", '""', target], { stdio: "ignore", detached: true }).unref();
+    } else {
+      spawn("xdg-open", [target], { stdio: "ignore", detached: true }).unref();
+    }
+  } catch {
+    // Graceful fallback if system viewer utility is not available
+  }
+}
 
 async function main() {
   const program = new Command();
@@ -43,12 +62,13 @@ async function main() {
     .description("Modern Markdown & MDX multi-format publishing engine & CLI (DOCX, PDF, HTML, Images)")
     .version(MARKFORGE_VERSION, "-V, --version", "Output current markforge version")
     .argument("[input-file]", "Markdown or MDX source file to compile", "README.md")
-    .option("-t, --to <formats>", "Target formats to compile to (comma-separated: docx,pdf,html)")
+    .option("-t, --to <formats>", "Target formats to compile to (comma-separated: docx,pdf,html,png,txt)")
     .option("-o, --output <dir>", "Output directory for generated documents")
-    .option("--theme <theme>", "Built-in theme name (default, academic, github, corporate, minimal)")
+    .option("--theme <theme>", "Built-in theme name (corporate, default, academic, github, minimal)")
     .option("--css <path...>", "Custom CSS stylesheet(s) to inject")
     .option("-c, --config <path>", "Path to custom markforge configuration file")
     .option("--toc", "Force Table of Contents generation")
+    .option("--no-toc", "Disable Table of Contents generation")
     .option("-w, --watch", "Watch input file for changes and recompile", false)
     .option("-s, --serve [port]", "Start interactive live-reload preview server")
     .option("-O, --open", "Open preview or compiled document in default browser", false);
@@ -88,10 +108,11 @@ async function main() {
   const mergedConfig = {
     ...fileConfig,
     to: cliFormats && cliFormats.length > 0 ? cliFormats : (fileConfig.to ?? ["docx", "pdf"]),
-    ...(options.output ? { outputDir: options.output as string } : {}),
+    ...(cliFormats && cliFormats.length > 0 ? { _cliTo: cliFormats } : {}),
+    ...(options.output ? { outputDir: options.output as string, _cliOutputDir: options.output as string } : {}),
     ...(options.theme ? { theme: options.theme as string } : {}),
     ...(options.css ? { css: options.css as string[] } : {}),
-    ...(options.toc ? { toc: true } : {}),
+    ...(options.toc !== undefined ? { toc: Boolean(options.toc) } : {}),
   };
 
   // If --serve is active, start live preview HTTP server
@@ -106,6 +127,10 @@ async function main() {
       open: Boolean(options.open),
       config: mergedConfig,
     });
+
+    if (Boolean(options.open)) {
+      openInDefaultApp(instance.url);
+    }
 
     const themeLabel =
       typeof mergedConfig.theme === "object" ? "Custom (ThemeProps)" : String(mergedConfig.theme || "corporate");
@@ -132,14 +157,75 @@ async function main() {
     import("./ui/App.js"),
   ]);
 
+  let initialOpenDone = false;
+  const handleOpenDoc = (files?: { format: string; filePath: string }[]) => {
+    if (Boolean(options.open) && !initialOpenDone && files && files.length > 0) {
+      initialOpenDone = true;
+      const target = files.find((f) => f.format === "html" || f.format === "pdf") || files[0];
+      if (target) {
+        openInDefaultApp(target.filePath);
+      }
+    }
+  };
+
+  let watcherStarted = false;
+  const setupWatcher = () => {
+    if (watcherStarted) return;
+    watcherStarted = true;
+
+    console.log(`\n[WATCH] Watching for changes in ${path.basename(resolvedInputPath)}... (Press Ctrl+C to stop)\n`);
+
+    const watchDir = path.dirname(resolvedInputPath);
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let isRecompiling = false;
+
+    fs.watch(watchDir, { recursive: false }, async (_event, filename) => {
+      if (!filename) return;
+      const changedFile = path.resolve(watchDir, filename);
+
+      const isInput = changedFile === resolvedInputPath;
+      const isConfig = configPath ? changedFile === path.resolve(configPath) : filename.includes("markforge");
+      const isCss = filename.endsWith(".css");
+
+      if (isInput || isConfig || isCss) {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+          if (isRecompiling) return;
+          isRecompiling = true;
+          try {
+            const { compileMarkdown } = await import("./core/engine.js");
+            console.log(`[WATCH] ${new Date().toLocaleTimeString()} Change detected in ${filename}. Recompiling...`);
+            const res = await compileMarkdown(resolvedInputPath, mergedConfig);
+            if (res.errors && res.errors.length > 0) {
+              console.error(`[ERROR] Recompilation failed:\n  ${res.errors.join("\n  ")}`);
+            } else {
+              console.log(`[SUCCESS] Recompiled ${res.files.length} document(s) in ${res.durationMs}ms:`);
+              for (const f of res.files) {
+                console.log(`  - [${f.format.toUpperCase()}] ${path.basename(f.filePath)} (${(f.sizeBytes / 1024).toFixed(1)} KB)`);
+              }
+            }
+          } catch (err) {
+            console.error("[ERROR]", err instanceof Error ? err.message : String(err));
+          } finally {
+            isRecompiling = false;
+          }
+        }, 150);
+      }
+    });
+  };
+
   render(
     <App
       inputFile={resolvedInputPath}
       config={mergedConfig}
       configPath={configPath}
       onComplete={(res) => {
+        handleOpenDoc(res.files);
         if (res.errors && res.errors.length > 0) {
           process.exitCode = 1;
+        }
+        if (Boolean(options.watch)) {
+          setupWatcher();
         }
       }}
     />

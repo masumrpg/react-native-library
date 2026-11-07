@@ -439,3 +439,27 @@ signatures: {
   ],
 }
 ```
+
+---
+
+### Page Breaks & Typography (`pageBreaks`)
+
+Controls print and PDF pagination rules, preventing orphan headings, enabling chapter breaks, repeating table headers, and enforcing orphan/widow line counts:
+
+```typescript
+pageBreaks: {
+  beforeH1: true,             // Major chapters (H1) automatically start on a fresh page
+  beforeH2: false,            // Sub-sections (H2) start on a fresh page
+  avoidOrphanHeadings: true,  // Prevent headings from being isolated at the bottom of a page
+  avoidInsideBlocks: true,    // Prevent code blocks, callouts, and signatures from splitting
+  repeatTableHeaders: true,   // Repeat <thead> on subsequent pages when tables span multiple pages
+  avoidInsideTableRows: true, // Prevent table rows (<tr>) from splitting in the middle of text
+  orphans: 3,                 // Minimum lines of a paragraph left at the bottom of a page
+  widows: 3,                  // Minimum lines of a paragraph carried over to a new page
+  allowManualBreaks: true,    // Enable manual page break directives (<!-- pagebreak -->)
+}
+```
+
+<Aside type="tip">
+**Zero-Config Defaults**: You do not need to configure `pageBreaks` explicitly. MarkForge enables `avoidOrphanHeadings: true`, `avoidInsideBlocks: true`, and `repeatTableHeaders: true` out-of-the-box by default.
+</Aside>

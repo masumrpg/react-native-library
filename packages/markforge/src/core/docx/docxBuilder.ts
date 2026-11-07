@@ -15,49 +15,27 @@ import {
   PageNumber,
   Packer,
   PageOrientation,
-  convertInchesToTwip,
-  convertMillimetersToTwip,
   ShadingType,
   ExternalHyperlink,
   TabStopType,
   PageBreak,
   NumberFormat,
   SectionType,
+  HorizontalPositionRelativeFrom,
+  HorizontalPositionAlign,
+  VerticalPositionRelativeFrom,
+  VerticalPositionAlign,
 } from "docx";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import { parseInlineSpans, applyHeadingNumbering } from "../parser.js";
 import type { MarkforgeConfig, ThemeProps } from "../../config/types.js";
+import { THEME_PRESETS } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { tokenizeCodeLine } from "../syntax/syntaxHighlighter.js";
 import { renderMermaidToPng } from "../mermaid/mermaidRenderer.js";
+import { findChromeExecutable, generateWatermarkPngBuffer } from "../pdf/pdfBuilder.js";
 
-/**
- * Converts CSS margin string (e.g. "2.5cm", "1in", "20mm", 1440) to Word Twips.
- */
-export function parseMarginToTwip(margin?: string | number, defaultTwip: number = 1440): number {
-  if (typeof margin === "number") return margin;
-  if (!margin) return defaultTwip;
-
-  const str = margin.trim().toLowerCase();
-  if (str.endsWith("cm")) {
-    const cm = parseFloat(str);
-    return Math.round(convertMillimetersToTwip(cm * 10));
-  }
-  if (str.endsWith("mm")) {
-    const mm = parseFloat(str);
-    return Math.round(convertMillimetersToTwip(mm));
-  }
-  if (str.endsWith("in") || str.endsWith("inch")) {
-    const inch = parseFloat(str);
-    return Math.round(convertInchesToTwip(inch));
-  }
-  if (str.endsWith("pt")) {
-    const pt = parseFloat(str);
-    return Math.round(pt * 20);
-  }
-  const val = parseFloat(str);
-  return isNaN(val) ? defaultTwip : Math.round(val);
-}
+export { parseMarginToTwip } from "../../config/resolveConfig.js";
 
 import {
   resolveDocumentConfig,
@@ -280,8 +258,16 @@ export async function buildDocxDocument(
   const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
   const docElements: (Paragraph | Table)[] = [];
 
-  // Theme Colors
-  const themeProps: ThemeProps = typeof resolved.theme === "object" ? resolved.theme : {};
+  // Theme Resolution
+  let themeProps: ThemeProps = {};
+  if (typeof resolved.theme === "object" && resolved.theme !== null) {
+    themeProps = resolved.theme;
+  } else if (typeof resolved.theme === "string") {
+    const key = resolved.theme.toLowerCase();
+    themeProps = THEME_PRESETS[key] || THEME_PRESETS["corporate"] || {};
+  } else {
+    themeProps = THEME_PRESETS["corporate"] || {};
+  }
   const primaryHex = (themeProps.primaryColor || "#33CDCF").replace("#", "");
   const primaryDarkHex = (themeProps.primaryDark || "#009DA0").replace("#", "");
   const textHex = (themeProps.textColor || "#0F172A").replace("#", "");
@@ -841,6 +827,12 @@ export async function buildDocxDocument(
       continue;
     }
 
+    // Manual Page Break
+    if (node.type === "pageBreak") {
+      docElements.push(new Paragraph({ children: [new PageBreak()] }));
+      continue;
+    }
+
     // Thematic Break (Divider)
     if (node.type === "thematicBreak") {
       docElements.push(
@@ -1155,35 +1147,93 @@ export async function buildDocxDocument(
     );
   }
 
-  const docHeader = resolved.header
-    ? new Header({
-        children: [
-          new Paragraph({
-            tabStops: [
-              {
-                type: TabStopType.CENTER,
-                position: centerPos,
+  const headerChildren: Paragraph[] = [];
+
+  // Floating background watermark in Header (displayed across document pages behind text)
+  if (resolved.watermark) {
+    const chromePath = findChromeExecutable();
+    let wmPng: Buffer | null = null;
+    if (chromePath) {
+      try {
+        wmPng = generateWatermarkPngBuffer(chromePath, resolved.watermark);
+      } catch {
+        wmPng = null;
+      }
+    }
+
+    if (wmPng) {
+      headerChildren.push(
+        new Paragraph({
+          children: [
+            new ImageRun({
+              data: wmPng,
+              transformation: { width: 550, height: 750 },
+              type: "png",
+              floating: {
+                horizontalPosition: {
+                  relative: HorizontalPositionRelativeFrom.PAGE,
+                  align: HorizontalPositionAlign.CENTER,
+                },
+                verticalPosition: {
+                  relative: VerticalPositionRelativeFrom.PAGE,
+                  align: VerticalPositionAlign.CENTER,
+                },
+                behindDocument: true,
               },
-              {
-                type: TabStopType.RIGHT,
-                position: rightPos,
-              },
-            ],
-            border: resolved.header.divider
-              ? {
-                  bottom: {
-                    style: BorderStyle.SINGLE,
-                    size: 4,
-                    space: 6,
-                    color: (resolved.header.dividerColor || "#CBD5E1").replace("#", ""),
-                  },
-                }
-              : undefined,
-            children: headerRuns,
-            spacing: { after: 120 },
-          }),
+            }),
+          ],
+        })
+      );
+    } else {
+      headerChildren.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          children: [
+            new TextRun({
+              text: resolved.watermark.text.toUpperCase(),
+              font: defaultFont,
+              size: (resolved.watermark.fontSize || 54) * 2,
+              bold: true,
+              color: (resolved.watermark.color || "#CBD5E1").replace("#", ""),
+            }),
+          ],
+          spacing: { before: 2400, after: 2400 },
+        })
+      );
+    }
+  }
+
+  if (resolved.header) {
+    headerChildren.push(
+      new Paragraph({
+        tabStops: [
+          {
+            type: TabStopType.CENTER,
+            position: centerPos,
+          },
+          {
+            type: TabStopType.RIGHT,
+            position: rightPos,
+          },
         ],
+        border: resolved.header.divider
+          ? {
+              bottom: {
+                style: BorderStyle.SINGLE,
+                size: 4,
+                space: 6,
+                color: (resolved.header.dividerColor || "#CBD5E1").replace("#", ""),
+              },
+            }
+          : undefined,
+        children: headerRuns,
+        spacing: { after: 120 },
       })
+    );
+  }
+
+  const docHeader = headerChildren.length > 0
+    ? new Header({ children: headerChildren })
     : undefined;
 
   const footerRuns: TextRun[] = [];
@@ -1221,10 +1271,13 @@ export async function buildDocxDocument(
     const rBold = rZone.bold;
     const rItalics = rZone.italic;
 
-    if (rZone.text.includes("{page}") || rZone.text.includes("{pages}")) {
-      const parts = rZone.text.split(/(\{page\}|\{pages\})/gi);
+    const PAGE_TOKEN_TEST = /(\{\{pages?\}\}|\{pages?\})/i;
+    const PAGE_TOKEN_SPLIT = /(\{\{pages?\}\}|\{pages?\})/gi;
+    if (PAGE_TOKEN_TEST.test(rZone.text)) {
+      const parts = rZone.text.split(PAGE_TOKEN_SPLIT);
       for (const part of parts) {
-        if (part.toLowerCase() === "{page}") {
+        const lower = part.toLowerCase();
+        if (lower === "{page}" || lower === "{{page}}") {
           footerRuns.push(
             new TextRun({
               children: [PageNumber.CURRENT],
@@ -1235,7 +1288,7 @@ export async function buildDocxDocument(
               italics: rItalics,
             })
           );
-        } else if (part.toLowerCase() === "{pages}") {
+        } else if (lower === "{pages}" || lower === "{{pages}}") {
           footerRuns.push(
             new TextRun({
               children: [PageNumber.TOTAL_PAGES],
@@ -1406,6 +1459,9 @@ export async function buildDocxDocument(
   }
 
   const document = new Document({
+    title: resolved.title,
+    description: resolved.subtitle,
+    creator: resolved.author,
     styles: {
       default: {
         document: {
@@ -1413,6 +1469,7 @@ export async function buildDocxDocument(
             font: defaultFont,
             size: 21, // 10.5pt
             color: textHex,
+            language: { value: resolved.lang || "en" },
           },
           paragraph: {
             spacing: {
@@ -1601,6 +1658,7 @@ async function buildDocxCoverPageElements(
   }
 
   if (cover.badge) {
+    const badgeColor = cover.badgeTextColor ? cover.badgeTextColor.replace("#", "") : primaryDarkHex;
     elements.push(
       new Paragraph({
         children: [
@@ -1609,7 +1667,7 @@ async function buildDocxCoverPageElements(
             font: defaultFont,
             size: 20,
             bold: true,
-            color: primaryDarkHex,
+            color: badgeColor,
           }),
         ],
         spacing: { after: 240 },
@@ -1617,6 +1675,7 @@ async function buildDocxCoverPageElements(
     );
   }
 
+  const titleColor = cover.titleColor ? cover.titleColor.replace("#", "") : textHex;
   elements.push(
     new Paragraph({
       children: [
@@ -1625,7 +1684,7 @@ async function buildDocxCoverPageElements(
           font: defaultFont,
           size: 56, // 28pt
           bold: true,
-          color: textHex,
+          color: titleColor,
         }),
       ],
       spacing: { after: 140 },
@@ -1633,6 +1692,7 @@ async function buildDocxCoverPageElements(
   );
 
   if (cover.subtitle) {
+    const subtitleColor = cover.subtitleColor ? cover.subtitleColor.replace("#", "") : textMutedHex;
     elements.push(
       new Paragraph({
         children: [
@@ -1640,7 +1700,7 @@ async function buildDocxCoverPageElements(
             text: cover.subtitle,
             font: defaultFont,
             size: 26, // 13pt
-            color: textMutedHex,
+            color: subtitleColor,
           }),
         ],
         spacing: { after: 480 },
@@ -1649,10 +1709,11 @@ async function buildDocxCoverPageElements(
   }
 
   // Accent divider line
+  const accentColor = cover.accentColor ? cover.accentColor.replace("#", "") : primaryHex;
   elements.push(
     new Paragraph({
       border: {
-        bottom: { style: BorderStyle.SINGLE, size: 16, color: primaryHex, space: 8 },
+        bottom: { style: BorderStyle.SINGLE, size: 16, color: accentColor, space: 8 },
       },
       spacing: { after: 480 },
     })

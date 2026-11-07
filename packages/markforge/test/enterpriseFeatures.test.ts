@@ -17,6 +17,9 @@ import {
   type MarkdownASTNode,
 } from "../src/index.js";
 
+process.env.NO_PROXY = "localhost,127.0.0.1";
+process.env.no_proxy = "localhost,127.0.0.1";
+
 describe("MarkForge Enterprise Features", () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "markforge_test_"));
 

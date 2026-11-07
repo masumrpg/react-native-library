@@ -64,19 +64,23 @@ export async function compileMarkdown(
   const parsedDoc = parseMarkdownDocument(rawMarkdown);
 
   const baseName = inputFileName.replace(/\.(md|mdx|markdown)$/i, "");
-  const outputDir = config.outputDir
-    ? path.isAbsolute(config.outputDir)
-      ? config.outputDir
-      : path.resolve(process.cwd(), config.outputDir)
+  // Precedence: explicit CLI flag -> frontmatter.outputDir -> userConfig.outputDir -> config.outputDir
+  const targetOutputDir = userConfig._cliOutputDir ?? parsedDoc.metadata.outputDir ?? userConfig.outputDir ?? config.outputDir;
+  const outputDir = targetOutputDir
+    ? path.isAbsolute(targetOutputDir)
+      ? targetOutputDir
+      : path.resolve(process.cwd(), targetOutputDir)
     : baseDir;
 
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  const formats: MarkforgeFormat[] = Array.isArray(config.to)
-    ? config.to
-    : [config.to || "docx", "pdf"];
+  // Precedence: explicit CLI flag -> frontmatter.to -> userConfig.to -> default
+  const rawFormats = userConfig._cliTo ?? parsedDoc.metadata.to ?? userConfig.to ?? config.to;
+  const formats: MarkforgeFormat[] = Array.isArray(rawFormats)
+    ? rawFormats
+    : [rawFormats || "docx", "pdf"];
 
   const generatedFiles: GeneratedOutputFile[] = [];
   const errors: string[] = [];

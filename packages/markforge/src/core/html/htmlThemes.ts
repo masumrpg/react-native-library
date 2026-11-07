@@ -82,9 +82,11 @@ hr { border: none; border-top: 1px solid var(--mf-border); margin: 2rem 0; }
 @media print {
   body { padding: 0; }
   .document-container { max-width: 100%; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; break-inside: avoid; }
   pre, table, blockquote, .callout { break-inside: avoid; }
   /* Remove scrollbars — PDF has no scrolling */
-  pre { overflow: visible; white-space: pre-wrap; word-break: break-all; }
+  pre { overflow: visible; white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; }
+  code { overflow-wrap: break-word; word-break: break-word; }
 }
 `;
 
@@ -120,9 +122,93 @@ p  { margin: 0.8rem 0; }
 
 export const THEME_DEFAULT = THEME_CORPORATE;
 
+export const THEME_ACADEMIC = `
+:root {
+  --mf-bg: #ffffff;
+  --mf-text: #1a1a1a;
+  --mf-text-muted: #555555;
+  --mf-primary: #1e3a8a;
+  --mf-primary-dark: #0f172a;
+  --mf-primary-light: #f1f5f9;
+  --mf-border: #cbd5e1;
+  --mf-card-bg: #f8fafc;
+  --mf-code-bg: #1e1e1e;
+  --mf-code-text: #d4d4d4;
+  --mf-font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  --mf-font-mono: "Courier New", Courier, monospace;
+}
+body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.75; margin: 0; padding: 2.5rem; text-align: justify; }
+.document-container { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-primary-dark); font-family: var(--mf-font-family); font-weight: 700; margin-top: 2rem; margin-bottom: 0.8rem; line-height: 1.3; text-align: left; }
+h1 { font-size: 2.2rem; color: var(--mf-primary-dark); border-bottom: 2px solid var(--mf-primary); padding-bottom: 0.5rem; }
+h2 { font-size: 1.6rem; color: var(--mf-primary-dark); border-bottom: 1px solid var(--mf-border); padding-bottom: 0.4rem; }
+h3 { font-size: 1.3rem; color: var(--mf-primary-dark); }
+h4 { font-size: 1.1rem; color: var(--mf-primary-dark); }
+h5 { font-size: 1.0rem; color: var(--mf-primary-dark); }
+h6 { font-size: 0.9rem; color: var(--mf-primary-dark); }
+p  { margin: 0.9rem 0; }
+`;
+
+export const THEME_GITHUB = `
+:root {
+  --mf-bg: #ffffff;
+  --mf-text: #1f2328;
+  --mf-text-muted: #656d76;
+  --mf-primary: #0969da;
+  --mf-primary-dark: #0550ae;
+  --mf-primary-light: #ddf4ff;
+  --mf-border: #d0d7de;
+  --mf-card-bg: #f6f8fa;
+  --mf-code-bg: #f6f8fa;
+  --mf-code-text: #1f2328;
+  --mf-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  --mf-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.6; margin: 0; padding: 2.5rem; }
+.document-container { max-width: 896px; margin: 0 auto; position: relative; z-index: 1; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-text); font-weight: 600; margin-top: 1.6rem; margin-bottom: 0.8rem; line-height: 1.25; }
+h1 { font-size: 2rem; border-bottom: 1px solid var(--mf-border); padding-bottom: 0.3em; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--mf-border); padding-bottom: 0.3em; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.0rem; }
+h5 { font-size: 0.875rem; }
+h6 { font-size: 0.85rem; color: var(--mf-text-muted); }
+p  { margin: 0.8rem 0; }
+`;
+
+export const THEME_MINIMAL = `
+:root {
+  --mf-bg: #ffffff;
+  --mf-text: #18181b;
+  --mf-text-muted: #71717a;
+  --mf-primary: #18181b;
+  --mf-primary-dark: #09090b;
+  --mf-primary-light: #f4f4f5;
+  --mf-border: #e4e4e7;
+  --mf-card-bg: #fafafa;
+  --mf-code-bg: #f4f4f5;
+  --mf-code-text: #18181b;
+  --mf-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mf-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+body { background-color: var(--mf-bg); color: var(--mf-text); font-family: var(--mf-font-family); font-size: 15px; line-height: 1.7; margin: 0; padding: 2.5rem; }
+.document-container { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+h1, h2, h3, h4, h5, h6 { color: var(--mf-primary-dark); font-weight: 600; letter-spacing: -0.02em; margin-top: 2rem; margin-bottom: 0.6rem; line-height: 1.3; }
+h1 { font-size: 2.1rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.05rem; }
+h5 { font-size: 0.95rem; }
+h6 { font-size: 0.85rem; }
+p  { margin: 0.8rem 0; }
+`;
+
 export const THEMES: Record<string, string> = {
   corporate: THEME_CORPORATE,
   default:   THEME_CORPORATE,
+  academic:  THEME_ACADEMIC,
+  github:    THEME_GITHUB,
+  minimal:   THEME_MINIMAL,
 };
 
 import type { MarkforgeTheme } from "../../config/types.js";
@@ -132,7 +218,7 @@ import { Theme } from "../../config/types.js";
  * Resolves theme CSS based on preset name or custom ThemeProps object.
  */
 export function generateThemeCss(theme?: MarkforgeTheme): string {
-  if (!theme || theme === "corporate" || theme === "default" || theme === Theme.CORPORATE) {
+  if (!theme || theme === "corporate" || theme === "default" || theme === Theme.CORPORATE || theme === Theme.DEFAULT) {
     return THEME_CORPORATE;
   }
 
@@ -180,8 +266,9 @@ ${theme.customCss || ""}
 `;
   }
 
-  if (typeof theme === "string" && THEMES[theme]) {
-    return THEMES[theme];
+  const normalized = typeof theme === "string" ? theme.toLowerCase() : "";
+  if (normalized && THEMES[normalized]) {
+    return THEMES[normalized];
   }
 
   return THEME_CORPORATE;

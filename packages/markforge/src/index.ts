@@ -10,7 +10,7 @@ export type {
 
 export { buildDocxDocument, parseMarginToTwip } from "./core/docx/docxBuilder.js";
 export { buildHtmlDocument, escapeHtml, renderInlinesToHtml, renderNodesToHtml, renderCoverPageHtml, renderBackCoverHtml } from "./core/html/htmlBuilder.js";
-export { buildPdfDocument, injectPagedMediaStyles, findChromeExecutable } from "./core/pdf/pdfBuilder.js";
+export { buildPdfDocument, injectPagedMediaStyles, findChromeExecutable, createFallbackPdfBuffer } from "./core/pdf/pdfBuilder.js";
 export { buildTextDocument, buildTextDocument as buildTxtDocument, renderInlinesToText } from "./core/text/textBuilder.js";
 export { buildPngDocument } from "./core/png/pngBuilder.js";
 export { resolveImage, inlineHtmlImages, getMimeType } from "./core/imageResolver.js";
@@ -19,7 +19,15 @@ export { tokenizeCodeLine, highlightCodeToHtml, SYNTAX_COLORS } from "./core/syn
 export type { SyntaxToken } from "./core/syntax/syntaxHighlighter.js";
 export { renderMermaidToPng } from "./core/mermaid/mermaidRenderer.js";
 export { renderMathToHtml, KATEX_INLINE_CSS } from "./core/math/mathRenderer.js";
-export { THEMES, THEME_DEFAULT, THEME_CORPORATE, generateThemeCss } from "./core/html/htmlThemes.js";
+export {
+  THEMES,
+  THEME_DEFAULT,
+  THEME_CORPORATE,
+  THEME_ACADEMIC,
+  THEME_GITHUB,
+  THEME_MINIMAL,
+  generateThemeCss,
+} from "./core/html/htmlThemes.js";
 
 export { startPreviewServer } from "./server/previewServer.js";
 export type { PreviewServerOptions, PreviewServerInstance } from "./server/previewServer.js";
@@ -37,6 +45,8 @@ export {
   normalizeBackCover,
   normalizeNumberHeadings,
   normalizeSecurity,
+  normalizePageBreaks,
+  DEFAULT_PAGE_BREAKS,
   PAPER_DIMENSIONS_TWIP,
 } from "./config/resolveConfig.js";
 export type {
@@ -51,10 +61,12 @@ export type {
   NormalizedBackCover,
   NormalizedNumberHeadings,
   NormalizedSecurity,
+  NormalizedPageBreaks,
 } from "./config/resolveConfig.js";
 export {
   OutputFormat,
   Theme,
+  THEME_PRESETS,
   Orientation,
   PaperSizeEnum,
   SyntaxTheme,
@@ -76,6 +88,8 @@ export type {
   HeaderFooterItem,
   DocumentMetadata,
   DocumentLayoutConfig,
+  MarkforgeBuildOptions,
+  MarkforgeDocumentProperties,
   FrontmatterMetadata,
   WatermarkOptions,
   SignatureAlignOption,
@@ -90,6 +104,7 @@ export type {
   NumberHeadingsConfig,
   SecurityConfig,
   PdfPermissions,
+  PageBreaksConfig,
   GeneratedOutputFile,
   CompilationResult,
 } from "./config/types.js";

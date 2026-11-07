@@ -1,5 +1,6 @@
 import type {
   MarkforgeConfig,
+  MarkforgeFormat,
   MarkforgeTheme,
   DocumentOrientation,
   PaperSize,
@@ -15,6 +16,7 @@ import type {
   SecurityConfig,
   SignatureAlignOption,
   SignatureStyleOption,
+  PageBreaksConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -210,6 +212,30 @@ export interface NormalizedSecurity {
   };
 }
 
+export interface NormalizedPageBreaks {
+  beforeH1: boolean;
+  beforeH2: boolean;
+  avoidOrphanHeadings: boolean;
+  avoidInsideBlocks: boolean;
+  repeatTableHeaders: boolean;
+  avoidInsideTableRows: boolean;
+  orphans: number;
+  widows: number;
+  allowManualBreaks: boolean;
+}
+
+export const DEFAULT_PAGE_BREAKS: NormalizedPageBreaks = {
+  beforeH1: false,
+  beforeH2: false,
+  avoidOrphanHeadings: true,
+  avoidInsideBlocks: true,
+  repeatTableHeaders: true,
+  avoidInsideTableRows: true,
+  orphans: 3,
+  widows: 3,
+  allowManualBreaks: true,
+};
+
 export interface ResolvedDocumentConfig {
   title: string;
   subtitle?: string;
@@ -235,11 +261,14 @@ export interface ResolvedDocumentConfig {
   backCover?: NormalizedBackCover;
   numberHeadings?: NormalizedNumberHeadings;
   security?: NormalizedSecurity;
+  pageBreaks: NormalizedPageBreaks;
   math: boolean;
   css: string[];
   embedImages: boolean;
   bundleHtml: boolean;
   syntaxTheme: string;
+  to: MarkforgeFormat[];
+  outputDir?: string;
 }
 
 /**
@@ -717,6 +746,56 @@ export function normalizeSecurity(
 }
 
 /**
+ * Normalizes pageBreaks and typography pagination configuration.
+ */
+export function normalizePageBreaks(
+  raw?: boolean | PageBreaksConfig | Record<string, unknown>
+): NormalizedPageBreaks {
+  if (raw === false) {
+    return {
+      beforeH1: false,
+      beforeH2: false,
+      avoidOrphanHeadings: false,
+      avoidInsideBlocks: false,
+      repeatTableHeaders: false,
+      avoidInsideTableRows: false,
+      orphans: 1,
+      widows: 1,
+      allowManualBreaks: false,
+    };
+  }
+
+  const cfg = (typeof raw === "object" && raw !== null ? raw : {}) as PageBreaksConfig;
+
+  return {
+    beforeH1: typeof cfg.beforeH1 === "boolean" ? cfg.beforeH1 : DEFAULT_PAGE_BREAKS.beforeH1,
+    beforeH2: typeof cfg.beforeH2 === "boolean" ? cfg.beforeH2 : DEFAULT_PAGE_BREAKS.beforeH2,
+    avoidOrphanHeadings:
+      typeof cfg.avoidOrphanHeadings === "boolean"
+        ? cfg.avoidOrphanHeadings
+        : DEFAULT_PAGE_BREAKS.avoidOrphanHeadings,
+    avoidInsideBlocks:
+      typeof cfg.avoidInsideBlocks === "boolean"
+        ? cfg.avoidInsideBlocks
+        : DEFAULT_PAGE_BREAKS.avoidInsideBlocks,
+    repeatTableHeaders:
+      typeof cfg.repeatTableHeaders === "boolean"
+        ? cfg.repeatTableHeaders
+        : DEFAULT_PAGE_BREAKS.repeatTableHeaders,
+    avoidInsideTableRows:
+      typeof cfg.avoidInsideTableRows === "boolean"
+        ? cfg.avoidInsideTableRows
+        : DEFAULT_PAGE_BREAKS.avoidInsideTableRows,
+    orphans: typeof cfg.orphans === "number" && cfg.orphans >= 1 ? cfg.orphans : DEFAULT_PAGE_BREAKS.orphans,
+    widows: typeof cfg.widows === "number" && cfg.widows >= 1 ? cfg.widows : DEFAULT_PAGE_BREAKS.widows,
+    allowManualBreaks:
+      typeof cfg.allowManualBreaks === "boolean"
+        ? cfg.allowManualBreaks
+        : DEFAULT_PAGE_BREAKS.allowManualBreaks,
+  };
+}
+
+/**
  * Centralized Single Source of Truth for resolving document configuration.
  * Priority hierarchy: Frontmatter metadata > Project Config File / User Config > DEFAULT_CONFIG
  */
@@ -726,7 +805,16 @@ export function resolveDocumentConfig(
 ): ResolvedDocumentConfig {
   // 1. Merge metadata defaults from config with document frontmatter
   const configMeta = userConfig.metadata || {};
-  const mergedMeta = { ...configMeta, ...frontmatter };
+  const userRootMeta: Record<string, unknown> = {};
+  if (userConfig.title !== undefined) userRootMeta.title = userConfig.title;
+  if (userConfig.subtitle !== undefined) userRootMeta.subtitle = userConfig.subtitle;
+  if (userConfig.author !== undefined) userRootMeta.author = userConfig.author;
+  if (userConfig.date !== undefined) userRootMeta.date = userConfig.date;
+  if (userConfig.version !== undefined) userRootMeta.version = userConfig.version;
+  if (userConfig.company !== undefined) userRootMeta.company = userConfig.company;
+  if (userConfig.lang !== undefined) userRootMeta.lang = userConfig.lang;
+
+  const mergedMeta = { ...configMeta, ...userRootMeta, ...frontmatter };
 
   const title = (mergedMeta.title as string) || "MarkForge Document";
   const subtitle = (mergedMeta.subtitle as string) || undefined;
@@ -749,7 +837,7 @@ export function resolveDocumentConfig(
   };
 
   // 2. Visual Theme & Layout (Frontmatter > Config > Default)
-  const theme = (mergedMeta.theme as MarkforgeTheme) || userConfig.theme || DEFAULT_CONFIG.theme;
+  const theme: MarkforgeTheme = ((mergedMeta.theme as MarkforgeTheme) || userConfig.theme || DEFAULT_CONFIG.theme) as MarkforgeTheme;
   const orientation = (mergedMeta.orientation as DocumentOrientation) || userConfig.orientation || DEFAULT_CONFIG.orientation;
   const paperSize = ((mergedMeta.paperSize as PaperSize) || userConfig.paperSize || DEFAULT_CONFIG.paperSize) as PaperSize;
 
@@ -788,11 +876,11 @@ export function resolveDocumentConfig(
   const footer = normalizeHeaderFooter(rawFooter, tokenContext);
 
   // 5. Table of Contents & Watermark
-  const toc = typeof mergedMeta.toc === "boolean"
-    ? mergedMeta.toc
+  const toc: boolean = typeof mergedMeta.toc === "boolean"
+    ? Boolean(mergedMeta.toc)
     : typeof userConfig.toc === "boolean"
-    ? userConfig.toc
-    : DEFAULT_CONFIG.toc;
+    ? Boolean(userConfig.toc)
+    : Boolean(DEFAULT_CONFIG.toc);
 
   const rawWatermark = mergedMeta.watermark !== undefined
     ? (mergedMeta.watermark as string | WatermarkOptions | false)
@@ -820,6 +908,12 @@ export function resolveDocumentConfig(
   const rawSecurity = (mergedMeta.security as Record<string, unknown>) || userConfig.security;
   const security = normalizeSecurity(rawSecurity);
 
+  const rawPageBreaks =
+    mergedMeta.pageBreaks !== undefined
+      ? (mergedMeta.pageBreaks as boolean | PageBreaksConfig)
+      : userConfig.pageBreaks;
+  const pageBreaks = normalizePageBreaks(rawPageBreaks);
+
   const math = mergedMeta.math !== false && userConfig.math !== false;
 
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
@@ -832,10 +926,29 @@ export function resolveDocumentConfig(
   addCss(userConfig.css);
   addCss(mergedMeta.css as string | string[] | undefined);
 
-  // 7. Engine Flags
-  const embedImages = typeof userConfig.embedImages === "boolean" ? userConfig.embedImages : DEFAULT_CONFIG.embedImages;
-  const bundleHtml = typeof userConfig.bundleHtml === "boolean" ? userConfig.bundleHtml : DEFAULT_CONFIG.bundleHtml;
-  const syntaxTheme = userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
+  // 7. Engine Flags & Targets (Frontmatter > userConfig > DEFAULT_CONFIG)
+  const rawTo = frontmatter.to ?? userConfig.to ?? DEFAULT_CONFIG.to;
+  const resolvedTo: MarkforgeFormat[] = Array.isArray(rawTo)
+    ? (rawTo as MarkforgeFormat[])
+    : rawTo
+    ? [rawTo as MarkforgeFormat]
+    : ["docx", "pdf"];
+
+  const resolvedOutputDir = (frontmatter.outputDir as string | undefined) ?? userConfig.outputDir;
+
+  const embedImages: boolean = typeof frontmatter.embedImages === "boolean"
+    ? Boolean(frontmatter.embedImages)
+    : typeof userConfig.embedImages === "boolean"
+    ? Boolean(userConfig.embedImages)
+    : Boolean(DEFAULT_CONFIG.embedImages);
+
+  const bundleHtml: boolean = typeof frontmatter.bundleHtml === "boolean"
+    ? Boolean(frontmatter.bundleHtml)
+    : typeof userConfig.bundleHtml === "boolean"
+    ? Boolean(userConfig.bundleHtml)
+    : Boolean(DEFAULT_CONFIG.bundleHtml);
+
+  const syntaxTheme = (frontmatter.syntaxTheme as string | undefined) || userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
 
   return {
     title,
@@ -859,10 +972,13 @@ export function resolveDocumentConfig(
     backCover,
     numberHeadings,
     security,
+    pageBreaks,
     math,
     css: cssList,
     embedImages,
     bundleHtml,
     syntaxTheme,
+    to: resolvedTo,
+    outputDir: resolvedOutputDir,
   };
 }
