@@ -9,17 +9,17 @@
       "description": "JSON Schema reference URI for IDE autocompletion and validation"
     },
     "to": {
-      "description": "Target formats to compile markdown to (docx, pdf, html, png)",
+      "description": "Target formats to compile markdown to (docx, pdf, html, png, txt)",
       "oneOf": [
         {
           "type": "string",
-          "enum": ["docx", "pdf", "html", "png"]
+          "enum": ["docx", "pdf", "html", "png", "txt"]
         },
         {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["docx", "pdf", "html", "png"]
+            "enum": ["docx", "pdf", "html", "png", "txt"]
           }
         }
       ],
@@ -29,12 +29,44 @@
       "type": "string",
       "description": "Output directory where compiled documents will be saved"
     },
+    "title": {
+      "type": "string",
+      "description": "Primary document title"
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Document subtitle or descriptive tagline"
+    },
+    "author": {
+      "description": "Document author name or list of authors",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "company": {
+      "type": "string",
+      "description": "Company, organization, or institution name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Document semantic version (e.g. '1.0.0')"
+    },
+    "date": {
+      "type": "string",
+      "description": "Document publication or release date"
+    },
+    "lang": {
+      "type": "string",
+      "description": "Primary document language (e.g. 'en', 'id', 'id-ID') for HTML and Word proofing",
+      "default": "en"
+    },
     "theme": {
-      "description": "Visual document theme (preset 'corporate' or custom ThemeProps object)",
+      "description": "Visual document theme (preset 'corporate', 'default', 'academic', 'github', 'minimal' or custom ThemeProps object)",
       "oneOf": [
         {
           "type": "string",
-          "enum": ["corporate", "default"]
+          "enum": ["corporate", "default", "academic", "github", "minimal"]
         },
         {
           "type": "object",
@@ -273,6 +305,12 @@
             "badgeColor": { "type": "string" },
             "badgeTextColor": { "type": "string" },
             "logo": { "type": "string" },
+            "logoWidth": { "type": ["number", "string"] },
+            "titleColor": { "type": "string" },
+            "subtitleColor": { "type": "string" },
+            "accentColor": { "type": "string" },
+            "backgroundColor": { "type": "string" },
+            "bgGradient": { "type": "string" },
             "footerText": { "type": "string" }
           },
           "additionalProperties": false

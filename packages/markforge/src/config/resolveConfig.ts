@@ -1,5 +1,6 @@
 import type {
   MarkforgeConfig,
+  MarkforgeFormat,
   MarkforgeTheme,
   DocumentOrientation,
   PaperSize,
@@ -240,6 +241,8 @@ export interface ResolvedDocumentConfig {
   embedImages: boolean;
   bundleHtml: boolean;
   syntaxTheme: string;
+  to: MarkforgeFormat[];
+  outputDir?: string;
 }
 
 /**
@@ -726,7 +729,16 @@ export function resolveDocumentConfig(
 ): ResolvedDocumentConfig {
   // 1. Merge metadata defaults from config with document frontmatter
   const configMeta = userConfig.metadata || {};
-  const mergedMeta = { ...configMeta, ...frontmatter };
+  const userRootMeta: Record<string, unknown> = {};
+  if (userConfig.title !== undefined) userRootMeta.title = userConfig.title;
+  if (userConfig.subtitle !== undefined) userRootMeta.subtitle = userConfig.subtitle;
+  if (userConfig.author !== undefined) userRootMeta.author = userConfig.author;
+  if (userConfig.date !== undefined) userRootMeta.date = userConfig.date;
+  if (userConfig.version !== undefined) userRootMeta.version = userConfig.version;
+  if (userConfig.company !== undefined) userRootMeta.company = userConfig.company;
+  if (userConfig.lang !== undefined) userRootMeta.lang = userConfig.lang;
+
+  const mergedMeta = { ...configMeta, ...userRootMeta, ...frontmatter };
 
   const title = (mergedMeta.title as string) || "MarkForge Document";
   const subtitle = (mergedMeta.subtitle as string) || undefined;
@@ -749,7 +761,7 @@ export function resolveDocumentConfig(
   };
 
   // 2. Visual Theme & Layout (Frontmatter > Config > Default)
-  const theme = (mergedMeta.theme as MarkforgeTheme) || userConfig.theme || DEFAULT_CONFIG.theme;
+  const theme: MarkforgeTheme = ((mergedMeta.theme as MarkforgeTheme) || userConfig.theme || DEFAULT_CONFIG.theme) as MarkforgeTheme;
   const orientation = (mergedMeta.orientation as DocumentOrientation) || userConfig.orientation || DEFAULT_CONFIG.orientation;
   const paperSize = ((mergedMeta.paperSize as PaperSize) || userConfig.paperSize || DEFAULT_CONFIG.paperSize) as PaperSize;
 
@@ -788,11 +800,11 @@ export function resolveDocumentConfig(
   const footer = normalizeHeaderFooter(rawFooter, tokenContext);
 
   // 5. Table of Contents & Watermark
-  const toc = typeof mergedMeta.toc === "boolean"
-    ? mergedMeta.toc
+  const toc: boolean = typeof mergedMeta.toc === "boolean"
+    ? Boolean(mergedMeta.toc)
     : typeof userConfig.toc === "boolean"
-    ? userConfig.toc
-    : DEFAULT_CONFIG.toc;
+    ? Boolean(userConfig.toc)
+    : Boolean(DEFAULT_CONFIG.toc);
 
   const rawWatermark = mergedMeta.watermark !== undefined
     ? (mergedMeta.watermark as string | WatermarkOptions | false)
@@ -832,10 +844,29 @@ export function resolveDocumentConfig(
   addCss(userConfig.css);
   addCss(mergedMeta.css as string | string[] | undefined);
 
-  // 7. Engine Flags
-  const embedImages = typeof userConfig.embedImages === "boolean" ? userConfig.embedImages : DEFAULT_CONFIG.embedImages;
-  const bundleHtml = typeof userConfig.bundleHtml === "boolean" ? userConfig.bundleHtml : DEFAULT_CONFIG.bundleHtml;
-  const syntaxTheme = userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
+  // 7. Engine Flags & Targets (Frontmatter > userConfig > DEFAULT_CONFIG)
+  const rawTo = frontmatter.to ?? userConfig.to ?? DEFAULT_CONFIG.to;
+  const resolvedTo: MarkforgeFormat[] = Array.isArray(rawTo)
+    ? (rawTo as MarkforgeFormat[])
+    : rawTo
+    ? [rawTo as MarkforgeFormat]
+    : ["docx", "pdf"];
+
+  const resolvedOutputDir = (frontmatter.outputDir as string | undefined) ?? userConfig.outputDir;
+
+  const embedImages: boolean = typeof frontmatter.embedImages === "boolean"
+    ? Boolean(frontmatter.embedImages)
+    : typeof userConfig.embedImages === "boolean"
+    ? Boolean(userConfig.embedImages)
+    : Boolean(DEFAULT_CONFIG.embedImages);
+
+  const bundleHtml: boolean = typeof frontmatter.bundleHtml === "boolean"
+    ? Boolean(frontmatter.bundleHtml)
+    : typeof userConfig.bundleHtml === "boolean"
+    ? Boolean(userConfig.bundleHtml)
+    : Boolean(DEFAULT_CONFIG.bundleHtml);
+
+  const syntaxTheme = (frontmatter.syntaxTheme as string | undefined) || userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
 
   return {
     title,
@@ -864,5 +895,7 @@ export function resolveDocumentConfig(
     embedImages,
     bundleHtml,
     syntaxTheme,
+    to: resolvedTo,
+    outputDir: resolvedOutputDir,
   };
 }

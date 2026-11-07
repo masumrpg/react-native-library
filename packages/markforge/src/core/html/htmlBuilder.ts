@@ -244,8 +244,10 @@ export async function renderCoverPageHtml(
     ? `<div class="cover-badge" style="${cover.badgeColor ? `background-color: ${cover.badgeColor};` : ""}${cover.badgeTextColor ? `color: ${cover.badgeTextColor};` : ""}">${escapeHtml(cover.badge)}</div>`
     : "";
 
-  const titleHtml = `<h1 class="cover-title">${escapeHtml(cover.title)}</h1>`;
-  const subtitleHtml = cover.subtitle ? `<div class="cover-subtitle">${escapeHtml(cover.subtitle)}</div>` : "";
+  const titleStyle = cover.titleColor ? ` style="color: ${cover.titleColor};"` : "";
+  const titleHtml = `<h1 class="cover-title"${titleStyle}>${escapeHtml(cover.title)}</h1>`;
+  const subtitleStyle = cover.subtitleColor ? ` style="color: ${cover.subtitleColor};"` : "";
+  const subtitleHtml = cover.subtitle ? `<div class="cover-subtitle"${subtitleStyle}>${escapeHtml(cover.subtitle)}</div>` : "";
 
   const metaItems: string[] = [];
   if (cover.company) metaItems.push(`<div class="cover-meta-item"><span class="cover-meta-label">Organization:</span> <span class="cover-meta-value">${escapeHtml(cover.company)}</span></div>`);
@@ -274,13 +276,13 @@ export async function renderCoverPageHtml(
     color: ${cover.textColor || "#0F172A"};
   }
   .markforge-cover.cover-modern {
-    border-top: 8px solid #0D998D;
+    border-top: 8px solid ${cover.accentColor || "#0D998D"};
   }
   .markforge-cover.cover-corporate-split {
-    border-left: 12px solid #0D998D;
+    border-left: 12px solid ${cover.accentColor || "#0D998D"};
   }
   .markforge-cover.cover-card {
-    background: #F8FAFC;
+    background: ${cover.backgroundColor || "#F8FAFC"};
   }
   .cover-top {
     display: flex;
@@ -740,9 +742,24 @@ export async function buildHtmlDocument(
       canvas.height = height * dpr;
       var ctx = canvas.getContext('2d');
       if (ctx) {
+        var position = '${wm.position || "diagonal"}';
+        var posX = width / 2;
+        var posY = height / 2;
+        var rot = (-Math.abs(${wm.rotate || 45}) * Math.PI) / 180;
+        if (position === 'center') {
+          rot = (${wm.rotate ?? 0} * Math.PI) / 180;
+        } else if (position === 'top-right') {
+          posX = width - 250;
+          posY = 150;
+          rot = (${wm.rotate ?? 0} * Math.PI) / 180;
+        } else if (position === 'bottom-right') {
+          posX = width - 250;
+          posY = height - 150;
+          rot = (${wm.rotate ?? 0} * Math.PI) / 180;
+        }
         ctx.scale(dpr, dpr);
-        ctx.translate(width / 2, height / 2);
-        ctx.rotate((-Math.abs(${wm.rotate || 45}) * Math.PI) / 180);
+        ctx.translate(posX, posY);
+        ctx.rotate(rot);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = '900 ${wm.fontSize * 1.5}px system-ui, -apple-system, sans-serif';

@@ -89,9 +89,94 @@ export interface ThemeProps {
 
 export enum Theme {
   CORPORATE = "corporate",
+  DEFAULT = "default",
+  ACADEMIC = "academic",
+  GITHUB = "github",
+  MINIMAL = "minimal",
 }
 
-export type MarkforgeTheme = Theme | ThemeProps | "corporate" | (string & {});
+export const THEME_PRESETS: Record<string, ThemeProps> = {
+  corporate: {
+    primaryColor: "#33CDCF",
+    primaryDark: "#009DA0",
+    primaryLight: "#ECFDFD",
+    backgroundColor: "#FFFFFF",
+    textColor: "#0F172A",
+    textMuted: "#64748B",
+    borderColor: "#E2E8F0",
+    cardBackground: "#F8FAFC",
+    codeBackground: "#0F172A",
+    codeText: "#F8FAFC",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  },
+  default: {
+    primaryColor: "#33CDCF",
+    primaryDark: "#009DA0",
+    primaryLight: "#ECFDFD",
+    backgroundColor: "#FFFFFF",
+    textColor: "#0F172A",
+    textMuted: "#64748B",
+    borderColor: "#E2E8F0",
+    cardBackground: "#F8FAFC",
+    codeBackground: "#0F172A",
+    codeText: "#F8FAFC",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  },
+  academic: {
+    primaryColor: "#1E3A8A",
+    primaryDark: "#0F172A",
+    primaryLight: "#F1F5F9",
+    backgroundColor: "#FFFFFF",
+    textColor: "#1A1A1A",
+    textMuted: "#555555",
+    borderColor: "#CBD5E1",
+    cardBackground: "#F8FAFC",
+    codeBackground: "#1E1E1E",
+    codeText: "#D4D4D4",
+    fontFamily: "Georgia, Cambria, 'Times New Roman', Times, serif",
+    fontMono: "'Courier New', Courier, monospace",
+  },
+  github: {
+    primaryColor: "#0969DA",
+    primaryDark: "#0550AE",
+    primaryLight: "#DDF4FF",
+    backgroundColor: "#FFFFFF",
+    textColor: "#1F2328",
+    textMuted: "#656D76",
+    borderColor: "#D0D7DE",
+    cardBackground: "#F6F8FA",
+    codeBackground: "#F6F8FA",
+    codeText: "#1F2328",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif",
+    fontMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  },
+  minimal: {
+    primaryColor: "#18181B",
+    primaryDark: "#09090B",
+    primaryLight: "#F4F4F5",
+    backgroundColor: "#FFFFFF",
+    textColor: "#18181B",
+    textMuted: "#71717A",
+    borderColor: "#E4E4E7",
+    cardBackground: "#FAFAFA",
+    codeBackground: "#F4F4F5",
+    codeText: "#18181B",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  },
+};
+
+export type MarkforgeTheme =
+  | Theme
+  | ThemeProps
+  | "corporate"
+  | "default"
+  | "academic"
+  | "github"
+  | "minimal"
+  | (string & {});
 
 export enum Orientation {
   PORTRAIT = "portrait",
@@ -272,17 +357,7 @@ export interface CoverPageConfig {
   accentColor?: string;
 
   /**
-   * Contact details (for covers that render organization cards).
-   */
-  address?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  social?: BackCoverSocial;
-  copyright?: string;
-
-  /**
-   * Custom footer notes at the bottom of the cover page.
+   * Custom footer notes or confidentiality notice at the bottom of the cover page.
    */
   footerText?: string;
 }
@@ -489,8 +564,6 @@ export interface DocumentMetadata {
   version?: string;
   company?: string;
   lang?: string;
-  coverPage?: boolean | CoverPageConfig;
-  backCover?: boolean | BackCoverConfig;
   [key: string]: unknown;
 }
 
@@ -697,17 +770,7 @@ export interface DocumentLayoutConfig {
     | (string & {});
 }
 
-/**
- * Complete metadata extracted from Markdown frontmatter.
- * Combines document metadata and layout overrides.
- */
-export type FrontmatterMetadata = DocumentMetadata & DocumentLayoutConfig;
-
-/**
- * Top-level MarkForge configuration (from config file, CLI, or API).
- * Clean, 100% intuitive, and zero-duplicate architecture.
- */
-export interface MarkforgeConfig extends DocumentLayoutConfig {
+export interface MarkforgeBuildOptions {
   /**
    * Target format(s) to compile markdown to.
    * @default ["docx", "pdf"]
@@ -721,11 +784,6 @@ export interface MarkforgeConfig extends DocumentLayoutConfig {
   outputDir?: string;
 
   /**
-   * Default document metadata (title, author, date, etc.) used when not provided in frontmatter.
-   */
-  metadata?: DocumentMetadata;
-
-  /**
    * Whether to embed all images (local and remote) directly into the document.
    * @default true
    */
@@ -736,6 +794,33 @@ export interface MarkforgeConfig extends DocumentLayoutConfig {
    * @default true
    */
   bundleHtml?: boolean;
+}
+
+/**
+ * Unified document properties shared 100% symmetrically by both
+ * TypeScript/JavaScript configurations and Markdown Frontmatter.
+ */
+export interface MarkforgeDocumentProperties
+  extends DocumentMetadata,
+    DocumentLayoutConfig,
+    MarkforgeBuildOptions {}
+
+/**
+ * Complete metadata extracted from Markdown frontmatter.
+ * 100% identical and symmetrical to MarkforgeDocumentProperties.
+ */
+export type FrontmatterMetadata = MarkforgeDocumentProperties;
+
+/**
+ * Top-level MarkForge configuration (from config file, CLI, or API).
+ * Clean, 100% intuitive, and zero-duplicate architecture.
+ */
+export interface MarkforgeConfig extends MarkforgeDocumentProperties {
+  /**
+   * Optional metadata dictionary for backward compatibility.
+   * Root-level properties (title, author, company, etc.) take precedence.
+   */
+  metadata?: DocumentMetadata;
 
   /**
    * Watch files and automatically recompile on changes.
@@ -760,6 +845,18 @@ export interface MarkforgeConfig extends DocumentLayoutConfig {
    * @default false
    */
   open?: boolean;
+
+  /**
+   * Internal explicit CLI target formats override.
+   * Takes ultimate precedence over frontmatter and project config files.
+   */
+  _cliTo?: MarkforgeFormat[];
+
+  /**
+   * Internal explicit CLI destination directory override.
+   * Takes ultimate precedence over frontmatter and project config files.
+   */
+  _cliOutputDir?: string;
 }
 
 export interface GeneratedOutputFile {

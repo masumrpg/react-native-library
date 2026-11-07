@@ -8,6 +8,7 @@ import { encryptPDF } from "@pdfsmaller/pdf-encrypt";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
 import { buildHtmlDocument } from "../html/htmlBuilder.js";
+import { resolveDocumentConfig, type NormalizedHeaderFooterZone } from "../../config/resolveConfig.js";
 
 function escapeXml(str: string): string {
   return str
@@ -23,7 +24,14 @@ function escapeXml(str: string): string {
  */
 export function generateWatermarkPngBuffer(
   chromePath: string,
-  wm: { text: string; color?: string; opacity?: number; fontSize?: number; rotate?: number }
+  wm: {
+    text: string;
+    color?: string;
+    opacity?: number;
+    fontSize?: number;
+    rotate?: number;
+    position?: "diagonal" | "center" | "top-right" | "bottom-right";
+  }
 ): Buffer | null {
   const tmpId = Math.random().toString(36).substring(2, 9);
   const tmpDir = os.tmpdir();
@@ -33,11 +41,29 @@ export function generateWatermarkPngBuffer(
 
   try {
     const text = escapeXml(wm.text.toUpperCase());
-    const fontSize = (wm.fontSize || 52) * 1.5;
+    const position = wm.position || "diagonal";
+    const fontSize = (wm.fontSize || (position === "top-right" || position === "bottom-right" ? 32 : 52)) * 1.5;
     const color = wm.color || "#E11D48";
     const opacity = wm.opacity !== undefined ? wm.opacity : 0.12;
-    // Slopes upwards from bottom-left to top-right in CSS transform (-45deg)
-    const rotate = wm.rotate !== undefined ? wm.rotate : -45;
+
+    let defaultRotate = -45;
+    let flexAlign = "align-items: center; justify-content: center;";
+    let padding = "padding: 0;";
+
+    if (position === "center") {
+      defaultRotate = 0;
+      flexAlign = "align-items: center; justify-content: center;";
+    } else if (position === "top-right") {
+      defaultRotate = 0;
+      flexAlign = "align-items: flex-start; justify-content: flex-end;";
+      padding = "padding: 80px 100px;";
+    } else if (position === "bottom-right") {
+      defaultRotate = 0;
+      flexAlign = "align-items: flex-end; justify-content: flex-end;";
+      padding = "padding: 80px 100px;";
+    }
+
+    const rotate = wm.rotate !== undefined ? wm.rotate : defaultRotate;
 
     const html = `<!DOCTYPE html>
 <html>
@@ -55,9 +81,10 @@ export function generateWatermarkPngBuffer(
   .wm-box {
     width: 1200px;
     height: 1600px;
+    box-sizing: border-box;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    ${flexAlign}
+    ${padding}
     transform: rotate(${rotate}deg);
   }
   .wm-text {
@@ -217,8 +244,6 @@ export function findChromeExecutable(): string | null {
 
 
 
-import { resolveDocumentConfig } from "../../config/resolveConfig.js";
-
 /**
  * Injects CSS Paged Media styles into HTML for print & PDF formatting.
  */
@@ -235,9 +260,11 @@ export function injectPagedMediaStyles(
   const left = resolved.margins.left;
   const right = resolved.margins.right;
 
-  const esc = (s: string) => s.replace(/"/g, '\\"').replace(/\\/g, "\\\\");
+  const esc = (s: string): string => s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  const PAGE_TOKEN_TEST = /(\{\{pages?\}\}|\{pages?\})/i;
+  const PAGE_TOKEN_SPLIT = /(\{\{pages?\}\}|\{pages?\})/gi;
 
-  const buildZoneCss = (pos: string, zone?: import("../../config/resolveConfig.js").NormalizedHeaderFooterZone, isPageCounter: boolean = false): string => {
+  const buildZoneCss = (pos: string, zone?: NormalizedHeaderFooterZone, isPageCounter: boolean = false): string => {
     if (!zone && !isPageCounter) return "";
     const color = zone?.color || "#94a3b8";
     const fontSize = zone?.fontSize ? `${zone.fontSize}pt` : "9pt";
@@ -246,25 +273,34 @@ export function injectPagedMediaStyles(
     const fontStyle = zone?.italic ? "font-style: italic;" : "";
 
     let content = "";
-    if (isPageCounter) {
-      if (zone?.text && (zone.text.includes("{page}") || zone.text.includes("{pages}"))) {
-        const parts = zone.text.split(/(\{page\}|\{pages\})/gi);
-        const cssParts = parts.map((part) => {
-          if (part.toLowerCase() === "{page}") return "counter(page)";
-          if (part.toLowerCase() === "{pages}") return "counter(pages)";
-          return `"${esc(part)}"`;
-        });
-        content = cssParts.join(" ");
-      } else if (zone?.text) {
-        content = `"${esc(zone.text)}"`;
-      } else {
-        content = `"Page " counter(page) " of " counter(pages)`;
-      }
+    if (zone?.text && PAGE_TOKEN_TEST.test(zone.text)) {
+      const parts = zone.text.split(PAGE_TOKEN_SPLIT).filter((part) => part.length > 0);
+      const cssParts = parts.map((part) => {
+        const lower = part.toLowerCase();
+        if (lower === "{page}" || lower === "{{page}}") return "counter(page)";
+        if (lower === "{pages}" || lower === "{{pages}}") return "counter(pages)";
+        return `"${esc(part)}"`;
+      });
+      content = cssParts.join(" ");
     } else if (zone?.text) {
       content = `"${esc(zone.text)}"`;
+    } else if (isPageCounter) {
+      content = `"Page " counter(page) " of " counter(pages)`;
     }
 
     if (!content) return "";
+
+    const isTop = pos.startsWith("top");
+    const isBottom = pos.startsWith("bottom");
+
+    let dividerCss = "";
+    if (isTop && resolved.header?.divider) {
+      const divColor = resolved.header.dividerColor || "#CBD5E1";
+      dividerCss = `border-bottom: 1px solid ${divColor}; padding-bottom: 4px;`;
+    } else if (isBottom && resolved.footer?.divider) {
+      const divColor = resolved.footer.dividerColor || "#CBD5E1";
+      dividerCss = `border-top: 1px solid ${divColor}; padding-top: 4px;`;
+    }
 
     return `@${pos} {
       content: ${content};
@@ -273,6 +309,7 @@ export function injectPagedMediaStyles(
       ${fontFamily}
       ${fontWeight}
       ${fontStyle}
+      ${dividerCss}
     }`;
   };
 
@@ -377,14 +414,17 @@ export function injectPagedMediaStyles(
   }
   `;
 
-  return html.replace("</head>", `<style>${pagedCss}</style></head>`);
+  if (html.includes("</head>")) {
+    return html.replace("</head>", `<style>${pagedCss}</style></head>`);
+  }
+  return `<style>${pagedCss}</style>${html}`;
 }
 
 
 /**
  * Generates a minimal valid PDF-1.4 binary buffer fallback.
  */
-function createFallbackPdfBuffer(title: string = "Document"): Buffer {
+export function createFallbackPdfBuffer(title: string = "Document"): Buffer {
   const streamContent = `BT /F1 18 Tf 50 750 Td (${title}) Tj ET\nBT /F1 12 Tf 50 720 Td (Generated via MarkForge Fallback Renderer) Tj ET`;
   const streamLength = Buffer.byteLength(streamContent, "utf-8");
 
@@ -437,6 +477,13 @@ export async function buildPdfDocument(
   const pagedHtml = injectPagedMediaStyles(baseHtml, config, doc.metadata as Record<string, unknown>);
 
   const chromePath = findChromeExecutable();
+
+  if (!chromePath) {
+    console.warn(
+      "Headless Chrome / Chromium / Edge executable not found for PDF document export. " +
+        "Please install Google Chrome, Chromium, or Microsoft Edge, or set CHROME_PATH environment variable."
+    );
+  }
 
   if (chromePath) {
     const tmpId = Math.random().toString(36).substring(2, 9);

@@ -5,6 +5,10 @@ import * as YAML from "yaml";
 import type { MarkforgeConfig } from "./types.js";
 
 const DEFAULT_CONFIG_FILENAMES = [
+  "markforge.config.ts",
+  "markforge.config.js",
+  "markforge.config.mjs",
+  "markforge.config.cjs",
   "markforge.config.json",
   ".markforgerc.json",
   "markforge.config.yaml",
@@ -12,10 +16,6 @@ const DEFAULT_CONFIG_FILENAMES = [
   ".markforgerc.yaml",
   ".markforgerc.yml",
   ".markforgerc",
-  "markforge.config.ts",
-  "markforge.config.js",
-  "markforge.config.mjs",
-  "markforge.config.cjs",
 ];
 
 export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures" | "coverPage" | "backCover" | "numberHeadings" | "security">> & {
@@ -35,7 +35,7 @@ export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" 
 } = {
   to: ["docx", "pdf"],
   outputDir: undefined,
-  theme: "default",
+  theme: "corporate",
   css: undefined,
   orientation: "portrait",
   paperSize: "A4",
