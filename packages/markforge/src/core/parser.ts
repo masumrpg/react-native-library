@@ -19,6 +19,7 @@ export type MarkdownNodeType =
   | "column"
   | "htmlBlock"
   | "thematicBreak"
+  | "pageBreak"
   | "image"
   | "toc";
 
@@ -399,6 +400,22 @@ export function parseMarkdownDocument(rawMarkdown: string): ParsedMarkdownDocume
         inlines: parseInlineSpans(text),
       });
       tocEntries.push({ id, text, level });
+      i++;
+      continue;
+    }
+
+    // 2.5 Manual Page Break: <!-- pagebreak -->, <!-- page-break -->, \pagebreak, :::pagebreak, :::break, <div class="pagebreak">
+    const trimmedLine = line.trim();
+    if (
+      trimmedLine === "<!-- pagebreak -->" ||
+      trimmedLine === "<!-- page-break -->" ||
+      trimmedLine === "\\pagebreak" ||
+      trimmedLine === ":::pagebreak" ||
+      trimmedLine === ":::break" ||
+      trimmedLine === '<div class="pagebreak"></div>' ||
+      trimmedLine === '<div class="page-break"></div>'
+    ) {
+      nodes.push({ type: "pageBreak" });
       i++;
       continue;
     }

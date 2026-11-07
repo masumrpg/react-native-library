@@ -4,15 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:all": "bun run build:corporate && bun run build:academic && bun run build:github && bun run build:minimal",
-    "build:corporate": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-corporate.md",
-    "build:academic": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-academic.md",
-    "build:github": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-github.md",
-    "build:minimal": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-minimal.md",
-    "serve:corporate": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-corporate.md --serve 3000 --open",
-    "serve:academic": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-academic.md --serve 3000 --open",
-    "serve:github": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-github.md --serve 3000 --open",
-    "serve:minimal": "bun ../../../packages/markforge/dist/cli.mjs ./docs/enterprise-minimal.md --serve 3000 --open"
+    "build": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md",
+    "build:open": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md -O",
+    "watch": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md -w",
+    "serve": "bun ../../../packages/markforge/dist/cli.mjs ./docs/document.md --serve 3000 --open"
   },
   "dependencies": {
     "@masumdev/markforge": "workspace:*"

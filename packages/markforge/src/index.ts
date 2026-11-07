@@ -45,6 +45,8 @@ export {
   normalizeBackCover,
   normalizeNumberHeadings,
   normalizeSecurity,
+  normalizePageBreaks,
+  DEFAULT_PAGE_BREAKS,
   PAPER_DIMENSIONS_TWIP,
 } from "./config/resolveConfig.js";
 export type {
@@ -59,6 +61,7 @@ export type {
   NormalizedBackCover,
   NormalizedNumberHeadings,
   NormalizedSecurity,
+  NormalizedPageBreaks,
 } from "./config/resolveConfig.js";
 export {
   OutputFormat,
@@ -101,6 +104,7 @@ export type {
   NumberHeadingsConfig,
   SecurityConfig,
   PdfPermissions,
+  PageBreaksConfig,
   GeneratedOutputFile,
   CompilationResult,
 } from "./config/types.js";

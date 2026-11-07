@@ -19,6 +19,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | Feature | Description |
 | :--- | :--- |
 | **Multi-Format Output** | Generate `.docx`, `.pdf`, `.html`, and `.txt` from a single Markdown source simultaneously |
+| **Page Breaks & Pagination** | Configurable orphan heading prevention, chapter breaks, repeating table headers, and manual breaks |
 | **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system plus full custom colors and fonts via `ThemeProps` |
 | **Cover Page Builder** | Four professional cover page presets (`modern`, `corporate-split`, `minimal`, `card`) with company logo |
 | **Back Cover / Closing Page** | Dedicated closing page with company details, contact info, social links, and copyright notice |

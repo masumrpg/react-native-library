@@ -214,6 +214,11 @@ export async function renderNodesToHtml(
       continue;
     }
 
+    if (node.type === "pageBreak") {
+      bodyHtml += `  <div class="markforge-page-break" style="break-before: page; page-break-before: always; height: 0; margin: 0; padding: 0;"></div>\n`;
+      continue;
+    }
+
     if (node.type === "htmlBlock") {
       bodyHtml += `  ${node.text}\n`;
       continue;

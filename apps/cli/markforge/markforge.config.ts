@@ -9,23 +9,25 @@ import {
 
 /**
  * Single Unified MarkForge Configuration
- * All global settings and document defaults are defined here in one type-safe file.
+ * Configured specifically for high-fidelity Enterprise PDF publication.
  */
 export default defineConfig({
-  // Global document metadata defaults (can be overridden per markdown in frontmatter)
+  // Global document metadata defaults
   title: "Enterprise Architecture Specification",
-  company: "Masum Dev Technologies",
+  subtitle: "Sistem Terdistribusi Berkeandalan Tinggi 2026",
+  company: "PT Masum Teknologi Indonesia",
   author: "Ma'sum",
-  version: "1.0.0",
-  lang: "en",
+  version: "3.2.0",
+  date: "2026-11-07",
+  lang: "id",
 
-  // Target compilation formats: DOCX, PDF, HTML, and Plain Text TXT
-  to: [OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.HTML, OutputFormat.TXT],
+  // Target compilation format: Exclusively PDF
+  to: [OutputFormat.PDF],
 
-  // Destination directory for all generated documents
+  // Destination directory for generated PDF
   outputDir: ".temp/output",
 
-  // Visual theme preset: Theme.CORPORATE | Theme.ACADEMIC | Theme.GITHUB | Theme.MINIMAL
+  // Visual theme preset
   theme: Theme.CORPORATE,
 
   // Syntax highlighting theme for code blocks
@@ -52,44 +54,24 @@ export default defineConfig({
 
   // Running footers with automated page counter & divider line
   footer: {
-    left: "Confidential & Proprietary",
-    right: "Page {page} of {pages}",
+    left: "DOKUMEN RAHASIA & BERHAK CIPTA",
+    right: "Halaman {page} dari {pages}",
     divider: true,
-    dividerColor: "#E2E8F0",
+    dividerColor: "#CBD5E1",
   },
 
   // Document formatting options
   toc: true,          // Automatic Table of Contents
-  embedImages: true,  // Inline images directly into self-contained files
+  embedImages: true,  // Inline images directly into self-contained PDF
   math: true,         // KaTeX math rendering ($inline$ and $$block$$)
 
-  // ---------------------------------------------------------------------------
-  // Optional Enterprise Features (can also be configured directly in .md frontmatter):
-  // ---------------------------------------------------------------------------
-  // watermark: {
-  //   text: "STRICTLY CONFIDENTIAL",
-  //   color: "#E11D48",
-  //   opacity: 0.08,
-  //   fontSize: 48,
-  //   rotate: -45,
-  // },
-  // coverPage: {
-  //   enabled: true,
-  //   preset: "modern", // "modern" | "corporate-split" | "minimal" | "card"
-  //   logo: "./assets/company-logo.png",
-  //   logoWidth: 160,
-  //   badge: "OFFICIAL MASTER SPECIFICATION",
-  // },
-  // backCover: {
-  //   enabled: true,
-  //   preset: "corporate",
-  //   company: "Masum Global Cloud Technologies, Inc.",
-  //   website: "https://react-native-library-docs.vercel.app/markforge/",
-  //   copyright: "© 2026 Masum Global Cloud Technologies, Inc.",
-  // },
-  // numberHeadings: {
-  //   enabled: true,
-  //   depth: 3,
-  //   skipH1: false,
-  // },
+  // Advanced typography & page break control
+  pageBreaks: {
+    beforeH1: false,            // Set true to start every major chapter on a fresh page
+    avoidOrphanHeadings: true,  // Prevent isolated headings at page bottom
+    avoidInsideBlocks: true,    // Keep code blocks, callouts, and signatures intact
+    repeatTableHeaders: true,   // Repeat <thead> on subsequent pages for long tables
+    orphans: 3,                 // Minimum lines left at bottom of page
+    widows: 3,                  // Minimum lines carried over to top of page
+  },
 });

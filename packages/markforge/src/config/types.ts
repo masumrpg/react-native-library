@@ -768,6 +768,75 @@ export interface DocumentLayoutConfig {
     | "nord"
     | SyntaxTheme
     | (string & {});
+
+  /**
+   * Advanced page break and typography pagination control for print & PDF generation.
+   * Configurable or zero-config defaults (prevents orphan headings, breaks before H1, repeats table headers, etc.).
+   */
+  pageBreaks?: PageBreaksConfig;
+}
+
+/**
+ * Advanced layout and page break rules for print and PDF generation.
+ * Controls orphan heading prevention, H1/H2 chapter breaks, table formatting, and orphans/widows typography.
+ */
+export interface PageBreaksConfig {
+  /**
+   * Automatically start level 1 headings (H1) on a new page.
+   * Standard for enterprise reports, book chapters, and specifications.
+   * @default false
+   */
+  beforeH1?: boolean;
+
+  /**
+   * Automatically start level 2 headings (H2) on a new page.
+   * @default false
+   */
+  beforeH2?: boolean;
+
+  /**
+   * Prevent headings (h1-h6) from being stranded at the bottom of a page without content.
+   * Forces heading to accompany at least the next block element onto the new page.
+   * @default true
+   */
+  avoidOrphanHeadings?: boolean;
+
+  /**
+   * Prevent callout boxes, code blocks, blockquotes, columns, and signatures from splitting across pages.
+   * @default true
+   */
+  avoidInsideBlocks?: boolean;
+
+  /**
+   * Repeat table headers (<thead>) on subsequent pages when tables split across pages.
+   * @default true
+   */
+  repeatTableHeaders?: boolean;
+
+  /**
+   * Prevent table rows (<tr>) from splitting awkwardly across pages.
+   * @default true
+   */
+  avoidInsideTableRows?: boolean;
+
+  /**
+   * Minimum number of lines of a paragraph that must be left at the bottom of a page (orphans).
+   * @default 3
+   */
+  orphans?: number;
+
+  /**
+   * Minimum number of lines of a paragraph that must be moved to the top of a new page (widows).
+   * @default 3
+   */
+  widows?: number;
+
+  /**
+   * Enable manual page break directives in Markdown:
+   * <!-- pagebreak -->, \pagebreak, :::pagebreak, or <div class="pagebreak"></div>
+   * @default true
+   */
+  allowManualBreaks?: boolean;
 }
 
 export interface MarkforgeBuildOptions {

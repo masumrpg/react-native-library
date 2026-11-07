@@ -5,6 +5,34 @@ All notable changes to **@masumdev/markforge** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-11-08
+
+### Added
+- **Page Breaks & Typography Pagination Controller (`pageBreaks`)**:
+  - Implemented configurable print and PDF layout pagination rules via `pageBreaks` in `markforge.config.ts` and YAML frontmatter.
+  - **Orphan Headings Prevention (`avoidOrphanHeadings: true`)**: Guarantees headings (`h1` through `h6`) are never isolated at the bottom of a page without subsequent content (`break-after: avoid !important; page-break-after: avoid !important;`).
+  - **Chapter & Section Breaks (`beforeH1` & `beforeH2`)**: Configurable option to force major chapters to automatically begin on a fresh page (`break-before: page;`).
+  - **Repeating Table Headers (`repeatTableHeaders: true`)**: Repeats `<thead>` on subsequent pages when tables span across multiple pages (`display: table-header-group !important;`).
+  - **Block Integrity Protection (`avoidInsideBlocks: true`)**: Prevents code blocks (`pre`), callout boxes, blockquotes, multi-columns (`:::columns`), and signatures from splitting awkwardly across pages.
+  - **Table Rows Protection (`avoidInsideTableRows: true`)**: Prevents individual `<tr>` rows from being sliced in the middle of text lines.
+  - **Typographic Orphans & Widows Control**: Configurable `orphans` and `widows` thresholds (default: 3) for clean paragraph flow.
+- **Manual Page Break Directives**:
+  - Added native AST support for explicit page breaks in Markdown: `<!-- pagebreak -->`, `<!-- page-break -->`, `\pagebreak`, `:::pagebreak`, `:::break`, or `<div class="pagebreak"></div>`.
+  - Compiles cleanly into CSS Paged Media in PDF/HTML and native section breaks (`new PageBreak()`) in Microsoft Word DOCX.
+- **Unified Symmetrical Configuration & Frontmatter Routing**:
+  - Added support for root-level document metadata (`title`, `author`, `company`, `subtitle`, `date`, `version`, `lang`) in both config files and frontmatter without requiring a nested `metadata: { ... }` wrapper.
+  - Frontmatter `to:` and `outputDir:` properties now dynamically route compilation outputs directly without requiring CLI overrides.
+  - Injected missing PDF header and footer divider rules (`header.divider` and `footer.divider`) into CSS Paged Media.
+  - Added full support for `watermark.position` (`"diagonal" | "center" | "top-right" | "bottom-right"`), DOCX watermark stamping, and DOCX language proofing.
+
+### Fixed
+- **CLI Watch Mode & Native Open Flags**:
+  - Implemented the reactive file watcher loop for `-w, --watch` using Node `fs.watch`.
+  - Implemented the cross-platform file opener for `-O, --open` to automatically launch generated documents in the OS default viewer.
+  - Added `--no-toc` flag to allow disabling Table of Contents directly from the CLI.
+
+---
+
 ## [0.5.2] - 2026-09-11
 
 ### Fixed

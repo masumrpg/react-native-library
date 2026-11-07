@@ -16,6 +16,7 @@ import type {
   SecurityConfig,
   SignatureAlignOption,
   SignatureStyleOption,
+  PageBreaksConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -211,6 +212,30 @@ export interface NormalizedSecurity {
   };
 }
 
+export interface NormalizedPageBreaks {
+  beforeH1: boolean;
+  beforeH2: boolean;
+  avoidOrphanHeadings: boolean;
+  avoidInsideBlocks: boolean;
+  repeatTableHeaders: boolean;
+  avoidInsideTableRows: boolean;
+  orphans: number;
+  widows: number;
+  allowManualBreaks: boolean;
+}
+
+export const DEFAULT_PAGE_BREAKS: NormalizedPageBreaks = {
+  beforeH1: false,
+  beforeH2: false,
+  avoidOrphanHeadings: true,
+  avoidInsideBlocks: true,
+  repeatTableHeaders: true,
+  avoidInsideTableRows: true,
+  orphans: 3,
+  widows: 3,
+  allowManualBreaks: true,
+};
+
 export interface ResolvedDocumentConfig {
   title: string;
   subtitle?: string;
@@ -236,6 +261,7 @@ export interface ResolvedDocumentConfig {
   backCover?: NormalizedBackCover;
   numberHeadings?: NormalizedNumberHeadings;
   security?: NormalizedSecurity;
+  pageBreaks: NormalizedPageBreaks;
   math: boolean;
   css: string[];
   embedImages: boolean;
@@ -720,6 +746,56 @@ export function normalizeSecurity(
 }
 
 /**
+ * Normalizes pageBreaks and typography pagination configuration.
+ */
+export function normalizePageBreaks(
+  raw?: boolean | PageBreaksConfig | Record<string, unknown>
+): NormalizedPageBreaks {
+  if (raw === false) {
+    return {
+      beforeH1: false,
+      beforeH2: false,
+      avoidOrphanHeadings: false,
+      avoidInsideBlocks: false,
+      repeatTableHeaders: false,
+      avoidInsideTableRows: false,
+      orphans: 1,
+      widows: 1,
+      allowManualBreaks: false,
+    };
+  }
+
+  const cfg = (typeof raw === "object" && raw !== null ? raw : {}) as PageBreaksConfig;
+
+  return {
+    beforeH1: typeof cfg.beforeH1 === "boolean" ? cfg.beforeH1 : DEFAULT_PAGE_BREAKS.beforeH1,
+    beforeH2: typeof cfg.beforeH2 === "boolean" ? cfg.beforeH2 : DEFAULT_PAGE_BREAKS.beforeH2,
+    avoidOrphanHeadings:
+      typeof cfg.avoidOrphanHeadings === "boolean"
+        ? cfg.avoidOrphanHeadings
+        : DEFAULT_PAGE_BREAKS.avoidOrphanHeadings,
+    avoidInsideBlocks:
+      typeof cfg.avoidInsideBlocks === "boolean"
+        ? cfg.avoidInsideBlocks
+        : DEFAULT_PAGE_BREAKS.avoidInsideBlocks,
+    repeatTableHeaders:
+      typeof cfg.repeatTableHeaders === "boolean"
+        ? cfg.repeatTableHeaders
+        : DEFAULT_PAGE_BREAKS.repeatTableHeaders,
+    avoidInsideTableRows:
+      typeof cfg.avoidInsideTableRows === "boolean"
+        ? cfg.avoidInsideTableRows
+        : DEFAULT_PAGE_BREAKS.avoidInsideTableRows,
+    orphans: typeof cfg.orphans === "number" && cfg.orphans >= 1 ? cfg.orphans : DEFAULT_PAGE_BREAKS.orphans,
+    widows: typeof cfg.widows === "number" && cfg.widows >= 1 ? cfg.widows : DEFAULT_PAGE_BREAKS.widows,
+    allowManualBreaks:
+      typeof cfg.allowManualBreaks === "boolean"
+        ? cfg.allowManualBreaks
+        : DEFAULT_PAGE_BREAKS.allowManualBreaks,
+  };
+}
+
+/**
  * Centralized Single Source of Truth for resolving document configuration.
  * Priority hierarchy: Frontmatter metadata > Project Config File / User Config > DEFAULT_CONFIG
  */
@@ -832,6 +908,12 @@ export function resolveDocumentConfig(
   const rawSecurity = (mergedMeta.security as Record<string, unknown>) || userConfig.security;
   const security = normalizeSecurity(rawSecurity);
 
+  const rawPageBreaks =
+    mergedMeta.pageBreaks !== undefined
+      ? (mergedMeta.pageBreaks as boolean | PageBreaksConfig)
+      : userConfig.pageBreaks;
+  const pageBreaks = normalizePageBreaks(rawPageBreaks);
+
   const math = mergedMeta.math !== false && userConfig.math !== false;
 
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
@@ -890,6 +972,7 @@ export function resolveDocumentConfig(
     backCover,
     numberHeadings,
     security,
+    pageBreaks,
     math,
     css: cssList,
     embedImages,

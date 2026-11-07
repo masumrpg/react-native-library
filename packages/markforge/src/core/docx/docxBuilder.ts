@@ -827,6 +827,12 @@ export async function buildDocxDocument(
       continue;
     }
 
+    // Manual Page Break
+    if (node.type === "pageBreak") {
+      docElements.push(new Paragraph({ children: [new PageBreak()] }));
+      continue;
+    }
+
     // Thematic Break (Divider)
     if (node.type === "thematicBreak") {
       docElements.push(

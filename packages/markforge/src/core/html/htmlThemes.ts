@@ -82,6 +82,7 @@ hr { border: none; border-top: 1px solid var(--mf-border); margin: 2rem 0; }
 @media print {
   body { padding: 0; }
   .document-container { max-width: 100%; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; break-inside: avoid; }
   pre, table, blockquote, .callout { break-inside: avoid; }
   /* Remove scrollbars — PDF has no scrolling */
   pre { overflow: visible; white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; }

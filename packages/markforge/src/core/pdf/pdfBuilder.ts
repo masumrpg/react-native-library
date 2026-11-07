@@ -388,6 +388,8 @@ export function injectPagedMediaStyles(
   }`
     : "";
 
+  const pb = resolved.pageBreaks;
+
   const pagedCss = `
   @page {
     size: ${size} ${orientation};
@@ -408,8 +410,99 @@ export function injectPagedMediaStyles(
   @media print {
     body { padding: 0; }
     .document-watermark { display: none !important; }
-    h1, h2, h3, pre, table, blockquote, .callout {
-      break-inside: avoid;
+
+    /* 1. Prevent Orphan Headings: Headings must never be isolated at the bottom of a page */
+    ${
+      pb.avoidOrphanHeadings
+        ? `
+    h1, h2, h3, h4, h5, h6 {
+      break-after: avoid !important;
+      page-break-after: avoid !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    `
+        : ""
+    }
+
+    /* 2. Chapter & Section Page Breaks */
+    ${
+      pb.beforeH1
+        ? `
+    .markforge-content-body > h1 ~ h1,
+    .markforge-content-body h1.chapter-break {
+      break-before: page !important;
+      page-break-before: always !important;
+    }
+    `
+        : ""
+    }
+
+    ${
+      pb.beforeH2
+        ? `
+    .markforge-content-body > h2 ~ h2,
+    .markforge-content-body h2.section-break {
+      break-before: page !important;
+      page-break-before: always !important;
+    }
+    `
+        : ""
+    }
+
+    /* 3. Typography: Minimum lines of a paragraph left at bottom (orphans) or top (widows) */
+    p, li, blockquote {
+      orphans: ${pb.orphans} !important;
+      widows: ${pb.widows} !important;
+    }
+
+    /* 4. Block Integrity: Prevent critical block components from splitting awkwardly */
+    ${
+      pb.avoidInsideBlocks
+        ? `
+    pre, blockquote, .callout, .columns-container, .document-signatures, figure, .mermaid-container {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    `
+        : ""
+    }
+
+    /* 5. Enterprise Table Formatting: Repeating headers and uninterrupted rows */
+    ${
+      pb.repeatTableHeaders
+        ? `
+    thead {
+      display: table-header-group !important;
+    }
+    tfoot {
+      display: table-footer-group !important;
+    }
+    `
+        : ""
+    }
+
+    ${
+      pb.avoidInsideTableRows
+        ? `
+    tr {
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    `
+        : ""
+    }
+
+    /* 6. Explicit Manual Page Break Element */
+    .markforge-page-break {
+      break-before: page !important;
+      page-break-before: always !important;
+      clear: both !important;
+      display: block !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      visibility: hidden !important;
     }
   }
   `;

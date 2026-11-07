@@ -36,14 +36,15 @@ markforge document.md --serve 3000 --open
 | Flag | Alias | Description | Default |
 | :--- | :---: | :--- | :--- |
 | `<file>` | | Markdown input file path | **Required** |
-| `--to <formats...>` | `-t` | Comma-separated: `docx`, `pdf`, `html`, `png` | `docx,pdf` |
+| `--to <formats...>` | `-t` | Comma-separated: `docx`, `pdf`, `html`, `txt` | `docx,pdf` |
 | `--output <dir>` | `-o` | Target directory for generated files | Input file directory |
 | `--config <file>` | `-c` | Explicit configuration file path | Auto-detected |
 | `--theme <name>` | | Built-in theme (`corporate`, `default`, `academic`, `github`, `minimal`) | `corporate` |
 | `--css <files...>` | | Custom CSS file(s) to inject | `undefined` |
 | `--orientation <type>` | | Page orientation (`portrait`, `landscape`) | `portrait` |
 | `--paper-size <size>` | | Standard paper size (`A4`, `Letter`, `Legal`, `A3`, `A5`) | `A4` |
-| `--toc` | | Force Table of Contents generation | `false` |
+| `--toc` | | Force Table of Contents generation | `true` |
+| `--no-toc` | | Disable Table of Contents generation | `false` |
 | `--watermark <text>` | | Document watermark text | `undefined` |
 | `--syntax-theme <theme>`| | Code syntax highlighting theme | `github-dark` |
 | `--watch` | `-w` | Watch input file and recompile on change | `false` |
@@ -282,4 +283,59 @@ console.log(`Preview server active at ${server.url}`);
 
 // Close server when finished
 await server.close();
+```
+
+---
+
+### 11. Manual Page Breaks
+
+You can explicitly force a clean page break at any point in your document using any of the following directives:
+
+```markdown
+# Chapter 1
+Content of Chapter 1...
+
+<!-- pagebreak -->
+
+# Chapter 2
+This chapter will always start at the top of the next page in PDF and Word DOCX.
+```
+
+Supported page break syntax:
+- `<!-- pagebreak -->` or `<!-- page-break -->`
+- `\pagebreak`
+- `:::pagebreak` or `:::break`
+- `<div class="pagebreak"></div>`
+
+---
+
+### 12. Server-Side In-Memory PDF Streaming (React & Next.js)
+
+Because `buildPdfDocument()` returns a pure in-memory `Promise<Buffer>`, you can stream PDF documents directly from server route handlers without writing temporary files to disk:
+
+```typescript
+// app/api/preview-pdf/route.ts (Next.js App Router)
+import { NextResponse } from "next/server";
+import { parseMarkdownDocument, resolveDocumentConfig, buildPdfDocument } from "@masumdev/markforge";
+
+export async function POST(req: Request) {
+  const { markdown, config } = await req.json();
+
+  const doc = parseMarkdownDocument(markdown);
+  const resolved = resolveDocumentConfig(doc.frontmatter, config || {}, process.cwd());
+  const pdfBuffer = await buildPdfDocument(doc, resolved);
+
+  return new NextResponse(pdfBuffer, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": 'inline; filename="preview.pdf"',
+    },
+  });
+}
+```
+
+In your React frontend, preview the stream with a standard native `<iframe>`:
+```tsx
+<iframe src={pdfBlobUrl} width="100%" height="800px" style={{ border: "none" }} />
 ```
