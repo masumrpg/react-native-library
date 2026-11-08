@@ -11,7 +11,7 @@ description: Release history and version notes for @masumdev/markforge.
 ### Page Breaks, Typography Control & Unified Configuration
 
 - **Page Breaks & Typography Pagination Controller (`pageBreaks`)**:
-  - Implemented configurable print and PDF layout pagination rules via `pageBreaks` in `markforge.config.ts` and YAML frontmatter.
+  - Implemented configurable print and PDF layout pagination rules via `pageBreaks` in `markforge.config.ts` and Markdown frontmatter.
   - **Orphan Headings Prevention (`avoidOrphanHeadings: true`)**: Guarantees headings (`h1` through `h6`) are never isolated at the bottom of a page without subsequent content (`break-after: avoid !important; page-break-after: avoid !important;`).
   - **Chapter & Section Breaks (`beforeH1` & `beforeH2`)**: Configurable option to force major chapters to automatically begin on a fresh page (`break-before: page;`).
   - **Repeating Table Headers (`repeatTableHeaders: true`)**: Repeats `<thead>` on subsequent pages when tables span across multiple pages (`display: table-header-group !important;`).

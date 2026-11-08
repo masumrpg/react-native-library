@@ -104,7 +104,7 @@ markforge document.md --serve --port 4000 --open
 
 ## Configuration (`markforge.config.ts`)
 
-MarkForge supports type-safe configuration with TypeScript Enums:
+MarkForge provides a fully type-safe configuration system with TypeScript Enums (`markforge.config.ts`) as the single source of truth for global layout, geometry, typography, and pagination. Markdown frontmatter handles document-specific content (`title`, `coverPage`, `signatures`, `backCover`) without needing to duplicate layout options.
 
 ```typescript
 import {
