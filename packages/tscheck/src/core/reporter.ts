@@ -1568,7 +1568,7 @@ function generateHtmlReport(
         <div class="author-links">
           <a href="https://github.com/masumrpg" target="_blank" rel="noopener noreferrer">@masumrpg</a>
           <span>•</span>
-          <a href="https://github.com/masumrpg/react-native-library" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+          <a href="https://github.com/masumrpg/nodejs-lib" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
           <span>•</span>
           <a href="https://react-native-library-docs.vercel.app" target="_blank" rel="noopener noreferrer">Docs Portal</a>
         </div>

@@ -6,40 +6,6 @@ company: "PT Masum Teknologi Indonesia"
 version: "3.2.0"
 date: "2026-11-07"
 lang: "id"
-to:
-  - pdf
-outputDir: ".temp/output"
-theme: corporate
-orientation: portrait
-paperSize: A4
-margins:
-  top: "3cm"
-  bottom: "2.8cm"
-  left: "2.5cm"
-  right: "2.5cm"
-header:
-  left: "{company}"
-  center: "{title}"
-  right: "v{version}"
-  divider: true
-  dividerColor: "#009DA0"
-footer:
-  left: "DOKUMEN RAHASIA & BERHAK CIPTA"
-  right: "Halaman {page} dari {pages}"
-  divider: true
-  dividerColor: "#CBD5E1"
-toc: true
-pageBreaks:
-  beforeH1: false
-  avoidOrphanHeadings: true
-  avoidInsideBlocks: true
-  repeatTableHeaders: true
-  orphans: 3
-  widows: 3
-numberHeadings:
-  enabled: true
-  depth: 3
-  skipH1: false
 watermark:
   text: "RAHASIA PERUSAHAAN"
   position: "diagonal"

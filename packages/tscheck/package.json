@@ -46,11 +46,11 @@
   "homepage": "https://react-native-library-docs.vercel.app/tscheck/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "url": "git+https://github.com/masumrpg/nodejs-lib.git",
     "directory": "packages/tscheck"
   },
   "bugs": {
-    "url": "https://github.com/masumrpg/react-native-library/issues"
+    "url": "https://github.com/masumrpg/nodejs-lib/issues"
   },
   "dependencies": {
     "commander": "^13.1.0",

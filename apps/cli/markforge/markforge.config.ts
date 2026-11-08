@@ -64,6 +64,11 @@ export default defineConfig({
   toc: true,          // Automatic Table of Contents
   embedImages: true,  // Inline images directly into self-contained PDF
   math: true,         // KaTeX math rendering ($inline$ and $$block$$)
+  numberHeadings: {
+    enabled: true,
+    depth: 3,
+    skipH1: false,
+  },
 
   // Advanced typography & page break control
   pageBreaks: {

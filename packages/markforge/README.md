@@ -37,7 +37,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Signatures & Approvals** | Multi-signatory approval blocks with customizable alignment, border styles, and signature images |
 | **Live-Reload Preview Server** | Real-time HTTP preview server (`--serve`) with Server-Sent Events (SSE) and scroll sync |
 | **Windows Corporate Compliance** | Native Microsoft Edge detection, clean isolated process arguments, and `windowsHide` support |
-| **Type-Safe Config** | `markforge.config.ts` with Enums, `.markforgerc.json`, or YAML with JSON Schema |
+| **Type-Safe Config** | Unified `markforge.config.ts` with TypeScript Enums and clean Markdown frontmatter |
 | **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js and Bun |
 | **Ink Terminal UI** | Interactive TUI with live progress tracking, timers, and compilation metrics |
 

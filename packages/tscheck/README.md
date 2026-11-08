@@ -1,7 +1,7 @@
 # @masumdev/tscheck
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
-[![CI](https://github.com/masumrpg/react-native-library/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/react-native-library/actions)
+[![CI](https://github.com/masumrpg/nodejs-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/nodejs-lib/actions)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
 [![Tests](https://img.shields.io/badge/Tests-62%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
@@ -120,7 +120,7 @@ tscheck --json
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/masumrpg/react-native-library/main/packages/tscheck/schema.json",
+  "$schema": "https://raw.githubusercontent.com/masumrpg/nodejs-lib/main/packages/tscheck/schema.json",
   "rootDir": ".",
   "workspaces": ["packages/*", "apps/*"],
   "exclude": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
@@ -153,7 +153,7 @@ tscheck --json
 Created with ❤️ by **[Ma'sum](https://github.com/masumrpg)**
 
 - **GitHub Profile**: [@masumrpg](https://github.com/masumrpg)
-- **Monorepo Repository**: [react-native-library](https://github.com/masumrpg/react-native-library)
+- **Monorepo Repository**: [nodejs-lib](https://github.com/masumrpg/nodejs-lib)
 - **Documentation Portal**: [https://react-native-library-docs.vercel.app](https://react-native-library-docs.vercel.app)
 
 ---

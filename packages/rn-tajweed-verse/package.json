@@ -38,11 +38,11 @@
   "homepage": "https://react-native-library-docs.vercel.app/rn-tajweed-verse/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "url": "git+https://github.com/masumrpg/nodejs-lib.git",
     "directory": "packages/rn-tajweed-verse"
   },
   "bugs": {
-    "url": "https://github.com/masumrpg/react-native-library/issues"
+    "url": "https://github.com/masumrpg/nodejs-lib/issues"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
