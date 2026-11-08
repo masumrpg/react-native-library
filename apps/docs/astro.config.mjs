@@ -11,7 +11,7 @@ export default defineConfig({
       favicon: '/favicon.png',
       description: 'High-performance, open-source React Native & Expo component libraries and tools.',
       social: {
-        github: 'https://github.com/masumrpg/react-native-library',
+        github: 'https://github.com/masumrpg/nodejs-lib',
       },
       components: {
         SiteTitle: './src/components/SiteTitle.astro',
@@ -21,7 +21,7 @@ export default defineConfig({
         './src/styles/custom.css',
       ],
       editLink: {
-        baseUrl: 'https://github.com/masumrpg/react-native-library/edit/main/apps/docs/',
+        baseUrl: 'https://github.com/masumrpg/nodejs-lib/edit/main/apps/docs/',
       },
       lastUpdated: true,
       tableOfContents: {

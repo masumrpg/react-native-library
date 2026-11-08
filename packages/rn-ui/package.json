@@ -41,11 +41,11 @@
   "homepage": "https://react-native-library-docs.vercel.app/rn-ui/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "url": "git+https://github.com/masumrpg/nodejs-lib.git",
     "directory": "packages/rn-ui"
   },
   "bugs": {
-    "url": "https://github.com/masumrpg/react-native-library/issues"
+    "url": "https://github.com/masumrpg/nodejs-lib/issues"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",

@@ -37,11 +37,11 @@
   "homepage": "https://react-native-library-docs.vercel.app/rn-qr-code/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masumdev/react-native-library.git",
+    "url": "git+https://github.com/masumrpg/nodejs-lib.git",
     "directory": "packages/rn-qr-code"
   },
   "bugs": {
-    "url": "https://github.com/masumrpg/react-native-library/issues"
+    "url": "https://github.com/masumrpg/nodejs-lib/issues"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

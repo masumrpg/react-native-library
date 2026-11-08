@@ -49,11 +49,11 @@
   "homepage": "https://react-native-library-docs.vercel.app/markforge/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masumrpg/react-native-library.git",
+    "url": "git+https://github.com/masumrpg/nodejs-lib.git",
     "directory": "packages/markforge"
   },
   "bugs": {
-    "url": "https://github.com/masumrpg/react-native-library/issues"
+    "url": "https://github.com/masumrpg/nodejs-lib/issues"
   },
   "dependencies": {
     "@pdfsmaller/pdf-encrypt": "^1.2.0",

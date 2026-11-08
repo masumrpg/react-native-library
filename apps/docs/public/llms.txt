@@ -66,4 +66,4 @@ Markdown and documentation generator with terminal ink UI and AST parsing.
 - **RN UI Theming Guide**: https://react-native-library-docs.vercel.app/rn-ui/theming/
 - **RN UI Installation**: https://react-native-library-docs.vercel.app/rn-ui/installation/
 - **RN UI Changelog**: https://react-native-library-docs.vercel.app/rn-ui/changelog/
-- **GitHub Repository**: https://github.com/masumrpg/react-native-library
+- **GitHub Repository**: https://github.com/masumrpg/nodejs-lib

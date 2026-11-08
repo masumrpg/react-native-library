@@ -5,7 +5,7 @@ description: "Comprehensive guide to all MarkForge configuration properties, Typ
 
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
-MarkForge provides a fully type-safe, declarative configuration system. You can configure documents using `markforge.config.ts`, `.markforgerc.json`, `markforge.config.yaml`, or directly via Markdown frontmatter.
+MarkForge provides a fully type-safe, declarative configuration system powered by TypeScript. You can configure your project globally using `markforge.config.ts` and provide document-specific metadata via Markdown frontmatter.
 
 ---
 
@@ -14,10 +14,15 @@ MarkForge provides a fully type-safe, declarative configuration system. You can 
 MarkForge automatically discovers and resolves configuration using a strict 3-tier precedence hierarchy:
 
 ```
-Markdown Frontmatter (Highest Priority)
-        └── Project Config File (markforge.config.ts / .json / .yaml)
+Markdown Frontmatter (Highest Priority - Document Overrides & Content Metadata)
+        └── Project Config File (markforge.config.ts - Recommended Single Source of Truth)
                 └── Engine Default Settings (DEFAULT_CONFIG)
 ```
+
+<Aside type="tip">
+**Clean Configuration Best Practice**:
+Define your global layout, page geometry, typography, headers, footers, and pagination rules once in `markforge.config.ts`. Markdown Frontmatter should remain lightweight and focus exclusively on document-specific metadata (`title`, `subtitle`, `coverPage`, `signatures`, `backCover`). You do **not** need to duplicate layout settings into Markdown frontmatter.
+</Aside>
 
 ---
 

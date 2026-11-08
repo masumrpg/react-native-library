@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Page Breaks & Typography Pagination Controller (`pageBreaks`)**:
-  - Implemented configurable print and PDF layout pagination rules via `pageBreaks` in `markforge.config.ts` and YAML frontmatter.
+  - Implemented configurable print and PDF layout pagination rules via `pageBreaks` in `markforge.config.ts` and Markdown frontmatter.
   - **Orphan Headings Prevention (`avoidOrphanHeadings: true`)**: Guarantees headings (`h1` through `h6`) are never isolated at the bottom of a page without subsequent content (`break-after: avoid !important; page-break-after: avoid !important;`).
   - **Chapter & Section Breaks (`beforeH1` & `beforeH2`)**: Configurable option to force major chapters to automatically begin on a fresh page (`break-before: page;`).
   - **Repeating Table Headers (`repeatTableHeaders: true`)**: Repeats `<thead>` on subsequent pages when tables span across multiple pages (`display: table-header-group !important;`).
@@ -173,5 +173,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Image Resolver Engine**: Local relative path resolution, remote Web URL fetching with caching, Base64 data URIs, and SVG vector support.
 - **Built-in Curated Themes**: `default`, `academic`, `github`, `corporate`, `minimal`, and `dracula`.
 - **Interactive Terminal UI**: Built with Ink.
-- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts`, `.markforgerc.json`, and YAML support.
+- **Type-Safe Configuration**: Auto-discovered `markforge.config.ts` with TypeScript Enums and Markdown frontmatter support.
 - **Programmatic TypeScript API**: Direct functions `markforge()`, `compileMarkdown()`, `buildDocxDocument()`, `buildHtmlDocument()`, and `buildPdfDocument()`.
