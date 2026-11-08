@@ -1,5 +1,8 @@
 export { defineConfig } from "./config/defineConfig.js";
 export { loadConfig } from "./config/loadConfig.js";
+export { resolveTsCheckConfig } from "./config/resolveConfig.js";
+export { DEFAULT_CONFIG, DEFAULT_EXCLUDE, DEFAULT_CONFIG_FILENAMES } from "./config/defaults.js";
+export { Editor, AuditFormat } from "./config/types.js";
 export { runAuditEngine, runAuditEngine as audit, formatServerTimestamp } from "./core/engine.js";
 export { writeAuditReports, emitGitHubAnnotations } from "./core/reporter.js";
 export { getTscheckVersion, TSCHECK_VERSION } from "./version.js";
@@ -13,6 +16,7 @@ export { inferSuggestedFix, resolveDeclarationOrigin } from "./core/rules/deprec
 
 export type {
   TsCheckConfig,
+  NormalizedTsCheckConfig,
   TsCheckRulesConfig,
   TsCheckReporterConfig,
   AuditReport,
@@ -22,4 +26,6 @@ export type {
   CircularDependency,
   WorkspaceScanResult,
   SupportedEditor,
+  EditorType,
+  AuditFormatType,
 } from "./config/types.js";

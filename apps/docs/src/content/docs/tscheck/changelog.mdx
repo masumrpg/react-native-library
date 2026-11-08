@@ -6,6 +6,30 @@ sidebar:
 description: Release history and version notes for @masumdev/tscheck.
 ---
 
+### v0.3.0
+
+#### Added
+- **Positional Target Argument**:
+  - Run audits directly on specific folders, files, or workspace patterns: `tscheck packages/rn-ui` or `tscheck packages/*`.
+- **Watch Mode (`-w, --watch`)**:
+  - Real-time debounced file watcher that monitors `.ts` and `.tsx` source files and re-triggers audits on save.
+- **Pure Type-Safe TypeScript Configuration**:
+  - Direct support for `tscheck.config.ts`, `.js`, `.mjs`, and `.cjs` with recursive walk-up auto-discovery.
+  - Async and factory function support in `defineConfig()`.
+  - Removed obsolete YAML parser and dependencies.
+
+#### Changed & Fixed
+- **Ink UI Terminal Redesign**:
+  - Upgraded Header with version badge, relative target path, active scan mode, rules, and reports.
+  - Eliminated redundant workspace cards block on completion in favor of a clean summary breakdown table.
+- **Circular Dependency Detection & Status**:
+  - Fixed bug in `WorkspaceCard` and `SummaryTable` where circular dependencies were omitted from violation checks.
+  - Decoupled internal config module cycle between `loadConfig` and `resolveConfig` into `defaults.ts`.
+- **Graceful Terminal Process Exit**:
+  - Replaced abrupt process exits with clean Ink unmount handlers and `process.exitCode`.
+
+---
+
 ### v0.2.5
 
 #### Bug Fixes & Clean Terminal Output

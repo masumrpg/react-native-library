@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
 [![CI](https://github.com/masumrpg/nodejs-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/nodejs-lib/actions)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
-[![Tests](https://img.shields.io/badge/Tests-62%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
+[![Tests](https://img.shields.io/badge/Tests-64%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 > **Modern, high-performance TypeScript AST code audit CLI & engine for Turborepos and Monorepos.**
@@ -14,6 +14,8 @@ Audits codebases for **deprecated API usages**, **unused variables/parameters/im
 
 ## Features
 
+- **Positional Target & Flexible Scope**: Audit specific packages or folders directly with `tscheck packages/rn-ui` or globs `tscheck packages/*`.
+- **Live Watch Mode (`-w, --watch`)**: Real-time debounced file watcher that monitors `.ts` and `.tsx` source files and re-triggers audits on save.
 - **AST Deprecation Detection**: Identifies usages of deprecated functions, classes, properties, and types tagged with JSDoc `@deprecated` with origin package identification and suggested fixes.
 - **Unused Diagnostics**: Pinpoints unused variables, parameters, and imports across all workspace packages.
 - **Strict Any Type Auditing**: Flags explicit `any` type annotations, assertions, and generic parameters.
@@ -30,7 +32,7 @@ Audits codebases for **deprecated API usages**, **unused variables/parameters/im
 - **GitHub Actions CI Annotations**: Output native workflow commands with `--format github`.
 - **Interactive Terminal UI**: Built with [Ink](https://github.com/vadimdemedes/ink) (React for CLI) with real-time workspace scanning and search.
 - **Zero Emoji Policy**: Clean, minimalist terminal interface using box-drawing borders and status badges.
-- **100% Test Coverage**: Fully verified across 61 comprehensive unit, UI, AST rule, and CLI E2E tests.
+- **100% Test Coverage**: Fully verified across 64 comprehensive unit, UI, AST rule, and CLI E2E tests.
 
 ---
 
@@ -55,6 +57,13 @@ Run `tscheck` in any TypeScript workspace or monorepo root:
 ```bash
 # Basic audit across all workspace projects
 tscheck
+
+# Audit a specific package or directory directly
+tscheck packages/rn-ui
+
+# Watch for changes and re-audit automatically on save
+tscheck -w
+tscheck packages/rn-ui -w
 
 # Audit, generate reports, and automatically launch in Chrome
 tscheck -O
@@ -86,8 +95,10 @@ tscheck --json
 
 ### CLI Options
 
-| Flag | Description | Default |
+| Flag / Argument | Description | Default |
 | :--- | :--- | :--- |
+| `[target]` | Target directory, workspace pattern, or file to audit | `.` |
+| `-w, --watch` | Watch target directory for TypeScript changes and re-audit | `false` |
 | `-c, --config <path>` | Path to custom tscheck configuration file | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
 | `-s, --serve [port]` | Start local HTTP server to view the interactive HTML report | `false` (port: `5500`) |
@@ -112,38 +123,33 @@ tscheck --json
 
 ---
 
-## Configuration
+## Configuration (`tscheck.config.ts`)
 
-`tscheck` supports **JSON**, **YAML**, and **TypeScript/JavaScript** configuration files with built-in JSON Schema autocompletion in VS Code, Cursor, and Zed.
+`tscheck` uses a modern, **100% type-safe TypeScript configuration** with IDE autocompletion and compile-time validation powered by `defineConfig` and Enums:
 
-### JSON Configuration (`.tscheckrc.json` or `tscheck.config.json`)
+```typescript
+import { defineConfig, Editor } from "@masumdev/tscheck";
 
-```json
-{
-  "$schema": "https://raw.githubusercontent.com/masumrpg/nodejs-lib/main/packages/tscheck/schema.json",
-  "rootDir": ".",
-  "workspaces": ["packages/*", "apps/*"],
-  "exclude": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
-  "rules": {
-    "deprecated": true,
-    "unused": true,
-    "noExplicitAny": true,
-    "circular": true
+export default defineConfig({
+  rootDir: process.cwd(),
+  workspaces: ["packages/*", "apps/*"],
+  exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
+  editor: Editor.CURSOR, // VSCODE, CURSOR, ANTIGRAVITY, WINDSURF, ZED, WEBSTORM, SUBLIME
+  rules: {
+    deprecated: true,
+    unused: true,
+    noExplicitAny: true,
+    circular: true,
   },
-  "reporters": {
-    "outputDir": ".temp/tscheck",
-    "json": true,
-    "markdown": true,
-    "html": true,
-    "ai": true,
-    "serve": false,
-    "open": false,
-    "port": 5500,
-    "editor": "vscode",
-    "githubAnnotations": false
+  reporters: {
+    outputDir: ".temp/tscheck",
+    json: true,
+    markdown: true,
+    html: true,
+    ai: true,
   },
-  "failOnWarning": false
-}
+  failOnWarning: false,
+});
 ```
 
 ---

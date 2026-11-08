@@ -3,119 +3,54 @@ title: Configuration
 sidebar:
   label: Configuration
   order: 4
-description: Complete JSON, YAML, and TypeScript configuration guide for @masumdev/tscheck with JSON schema support and IDE autocompletion.
+description: Type-safe TypeScript configuration guide for @masumdev/tscheck with defineConfig helper and Editor enums.
 ---
 
-import { Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside, Card, CardGrid } from '@astrojs/starlight/components';
 
-`@masumdev/tscheck` can be configured using JSON, YAML, or TypeScript configuration files.
+`@masumdev/tscheck` exclusively uses **type-safe TypeScript/JavaScript configuration** (`tscheck.config.ts`, `tscheck.config.js`, `tscheck.config.mjs`, `tscheck.config.cjs`).
 
-When no explicit configuration file path is passed via `-c` or `--config`, `tscheck` automatically searches the current working directory for:
-1. `.tscheckrc.json` / `tscheck.config.json`
-2. `.tscheckrc.yaml` / `tscheck.config.yaml` / `.tscheckrc.yml` / `tscheck.config.yml`
-3. `tscheck.config.ts` / `tscheck.config.js` / `tscheck.config.mjs`
+When no explicit configuration file path is passed via `-c` or `--config`, `tscheck` automatically searches the current directory and walks up the directory tree to discover:
+1. `tscheck.config.ts`
+2. `tscheck.config.js`
+3. `tscheck.config.mjs`
+4. `tscheck.config.cjs`
 
 ---
 
-## Configuration Formats
+## TypeScript Configuration (`tscheck.config.ts`)
 
-<Tabs>
-  <TabItem label="JSON (.tscheckrc.json)">
-    Full schema autocompletion in VS Code, Cursor, and Zed via `$schema`:
+Use the `defineConfig()` helper with the `Editor` Enum for compile-time type validation, autocompletion, and JSDoc tooltips:
 
-    ```json
-    {
-      "$schema": "https://raw.githubusercontent.com/masumrpg/nodejs-lib/main/packages/tscheck/schema.json",
-      "rootDir": ".",
-      "workspaces": ["packages/*", "apps/*"],
-      "exclude": ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
-      "rules": {
-        "deprecated": true,
-        "unused": true,
-        "noExplicitAny": true,
-        "circular": true
-      },
-      "reporters": {
-        "outputDir": ".temp/tscheck",
-        "json": true,
-        "markdown": true,
-        "html": true,
-        "ai": true,
-        "serve": false,
-        "open": false,
-        "port": 5500,
-        "editor": "vscode",
-        "githubAnnotations": false
-      },
-      "failOnWarning": false
-    }
-    ```
+```typescript
+import { defineConfig, Editor } from "@masumdev/tscheck";
 
-    > **Tip**: You can also use the local package path: `"$schema": "node_modules/@masumdev/tscheck/schema.json"`.
-  </TabItem>
+export default defineConfig({
+  rootDir: process.cwd(),
+  workspaces: ["packages/*", "apps/*"],
+  exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
+  editor: Editor.CURSOR, // VSCODE, CURSOR, ANTIGRAVITY, WINDSURF, ZED, WEBSTORM, SUBLIME
+  rules: {
+    deprecated: true,
+    unused: true,
+    noExplicitAny: true,
+    circular: true,
+  },
+  reporters: {
+    outputDir: ".temp/tscheck",
+    json: true,
+    markdown: true,
+    html: true,
+    ai: true,
+  },
+  failOnWarning: false,
+});
+```
 
-  <TabItem label="YAML (tscheck.config.yaml)">
-    Configure cleanly with YAML syntax and yaml-language-server schema integration:
-
-    ```yaml
-    # yaml-language-server: $schema=https://raw.githubusercontent.com/masumrpg/nodejs-lib/main/packages/tscheck/schema.json
-    rootDir: .
-    workspaces:
-      - packages/*
-      - apps/*
-    exclude:
-      - node_modules
-      - dist
-      - build
-      - .expo
-      - .turbo
-      - .temp
-    rules:
-      deprecated: true
-      unused: true
-      noExplicitAny: true
-      circular: true
-    reporters:
-      outputDir: .temp/tscheck
-      json: true
-      markdown: true
-      html: true
-      ai: true
-      port: 5500
-      editor: vscode
-    failOnWarning: false
-    ```
-  </TabItem>
-
-  <TabItem label="TypeScript (tscheck.config.ts)">
-    Use `defineConfig()` for type-safety and JSDoc metadata in TypeScript:
-
-    ```typescript
-    import { defineConfig } from "@masumdev/tscheck";
-
-    export default defineConfig({
-      rootDir: process.cwd(),
-      workspaces: ["packages/*", "apps/*"],
-      exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
-      rules: {
-        deprecated: true,
-        unused: true,
-        noExplicitAny: true,
-        circular: true,
-      },
-      reporters: {
-        outputDir: ".temp/tscheck",
-        json: true,
-        markdown: true,
-        html: true,
-        ai: true,
-        editor: "vscode",
-      },
-      failOnWarning: false,
-    });
-    ```
-  </TabItem>
-</Tabs>
+<Aside type="tip">
+**Symmetrical & Normalized Options**:
+Properties like `editor`, `serve`, `open`, `port`, and `ai` can be declared cleanly at the root level of your configuration or nested within `reporters: { ... }`. MarkForge and TSCheck resolve and normalize them identically.
+</Aside>
 
 ---
 

@@ -9,7 +9,6 @@ import type {
 import { runAuditEngine } from "../core/engine.js";
 import { writeAuditReports } from "../core/reporter.js";
 import { Header } from "./Header.js";
-import { WorkspaceCard } from "./WorkspaceCard.js";
 import { SummaryTable } from "./SummaryTable.js";
 import { LiveProgress } from "./LiveProgress.js";
 import { InteractiveExplorer } from "./InteractiveExplorer.js";
@@ -97,6 +96,7 @@ export const App: React.FC<AppProps> = ({
         version={version}
         rootDir={config.rootDir || process.cwd()}
         configPath={configPath}
+        config={config}
       />
 
       {isScanning && (
@@ -109,17 +109,6 @@ export const App: React.FC<AppProps> = ({
           totalWorkspaces={totalWorkspaces}
           recentLogs={recentLogs}
         />
-      )}
-
-      {!isScanning && completedWorkspaces.length > 0 && (
-        <Box flexDirection="column" marginY={1}>
-          <Text bold color="cyan">
-            [COMPLETED WORKSPACES]
-          </Text>
-          {completedWorkspaces.map((ws, idx) => (
-            <WorkspaceCard key={idx} workspace={ws} status="completed" />
-          ))}
-        </Box>
       )}
 
       {error && (

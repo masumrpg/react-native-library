@@ -14,17 +14,26 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ## CLI Commands & Flags
 
-Run `tscheck` in the root of your project or monorepo:
+Run `tscheck` in the root of your project or monorepo, or provide a specific workspace target:
 
 ```bash
+# Audit current directory or monorepo workspaces
 tscheck
+
+# Audit specific workspace or directory directly
+tscheck packages/rn-ui
+
+# Audit and watch for changes in real-time
+tscheck -w
 ```
 
-### Command-Line Flags
+### Command-Line Arguments & Flags
 
-| Flag | Description | Default |
+| Flag / Argument | Description | Default |
 | :--- | :--- | :--- |
-| `-c, --config <path>` | Path to custom configuration file (`.json`, `.yaml`, `.ts`) | Auto-detected |
+| `[target]` | Target directory, workspace pattern, or file to audit | `.` |
+| `-w, --watch` | Watch target directory for TypeScript changes and re-audit | `false` |
+| `-c, --config <path>` | Path to custom configuration file (`tscheck.config.ts`, `.js`, `.mjs`) | Auto-detected |
 | `-o, --output <dir>` | Custom directory to write audit reports | `.temp/tscheck` |
 | `-s, --serve [port]` | Start local HTTP server to host and inspect interactive HTML reports | `false` (port: `5500`) |
 | `-p, --port <number>` | Port for the local HTML report server | `5500` |
@@ -96,6 +105,17 @@ Launch the interactive terminal UI with live search:
 
 ```bash
 tscheck -i
+```
+
+### 7. Watch Mode & Specific Target (`-w`, `[target]`)
+Watch source files for changes and re-audit automatically on save, or target a specific package:
+
+```bash
+# Watch entire workspace
+tscheck -w
+
+# Audit only packages/rn-ui in watch mode
+tscheck packages/rn-ui -w
 ```
 
 ---
