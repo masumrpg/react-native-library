@@ -94,10 +94,16 @@ bun run audit
 bun packages/tscheck/dist/cli.mjs -i
 ```
 
-### JSON / YAML Schema URL
-Use the official JSON Schema for autocompletion in `.tscheckrc.json` or `tscheck.config.yaml`:
-```
-https://raw.githubusercontent.com/masumrpg/nodejs-lib/main/packages/tscheck/schema.json
+### Type-Safe Configuration (`tscheck.config.ts`)
+Configure audits with full IDE autocompletion using `defineConfig` and `Editor` Enums:
+```typescript
+import { defineConfig, Editor } from "@masumdev/tscheck";
+
+export default defineConfig({
+  rootDir: process.cwd(),
+  workspaces: ["packages/*", "apps/*"],
+  editor: Editor.VSCODE,
+});
 ```
 
 ---

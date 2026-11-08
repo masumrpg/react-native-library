@@ -1,16 +1,32 @@
 /**
  * Supported IDE/Editor schemes for deep-linking from reports.
  */
-export type SupportedEditor =
-  | "vscode"
-  | "cursor"
-  | "antigravity"
-  | "windsurf"
-  | "zed"
-  | "webstorm"
-  | "sublime"
-  | "vscode-insiders"
-  | "auto";
+export const Editor = {
+  VSCODE: "vscode",
+  CURSOR: "cursor",
+  ANTIGRAVITY: "antigravity",
+  WINDSURF: "windsurf",
+  ZED: "zed",
+  WEBSTORM: "webstorm",
+  SUBLIME: "sublime",
+  VSCODE_INSIDERS: "vscode-insiders",
+  AUTO: "auto",
+} as const;
+
+export type SupportedEditor = (typeof Editor)[keyof typeof Editor];
+export type EditorType = SupportedEditor;
+
+/**
+ * Supported audit CLI output and reporting formats.
+ */
+export const AuditFormat = {
+  PRETTY: "pretty",
+  JSON: "json",
+  GITHUB: "github",
+  AI: "ai",
+} as const;
+
+export type AuditFormatType = (typeof AuditFormat)[keyof typeof AuditFormat];
 
 /**
  * Granular rule options for enabling / disabling specific AST audit rules.
@@ -82,52 +98,24 @@ export interface TsCheckReporterConfig {
   githubAnnotations?: boolean;
 
   /**
-   * Whether to start a local HTTP server to view the HTML report.
-   * @default false
+   * Optional shorthand for server configuration inherited from root config.
    */
   serve?: boolean;
 
   /**
-   * Whether to automatically open the report in the default web browser.
-   * @default false
+   * Optional shorthand for auto-opening reports in browser inherited from root config.
    */
   open?: boolean;
 
   /**
-   * Port for the local HTML report server.
-   * @default 5500
+   * Optional shorthand for server port inherited from root config.
    */
   port?: number;
 
   /**
-   * Default editor scheme to use when clicking file links in reports.
-   * @default "vscode"
+   * Optional shorthand for editor scheme inherited from root config.
    */
   editor?: SupportedEditor;
-
-  /**
-   * Custom file name for the JSON report (without path).
-   * @default "audit-report.json"
-   */
-  jsonFileName?: string;
-
-  /**
-   * Custom file name for the Markdown report (without path).
-   * @default "audit-report.md"
-   */
-  markdownFileName?: string;
-
-  /**
-   * Custom file name for the HTML report (without path).
-   * @default "audit-report.html"
-   */
-  htmlFileName?: string;
-
-  /**
-   * Custom file name for the AI-optimized prompt file (without path).
-   * @default "audit-report.ai.md"
-   */
-  aiFileName?: string;
 }
 
 /**
@@ -213,12 +201,6 @@ export interface TsCheckConfig {
   editor?: SupportedEditor;
 
   /**
-   * Whether to output token-efficient AI prompt markdown.
-   * @default false
-   */
-  ai?: boolean;
-
-  /**
    * Whether to exit with a non-zero exit code if warnings or deprecations are discovered.
    * @default false
    */
@@ -229,6 +211,15 @@ export interface TsCheckConfig {
    * @default "tsconfig.json"
    */
   tsconfigName?: string;
+}
+
+/**
+ * Normalized and fully resolved configuration guaranteed by resolveTsCheckConfig().
+ */
+export interface NormalizedTsCheckConfig extends Required<Omit<TsCheckConfig, "workspaces" | "since">> {
+  workspaces?: string[];
+  since?: string;
+  reporters: Required<TsCheckReporterConfig>;
 }
 
 /**

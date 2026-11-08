@@ -1,123 +1,106 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
-import * as YAML from "yaml";
-import type { TsCheckConfig } from "./types.js";
+import type { TsCheckConfig, NormalizedTsCheckConfig } from "./types.js";
+import { resolveTsCheckConfig } from "./resolveConfig.js";
 
-const DEFAULT_CONFIG_FILENAMES = [
-  "tscheck.config.json",
-  ".tscheckrc.json",
-  "tscheck.config.yaml",
-  "tscheck.config.yml",
-  ".tscheckrc.yaml",
-  ".tscheckrc.yml",
-  ".tscheckrc",
-  "tscheck.config.ts",
-  "tscheck.config.js",
-  "tscheck.config.mjs",
-  "tscheck.config.cjs",
-];
-
-const DEFAULT_CONFIG: Required<Omit<TsCheckConfig, "workspaces" | "since">> & {
-  workspaces?: string[];
-  since?: string;
-} = {
-  rootDir: process.cwd(),
-  workspaces: undefined,
-  exclude: ["node_modules", "dist", "build", ".expo", ".turbo", ".temp"],
-  staged: false,
-  since: undefined,
-  fix: false,
-  format: "pretty",
-  serve: false,
-  open: false,
-  port: 5500,
-  editor: "vscode",
-  ai: false,
-  rules: {
-    deprecated: true,
-    unused: true,
-    noExplicitAny: true,
-    circular: true,
-  },
-  reporters: {
-    outputDir: ".temp/tscheck",
-    json: true,
-    markdown: true,
-    html: true,
-    ai: true,
-    serve: false,
-    open: false,
-    port: 5500,
-    editor: "vscode",
-    githubAnnotations: false,
-    jsonFileName: "audit-report.json",
-    markdownFileName: "audit-report.md",
-    htmlFileName: "audit-report.html",
-    aiFileName: "audit-report.ai.md",
-  },
-  failOnWarning: false,
-  tsconfigName: "tsconfig.json",
-};
+import { DEFAULT_CONFIG, DEFAULT_CONFIG_FILENAMES } from "./defaults.js";
+export { DEFAULT_CONFIG, DEFAULT_CONFIG_FILENAMES } from "./defaults.js";
 
 /**
- * Resolves and loads the configuration file (JSON, YAML, or JS/TS).
+ * Searches for a TypeScript/JavaScript configuration file starting from startDir
+ * and walking up to the filesystem root, and checks process.cwd().
+ */
+function discoverConfigFile(startDir: string): string | null {
+  const dirsToCheck: string[] = [];
+
+  let curr = path.resolve(startDir);
+  while (curr) {
+    dirsToCheck.push(curr);
+    const parent = path.dirname(curr);
+    if (parent === curr) break;
+    curr = parent;
+  }
+
+  const cwd = path.resolve(process.cwd());
+  if (!dirsToCheck.includes(cwd)) {
+    dirsToCheck.push(cwd);
+  }
+
+  for (const dir of dirsToCheck) {
+    for (const filename of DEFAULT_CONFIG_FILENAMES) {
+      const candidate = path.join(dir, filename);
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        return candidate;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Resolves and loads the type-safe TypeScript/JavaScript configuration file.
  */
 export async function loadConfig(
   customPath?: string,
-  cwd: string = process.cwd()
-): Promise<{ config: TsCheckConfig; configPath: string | null }> {
+  startDir: string = process.cwd()
+): Promise<{ config: NormalizedTsCheckConfig; configPath: string | null }> {
   let resolvedPath: string | null = null;
 
   if (customPath) {
     resolvedPath = path.isAbsolute(customPath)
       ? customPath
-      : path.resolve(cwd, customPath);
+      : path.resolve(process.cwd(), customPath);
 
     if (!fs.existsSync(resolvedPath)) {
-      throw new Error(`Configuration file not found at: ${resolvedPath}`);
-    }
-  } else {
-    for (const filename of DEFAULT_CONFIG_FILENAMES) {
-      const candidate = path.join(cwd, filename);
-      if (fs.existsSync(candidate)) {
-        resolvedPath = candidate;
-        break;
+      const altPath = path.resolve(startDir, customPath);
+      if (fs.existsSync(altPath)) {
+        resolvedPath = altPath;
+      } else {
+        throw new Error(`Configuration file not found at: ${resolvedPath}`);
       }
     }
+  } else {
+    resolvedPath = discoverConfigFile(startDir);
   }
 
   if (!resolvedPath) {
-    return { config: { ...DEFAULT_CONFIG }, configPath: null };
+    return {
+      config: resolveTsCheckConfig({ ...DEFAULT_CONFIG }),
+      configPath: null,
+    };
   }
 
   const ext = path.extname(resolvedPath).toLowerCase();
-  let userConfig: Partial<TsCheckConfig> = {};
-
-  if (ext === ".json" || resolvedPath.endsWith("rc")) {
-    const raw = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = JSON.parse(raw);
-  } else if (ext === ".yaml" || ext === ".yml") {
-    const raw = fs.readFileSync(resolvedPath, "utf-8");
-    userConfig = YAML.parse(raw);
-  } else if (ext === ".ts" || ext === ".js" || ext === ".mjs" || ext === ".cjs") {
-    const fileUrl = pathToFileURL(resolvedPath).href;
-    const mod = await import(fileUrl);
-    userConfig = mod.default || mod;
+  if (ext !== ".ts" && ext !== ".js" && ext !== ".mjs" && ext !== ".cjs") {
+    throw new Error(
+      `Unsupported configuration file format "${resolvedPath}". tscheck exclusively uses type-safe TypeScript/JavaScript configuration (tscheck.config.ts, tscheck.config.js, tscheck.config.mjs, tscheck.config.cjs).`
+    );
   }
 
-  const mergedConfig: TsCheckConfig = {
-    ...DEFAULT_CONFIG,
-    ...userConfig,
-    rules: {
-      ...DEFAULT_CONFIG.rules,
-      ...userConfig.rules,
-    },
-    reporters: {
-      ...DEFAULT_CONFIG.reporters,
-      ...userConfig.reporters,
-    },
-  };
+  let userConfig: Partial<TsCheckConfig> = {};
 
-  return { config: mergedConfig, configPath: resolvedPath };
+  try {
+    const fileUrl = `${pathToFileURL(resolvedPath).href}?t=${Date.now()}`;
+    const mod = await import(fileUrl);
+    const rawExport = mod.default ?? mod.config ?? mod;
+    userConfig = (typeof rawExport === "function" ? await rawExport() : rawExport) || {};
+  } catch (err) {
+    // Fallback for CommonJS
+    try {
+      const mod = require(resolvedPath);
+      const rawExport = mod.default ?? mod.config ?? mod;
+      userConfig = (typeof rawExport === "function" ? await rawExport() : rawExport) || {};
+    } catch {
+      throw new Error(
+        `Failed to parse configuration file at ${resolvedPath}: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+  }
+
+  return {
+    config: resolveTsCheckConfig(userConfig),
+    configPath: resolvedPath,
+  };
 }

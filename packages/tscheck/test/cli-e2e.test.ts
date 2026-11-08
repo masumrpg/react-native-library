@@ -13,7 +13,8 @@ describe("CLI E2E", () => {
 
   it("outputs help screen on --help and -h", () => {
     const stdout = execSync(`"${bunPath}" "${cliPath}" -h`, { encoding: "utf-8" });
-    expect(stdout).toContain("tscheck [options]");
+    expect(stdout).toContain("tscheck [options] [target]");
+    expect(stdout).toContain("--watch");
     expect(stdout).toContain("--staged");
     expect(stdout).toContain("--fix");
     expect(stdout).toContain("--format");
@@ -52,6 +53,20 @@ describe("CLI E2E", () => {
       });
       expect(stdout).toContain("TSCheck AI Code Remediation Instructions");
       expect(stdout).toContain("Audit Summary");
+    },
+    20000
+  );
+
+  it(
+    "supports positional target argument",
+    () => {
+      const stdout = execSync(`"${bunPath}" "${cliPath}" src --json`, {
+        cwd: path.resolve(__dirname, ".."),
+        encoding: "utf-8",
+      });
+      const parsed = JSON.parse(stdout);
+      expect(parsed.version).toBe(expectedVersion);
+      expect(parsed.summary).toBeDefined();
     },
     20000
   );

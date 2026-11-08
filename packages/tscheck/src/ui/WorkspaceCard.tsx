@@ -12,10 +12,12 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   workspace,
   status,
 }) => {
+  const circularCount = workspace.circularCount || 0;
   const hasViolations =
     workspace.deprecatedCount > 0 ||
     workspace.unusedCount > 0 ||
-    workspace.anyCount > 0;
+    workspace.anyCount > 0 ||
+    circularCount > 0;
 
   let badgeColor = "green";
   let badgeText = symbols.badges.ok;
@@ -23,6 +25,9 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
   if (status === "scanning") {
     badgeColor = "blue";
     badgeText = symbols.badges.scan;
+  } else if (circularCount > 0) {
+    badgeColor = "red";
+    badgeText = symbols.badges.fail;
   } else if (hasViolations) {
     badgeColor = "yellow";
     badgeText = symbols.badges.warn;
@@ -30,7 +35,7 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
 
   return (
     <Box flexDirection="column" marginY={0}>
-      <Box justifyContent="space-between" width={70}>
+      <Box justifyContent="space-between">
         <Box>
           <Text color={badgeColor} bold>
             {badgeText}{" "}
@@ -44,10 +49,11 @@ export const WorkspaceCard: React.FC<WorkspaceCardProps> = ({
             <Text color="gray">
               {workspace.filesScanned} files
               {hasViolations ? (
-                <Text color="yellow">
+                <Text color={circularCount > 0 ? "red" : "yellow"}>
                   {" "}
                   (D:{workspace.deprecatedCount} U:{workspace.unusedCount} A:
-                  {workspace.anyCount})
+                  {workspace.anyCount}
+                  {circularCount > 0 ? ` C:${circularCount}` : ""})
                 </Text>
               ) : (
                 <Text color="green"> [Clean]</Text>

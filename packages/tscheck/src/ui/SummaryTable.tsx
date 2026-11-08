@@ -42,7 +42,9 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
       ws.anyCount === 0 &&
       (ws.circularCount || 0) === 0
         ? "[PASSED]"
-        : "[WARN]",
+        : (ws.circularCount || 0) > 0
+          ? "[FAIL]"
+          : "[WARN]",
   }));
 
   return (
@@ -171,6 +173,12 @@ export const SummaryTable: React.FC<SummaryTableProps> = ({
               <Box justifyContent="space-between">
                 <Text color="dim">HTML Report</Text>
                 <Text color="cyan">{report.reportFiles.html}</Text>
+              </Box>
+            )}
+            {report.reportFiles.ai && (
+              <Box justifyContent="space-between">
+                <Text color="dim">AI Prompt</Text>
+                <Text color="cyan">{report.reportFiles.ai}</Text>
               </Box>
             )}
           </>

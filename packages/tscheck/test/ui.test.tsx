@@ -87,7 +87,8 @@ describe("Ink UI Components", () => {
     const { lastFrame } = render(
       <Header version="0.2.0" rootDir="/workspace" configPath="/workspace/.tscheckrc.json" />
     );
-    expect(lastFrame()).toContain("TSCHECK AUDIT ENGINE");
+    expect(lastFrame()).toContain("TSCHECK");
+    expect(lastFrame()).toContain("TypeScript Code Audit Engine");
     expect(lastFrame()).toContain("v0.2.0");
     expect(lastFrame()).toContain("/workspace");
   });

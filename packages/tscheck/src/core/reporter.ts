@@ -74,8 +74,7 @@ export function writeAuditReports(
 
   // 1. JSON Report
   if (config.reporters?.json !== false) {
-    const jsonFileName = config.reporters?.jsonFileName || "audit-report.json";
-    const jsonPath = path.join(outputDir, jsonFileName);
+    const jsonPath = path.join(outputDir, "audit-report.json");
     fs.writeFileSync(jsonPath, JSON.stringify(report, null, 2), "utf-8");
     result.json = path.relative(rootDir, jsonPath);
     if (!silent) console.log(`[REPORT] JSON report written to: ${result.json}`);
@@ -83,8 +82,7 @@ export function writeAuditReports(
 
   // 2. Markdown Report
   if (config.reporters?.markdown !== false) {
-    const mdFileName = config.reporters?.markdownFileName || "audit-report.md";
-    const mdPath = path.join(outputDir, mdFileName);
+    const mdPath = path.join(outputDir, "audit-report.md");
     const mdContent = generateMarkdownReport(report, rootDir);
     fs.writeFileSync(mdPath, mdContent, "utf-8");
     result.markdown = path.relative(rootDir, mdPath);
@@ -93,8 +91,7 @@ export function writeAuditReports(
 
   // 3. AI Token-Efficient Prompt Report
   if (config.reporters?.ai !== false) {
-    const aiFileName = config.reporters?.aiFileName || "audit-report.ai.md";
-    const aiPath = path.join(outputDir, aiFileName);
+    const aiPath = path.join(outputDir, "audit-report.ai.md");
     const aiContent = generateAiPrompt(report);
     fs.writeFileSync(aiPath, aiContent, "utf-8");
     result.ai = path.relative(rootDir, aiPath);
@@ -103,8 +100,7 @@ export function writeAuditReports(
 
   // 4. HTML Report
   if (config.reporters?.html !== false) {
-    const htmlFileName = config.reporters?.htmlFileName || "audit-report.html";
-    const htmlPath = path.join(outputDir, htmlFileName);
+    const htmlPath = path.join(outputDir, "audit-report.html");
     const defaultEditor: SupportedEditor = (config.editor || config.reporters?.editor || "vscode") as SupportedEditor;
     const htmlContent = generateHtmlReport(report, rootDir, defaultEditor);
     fs.writeFileSync(htmlPath, htmlContent, "utf-8");

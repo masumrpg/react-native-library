@@ -5,6 +5,36 @@ All notable changes to `@masumdev/tscheck` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-08
+
+### Added
+- **Positional Target Argument**:
+  - Run audits directly on specific folders, files, or workspace patterns: `tscheck packages/rn-ui` or `tscheck packages/*`.
+- **Watch Mode (`-w, --watch`)**:
+  - Real-time debounced file watcher that monitors `.ts` and `.tsx` source files and re-triggers audits on save.
+- **Pure Type-Safe TypeScript Configuration**:
+  - Direct support for `tscheck.config.ts`, `.js`, `.mjs`, and `.cjs` with recursive walk-up auto-discovery.
+  - Async and factory function support in `defineConfig()`.
+  - Removed obsolete YAML parser and dependencies.
+
+### Changed
+- **Ink UI Terminal Redesign**:
+  - Upgraded Header with version badge, relative target path, active scan mode, rules, and reports.
+  - Eliminated redundant workspace cards block on completion in favor of a clean summary breakdown table.
+- **Configuration Schema Consolidation**:
+  - Centralized server and editor settings at root configuration.
+  - Eliminated bloated individual `*FileName` properties in favor of unified `outputDir`.
+  - Disambiguated `format: "ai"` (CLI stdout) from `reporters.ai` (file generator).
+
+### Fixed
+- **Circular Dependency Detection & Status**:
+  - Fixed bug in `WorkspaceCard` and `SummaryTable` where circular dependencies were omitted from violation checks.
+  - Decoupled internal config module cycle between `loadConfig` and `resolveConfig` into `defaults.ts`.
+- **Graceful Terminal Process Exit**:
+  - Replaced abrupt process exits with clean Ink unmount handlers and `process.exitCode`.
+
+---
+
 ## [0.2.5] - 2026-09-11
 
 ### Fixed

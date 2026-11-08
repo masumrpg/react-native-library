@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/tscheck",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Modern, high-performance TypeScript AST code audit CLI and engine with beautiful Ink terminal UI and type-safe config.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -60,8 +60,7 @@
     "ink-text-input": "^6.0.0",
     "picocolors": "^1.1.1",
     "react": "^19.0.0",
-    "typescript": "^5.7.3",
-    "yaml": "^2.9.0"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
