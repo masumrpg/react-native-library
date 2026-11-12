@@ -21,8 +21,8 @@ export default defineConfig({
   date: "2026-11-07",
   lang: "id",
 
-  // Target compilation format: PDF and DOCX with Native TOC
-  to: [OutputFormat.PDF, OutputFormat.DOCX],
+  // Target compilation format: PDF, DOCX and HTML with Native TOC
+  to: [OutputFormat.PDF, OutputFormat.DOCX, OutputFormat.HTML],
 
   // Destination directory for generated PDF
   outputDir: ".temp/output",
