@@ -39,7 +39,7 @@ describe("Mermaid & Watermark Engine", () => {
     const doc = parseMarkdownDocument(md);
     const html = await buildHtmlDocument(doc, {});
     expect(html).toContain('class="mermaid"');
-    expect(html).toContain("mermaid.min.js");
+    expect(html).toContain("mermaid.esm.min.mjs");
   });
 
   it("builds DOCX with mermaid diagram and fixed blockquote text", async () => {

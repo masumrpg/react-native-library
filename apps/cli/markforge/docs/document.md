@@ -89,7 +89,7 @@ Pembangunan infrastruktur berpijak pada modularitas tinggi, komunikasi asinkron 
 :::
 :::
 
----
+<!-- pagebreak -->
 
 # Topologi Layanan & Arsitektur Global Multi-Cloud
 
@@ -98,8 +98,8 @@ Topologi sistem terdistribusi ini mengintegrasikan lapisan *Edge CDN*, orkestras
 ```mermaid
 flowchart TD
     subgraph Edge ["1. Global Edge Ingress & Anycast Tier"]
-        Client(["Global Web, Mobile & IoT Endpoints"]) --> AnycastDNS["Geo-Anycast DNS Layer (BGP Anycast)"]
-        AnycastDNS --> CDN["Edge CDN Tier (Cloudflare Enterprise / Fastly)"]
+        Client(["Global Endpoints & IoT Gateways"]) --> AnycastDNS["Geo-Anycast DNS Layer (BGP Anycast)"]
+        AnycastDNS --> CDN["Cloudflare Enterprise Edge (Anycast CDN)"]
         CDN --> EdgeWAF["Edge WAF & L7 DDoS Scrubbing Engine"]
     end
 
@@ -134,6 +134,8 @@ flowchart TD
     classDef primary fill:#E0F2FE,stroke:#0284C7,stroke-width:2px,color:#0369A1;
     classDef storage fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E;
     classDef event fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#15803D;
+    classDef edge fill:#F1F5F9,stroke:#64748B,stroke-width:2px,color:#334155;
+    class Client,AnycastDNS,CDN,EdgeWAF edge;
     class APIGateway,TransSvc,RiskEngine,OrderEngine,LedgerSvc primary;
     class CockroachCluster,RedisCluster,ClickHouse,S3Glacier storage;
     class KafkaCluster,FlinkWorkers,Debezium event;
@@ -151,10 +153,10 @@ sequenceDiagram
     actor User as Konsumen Global
     participant Edge as Edge API Gateway
     participant Orchestrator as Transaction Saga Orchestrator
-    participant Risk as AI Fraud Detection Engine
-    participant Ledger as Ledger Database (Distributed SQL)
-    participant Kafka as Apache Kafka Event Bus
-    participant SRE as Real-Time Telemetry & Alerting
+    participant Risk as AI Fraud Detection
+    participant Ledger as Distributed SQL Ledger
+    participant Kafka as Kafka Event Stream
+    participant SRE as Telemetry & Ops
 
     User->>+Edge: POST /api/v4/transactions/settle (Payload Terenkripsi)
     Edge->>Edge: Validasi Token PASETO & Dekompresi Kriptografis
@@ -203,7 +205,7 @@ stateDiagram-v2
     state Inisiasi {
         [*] --> ValidasiFormat
         ValidasiFormat --> CekIdempotensi : Skema Valid
-        CekIdempotensi --> Diterima : Token Belum Pernah Diproses
+        CekIdempotensi --> Diterima : Token Unik
     }
 
     Diterima --> EvaluasiRisiko : Trigger ML Scoring Pipeline
@@ -211,15 +213,15 @@ stateDiagram-v2
     state EvaluasiRisiko {
         [*] --> AnalisisGeografis
         AnalisisGeografis --> AnalisisKecepatan : Lokasi Valid
-        AnalisisKecepatan --> PersetujuanOtomatis : Skor < 0.05
-        AnalisisKecepatan --> PeninjauanManual : 0.05 <= Skor <= 0.85
-        AnalisisKecepatan --> PenolakanOtomatis : Skor > 0.85
+        AnalisisKecepatan --> PersetujuanOtomatis : Skor Rendah
+        AnalisisKecepatan --> PeninjauanManual : Perlu Analis
+        AnalisisKecepatan --> PenolakanOtomatis : Anomali Tinggi
     }
 
-    PersetujuanOtomatis --> PemesananDana : Kuota Risiko Aman
-    PeninjauanManual --> PemesananDana : Divalidasi Analis
-    PeninjauanManual --> Ditolak : Dibatalkan Analis
-    PenolakanOtomatis --> Ditolak : Pola Penipuan Terdeteksi
+    PersetujuanOtomatis --> PemesananDana : Kuota Aman
+    PeninjauanManual --> PemesananDana : Disetujui
+    PeninjauanManual --> Ditolak : Dibatalkan
+    PenolakanOtomatis --> Ditolak : Pola Fraud
 
     state PemesananDana {
         [*] --> KunciSaldo
@@ -227,13 +229,13 @@ stateDiagram-v2
         KunciSaldo --> SaldoTidakCukup : Dana Kurang
     }
 
-    SaldoTidakCukup --> Dibatalkan : Dana Kurang
+    SaldoTidakCukup --> Dibatalkan : Saldo Kurang
     SaldoTerkunci --> PenyelesaianBukuBesar : Eksekusi Saga Step 2
 
     state PenyelesaianBukuBesar {
         [*] --> ReplikasiKuorum
-        ReplikasiKuorum --> TransaksiSukses : Kuorum Sepakat (3/3 Node)
-        ReplikasiKuorum --> KompensasiRollback : Jaringan Terisolasi
+        ReplikasiKuorum --> TransaksiSukses : Kuorum 3/3 Node
+        ReplikasiKuorum --> KompensasiRollback : Partisi Jaringan
     }
 
     KompensasiRollback --> Dibatalkan : Rollback Berhasil
@@ -319,6 +321,53 @@ erDiagram
         timestamp recorded_at
     }
 ```
+
+<!-- pagebreak -->
+
+# Spesifikasi Struktur Data & Domain Model (Diagram Tabel Kelas)
+
+Diagram tabel berikut memodelkan entitas domain transaksi keuangan dengan atribut bertipe data kuat, batasan integritas relasional, serta metode kontrak bisnis:
+
+```mermaid
+classDiagram
+    direction LR
+    class AkunPengguna {
+        +UUID id
+        +String namaLengkap
+        +String email
+        +String status
+        +verifikasiIdentitas() bool
+        +kunciAkunSementara() void
+    }
+    class DompetDigital {
+        +UUID id
+        +UUID userId
+        +Decimal saldo
+        +String mataUang
+        +kunciSaldoPessimistic() bool
+        +tambahSaldo(Decimal nominal) void
+        +kurangSaldo(Decimal nominal) void
+    }
+    class TransaksiKeuangan {
+        +UUID id
+        +UUID walletId
+        +Decimal jumlah
+        +StatusTx status
+        +String signatureHash
+        +prosesSettlement() bool
+        +kompensasiRollback() void
+    }
+    AkunPengguna "1" -- "1..*" DompetDigital : memiliki
+    DompetDigital "1" -- "0..*" TransaksiKeuangan : mengeksekusi
+```
+
+### Kamus Data & Integritas Relasional Tabel
+
+| Nama Entitas | Kunci Primer (PK) | Kunci Asing (FK) | Indeks Unik (UK) | Aturan Integritas |
+| :--- | :--- | :--- | :--- | :--- |
+| **AkunPengguna** | `id (UUID v4)` | — | `email` | Validasi RFC-5322 & SPIFFE ID |
+| **DompetDigital** | `id (UUID v4)` | `userId` | `(userId, mataUang)` | Saldo Non-Negatif ($\ge 0$) |
+| **TransaksiKeuangan** | `id (UUID v4)` | `walletId` | `idempotencyKey` | Tanda Tangan Kriptografi Ed25519 |
 
 <!-- pagebreak -->
 

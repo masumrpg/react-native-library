@@ -2,12 +2,12 @@
 
 A high-performance, single-path SVG QR code generator library for React Native and Expo applications, built with `react-native-svg`.
 
-<div style="display: flex; gap: 8px;">
-  <img src="https://img.shields.io/npm/v/@masumdev/rn-qr-code" alt="npm version" />
-  <img src="https://img.shields.io/npm/dt/@masumdev/rn-qr-code" alt="npm downloads" />
-  <img src="https://img.shields.io/badge/platforms-android%20|%20ios%20|%20web-lightgrey.svg" alt="platforms" />
-  <img src="https://img.shields.io/badge/Expo-compatible-9cf.svg" alt="expo compatible" />
-</div>
+[![npm version](https://img.shields.io/npm/v/@masumdev/rn-qr-code.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/rn-qr-code)
+[![npm downloads](https://img.shields.io/npm/dt/@masumdev/rn-qr-code.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/rn-qr-code)
+[![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
 
 ## Features
 

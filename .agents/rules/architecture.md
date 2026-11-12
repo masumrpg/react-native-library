@@ -1,6 +1,6 @@
 # Architecture & Tech Stack — Masum Dev Monorepo
 
-Welcome to the **Masum Dev** React Native & Expo Library Workspace. This project is structured as a **Turborepo** monorepo using **Bun** workspaces for high-performance cross-platform mobile library development.
+Welcome to the **Masum Dev** Open Source Monorepo Workspace. This project is structured as a **Turborepo** monorepo using **Bun** workspaces for high-performance open-source TypeScript packages, CLI developer tools, document publishing engines, and cross-platform mobile libraries.
 
 ---
 
@@ -8,13 +8,15 @@ Welcome to the **Masum Dev** React Native & Expo Library Workspace. This project
 
 ```
 .
-├── packages/                  # Open-source React Native & Expo libraries (@masumdev/*)
+├── packages/                  # Open-source libraries & developer tools (@masumdev/*)
+│   ├── markforge/             # Multi-format document publishing engine & CLI (PDF, DOCX, HTML, TXT)
+│   ├── tscheck/               # TypeScript & AST code auditing engine & interactive CLI
 │   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
 │   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with interactive tooltips
-│   ├── rn-qr-code/            # SVG QR code generator with custom eye shapes & presets
-│   └── tscheck/               # TypeScript & AST checking module
+│   └── rn-qr-code/            # SVG QR code generator with custom eye shapes & presets
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
+│   ├── cli/                   # CLI playgrounds and compilation testing
 │   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.vercel.app)
 ├── scripts/                   # Workspace maintenance & audit scripts (e.g. audit-codebase.ts)
 ├── .agents/                   # Centralized AI rules, skills, and configuration

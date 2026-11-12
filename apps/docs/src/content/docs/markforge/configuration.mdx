@@ -472,3 +472,24 @@ pageBreaks: {
 <Aside type="tip">
 **Zero-Config Defaults**: You do not need to configure `pageBreaks` explicitly. MarkForge enables `avoidOrphanHeadings: true`, `avoidInsideBlocks: true`, and `repeatTableHeaders: true` out-of-the-box by default.
 </Aside>
+
+---
+
+### Mermaid Diagrams (`mermaid`)
+
+Controls diagram styling, theme adaptation, line curvature, and custom theme variables across PDF, DOCX, and HTML output:
+
+```typescript
+mermaid: {
+  theme: "default",           // Built-in theme: 'default' | 'neutral' | 'dark' | 'forest' | 'base'
+  curve: "basis",             // Connector curve: 'basis' | 'linear' | 'cardinal' | 'step' | 'monotoneX'
+  fontSize: 13,               // Text font size in pixels
+  fontFamily: "Inter, sans-serif", // Font family override
+  showSequenceNumbers: true,  // Automatically number sequence diagram arrows
+  themeVariables: {           // Custom variables to merge with the theme
+    primaryColor: "#ECFDFD",
+    primaryBorderColor: "#009DA0",
+    lineColor: "#009DA0",
+  },
+}
+```

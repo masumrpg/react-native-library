@@ -6,6 +6,27 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.9.0] - 2026-11-13
+
+### Native ESM Mermaid Engine, Universal Diagram Theming & Proportional Layout
+
+- **Modern ESM Module Mermaid Loader (`mermaid@11`)**:
+  - Migrated from legacy scripts to modern ESM module `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs` with `<script type="module">`.
+  - Replaced diagram containers with semantic `<pre class="mermaid">` elements as recommended by official Mermaid documentation to prevent whitespace normalization issues.
+- **Theme-Adaptive Mermaid Engine (`theme` & `themeVariables`)**:
+  - Dynamically synchronizes Mermaid theme (`default`, `neutral`, `dark`, `forest`, `base`) and color variables (`primaryColor`, `primaryBorderColor`, `lineColor`, `fontFamily`) with the active document theme.
+  - Zero external icon dependencies: Cleaned out raw Font Awesome text and font dependencies, allowing Mermaid's native geometry, shape coloring, and arrow connections to render cleanly.
+- **Print & PDF Page Break Protection**:
+  - Added `.markforge-mermaid-container` to `avoidInsideBlocks` (`break-inside: avoid !important; page-break-inside: avoid !important;`) in `pdfBuilder.ts`.
+  - Added print media constraints (`max-height: 700px !important;`) ensuring large diagrams scale down gracefully without splitting or leaving empty container boxes across pages.
+- **Support for Comprehensive Diagram Types**:
+  - Full native rendering fidelity for **Flowcharts**, **Sequence Diagrams**, **State Diagrams**, **ER Diagrams**, **Class Diagrams**, and **Gantt Charts**.
+  - Proportional 2x Retina PNG rendering for Microsoft Word (DOCX) via `getImageDimensions`.
+- **Badges Standardization**:
+  - Standardized badge suites across all open-source libraries in the monorepo with flat-square styling and XERJ Corpus Hub contributor verification.
+
+---
+
 ## [0.8.0] - 2026-11-12
 
 ### Native Word Equations (OMML), Synchronized TOC with Dot Leaders & Proportional Logos

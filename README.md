@@ -1,6 +1,12 @@
-# Masum Dev — React Native & Expo Monorepo
+# Masum Dev — Open Source Monorepo
 
-Welcome to **Masum Dev** monorepo repository. This project contains high-performance open-source libraries for React Native and Expo, an interactive mobile playground app, and an Astro Starlight documentation portal.
+[![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![Turborepo](https://img.shields.io/badge/Turborepo-Monorepo-000000.svg?style=flat-square&logo=turborepo)](https://turbo.build/)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
+
+Welcome to the **Masum Dev** monorepo. This workspace houses high-performance open-source libraries, developer CLI tooling, document publishing engines, cross-platform React Native & Expo UI kits, and documentation portals.
 
 ---
 
@@ -8,17 +14,19 @@ Welcome to **Masum Dev** monorepo repository. This project contains high-perform
 
 ```
 .
-├── packages/                  # Open-source React Native / Expo libraries (@masumdev/*)
-│   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
-│   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with tooltips
-│   ├── rn-qr-code/            # Single-path SVG QR code generator with presets & async mode
-│   ├── markforge/             # Markdown & MDX multi-format publishing engine & CLI (DOCX, PDF, HTML)
-│   └── tscheck/               # TypeScript & AST auditing module
+├── packages/                  # Open-source packages & libraries (@masumdev/*)
+│   ├── markforge/             # Multi-format document publishing engine & CLI (PDF, DOCX, HTML, TXT)
+│   ├── tscheck/               # TypeScript & AST code auditing engine & interactive CLI
+│   ├── rn-ui/                 # Typed flat UI kit for React Native & Expo (63+ components, design tokens)
+│   ├── rn-tajweed-verse/      # Quranic verse Tajweed parser & interactive renderer
+│   └── rn-qr-code/            # High-performance SVG QR code generator with presets & async mode
 ├── apps/
-│   ├── native/                # Interactive Expo playground app (iOS / Android / Web)
+│   ├── native/                # Interactive Expo mobile playground app (iOS / Android / Web)
+│   ├── cli/
+│   │   └── markforge/         # MarkForge publishing engine testing & playground environment
 │   └── docs/                  # Astro 5 + Starlight documentation portal (https://react-native-library-docs.vercel.app)
-├── CONTEXT.md                 # Monorepo architecture & domain context
-├── RULES.md                   # Mandatory development & contribution rules
+├── scripts/                   # Workspace maintenance, publishing & audit scripts
+├── .agents/                   # Centralized AI agent directives, skills, and configuration
 ├── README.md                  # Monorepo setup & getting started guide
 └── turbo.json                 # Turborepo task orchestration
 ```
@@ -104,6 +112,40 @@ export default defineConfig({
   rootDir: process.cwd(),
   workspaces: ["packages/*", "apps/*"],
   editor: Editor.VSCODE,
+});
+```
+
+---
+
+## 📑 Multi-Format Document Publishing (`@masumdev/markforge`)
+
+This monorepo includes `@masumdev/markforge`, a high-fidelity Markdown and MDX publishing engine with an interactive terminal UI that transforms Markdown into publication-grade **PDF**, **DOCX**, **HTML**, and **TXT** files.
+
+### Compile Documents
+```bash
+# Compile a markdown document via CLI
+bun run markforge ./docs/document.md
+
+# Compile with explicit format targets
+bun run markforge ./docs/document.md --to pdf,docx,html
+```
+
+### Live-Reload Preview Server
+```bash
+bun run markforge ./docs/document.md --serve --port 3000
+```
+
+### Type-Safe Configuration (`markforge.config.ts`)
+```typescript
+import { defineConfig, OutputFormat, Theme, Orientation, PaperSizeEnum } from "@masumdev/markforge";
+
+export default defineConfig({
+  title: "Enterprise Architecture Specification",
+  to: [OutputFormat.PDF, OutputFormat.DOCX, OutputFormat.HTML],
+  theme: Theme.CORPORATE,
+  paperSize: PaperSizeEnum.A4,
+  toc: true,
+  math: true,
 });
 ```
 

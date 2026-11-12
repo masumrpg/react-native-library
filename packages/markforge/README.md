@@ -6,9 +6,11 @@
 Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native typography, syntax highlighting, Mermaid diagrams, callout boxes, customizable `ThemeProps`, AES-256 PDF encryption, and an interactive Ink terminal UI.
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
+[![npm downloads](https://img.shields.io/npm/dt/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
 
 </div>
 

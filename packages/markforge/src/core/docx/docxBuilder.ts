@@ -41,7 +41,7 @@ import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import { parseInlineSpans, applyHeadingNumbering } from "../parser.js";
 import type { MarkforgeConfig, ThemeProps } from "../../config/types.js";
 import { THEME_PRESETS } from "../../config/types.js";
-import { resolveImage } from "../imageResolver.js";
+import { resolveImage, getImageDimensions } from "../imageResolver.js";
 import { tokenizeCodeLine } from "../syntax/syntaxHighlighter.js";
 import { renderMermaidToPng } from "../mermaid/mermaidRenderer.js";
 import { findChromeExecutable, generateWatermarkPngBuffer } from "../pdf/pdfBuilder.js";
@@ -986,8 +986,33 @@ export async function buildDocxDocument(
     // Mermaid Diagram Nodes
     if (node.type === "mermaid") {
       const customBrowser = config.browserPath ?? config.chromiumPath ?? resolved.browserPath;
-      const pngBuffer = await renderMermaidToPng(node.text || "", baseDir, customBrowser);
+      const pngBuffer = await renderMermaidToPng(
+        node.text || "",
+        baseDir,
+        customBrowser,
+        themeProps,
+        resolved.mermaid
+      );
       if (pngBuffer) {
+        // Calculate proportional dimensions
+        const dims = getImageDimensions(pngBuffer);
+        const maxDocxWidth = 550;
+        let width = maxDocxWidth;
+        let height = 320;
+
+        if (dims && dims.width > 0 && dims.height > 0) {
+          const aspectRatio = dims.width / dims.height;
+          // Scale from 2x retina down to document points
+          const naturalWidthPts = Math.round(dims.width / 2);
+          width = Math.min(maxDocxWidth, naturalWidthPts);
+          height = Math.round(width / aspectRatio);
+          // Safety clamp for very long vertical diagrams
+          if (height > 650) {
+            height = 650;
+            width = Math.round(height * aspectRatio);
+          }
+        }
+
         docElements.push(
           new Paragraph({
             alignment: AlignmentType.CENTER,
@@ -995,13 +1020,13 @@ export async function buildDocxDocument(
               new ImageRun({
                 data: pngBuffer,
                 transformation: {
-                  width: 550,
-                  height: 320,
+                  width,
+                  height,
                 },
                 type: "png",
               }),
             ],
-            spacing: { before: 120, after: 120 },
+            spacing: { before: 180, after: 180 },
           })
         );
       } else {

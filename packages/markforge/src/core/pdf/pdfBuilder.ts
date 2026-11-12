@@ -496,7 +496,7 @@ export function injectPagedMediaStyles(
     ${
       pb.avoidInsideBlocks
         ? `
-    pre, blockquote, .callout, .columns-container, .document-signatures, figure, .mermaid-container {
+    pre, blockquote, .callout, .columns-container, .document-signatures, figure, .markforge-mermaid-container, .mermaid-container {
       break-inside: avoid !important;
       page-break-inside: avoid !important;
     }

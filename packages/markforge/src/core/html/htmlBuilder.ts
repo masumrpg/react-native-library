@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { type ParsedMarkdownDocument, type MarkdownInlineSpan, type MarkdownASTNode, applyHeadingNumbering } from "../parser.js";
-import type { MarkforgeConfig } from "../../config/types.js";
+import { THEME_PRESETS, type ThemeProps, type MarkforgeConfig } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { generateThemeCss, THEME_COMPONENTS } from "./htmlThemes.js";
 import { highlightCodeToHtml } from "../syntax/syntaxHighlighter.js";
@@ -13,6 +13,7 @@ import {
   type ResolvedDocumentConfig,
 } from "../../config/resolveConfig.js";
 import { renderMathToHtml, KATEX_INLINE_CSS } from "../math/mathRenderer.js";
+import { resolveMermaidConfig } from "../mermaid/mermaidTheme.js";
 
 /**
  * Escapes HTML characters safely.
@@ -155,7 +156,7 @@ export async function renderNodesToHtml(
     }
 
     if (node.type === "mermaid") {
-      bodyHtml += `  <div class="mermaid">\n${escapeHtml(node.text || "")}\n  </div>\n`;
+      bodyHtml += `  <div class="markforge-mermaid-container">\n    <pre class="mermaid">\n${escapeHtml(node.text || "")}\n    </pre>\n  </div>\n`;
       continue;
     }
 
@@ -572,6 +573,10 @@ export async function buildHtmlDocument(
   baseDir: string = process.cwd()
 ): Promise<string> {
   const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const themeProps: ThemeProps =
+    typeof resolved.theme === "object" && resolved.theme !== null
+      ? (resolved.theme as ThemeProps)
+      : THEME_PRESETS[resolved.theme as string] || THEME_PRESETS.corporate;
   const baseThemeCss = generateThemeCss(resolved.theme);
 
   // Load custom external CSS if provided
@@ -896,21 +901,12 @@ export async function buildHtmlDocument(
   }
 
   const hasMermaid = doc.nodes.some((n) => n.type === "mermaid");
+  const mermaidInitConfig = hasMermaid ? resolveMermaidConfig(themeProps, resolved.mermaid) : null;
+  const mermaidHeadLinks = "";
   const mermaidScript = hasMermaid
-    ? `<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'neutral',
-      themeVariables: {
-        primaryColor: '#33CDCF',
-        primaryTextColor: '#0F172A',
-        primaryBorderColor: '#009DA0',
-        lineColor: '#009DA0',
-        secondaryColor: '#ECFDFD',
-        tertiaryColor: '#F8FAFC'
-      }
-    });
+    ? `<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize(${JSON.stringify(mermaidInitConfig, null, 2)});
   </script>`
     : "";
 
@@ -920,6 +916,7 @@ export async function buildHtmlDocument(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(resolved.title)}</title>
+  ${mermaidHeadLinks}
   <style>
 ${THEME_COMPONENTS}
 ${baseThemeCss}

@@ -769,6 +769,11 @@ export interface DocumentLayoutConfig {
   math?: boolean;
 
   /**
+   * Configuration options for Mermaid diagram rendering and theme synchronization.
+   */
+  mermaid?: MermaidConfig;
+
+  /**
    * Code syntax highlighting theme.
    * @default "github-dark"
    */
@@ -786,6 +791,53 @@ export interface DocumentLayoutConfig {
    * Configurable or zero-config defaults (prevents orphan headings, breaks before H1, repeats table headers, etc.).
    */
   pageBreaks?: PageBreaksConfig;
+}
+
+export type MermaidCurve =
+  | "basis"
+  | "linear"
+  | "monotoneX"
+  | "natural"
+  | "stepBefore"
+  | "stepAfter";
+
+/**
+ * Configuration options for Mermaid diagram styling and theme adaptation.
+ */
+export interface MermaidConfig {
+  /**
+   * Theme identifier for Mermaid diagrams ('default' | 'neutral' | 'dark' | 'forest' | 'base').
+   * @default "default"
+   */
+  theme?: "default" | "neutral" | "dark" | "forest" | "base" | string;
+
+  /**
+   * Curve interpolation for flowchart connector lines.
+   * @default "basis"
+   */
+  curve?: MermaidCurve;
+
+  /**
+   * Optional font family override for diagram text.
+   */
+  fontFamily?: string;
+
+  /**
+   * Optional font size in pixels.
+   * @default 13
+   */
+  fontSize?: number;
+
+  /**
+   * Whether to display sequence numbers on sequence diagram arrows.
+   * @default true
+   */
+  showSequenceNumbers?: boolean;
+
+  /**
+   * Additional custom theme variables to merge with the active theme.
+   */
+  themeVariables?: Record<string, string | number | boolean>;
 }
 
 /**

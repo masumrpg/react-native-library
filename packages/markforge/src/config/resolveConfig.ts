@@ -17,6 +17,7 @@ import type {
   SignatureAlignOption,
   SignatureStyleOption,
   PageBreaksConfig,
+  MermaidConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -265,6 +266,7 @@ export interface ResolvedDocumentConfig {
   security?: NormalizedSecurity;
   pageBreaks: NormalizedPageBreaks;
   math: boolean;
+  mermaid?: MermaidConfig;
   css: string[];
   embedImages: boolean;
   bundleHtml: boolean;
@@ -925,6 +927,12 @@ export function resolveDocumentConfig(
 
   const math = mergedMeta.math !== false && userConfig.math !== false;
 
+  const rawMermaid =
+    mergedMeta.mermaid !== undefined
+      ? (mergedMeta.mermaid as MermaidConfig)
+      : userConfig.mermaid;
+  const mermaid: MermaidConfig | undefined = rawMermaid ? { ...rawMermaid } : undefined;
+
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
   const cssList: string[] = [];
   const addCss = (item?: string | string[]) => {
@@ -992,6 +1000,7 @@ export function resolveDocumentConfig(
     security,
     pageBreaks,
     math,
+    mermaid,
     css: cssList,
     embedImages,
     bundleHtml,
