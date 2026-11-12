@@ -23,7 +23,8 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system plus full custom colors and fonts via `ThemeProps` |
 | **Cover Page Builder** | Four professional cover page presets (`modern`, `corporate-split`, `minimal`, `card`) with company logo |
 | **Back Cover / Closing Page** | Dedicated closing page with company details, contact info, social links, and copyright notice |
-| **Math & LaTeX Equations** | Native KaTeX math rendering for inline (`$E=mc^2$`) and display blocks (`$$\sum_{i=1}^n x_i$$`) |
+| **Math & LaTeX Equations** | Native KaTeX rendering for HTML/PDF and Native Word Equations (OMML `<m:oMath>`) for DOCX |
+| **Table of Contents (TOC)** | Automated TOC with dot leaders (`. . . . .`) and strict synchronized page numbers across PDF & DOCX |
 | **Multi-Column Directives** | Flexible multi-column layouts (`:::columns 2` and `:::col`) across HTML, PDF, and DOCX |
 | **Section Numbering** | Automated hierarchical decimal numbering (`1.`, `1.1.`, `1.1.1.`) with configurable depth |
 | **Footnotes & Endnotes** | Full academic footnotes (`[^1]` and `[^1]: description`) with backlinks and DOCX notes |
@@ -309,7 +310,7 @@ export default defineConfig({
 | `coverPage` | `boolean \| object` | `false` | Isolated front cover page builder with presets and company logo |
 | `backCover` | `boolean \| object` | `false` | Isolated closing back cover page builder with corporate contact info |
 | `signatures` | `object` | `undefined` | Formal multi-signatory approval and signing block |
-| `math` | `boolean` | `false` | KaTeX LaTeX math equation rendering (`$inline$` and `$$block$$`) |
+| `math` | `boolean` | `false` | KaTeX LaTeX math rendering (HTML/PDF) & Native Microsoft Word Equations (OMML `<m:oMath>`) |
 | `security` | `object` | `undefined` | ISO 32000-2 AES-256 PDF encryption, user/owner passwords, and permissions |
 | `watermark` | `string \| object` | `undefined` | 100% unselectable diagonal watermark configuration |
 | `syntaxTheme` | `SyntaxTheme` | `'github-dark'` | Code syntax highlighting color palette |

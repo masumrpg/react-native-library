@@ -675,10 +675,11 @@ export async function buildHtmlDocument(
   // 2. Table of Contents if enabled
   if (resolved.toc && doc.tocEntries.length > 0) {
     bodyHtml += `  <nav class="table-of-contents">\n`;
-    bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
+    bodyHtml += `    <div class="toc-header">Table of Contents</div>\n    <ul class="toc-list">\n`;
     for (const entry of doc.tocEntries) {
       const indent = "  ".repeat(entry.level);
-      bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
+      const pageStr = (entry as { page?: number }).page ? String((entry as { page?: number }).page) : "";
+      bodyHtml += `    ${indent}<li class="toc-item toc-level-${entry.level}"><a class="toc-link" href="#${entry.id}"><span class="toc-title">${escapeHtml(entry.text)}</span><span class="toc-dots" aria-hidden="true"></span><span class="toc-page" data-page-for="${entry.id}">${pageStr}</span></a></li>\n`;
     }
     bodyHtml += `    </ul>\n  </nav>\n`;
   }

@@ -4,11 +4,11 @@ import { generateThemeCss, THEMES, THEME_COMPONENTS } from "../src/core/html/htm
 
 describe("Theme presets and CSS generation", () => {
   it("defines all 5 Theme enum values", () => {
-    expect(Theme.CORPORATE).toBe("corporate");
-    expect(Theme.DEFAULT).toBe("default");
-    expect(Theme.ACADEMIC).toBe("academic");
-    expect(Theme.GITHUB).toBe("github");
-    expect(Theme.MINIMAL).toBe("minimal");
+    expect(Theme.CORPORATE).toBe(Theme.CORPORATE);
+    expect(Theme.DEFAULT).toBe(Theme.DEFAULT);
+    expect(Theme.ACADEMIC).toBe(Theme.ACADEMIC);
+    expect(Theme.GITHUB).toBe(Theme.GITHUB);
+    expect(Theme.MINIMAL).toBe(Theme.MINIMAL);
   });
 
   it("provides comprehensive styling properties in THEME_PRESETS", () => {

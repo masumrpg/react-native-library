@@ -5,6 +5,24 @@ All notable changes to **@masumdev/markforge** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-11-12
+
+### Added
+- **Native Microsoft Word Equation (OMML `<m:oMath>`) Engine**:
+  - Implemented stack-based MathML-to-OMML parser (`parseMathML`) in `docxBuilder.ts` to convert KaTeX mathematical formulas into native Microsoft Word Equations (`<m:oMath>`).
+  - Supports fractions (`<m:f>`), superscripts (`<m:sSup>`), subscripts (`<m:sSub>`), sub-superscripts, radicals/roots (`<m:rad>`), and mathematical operator glyphs ($\le$, $\ge$, $\lambda$, $\mu$, $\rho$, $\Delta t$, etc.).
+  - Both inline math (`$...$`) and display block math (`$$...$$`) are now fully editable native Word equation components instead of raw LaTeX text.
+- **Table of Contents (TOC) with Dot Leaders & Synchronized Page Numbering**:
+  - Implemented dot leader formatting (`. . . . .`) leading to right-aligned page numbers across both PDF and DOCX.
+  - Symmetrical outline normalization (`normalizeForMatch`) eliminates mismatches between Chromium PDF outline headings and Word document headings caused by symbols (`&`), line breaks, or whitespace differences.
+  - Enforced strict monotonic non-decreasing page constraint (`Math.max(lastPage, ...)`) so subsequent sections and chapters never jump backward in page numbering.
+  - Automatic manual numbering prefix cleanup in `applyHeadingNumbering` to prevent duplicate numbering artifacts like `7.1. 1. Title`.
+- **Proportional Cover Page & Back Cover Logo Dimensions**:
+  - Zero-dependency buffer inspection (`getImageDimensions`) reads intrinsic dimensions of PNG, JPEG, GIF, SVG, WebP, and BMP files.
+  - Added `calculateProportionalLogoDimensions` in `docxBuilder.ts` to strictly preserve natural logo aspect ratios and prevent vertical or horizontal stretching in Microsoft Word.
+
+---
+
 ## [0.7.0] - 2026-11-12
 
 ### Added

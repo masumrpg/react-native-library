@@ -273,6 +273,7 @@ export interface ResolvedDocumentConfig {
   outputDir?: string;
   browserPath?: string;
   chromiumPath?: string;
+  [key: string]: unknown;
 }
 
 /**

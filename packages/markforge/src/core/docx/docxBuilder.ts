@@ -25,7 +25,18 @@ import {
   HorizontalPositionAlign,
   VerticalPositionRelativeFrom,
   VerticalPositionAlign,
+  TableOfContents,
+  StyleLevel,
+  Math as DocxMath,
+  MathRun,
+  MathFraction,
+  MathSuperScript,
+  MathSubScript,
+  MathSubSuperScript,
+  MathRadical,
+  type MathComponent,
 } from "docx";
+import katex from "katex";
 import type { ParsedMarkdownDocument, MarkdownInlineSpan } from "../parser.js";
 import { parseInlineSpans, applyHeadingNumbering } from "../parser.js";
 import type { MarkforgeConfig, ThemeProps } from "../../config/types.js";
@@ -53,6 +64,157 @@ export interface InlineRunOptions {
   italics?: boolean;
 }
 
+interface MathMLNode {
+  tag: string;
+  text?: string;
+  children: MathMLNode[];
+}
+
+function parseMathML(xml: string): MathMLNode[] {
+  const clean = xml.replace(/<annotation[\s\S]*?<\/annotation>/g, "");
+  let i = 0;
+
+  function parseChildren(parentTag: string): MathMLNode[] {
+    const list: MathMLNode[] = [];
+    while (i < clean.length) {
+      if (clean[i] === "<") {
+        if (clean.startsWith("</", i)) {
+          const closeEnd = clean.indexOf(">", i);
+          const closeTag = clean.substring(i + 2, closeEnd).trim();
+          i = closeEnd + 1;
+          if (closeTag === parentTag) break;
+          continue;
+        }
+
+        const tagEnd = clean.indexOf(">", i);
+        if (tagEnd === -1) break;
+        const tagContent = clean.substring(i + 1, tagEnd).trim();
+        const isSelfClosing = tagContent.endsWith("/") || clean[tagEnd - 1] === "/";
+        const tagName = tagContent.split(/[\s/]/)[0];
+        i = tagEnd + 1;
+
+        if (isSelfClosing) {
+          list.push({ tag: tagName, children: [] });
+        } else {
+          const children = parseChildren(tagName);
+          list.push({ tag: tagName, children });
+        }
+      } else {
+        const nextTag = clean.indexOf("<", i);
+        const textEnd = nextTag === -1 ? clean.length : nextTag;
+        const text = clean.substring(i, textEnd).trim();
+        i = textEnd;
+        if (text) {
+          list.push({ tag: "#text", text, children: [] });
+        }
+      }
+    }
+    return list;
+  }
+
+  return parseChildren("");
+}
+
+function decodeXmlEntities(str: string): string {
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&minus;/g, "−")
+    .replace(/&plusmn;/g, "±")
+    .replace(/&le;/g, "≤")
+    .replace(/&ge;/g, "≥")
+    .replace(/&times;/g, "×")
+    .replace(/&divide;/g, "÷")
+    .replace(/&InvisibleTimes;/g, "")
+    .replace(/&ApplyFunction;/g, "")
+    .replace(/&nbsp;/g, " ");
+}
+
+function extractNodeText(node: MathMLNode): string {
+  if (node.text) return decodeXmlEntities(node.text);
+  let res = "";
+  for (const c of node.children) {
+    res += extractNodeText(c);
+  }
+  return decodeXmlEntities(res);
+}
+
+function mathNodesToDocx(nodes: MathMLNode[]): MathComponent[] {
+  const result: MathComponent[] = [];
+  for (const node of nodes) {
+    if (node.tag === "#text") {
+      const text = decodeXmlEntities(node.text || "");
+      if (text.trim()) result.push(new MathRun(text));
+    } else if (node.tag === "mi" || node.tag === "mn" || node.tag === "mtext" || node.tag === "mo") {
+      const text = extractNodeText(node);
+      if (text) result.push(new MathRun(text));
+    } else if (node.tag === "mfrac") {
+      const num = node.children[0] ? mathNodesToDocx([node.children[0]]) : [];
+      const den = node.children[1] ? mathNodesToDocx([node.children[1]]) : [];
+      result.push(
+        new MathFraction({
+          numerator: num.length > 0 ? num : [new MathRun("")],
+          denominator: den.length > 0 ? den : [new MathRun("")],
+        })
+      );
+    } else if (node.tag === "msub") {
+      const base = node.children[0] ? mathNodesToDocx([node.children[0]]) : [];
+      const sub = node.children[1] ? mathNodesToDocx([node.children[1]]) : [];
+      result.push(
+        new MathSubScript({
+          children: base.length > 0 ? base : [new MathRun("")],
+          subScript: sub.length > 0 ? sub : [new MathRun("")],
+        })
+      );
+    } else if (node.tag === "msup") {
+      const base = node.children[0] ? mathNodesToDocx([node.children[0]]) : [];
+      const sup = node.children[1] ? mathNodesToDocx([node.children[1]]) : [];
+      result.push(
+        new MathSuperScript({
+          children: base.length > 0 ? base : [new MathRun("")],
+          superScript: sup.length > 0 ? sup : [new MathRun("")],
+        })
+      );
+    } else if (node.tag === "msubsup") {
+      const base = node.children[0] ? mathNodesToDocx([node.children[0]]) : [];
+      const sub = node.children[1] ? mathNodesToDocx([node.children[1]]) : [];
+      const sup = node.children[2] ? mathNodesToDocx([node.children[2]]) : [];
+      result.push(
+        new MathSubSuperScript({
+          children: base.length > 0 ? base : [new MathRun("")],
+          subScript: sub.length > 0 ? sub : [new MathRun("")],
+          superScript: sup.length > 0 ? sup : [new MathRun("")],
+        })
+      );
+    } else if (node.tag === "msqrt") {
+      const children = mathNodesToDocx(node.children);
+      result.push(
+        new MathRadical({
+          children: children.length > 0 ? children : [new MathRun("")],
+        })
+      );
+    } else {
+      result.push(...mathNodesToDocx(node.children));
+    }
+  }
+  return result;
+}
+
+/**
+ * Converts a LaTeX formula string into a native Word Office Math (OMML) element.
+ */
+export function convertLatexToDocxMath(latex: string): DocxMath {
+  try {
+    const mathml = katex.renderToString(latex, { output: "mathml" });
+    const tree = parseMathML(mathml);
+    const components = mathNodesToDocx(tree);
+    return new DocxMath({ children: components.length > 0 ? components : [new MathRun(latex)] });
+  } catch {
+    return new DocxMath({ children: [new MathRun(latex)] });
+  }
+}
+
 /**
  * Converts Markdown inline spans into Word TextRuns or Hyperlinks.
  */
@@ -60,8 +222,8 @@ export async function convertInlinesToTextRuns(
   spans: MarkdownInlineSpan[] = [],
   baseDir: string = process.cwd(),
   options: InlineRunOptions = {}
-): Promise<(TextRun | ExternalHyperlink | ImageRun)[]> {
-  const runs: (TextRun | ExternalHyperlink | ImageRun)[] = [];
+): Promise<(TextRun | ExternalHyperlink | ImageRun | DocxMath)[]> {
+  const runs: (TextRun | ExternalHyperlink | ImageRun | DocxMath)[] = [];
 
   for (const span of spans) {
     if (span.type === "image" && span.url) {
@@ -207,15 +369,7 @@ export async function convertInlinesToTextRuns(
     }
 
     if (span.type === "mathInline") {
-      runs.push(
-        new TextRun({
-          text: span.content,
-          font: "Cambria Math",
-          italics: true,
-          size: options.size,
-          color: options.color || "0F172A",
-        })
-      );
+      runs.push(convertLatexToDocxMath(span.content));
       continue;
     }
 
@@ -248,12 +402,129 @@ export async function convertInlinesToTextRuns(
 }
 
 /**
+ * Estimates realistic 1-based page numbers for document headings in DOCX layout.
+ */
+export function estimateDocxPageNumbers(
+  doc: ParsedMarkdownDocument,
+  resolved: ReturnType<typeof resolveDocumentConfig>
+): Map<string, number> {
+  const map = new Map<string, number>();
+  const headingNodes = doc.nodes.filter(
+    (n): n is typeof n & { type: "heading"; level: number; text: string } =>
+      n.type === "heading" && typeof n.level === "number" && n.level >= 1 && n.level <= 3
+  );
+
+  if (headingNodes.length === 0) return map;
+
+  // Account for cover page and TOC section pages
+  const coverPages = resolved.coverPage?.enabled ? 1 : 0;
+  const tocPages = resolved.toc ? Math.max(1, Math.ceil(headingNodes.length / 26)) : 0;
+  let currentPage = coverPages + tocPages + 1;
+
+  // Printable page height on A4/Letter minus margins (~660pt usable)
+  const PAGE_MAX_HEIGHT_PT = 660;
+  let currentHeight = 0;
+
+  for (const node of doc.nodes) {
+    if (node.type === "pageBreak") {
+      currentPage++;
+      currentHeight = 0;
+      continue;
+    }
+
+    if (node.type === "heading") {
+      const isH1 = node.level === 1;
+      if (resolved.pageBreaks?.beforeH1 && isH1 && currentHeight > 60) {
+        currentPage++;
+        currentHeight = 0;
+      }
+
+      const hHeight = isH1 ? 58 : node.level === 2 ? 44 : 34;
+      if (currentHeight + hHeight > PAGE_MAX_HEIGHT_PT) {
+        currentPage++;
+        currentHeight = 0;
+      }
+
+      const title = (node.text || "").trim();
+      if (title) map.set(title, currentPage);
+      currentHeight += hHeight;
+      continue;
+    }
+
+    if (node.type === "paragraph") {
+      const textLen = node.text?.length || 60;
+      const lines = Math.max(1, Math.ceil(textLen / 75));
+      const pHeight = lines * 18 + 12;
+      if (currentHeight + pHeight > PAGE_MAX_HEIGHT_PT) {
+        const addedPages = Math.floor((currentHeight + pHeight) / PAGE_MAX_HEIGHT_PT);
+        currentPage += addedPages;
+        currentHeight = (currentHeight + pHeight) % PAGE_MAX_HEIGHT_PT;
+      } else {
+        currentHeight += pHeight;
+      }
+    } else if (node.type === "codeBlock") {
+      const lines = (node.text || "").split("\n").length;
+      const cHeight = lines * 16 + 26;
+      if (currentHeight + cHeight > PAGE_MAX_HEIGHT_PT) {
+        const addedPages = Math.floor((currentHeight + cHeight) / PAGE_MAX_HEIGHT_PT);
+        currentPage += addedPages;
+        currentHeight = (currentHeight + cHeight) % PAGE_MAX_HEIGHT_PT;
+      } else {
+        currentHeight += cHeight;
+      }
+    } else if (node.type === "table") {
+      const rows = (node.children?.length || 2) + 1;
+      const tHeight = rows * 28 + 22;
+      if (currentHeight + tHeight > PAGE_MAX_HEIGHT_PT) {
+        const addedPages = Math.floor((currentHeight + tHeight) / PAGE_MAX_HEIGHT_PT);
+        currentPage += addedPages;
+        currentHeight = (currentHeight + tHeight) % PAGE_MAX_HEIGHT_PT;
+      } else {
+        currentHeight += tHeight;
+      }
+    } else if (node.type === "callout" || node.type === "blockquote") {
+      const textLen = node.text?.length || 50;
+      const lines = Math.max(1, Math.ceil(textLen / 70));
+      const bHeight = 50 + lines * 18;
+      if (currentHeight + bHeight > PAGE_MAX_HEIGHT_PT) {
+        const addedPages = Math.floor((currentHeight + bHeight) / PAGE_MAX_HEIGHT_PT);
+        currentPage += addedPages;
+        currentHeight = (currentHeight + bHeight) % PAGE_MAX_HEIGHT_PT;
+      } else {
+        currentHeight += bHeight;
+      }
+    } else if (node.type === "list") {
+      const items = node.children?.length || 3;
+      const lHeight = items * 22 + 10;
+      if (currentHeight + lHeight > PAGE_MAX_HEIGHT_PT) {
+        const addedPages = Math.floor((currentHeight + lHeight) / PAGE_MAX_HEIGHT_PT);
+        currentPage += addedPages;
+        currentHeight = (currentHeight + lHeight) % PAGE_MAX_HEIGHT_PT;
+      } else {
+        currentHeight += lHeight;
+      }
+    } else if (node.type === "image") {
+      const imgHeight = 220;
+      if (currentHeight + imgHeight > PAGE_MAX_HEIGHT_PT) {
+        currentPage++;
+        currentHeight = imgHeight;
+      } else {
+        currentHeight += imgHeight;
+      }
+    }
+  }
+
+  return map;
+}
+
+/**
  * Builds a complete docx.Document from a parsed Markdown document.
  */
 export async function buildDocxDocument(
   doc: ParsedMarkdownDocument,
   config: MarkforgeConfig,
-  baseDir: string = process.cwd()
+  baseDir: string = process.cwd(),
+  pageMap?: Map<string, number>
 ): Promise<Buffer> {
   const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
   const docElements: (Paragraph | Table)[] = [];
@@ -346,7 +617,7 @@ export async function buildDocxDocument(
     applyHeadingNumbering(doc.nodes, doc.tocEntries, resolved.numberHeadings);
   }
 
-  // 1.5 Table of Contents (TOC) Card if enabled
+  // 1.5 Table of Contents (TOC) - Native Word TOC with dot leaders & interactive refresh
   if (resolved.toc) {
     const headingNodes = doc.nodes.filter(
       (n): n is typeof n & { type: "heading"; level: number; text: string } =>
@@ -354,72 +625,86 @@ export async function buildDocxDocument(
     );
 
     if (headingNodes.length > 0) {
-      const tocParagraphs: Paragraph[] = [
+      // TOC Section Header
+      docElements.push(
         new Paragraph({
           children: [
             new TextRun({
               text: "TABLE OF CONTENTS",
               bold: true,
-              size: 18, // 9pt
-              color: textMutedHex,
+              size: 20, // 10pt
+              color: primaryDarkHex,
               font: defaultFont,
             }),
           ],
-          spacing: { after: 120 },
+          spacing: { before: 200, after: 160 },
           border: {
             bottom: {
-              color: borderHex,
+              color: primaryHex,
               space: 6,
               style: BorderStyle.SINGLE,
-              size: 4,
+              size: 8,
             },
           },
-        }),
-      ];
+        })
+      );
 
-      for (const h of headingNodes) {
-        const indentLeft = (h.level - 1) * 240;
-        tocParagraphs.push(
-          new Paragraph({
-            indent: { left: indentLeft },
-            children: [
-              new TextRun({
-                text: h.text,
-                bold: h.level === 1,
-                color: primaryDarkHex,
-                size: h.level === 1 ? 21 : 20,
-                font: defaultFont,
-              }),
-            ],
-            spacing: { before: 20, after: 20 },
-          })
-        );
-      }
+      const normalizeForMatch = (str: string): string =>
+        str.replace(/[\s\W_]+/g, "").toLowerCase();
 
-      const tocCard = new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        columnWidths: [9000],
-        rows: [
-          new TableRow({
-            children: [
-              new TableCell({
-                width: { size: 9000, type: WidthType.DXA },
-                shading: { fill: cardBgHex, type: ShadingType.CLEAR },
-                margins: { top: 140, bottom: 140, left: 180, right: 180 },
-                borders: {
-                  top: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
-                  bottom: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
-                  left: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
-                  right: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
-                },
-                children: tocParagraphs,
-              }),
-            ],
-          }),
+      const estimatedPages = estimateDocxPageNumbers(doc, resolved);
+      let lastPage = (resolved.coverPage?.enabled ? 1 : 0) + (resolved.toc ? 1 : 0) + 1;
+
+      const resolvePage = (text: string): number => {
+        const clean = text.trim();
+        const normH = normalizeForMatch(clean);
+        let foundPage: number | undefined;
+
+        if (pageMap) {
+          if (pageMap.has(clean)) {
+            foundPage = pageMap.get(clean);
+          } else {
+            pageMap.forEach((p, title) => {
+              if (foundPage === undefined && normalizeForMatch(title) === normH) {
+                foundPage = p;
+              }
+            });
+          }
+        }
+
+        if (foundPage === undefined) {
+          foundPage = estimatedPages.get(clean);
+        }
+
+        const finalPage = Math.max(lastPage, foundPage ?? lastPage);
+        lastPage = finalPage;
+        return finalPage;
+      };
+
+      // Native Word Table of Contents component (w:sdt field with dot leaders)
+      const nativeToc = new TableOfContents("Table of Contents", {
+        hyperlink: true,
+        headingStyleRange: "1-3",
+        stylesWithLevels: [
+          new StyleLevel("Heading1", 1),
+          new StyleLevel("Heading2", 2),
+          new StyleLevel("Heading3", 3),
+          new StyleLevel("Heading 1", 1),
+          new StyleLevel("Heading 2", 2),
+          new StyleLevel("Heading 3", 3),
         ],
+        useAppliedParagraphOutlineLevel: true,
+        hideTabAndPageNumbersInWebView: true,
+        cachedEntries: headingNodes.map((h) => ({
+          title: h.text,
+          level: h.level,
+          page: resolvePage(h.text),
+        })),
+        beginDirty: true,
       });
 
-      docElements.push(tocCard);
+      docElements.push(nativeToc);
+
       // Hard page break after Table of Contents so main content starts on fresh page
       docElements.push(
         new Paragraph({
@@ -922,19 +1207,12 @@ export async function buildDocxDocument(
     }
 
     if (node.type === "mathBlock") {
+      const mathObj = convertLatexToDocxMath(node.text || "");
       docElements.push(
         new Paragraph({
           alignment: AlignmentType.CENTER,
-          children: [
-            new TextRun({
-              text: node.text || "",
-              font: "Cambria Math",
-              italics: true,
-              size: 24, // 12pt
-              color: textHex,
-            }),
-          ],
-          spacing: { before: 180, after: 180 },
+          children: [mathObj],
+          spacing: { before: 200, after: 200 },
           shading: { fill: cardBgHex, type: ShadingType.CLEAR },
           border: {
             top: { style: BorderStyle.SINGLE, size: 4, color: borderHex },
@@ -1464,6 +1742,9 @@ export async function buildDocxDocument(
     title: resolved.title,
     description: resolved.subtitle,
     creator: resolved.author,
+    features: {
+      updateFields: true,
+    },
     styles: {
       default: {
         document: {

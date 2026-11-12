@@ -31,12 +31,83 @@ export const THEME_COMPONENTS = `
 .document-meta { font-size: 0.9rem; color: var(--mf-text-muted); display: flex; gap: 1.5rem; flex-wrap: wrap; }
 
 /* Table of Contents */
-.table-of-contents { background: var(--mf-card-bg); border: 1px solid var(--mf-border); border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; page-break-after: always; break-after: page; }
-.table-of-contents h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mf-text-muted); margin: 0 0 1rem 0; }
-.table-of-contents ul { list-style: none; padding: 0; margin: 0; }
-.table-of-contents li { padding: 0.25rem 0; }
-.table-of-contents a { color: var(--mf-primary-dark); text-decoration: none; }
-.table-of-contents a:hover { text-decoration: underline; }
+.table-of-contents {
+  background: var(--mf-card-bg);
+  border: 1px solid var(--mf-border);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  page-break-after: always; break-after: page;
+}
+.table-of-contents .toc-header,
+.table-of-contents h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mf-text-muted);
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--mf-border);
+}
+.table-of-contents ul,
+.table-of-contents .toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.table-of-contents li,
+.table-of-contents .toc-item {
+  padding: 0.35rem 0;
+  margin: 0;
+}
+.table-of-contents .toc-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--mf-text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.table-of-contents .toc-link:hover {
+  color: var(--mf-primary-dark);
+}
+.table-of-contents .toc-level-1 {
+  font-weight: 600;
+}
+.table-of-contents .toc-level-2 {
+  font-weight: 500;
+  padding-left: 1.25rem;
+  opacity: 0.95;
+}
+.table-of-contents .toc-level-3 {
+  font-weight: 400;
+  padding-left: 2.5rem;
+  opacity: 0.85;
+}
+.table-of-contents .toc-title {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+.table-of-contents .toc-dots {
+  flex-grow: 1;
+  border-bottom: 1.5px dotted var(--mf-border, #94a3b8);
+  margin: 0 0.5rem 0.25rem 0.5rem;
+  min-width: 1.5rem;
+  opacity: 0.65;
+}
+.table-of-contents .toc-page {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--mf-primary-dark);
+  text-align: right;
+  min-width: 1.5rem;
+}
 
 /* Links */
 a { color: var(--mf-primary-dark); font-weight: 600; text-decoration: none; }

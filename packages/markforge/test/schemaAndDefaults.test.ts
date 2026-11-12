@@ -8,8 +8,8 @@ describe("schema.json and loadConfig defaults standardization", () => {
   });
 
   it("includes 'txt' in schema.json target formats", () => {
-    const toStringEnum = schema.properties.to.oneOf[0].enum;
-    const toArrayEnum = schema.properties.to.oneOf[1].items.enum;
+    const toStringEnum = (schema.properties.to.oneOf[0] as { enum: string[] }).enum;
+    const toArrayEnum = (schema.properties.to.oneOf[1] as { items: { enum: string[] } }).items.enum;
 
     expect(toStringEnum).toContain("txt");
     expect(toArrayEnum).toContain("txt");

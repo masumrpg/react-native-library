@@ -3,7 +3,7 @@ import * as path from "node:path";
 import * as os from "node:os";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PDFName, PDFArray, PDFDict, PDFString, PDFHexString, PDFRef } from "pdf-lib";
 import { encryptPDF } from "@pdfsmaller/pdf-encrypt";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
@@ -595,6 +595,109 @@ startxref
 }
 
 /**
+ * Extracts a mapping of heading titles to their 1-based page numbers from PDF outlines (bookmarks).
+ */
+export function extractPdfOutlinesMap(pdfDoc: PDFDocument): Map<string, number> {
+  const pageMap = new Map<string, number>();
+  try {
+    const catalog = pdfDoc.catalog;
+    const outlinesRef = catalog.get(PDFName.of("Outlines"));
+    if (!(outlinesRef instanceof PDFRef)) return pageMap;
+
+    const outlines = pdfDoc.context.lookup(outlinesRef);
+    if (!(outlines instanceof PDFDict)) return pageMap;
+
+    const pages = pdfDoc.getPages();
+    const pageRefs = pages.map((p) => p.ref);
+    const visited = new Set<PDFRef>();
+
+    const traverse = (ref: unknown): void => {
+      if (!(ref instanceof PDFRef) || visited.has(ref)) return;
+      visited.add(ref);
+
+      const item = pdfDoc.context.lookup(ref);
+      if (!(item instanceof PDFDict)) return;
+
+      const titleObj = item.get(PDFName.of("Title"));
+      let titleStr = "";
+      if (titleObj instanceof PDFString || titleObj instanceof PDFHexString) {
+        titleStr = titleObj.decodeText();
+      }
+
+      let targetRef: unknown = null;
+      const dest = item.get(PDFName.of("Dest"));
+      const a = item.get(PDFName.of("A"));
+
+      if (dest instanceof PDFArray) {
+        targetRef = dest.get(0);
+      } else if (a instanceof PDFRef || a instanceof PDFDict) {
+        const act = a instanceof PDFRef ? pdfDoc.context.lookup(a) : a;
+        if (act instanceof PDFDict) {
+          const d = act.get(PDFName.of("D"));
+          if (d instanceof PDFArray) {
+            targetRef = d.get(0);
+          }
+        }
+      }
+
+      if (targetRef instanceof PDFRef && titleStr) {
+        const pageIndex = pageRefs.findIndex((r) => r === targetRef);
+        if (pageIndex >= 0) {
+          pageMap.set(titleStr.trim(), pageIndex + 1);
+        }
+      }
+
+      const first = item.get(PDFName.of("First"));
+      if (first instanceof PDFRef) traverse(first);
+      const next = item.get(PDFName.of("Next"));
+      if (next instanceof PDFRef) traverse(next);
+    };
+
+    const firstRef = outlines.get(PDFName.of("First"));
+    if (firstRef instanceof PDFRef) traverse(firstRef);
+  } catch {
+    // Graceful fallback if outline parsing encounters non-standard PDF structures
+  }
+  return pageMap;
+}
+
+/**
+ * Injects resolved page numbers into Table of Contents HTML span elements.
+ */
+export function injectTocPageNumbers(
+  html: string,
+  pageMap: Map<string, number>,
+  tocEntries: { id: string; text: string; level: number }[]
+): string {
+  if (pageMap.size === 0 || tocEntries.length === 0) return html;
+
+  const normalizeForMatch = (str: string): string =>
+    str.replace(/[\s\W_]+/g, "").toLowerCase();
+
+  let updated = html;
+  for (const entry of tocEntries) {
+    const cleanText = entry.text.trim();
+    let pageNum = pageMap.get(cleanText);
+    if (pageNum === undefined) {
+      const normClean = normalizeForMatch(cleanText);
+      for (const [title, p] of pageMap.entries()) {
+        if (normalizeForMatch(title) === normClean) {
+          pageNum = p;
+          break;
+        }
+      }
+    }
+
+    if (pageNum !== undefined) {
+      const regex = new RegExp(`(<span\\s+class="toc-page"\\s+data-page-for="${entry.id}">)[^<]*(<\\/span>)`, "g");
+      updated = updated.replace(regex, `$1${pageNum}$2`);
+    }
+  }
+
+  return updated;
+}
+
+/**
  * Builds a true binary PDF document from parsed Markdown.
  */
 export async function buildPdfDocument(
@@ -644,6 +747,7 @@ export async function buildPdfDocument(
       ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
       "--force-color-profile=srgb",
       "--no-pdf-header-footer",
+      "--generate-pdf-document-outline",
       "--window-size=1200,1600",
     ];
 
@@ -651,31 +755,55 @@ export async function buildPdfDocument(
       fs.writeFileSync(tmpHtml, pagedHtml, "utf-8");
       const fileUrl = pathToFileURL(tmpHtml).href;
 
-      let res = spawnSync(
-        chromePath,
-        [
-          "--headless=new",
-          ...isolatedFlags,
-          "--run-all-compositor-stages-before-draw",
-          "--virtual-time-budget=8000",
-          `--print-to-pdf=${tmpPdf}`,
-          fileUrl,
-        ],
-        { timeout: 30000, windowsHide: true }
-      );
-
-      if ((res.status !== 0 || !fs.existsSync(tmpPdf)) && chromePath) {
-        // Fallback to legacy headless mode
-        res = spawnSync(
+      const runChromiumPrint = (): boolean => {
+        let res = spawnSync(
           chromePath,
           [
-            "--headless",
+            "--headless=new",
             ...isolatedFlags,
+            "--run-all-compositor-stages-before-draw",
+            "--virtual-time-budget=8000",
             `--print-to-pdf=${tmpPdf}`,
             fileUrl,
           ],
           { timeout: 30000, windowsHide: true }
         );
+
+        if ((res.status !== 0 || !fs.existsSync(tmpPdf)) && chromePath) {
+          // Fallback to legacy headless mode
+          res = spawnSync(
+            chromePath,
+            [
+              "--headless",
+              ...isolatedFlags,
+              `--print-to-pdf=${tmpPdf}`,
+              fileUrl,
+            ],
+            { timeout: 30000, windowsHide: true }
+          );
+        }
+        return fs.existsSync(tmpPdf) && fs.statSync(tmpPdf).size > 0;
+      };
+
+      const success = runChromiumPrint();
+
+      // If Table of Contents is enabled and headings exist, resolve accurate page numbers from PDF outlines (Pass 2)
+      if (success && resolved.toc && doc.tocEntries.length > 0) {
+        try {
+          const pass1Bytes = fs.readFileSync(tmpPdf);
+          const pass1Doc = await PDFDocument.load(pass1Bytes);
+          const outlineMap = extractPdfOutlinesMap(pass1Doc);
+          if (outlineMap.size > 0) {
+            doc._resolvedTocPageMap = outlineMap;
+            const updatedHtml = injectTocPageNumbers(pagedHtml, outlineMap, doc.tocEntries);
+            if (updatedHtml !== pagedHtml) {
+              fs.writeFileSync(tmpHtml, updatedHtml, "utf-8");
+              runChromiumPrint();
+            }
+          }
+        } catch {
+          // Fall back gracefully to pass 1 PDF if pass 2 fails
+        }
       }
 
       if (fs.existsSync(tmpPdf) && fs.statSync(tmpPdf).size > 0) {
