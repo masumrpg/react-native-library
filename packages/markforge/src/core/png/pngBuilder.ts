@@ -17,12 +17,13 @@ export async function buildPngDocument(
   baseDir?: string
 ): Promise<Buffer> {
   const htmlContent = await buildHtmlDocument(doc, config, baseDir);
-  const chromePath = findChromeExecutable();
+  const customBrowser = config?.browserPath ?? config?.chromiumPath;
+  const chromePath = findChromeExecutable(customBrowser);
 
   if (!chromePath) {
     throw new Error(
       "Headless Chrome / Chromium / Edge executable not found for PNG document export. " +
-        "Please install Google Chrome, Chromium, or Microsoft Edge, or set CHROME_PATH environment variable."
+        "Please install Google Chrome, Chromium, or Microsoft Edge, or specify 'browserPath' in your config / CHROME_PATH environment variable."
     );
   }
 
@@ -39,13 +40,13 @@ export async function buildPngDocument(
     fs.writeFileSync(tmpHtml, htmlContent, "utf-8");
     const fileUrl = pathToFileURL(tmpHtml).href;
 
+    const isWin = process.platform === "win32";
     const spawnResult = spawnSync(
       chromePath,
       [
         "--headless=new",
         "--disable-gpu",
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
+        ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
         "--hide-scrollbars",
         "--force-device-scale-factor=2",
         "--window-size=1200,1600",

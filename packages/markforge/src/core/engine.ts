@@ -82,14 +82,22 @@ export async function compileMarkdown(
     ? rawFormats
     : [rawFormats || "docx", "pdf"];
 
+  // Sort formats so PDF renders before DOCX to share exact layout page numbers if both are targeted
+  const sortedFormats = [...formats].sort((a, b) => {
+    if (a === "pdf" && b === "docx") return -1;
+    if (a === "docx" && b === "pdf") return 1;
+    return 0;
+  });
+
   const generatedFiles: GeneratedOutputFile[] = [];
   const errors: string[] = [];
 
-  for (const fmt of formats) {
+  for (const fmt of sortedFormats) {
     try {
       if (fmt === "docx") {
         onProgress?.(`Generating DOCX document: ${baseName}.docx...`);
-        const docxBuffer = await buildDocxDocument(parsedDoc, config, baseDir);
+        const pageMap = parsedDoc._resolvedTocPageMap;
+        const docxBuffer = await buildDocxDocument(parsedDoc, config, baseDir, pageMap);
         const docxPath = path.join(outputDir, `${baseName}.docx`);
         fs.writeFileSync(docxPath, docxBuffer);
 

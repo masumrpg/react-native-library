@@ -31,12 +31,83 @@ export const THEME_COMPONENTS = `
 .document-meta { font-size: 0.9rem; color: var(--mf-text-muted); display: flex; gap: 1.5rem; flex-wrap: wrap; }
 
 /* Table of Contents */
-.table-of-contents { background: var(--mf-card-bg); border: 1px solid var(--mf-border); border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; page-break-after: always; break-after: page; }
-.table-of-contents h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mf-text-muted); margin: 0 0 1rem 0; }
-.table-of-contents ul { list-style: none; padding: 0; margin: 0; }
-.table-of-contents li { padding: 0.25rem 0; }
-.table-of-contents a { color: var(--mf-primary-dark); text-decoration: none; }
-.table-of-contents a:hover { text-decoration: underline; }
+.table-of-contents {
+  background: var(--mf-card-bg);
+  border: 1px solid var(--mf-border);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  page-break-after: always; break-after: page;
+}
+.table-of-contents .toc-header,
+.table-of-contents h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mf-text-muted);
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--mf-border);
+}
+.table-of-contents ul,
+.table-of-contents .toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.table-of-contents li,
+.table-of-contents .toc-item {
+  padding: 0.35rem 0;
+  margin: 0;
+}
+.table-of-contents .toc-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--mf-text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+.table-of-contents .toc-link:hover {
+  color: var(--mf-primary-dark);
+}
+.table-of-contents .toc-level-1 {
+  font-weight: 600;
+}
+.table-of-contents .toc-level-2 {
+  font-weight: 500;
+  padding-left: 1.25rem;
+  opacity: 0.95;
+}
+.table-of-contents .toc-level-3 {
+  font-weight: 400;
+  padding-left: 2.5rem;
+  opacity: 0.85;
+}
+.table-of-contents .toc-title {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 80%;
+}
+.table-of-contents .toc-dots {
+  flex-grow: 1;
+  border-bottom: 1.5px dotted var(--mf-border, #94a3b8);
+  margin: 0 0.5rem 0.25rem 0.5rem;
+  min-width: 1.5rem;
+  opacity: 0.65;
+}
+.table-of-contents .toc-page {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--mf-primary-dark);
+  text-align: right;
+  min-width: 1.5rem;
+}
 
 /* Links */
 a { color: var(--mf-primary-dark); font-weight: 600; text-decoration: none; }
@@ -78,12 +149,57 @@ img { max-width: 100%; height: auto; border-radius: 6px; margin: 1rem 0; }
 /* Dividers */
 hr { border: none; border-top: 1px solid var(--mf-border); margin: 2rem 0; }
 
+/* Mermaid Diagram Container */
+.markforge-mermaid-container {
+  display: block;
+  margin: 1.5rem auto;
+  padding: 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--mf-border, #e2e8f0);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  overflow: visible;
+  text-align: center;
+}
+.markforge-mermaid-container pre.mermaid,
+.markforge-mermaid-container .mermaid {
+  width: 100%;
+  display: block;
+  text-align: center;
+  background: transparent;
+  border: none;
+  margin: 0 auto;
+  padding: 0;
+  font-family: inherit;
+}
+.markforge-mermaid-container svg {
+  max-width: 100% !important;
+  max-height: 820px !important;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* Print / PDF */
 @media print {
   body { padding: 0; }
   .document-container { max-width: 100%; }
   h1, h2, h3, h4, h5, h6 { break-after: avoid; page-break-after: avoid; break-inside: avoid; }
-  pre, table, blockquote, .callout { break-inside: avoid; }
+  pre, table, blockquote, .callout, .markforge-mermaid-container { break-inside: avoid; }
+  .markforge-mermaid-container {
+    margin: 1rem auto !important;
+    padding: 0.75rem !important;
+    box-shadow: none;
+    border-color: #cbd5e1;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  .markforge-mermaid-container svg {
+    max-height: 700px !important;
+  }
   /* Remove scrollbars — PDF has no scrolling */
   pre { overflow: visible; white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; }
   code { overflow-wrap: break-word; word-break: break-word; }

@@ -67,8 +67,8 @@ Content 2
 Next page content
 `;
     const doc = parseMarkdownDocument(md);
-    const resolved = resolveDocumentConfig(doc.frontmatter, {}, "");
-    const html = await buildHtmlDocument(doc, resolved, "");
+    const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, {});
+    const html = await buildHtmlDocument(doc, resolved);
     expect(html).toContain('class="markforge-page-break"');
     expect(html).toContain("break-before: page");
   });
@@ -82,8 +82,7 @@ Next page content
           repeatTableHeaders: true,
         },
       },
-      {},
-      ""
+      {}
     );
     const pagedHtml = injectPagedMediaStyles("<html><head></head><body><h1>Test</h1></body></html>", resolved);
     expect(pagedHtml).toContain("break-after: avoid !important");

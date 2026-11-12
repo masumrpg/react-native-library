@@ -17,6 +17,7 @@ import type {
   SignatureAlignOption,
   SignatureStyleOption,
   PageBreaksConfig,
+  MermaidConfig,
 } from "./types.js";
 import { DEFAULT_CONFIG } from "./loadConfig.js";
 
@@ -147,6 +148,7 @@ export interface NormalizedCoverPage {
   badgeTextColor?: string;
   logo?: string;
   logoWidth?: number | string;
+  logoHeight?: number | string;
   bgGradient?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -183,6 +185,7 @@ export interface NormalizedBackCover {
   badgeTextColor?: string;
   logo?: string;
   logoWidth?: number | string;
+  logoHeight?: number | string;
   bgGradient?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -263,12 +266,16 @@ export interface ResolvedDocumentConfig {
   security?: NormalizedSecurity;
   pageBreaks: NormalizedPageBreaks;
   math: boolean;
+  mermaid?: MermaidConfig;
   css: string[];
   embedImages: boolean;
   bundleHtml: boolean;
   syntaxTheme: string;
   to: MarkforgeFormat[];
   outputDir?: string;
+  browserPath?: string;
+  chromiumPath?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -563,6 +570,7 @@ export function normalizeCoverPage(
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
+  const logoHeight = cfg.logoHeight as number | string | undefined;
   const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
@@ -604,6 +612,7 @@ export function normalizeCoverPage(
     badgeTextColor,
     logo,
     logoWidth,
+    logoHeight,
     bgGradient,
     backgroundColor,
     textColor,
@@ -669,6 +678,7 @@ export function normalizeBackCover(
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
+  const logoHeight = cfg.logoHeight as number | string | undefined;
   const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
@@ -697,6 +707,7 @@ export function normalizeBackCover(
     badgeTextColor,
     logo,
     logoWidth,
+    logoHeight,
     bgGradient,
     backgroundColor,
     textColor,
@@ -916,6 +927,12 @@ export function resolveDocumentConfig(
 
   const math = mergedMeta.math !== false && userConfig.math !== false;
 
+  const rawMermaid =
+    mergedMeta.mermaid !== undefined
+      ? (mergedMeta.mermaid as MermaidConfig)
+      : userConfig.mermaid;
+  const mermaid: MermaidConfig | undefined = rawMermaid ? { ...rawMermaid } : undefined;
+
   // 6. Custom CSS (Combine frontmatter.css + userConfig.css)
   const cssList: string[] = [];
   const addCss = (item?: string | string[]) => {
@@ -950,6 +967,15 @@ export function resolveDocumentConfig(
 
   const syntaxTheme = (frontmatter.syntaxTheme as string | undefined) || userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
 
+  const rawBrowser =
+    (frontmatter.browserPath as string | undefined) ??
+    (frontmatter.chromiumPath as string | undefined) ??
+    (frontmatter["browser-path"] as string | undefined) ??
+    (frontmatter["chromium-path"] as string | undefined) ??
+    userConfig.browserPath ??
+    userConfig.chromiumPath;
+  const browserPath = typeof rawBrowser === "string" && rawBrowser.trim() ? rawBrowser.trim() : undefined;
+
   return {
     title,
     subtitle,
@@ -974,11 +1000,14 @@ export function resolveDocumentConfig(
     security,
     pageBreaks,
     math,
+    mermaid,
     css: cssList,
     embedImages,
     bundleHtml,
     syntaxTheme,
     to: resolvedTo,
     outputDir: resolvedOutputDir,
+    browserPath,
+    chromiumPath: browserPath,
   };
 }

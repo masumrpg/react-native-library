@@ -338,9 +338,15 @@ export interface CoverPageConfig {
   logo?: string;
 
   /**
-   * Width or height of the logo (e.g. 120, "120px", "3.5cm").
+   * Width of the logo (e.g. 140, "140px", "3.5cm").
    */
   logoWidth?: number | string;
+
+  /**
+   * Optional explicit height of the logo (e.g. 60, "60px", "2cm").
+   * When omitted, height is automatically calculated preserving the original aspect ratio without vertical stretching.
+   */
+  logoHeight?: number | string;
 
   /**
    * Custom background color or CSS gradient for the cover page.
@@ -471,6 +477,12 @@ export interface BackCoverConfig {
    * Logo width (e.g. 140, "140px", "3.5cm").
    */
   logoWidth?: number | string;
+
+  /**
+   * Optional explicit height of the logo (e.g. 60, "60px", "2cm").
+   * When omitted, height is automatically calculated preserving the original aspect ratio without vertical stretching.
+   */
+  logoHeight?: number | string;
 
   /**
    * Status / confidentiality badge.
@@ -757,6 +769,11 @@ export interface DocumentLayoutConfig {
   math?: boolean;
 
   /**
+   * Configuration options for Mermaid diagram rendering and theme synchronization.
+   */
+  mermaid?: MermaidConfig;
+
+  /**
    * Code syntax highlighting theme.
    * @default "github-dark"
    */
@@ -774,6 +791,53 @@ export interface DocumentLayoutConfig {
    * Configurable or zero-config defaults (prevents orphan headings, breaks before H1, repeats table headers, etc.).
    */
   pageBreaks?: PageBreaksConfig;
+}
+
+export type MermaidCurve =
+  | "basis"
+  | "linear"
+  | "monotoneX"
+  | "natural"
+  | "stepBefore"
+  | "stepAfter";
+
+/**
+ * Configuration options for Mermaid diagram styling and theme adaptation.
+ */
+export interface MermaidConfig {
+  /**
+   * Theme identifier for Mermaid diagrams ('default' | 'neutral' | 'dark' | 'forest' | 'base').
+   * @default "default"
+   */
+  theme?: "default" | "neutral" | "dark" | "forest" | "base" | string;
+
+  /**
+   * Curve interpolation for flowchart connector lines.
+   * @default "basis"
+   */
+  curve?: MermaidCurve;
+
+  /**
+   * Optional font family override for diagram text.
+   */
+  fontFamily?: string;
+
+  /**
+   * Optional font size in pixels.
+   * @default 13
+   */
+  fontSize?: number;
+
+  /**
+   * Whether to display sequence numbers on sequence diagram arrows.
+   * @default true
+   */
+  showSequenceNumbers?: boolean;
+
+  /**
+   * Additional custom theme variables to merge with the active theme.
+   */
+  themeVariables?: Record<string, string | number | boolean>;
 }
 
 /**
@@ -863,6 +927,18 @@ export interface MarkforgeBuildOptions {
    * @default true
    */
   bundleHtml?: boolean;
+
+  /**
+   * Custom executable path to Chrome, Chromium, or Microsoft Edge browser.
+   * Overrides automatic browser detection for PDF and screenshot generation.
+   * @example "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+   */
+  browserPath?: string;
+
+  /**
+   * Alias for `browserPath`.
+   */
+  chromiumPath?: string;
 }
 
 /**

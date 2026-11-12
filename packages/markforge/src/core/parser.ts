@@ -79,6 +79,7 @@ export interface ParsedMarkdownDocument {
   tocEntries: { id: string; text: string; level: number }[];
   inlinedStyles: string[];
   footnoteDefs: FootnoteDefinition[];
+  _resolvedTocPageMap?: Map<string, number>;
 }
 
 /**
@@ -342,7 +343,14 @@ export function applyHeadingNumbering(
       const numberStr = parts.join(".") + ".";
       const fullPrefix = prefix ? `${prefix} ${numberStr} ` : `${numberStr} `;
 
-      const originalText = node.text || "";
+      // Strip any existing manual numbers from original text to prevent duplicate prefixes (e.g. "7.1. 1.")
+      const rawText = node.text || "";
+      const stripped = rawText
+        .replace(/^(\d+\.)+\s*/, "")
+        .replace(/^\d+\s*[-.)]\s*/, "")
+        .trim();
+      const originalText = stripped.length > 0 ? stripped : rawText;
+
       node.text = fullPrefix + originalText;
       node.inlines = parseInlineSpans(node.text);
       (node as { _numbered?: boolean })._numbered = true;

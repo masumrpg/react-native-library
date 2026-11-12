@@ -18,6 +18,7 @@ export type { ResolvedImage } from "./core/imageResolver.js";
 export { tokenizeCodeLine, highlightCodeToHtml, SYNTAX_COLORS } from "./core/syntax/syntaxHighlighter.js";
 export type { SyntaxToken } from "./core/syntax/syntaxHighlighter.js";
 export { renderMermaidToPng } from "./core/mermaid/mermaidRenderer.js";
+export { resolveMermaidConfig, isDarkHex } from "./core/mermaid/mermaidTheme.js";
 export { renderMathToHtml, KATEX_INLINE_CSS } from "./core/math/mathRenderer.js";
 export {
   THEMES,
@@ -105,6 +106,8 @@ export type {
   SecurityConfig,
   PdfPermissions,
   PageBreaksConfig,
+  MermaidCurve,
+  MermaidConfig,
   GeneratedOutputFile,
   CompilationResult,
 } from "./config/types.js";

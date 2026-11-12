@@ -49,6 +49,9 @@ export default defineConfig({
   // Output destination directory
   outputDir: ".temp/output",
 
+  // Custom browser path for headless rendering (optional, auto-detected by default)
+  // browserPath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+
   // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,
 
@@ -327,6 +330,7 @@ coverPage: {
   version: "1.0.0",                         // Fallback to {version}
   logo: "./assets/company-logo.png",        // Local path or URL
   logoWidth: 140,                           // Logo display width in px
+  logoHeight: 45,                           // Optional explicit height in px (auto-computed preserving aspect ratio if omitted)
   badge: "CONFIDENTIAL",                    // Top-right status badge text
   badgeColor: "#ECFDFD",                    // Badge background color
   badgeTextColor: "#0D998D",                // Badge text color
@@ -468,3 +472,24 @@ pageBreaks: {
 <Aside type="tip">
 **Zero-Config Defaults**: You do not need to configure `pageBreaks` explicitly. MarkForge enables `avoidOrphanHeadings: true`, `avoidInsideBlocks: true`, and `repeatTableHeaders: true` out-of-the-box by default.
 </Aside>
+
+---
+
+### Mermaid Diagrams (`mermaid`)
+
+Controls diagram styling, theme adaptation, line curvature, and custom theme variables across PDF, DOCX, and HTML output:
+
+```typescript
+mermaid: {
+  theme: "default",           // Built-in theme: 'default' | 'neutral' | 'dark' | 'forest' | 'base'
+  curve: "basis",             // Connector curve: 'basis' | 'linear' | 'cardinal' | 'step' | 'monotoneX'
+  fontSize: 13,               // Text font size in pixels
+  fontFamily: "Inter, sans-serif", // Font family override
+  showSequenceNumbers: true,  // Automatically number sequence diagram arrows
+  themeVariables: {           // Custom variables to merge with the theme
+    primaryColor: "#ECFDFD",
+    primaryBorderColor: "#009DA0",
+    lineColor: "#009DA0",
+  },
+}
+```

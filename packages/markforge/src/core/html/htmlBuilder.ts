@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { type ParsedMarkdownDocument, type MarkdownInlineSpan, type MarkdownASTNode, applyHeadingNumbering } from "../parser.js";
-import type { MarkforgeConfig } from "../../config/types.js";
+import { THEME_PRESETS, type ThemeProps, type MarkforgeConfig } from "../../config/types.js";
 import { resolveImage } from "../imageResolver.js";
 import { generateThemeCss, THEME_COMPONENTS } from "./htmlThemes.js";
 import { highlightCodeToHtml } from "../syntax/syntaxHighlighter.js";
@@ -13,6 +13,7 @@ import {
   type ResolvedDocumentConfig,
 } from "../../config/resolveConfig.js";
 import { renderMathToHtml, KATEX_INLINE_CSS } from "../math/mathRenderer.js";
+import { resolveMermaidConfig } from "../mermaid/mermaidTheme.js";
 
 /**
  * Escapes HTML characters safely.
@@ -155,7 +156,7 @@ export async function renderNodesToHtml(
     }
 
     if (node.type === "mermaid") {
-      bodyHtml += `  <div class="mermaid">\n${escapeHtml(node.text || "")}\n  </div>\n`;
+      bodyHtml += `  <div class="markforge-mermaid-container">\n    <pre class="mermaid">\n${escapeHtml(node.text || "")}\n    </pre>\n  </div>\n`;
       continue;
     }
 
@@ -239,9 +240,12 @@ export async function renderCoverPageHtml(
   if (cover.logo) {
     const resolvedLogo = await resolveImage(cover.logo, baseDir);
     const src = resolvedLogo ? resolvedLogo.dataUri : cover.logo;
+    const heightLimit = cover.logoHeight
+      ? typeof cover.logoHeight === "number" ? `${cover.logoHeight}px` : cover.logoHeight
+      : "80px";
     const widthStyle = cover.logoWidth
-      ? `max-width: ${typeof cover.logoWidth === "number" ? cover.logoWidth + "px" : cover.logoWidth}; max-height: 80px; width: auto; height: auto;`
-      : "max-height: 60px; max-width: 180px; width: auto; height: auto;";
+      ? `max-width: ${typeof cover.logoWidth === "number" ? cover.logoWidth + "px" : cover.logoWidth}; max-height: ${heightLimit}; width: auto; height: auto;`
+      : `max-height: ${heightLimit}; max-width: 180px; width: auto; height: auto;`;
     logoHtml = `<div class="cover-logo"><img src="${src}" alt="Logo" style="${widthStyle} object-fit: contain;" /></div>`;
   }
 
@@ -398,9 +402,12 @@ export async function renderBackCoverHtml(
   if (backCover.logo) {
     const resolved = await resolveImage(backCover.logo, baseDir);
     const src = resolved ? resolved.dataUri : backCover.logo;
+    const heightLimit = backCover.logoHeight
+      ? typeof backCover.logoHeight === "number" ? `${backCover.logoHeight}px` : backCover.logoHeight
+      : "80px";
     const widthStyle = backCover.logoWidth
-      ? `style="width: ${typeof backCover.logoWidth === "number" ? `${backCover.logoWidth}px` : backCover.logoWidth}; max-width: 100%;"`
-      : `style="max-width: 160px; height: auto;"`;
+      ? `style="width: ${typeof backCover.logoWidth === "number" ? `${backCover.logoWidth}px` : backCover.logoWidth}; max-height: ${heightLimit}; max-width: 100%; height: auto;"`
+      : `style="max-width: 160px; max-height: ${heightLimit}; height: auto;"`;
     logoHtml = `<div class="back-logo"><img src="${src}" alt="Brand Logo" ${widthStyle} /></div>`;
   }
 
@@ -566,6 +573,10 @@ export async function buildHtmlDocument(
   baseDir: string = process.cwd()
 ): Promise<string> {
   const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const themeProps: ThemeProps =
+    typeof resolved.theme === "object" && resolved.theme !== null
+      ? (resolved.theme as ThemeProps)
+      : THEME_PRESETS[resolved.theme as string] || THEME_PRESETS.corporate;
   const baseThemeCss = generateThemeCss(resolved.theme);
 
   // Load custom external CSS if provided
@@ -669,10 +680,11 @@ export async function buildHtmlDocument(
   // 2. Table of Contents if enabled
   if (resolved.toc && doc.tocEntries.length > 0) {
     bodyHtml += `  <nav class="table-of-contents">\n`;
-    bodyHtml += `    <h2>Table of Contents</h2>\n    <ul>\n`;
+    bodyHtml += `    <div class="toc-header">Table of Contents</div>\n    <ul class="toc-list">\n`;
     for (const entry of doc.tocEntries) {
       const indent = "  ".repeat(entry.level);
-      bodyHtml += `    ${indent}<li><a href="#${entry.id}">${escapeHtml(entry.text)}</a></li>\n`;
+      const pageStr = (entry as { page?: number }).page ? String((entry as { page?: number }).page) : "";
+      bodyHtml += `    ${indent}<li class="toc-item toc-level-${entry.level}"><a class="toc-link" href="#${entry.id}"><span class="toc-title">${escapeHtml(entry.text)}</span><span class="toc-dots" aria-hidden="true"></span><span class="toc-page" data-page-for="${entry.id}">${pageStr}</span></a></li>\n`;
     }
     bodyHtml += `    </ul>\n  </nav>\n`;
   }
@@ -889,21 +901,12 @@ export async function buildHtmlDocument(
   }
 
   const hasMermaid = doc.nodes.some((n) => n.type === "mermaid");
+  const mermaidInitConfig = hasMermaid ? resolveMermaidConfig(themeProps, resolved.mermaid) : null;
+  const mermaidHeadLinks = "";
   const mermaidScript = hasMermaid
-    ? `<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'neutral',
-      themeVariables: {
-        primaryColor: '#33CDCF',
-        primaryTextColor: '#0F172A',
-        primaryBorderColor: '#009DA0',
-        lineColor: '#009DA0',
-        secondaryColor: '#ECFDFD',
-        tertiaryColor: '#F8FAFC'
-      }
-    });
+    ? `<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize(${JSON.stringify(mermaidInitConfig, null, 2)});
   </script>`
     : "";
 
@@ -913,6 +916,7 @@ export async function buildHtmlDocument(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(resolved.title)}</title>
+  ${mermaidHeadLinks}
   <style>
 ${THEME_COMPONENTS}
 ${baseThemeCss}

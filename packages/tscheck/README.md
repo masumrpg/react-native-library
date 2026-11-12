@@ -1,10 +1,11 @@
 # @masumdev/tscheck
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
-[![CI](https://github.com/masumrpg/nodejs-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/masumrpg/nodejs-lib/actions)
-[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
-[![Tests](https://img.shields.io/badge/Tests-64%20Passed-brightgreen.svg?style=flat-square)](https://react-native-library-docs.vercel.app/tscheck/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![npm downloads](https://img.shields.io/npm/dt/@masumdev/tscheck.svg?style=flat-square&color=3da441)](https://www.npmjs.com/package/@masumdev/tscheck)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3da441.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
 
 > **Modern, high-performance TypeScript AST code audit CLI & engine for Turborepos and Monorepos.**
 

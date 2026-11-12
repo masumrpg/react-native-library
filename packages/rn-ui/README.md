@@ -2,8 +2,12 @@
 
 > A modern, flat-designed React Native & Expo UI kit with 55+ typed components, dynamic light/dark theme engine, zero-shadow defaults, and pluggable architecture.
 
-[![npm version](https://img.shields.io/npm/v/@masumdev/rn-ui.svg)](https://www.npmjs.com/package/@masumdev/rn-ui)
-[![license](https://img.shields.io/npm/l/@masumdev/rn-ui.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@masumdev/rn-ui.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/rn-ui)
+[![npm downloads](https://img.shields.io/npm/dt/@masumdev/rn-ui.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/rn-ui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
 
 ---
 

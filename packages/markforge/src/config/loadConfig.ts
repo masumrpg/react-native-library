@@ -18,8 +18,10 @@ const DEFAULT_CONFIG_FILENAMES = [
   ".markforgerc",
 ];
 
-export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures" | "coverPage" | "backCover" | "numberHeadings" | "security">> & {
+export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" | "margins" | "header" | "footer" | "watermark" | "metadata" | "syntaxTheme" | "signatures" | "coverPage" | "backCover" | "numberHeadings" | "security" | "browserPath" | "chromiumPath">> & {
   outputDir?: string;
+  browserPath?: string;
+  chromiumPath?: string;
   css?: string | string[];
   margins?: MarkforgeConfig["margins"];
   header?: MarkforgeConfig["header"];
@@ -35,6 +37,8 @@ export const DEFAULT_CONFIG: Required<Omit<MarkforgeConfig, "outputDir" | "css" 
 } = {
   to: ["docx", "pdf"],
   outputDir: undefined,
+  browserPath: undefined,
+  chromiumPath: undefined,
   theme: "corporate",
   css: undefined,
   orientation: "portrait",

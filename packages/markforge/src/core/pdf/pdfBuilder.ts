@@ -3,7 +3,7 @@ import * as path from "node:path";
 import * as os from "node:os";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PDFName, PDFArray, PDFDict, PDFString, PDFHexString, PDFRef } from "pdf-lib";
 import { encryptPDF } from "@pdfsmaller/pdf-encrypt";
 import type { ParsedMarkdownDocument } from "../parser.js";
 import type { MarkforgeConfig } from "../../config/types.js";
@@ -142,26 +142,98 @@ export function generateWatermarkPngBuffer(
 }
 
 /**
- * Finds available Chrome or Chromium binary for headless PDF rendering.
+ * Finds available Chrome, Chromium, or Microsoft Edge binary for headless PDF and screenshot rendering.
+ * Prioritizes Microsoft Edge on Windows (native system default).
+ * Supports manual path fallback in config, environment variables, and direct filesystem checks.
+ * Completely avoids reg.exe / powershell subprocess queries to ensure strict Windows Defender & EDR compliance.
  */
-export function findChromeExecutable(): string | null {
+export function findChromeExecutable(customPath?: string): string | null {
+  // 1. Explicit custom path passed from config or CLI
+  if (customPath && typeof customPath === "string" && customPath.trim()) {
+    const trimmed = customPath.trim();
+    if (fs.existsSync(trimmed)) {
+      return trimmed;
+    }
+    console.warn(
+      `[markforge] Configured browser executable path not found: "${trimmed}". Searching system for fallback browser...`
+    );
+  }
+
+  // 2. Explicit environment variables
+  if (process.env.MARKFORGE_BROWSER_PATH && fs.existsSync(process.env.MARKFORGE_BROWSER_PATH)) {
+    return process.env.MARKFORGE_BROWSER_PATH;
+  }
   if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
     return process.env.CHROME_PATH;
   }
   if (process.env.PUPPETEER_EXECUTABLE_PATH && fs.existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
   }
+  if (process.env.EDGE_PATH && fs.existsSync(process.env.EDGE_PATH)) {
+    return process.env.EDGE_PATH;
+  }
 
   const isWin = process.platform === "win32";
 
-  // Resolve Windows env-var paths at runtime
+  // Resolve Windows env-var paths at runtime without executing external processes
   const winLocalAppData = process.env.LOCALAPPDATA ?? "";
   const winProgramFiles = process.env.PROGRAMFILES ?? "C:\\Program Files";
   const winProgramFilesX86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
   const winProgramW6432 = process.env.ProgramW6432 ?? "C:\\Program Files";
   const winUserProfile = process.env.USERPROFILE ?? "";
+  const winSystemDrive = process.env.SystemDrive ?? "C:";
 
   const candidates: string[] = [
+    // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
+    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramW6432}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winSystemDrive}\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winSystemDrive}\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge Dev\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge Beta\\Application\\msedge.exe`,
+
+    // Windows — Google Chrome & Chrome SxS (Canary)
+    `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramW6432}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winSystemDrive}\\Program Files\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winSystemDrive}\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome SxS\\Application\\chrome.exe`,
+
+    // Windows — Brave Browser
+    `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramW6432}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+
+    // Windows — Chromium
+    `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
+
+    // Windows — Scoop Package Manager
+    `${winUserProfile}\\scoop\\apps\\msedge\\current\\msedge.exe`,
+    `${winUserProfile}\\scoop\\shims\\msedge.exe`,
+    `${winUserProfile}\\scoop\\apps\\googlechrome\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\chromium\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\brave\\current\\brave.exe`,
+    `${winUserProfile}\\scoop\\shims\\chrome.exe`,
+
+    // Windows — Chocolatey
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\msedge.exe`,
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\chrome.exe`,
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\brave.exe`,
+    "C:\\ProgramData\\chocolatey\\bin\\msedge.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\chrome.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\brave.exe",
+
+    // macOS
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+
     // Linux
     "/usr/bin/google-chrome",
     "/usr/bin/google-chrome-stable",
@@ -171,47 +243,11 @@ export function findChromeExecutable(): string | null {
     "/usr/bin/microsoft-edge",
     "/usr/bin/microsoft-edge-stable",
     "/usr/bin/brave-browser",
-    // macOS
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-    // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
-    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winProgramW6432}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge Dev\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge Beta\\Application\\msedge.exe`,
-    // Windows — Google Chrome & Chrome SxS (Canary)
-    `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winProgramW6432}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winLocalAppData}\\Google\\Chrome SxS\\Application\\chrome.exe`,
-    // Windows — Brave Browser
-    `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winProgramW6432}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    // Windows — Chromium
-    `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
-    // Windows — Scoop Package Manager
-    `${winUserProfile}\\scoop\\apps\\googlechrome\\current\\chrome.exe`,
-    `${winUserProfile}\\scoop\\apps\\chromium\\current\\chrome.exe`,
-    `${winUserProfile}\\scoop\\apps\\brave\\current\\brave.exe`,
-    `${winUserProfile}\\scoop\\apps\\msedge\\current\\msedge.exe`,
-    `${winUserProfile}\\scoop\\shims\\chrome.exe`,
-    `${winUserProfile}\\scoop\\shims\\msedge.exe`,
-    // Windows — Chocolatey
-    "C:\\ProgramData\\chocolatey\\bin\\chrome.exe",
-    "C:\\ProgramData\\chocolatey\\bin\\msedge.exe",
-    "C:\\ProgramData\\chocolatey\\bin\\brave.exe",
   ].filter(Boolean);
 
   for (const candidate of candidates) {
     try {
-      if (fs.existsSync(candidate)) {
+      if (candidate && fs.existsSync(candidate)) {
         return candidate;
       }
     } catch {
@@ -219,12 +255,12 @@ export function findChromeExecutable(): string | null {
     }
   }
 
-  // Check PATH via which/where (including msedge and brave on Windows)
+  // Check PATH via which/where (prioritizing msedge and chrome on Windows)
   try {
     const cmd = isWin ? "where.exe" : "which";
     const names = isWin
-      ? ["chrome.exe", "msedge.exe", "brave.exe", "chrome", "msedge", "brave", "google-chrome", "chromium", "chromium-browser"]
-      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "brave-browser"];
+      ? ["msedge.exe", "chrome.exe", "brave.exe", "msedge", "chrome", "brave", "google-chrome", "chromium", "chromium-browser"]
+      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "microsoft-edge-stable", "brave-browser"];
 
     for (const name of names) {
       const res = spawnSync(cmd, [name], { encoding: "utf-8", windowsHide: true });
@@ -460,7 +496,7 @@ export function injectPagedMediaStyles(
     ${
       pb.avoidInsideBlocks
         ? `
-    pre, blockquote, .callout, .columns-container, .document-signatures, figure, .mermaid-container {
+    pre, blockquote, .callout, .columns-container, .document-signatures, figure, .markforge-mermaid-container, .mermaid-container {
       break-inside: avoid !important;
       page-break-inside: avoid !important;
     }
@@ -559,22 +595,127 @@ startxref
 }
 
 /**
+ * Extracts a mapping of heading titles to their 1-based page numbers from PDF outlines (bookmarks).
+ */
+export function extractPdfOutlinesMap(pdfDoc: PDFDocument): Map<string, number> {
+  const pageMap = new Map<string, number>();
+  try {
+    const catalog = pdfDoc.catalog;
+    const outlinesRef = catalog.get(PDFName.of("Outlines"));
+    if (!(outlinesRef instanceof PDFRef)) return pageMap;
+
+    const outlines = pdfDoc.context.lookup(outlinesRef);
+    if (!(outlines instanceof PDFDict)) return pageMap;
+
+    const pages = pdfDoc.getPages();
+    const pageRefs = pages.map((p) => p.ref);
+    const visited = new Set<PDFRef>();
+
+    const traverse = (ref: unknown): void => {
+      if (!(ref instanceof PDFRef) || visited.has(ref)) return;
+      visited.add(ref);
+
+      const item = pdfDoc.context.lookup(ref);
+      if (!(item instanceof PDFDict)) return;
+
+      const titleObj = item.get(PDFName.of("Title"));
+      let titleStr = "";
+      if (titleObj instanceof PDFString || titleObj instanceof PDFHexString) {
+        titleStr = titleObj.decodeText();
+      }
+
+      let targetRef: unknown = null;
+      const dest = item.get(PDFName.of("Dest"));
+      const a = item.get(PDFName.of("A"));
+
+      if (dest instanceof PDFArray) {
+        targetRef = dest.get(0);
+      } else if (a instanceof PDFRef || a instanceof PDFDict) {
+        const act = a instanceof PDFRef ? pdfDoc.context.lookup(a) : a;
+        if (act instanceof PDFDict) {
+          const d = act.get(PDFName.of("D"));
+          if (d instanceof PDFArray) {
+            targetRef = d.get(0);
+          }
+        }
+      }
+
+      if (targetRef instanceof PDFRef && titleStr) {
+        const pageIndex = pageRefs.findIndex((r) => r === targetRef);
+        if (pageIndex >= 0) {
+          pageMap.set(titleStr.trim(), pageIndex + 1);
+        }
+      }
+
+      const first = item.get(PDFName.of("First"));
+      if (first instanceof PDFRef) traverse(first);
+      const next = item.get(PDFName.of("Next"));
+      if (next instanceof PDFRef) traverse(next);
+    };
+
+    const firstRef = outlines.get(PDFName.of("First"));
+    if (firstRef instanceof PDFRef) traverse(firstRef);
+  } catch {
+    // Graceful fallback if outline parsing encounters non-standard PDF structures
+  }
+  return pageMap;
+}
+
+/**
+ * Injects resolved page numbers into Table of Contents HTML span elements.
+ */
+export function injectTocPageNumbers(
+  html: string,
+  pageMap: Map<string, number>,
+  tocEntries: { id: string; text: string; level: number }[]
+): string {
+  if (pageMap.size === 0 || tocEntries.length === 0) return html;
+
+  const normalizeForMatch = (str: string): string =>
+    str.replace(/[\s\W_]+/g, "").toLowerCase();
+
+  let updated = html;
+  for (const entry of tocEntries) {
+    const cleanText = entry.text.trim();
+    let pageNum = pageMap.get(cleanText);
+    if (pageNum === undefined) {
+      const normClean = normalizeForMatch(cleanText);
+      for (const [title, p] of pageMap.entries()) {
+        if (normalizeForMatch(title) === normClean) {
+          pageNum = p;
+          break;
+        }
+      }
+    }
+
+    if (pageNum !== undefined) {
+      const regex = new RegExp(`(<span\\s+class="toc-page"\\s+data-page-for="${entry.id}">)[^<]*(<\\/span>)`, "g");
+      updated = updated.replace(regex, `$1${pageNum}$2`);
+    }
+  }
+
+  return updated;
+}
+
+/**
  * Builds a true binary PDF document from parsed Markdown.
  */
 export async function buildPdfDocument(
   doc: ParsedMarkdownDocument,
-  config: MarkforgeConfig,
+  config: MarkforgeConfig = {},
   baseDir: string = process.cwd()
 ): Promise<Buffer> {
   const baseHtml = await buildHtmlDocument(doc, config, baseDir);
   const pagedHtml = injectPagedMediaStyles(baseHtml, config, doc.metadata as Record<string, unknown>);
 
-  const chromePath = findChromeExecutable();
+  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const customBrowser = config.browserPath ?? config.chromiumPath ?? resolved.browserPath;
+  const chromePath = findChromeExecutable(customBrowser);
 
   if (!chromePath) {
     console.warn(
       "Headless Chrome / Chromium / Edge executable not found for PDF document export. " +
-        "Please install Google Chrome, Chromium, or Microsoft Edge, or set CHROME_PATH environment variable."
+        "Please install Google Chrome, Chromium, or Microsoft Edge, or specify 'browserPath' in your config / CHROME_PATH environment variable."
     );
   }
 
@@ -600,14 +741,13 @@ export async function buildPdfDocument(
       "--disable-breakpad",
       "--disable-component-extensions-with-background-pages",
       "--disable-features=Translate,OptimizationHints,MediaRouter,DialMediaRouteProvider,CalculatedNewTabPage,ChromeWhatsNewUI,PrivacySandboxSettings4",
-      "--password-store=basic",
-      "--use-mock-keychain",
       "--mute-audio",
       "--no-service-autorun",
       "--disable-gpu",
       ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
       "--force-color-profile=srgb",
       "--no-pdf-header-footer",
+      "--generate-pdf-document-outline",
       "--window-size=1200,1600",
     ];
 
@@ -615,31 +755,55 @@ export async function buildPdfDocument(
       fs.writeFileSync(tmpHtml, pagedHtml, "utf-8");
       const fileUrl = pathToFileURL(tmpHtml).href;
 
-      let res = spawnSync(
-        chromePath,
-        [
-          "--headless=new",
-          ...isolatedFlags,
-          "--run-all-compositor-stages-before-draw",
-          "--virtual-time-budget=8000",
-          `--print-to-pdf=${tmpPdf}`,
-          fileUrl,
-        ],
-        { timeout: 30000, windowsHide: true }
-      );
-
-      if ((res.status !== 0 || !fs.existsSync(tmpPdf)) && chromePath) {
-        // Fallback to legacy headless mode
-        res = spawnSync(
+      const runChromiumPrint = (): boolean => {
+        let res = spawnSync(
           chromePath,
           [
-            "--headless",
+            "--headless=new",
             ...isolatedFlags,
+            "--run-all-compositor-stages-before-draw",
+            "--virtual-time-budget=8000",
             `--print-to-pdf=${tmpPdf}`,
             fileUrl,
           ],
           { timeout: 30000, windowsHide: true }
         );
+
+        if ((res.status !== 0 || !fs.existsSync(tmpPdf)) && chromePath) {
+          // Fallback to legacy headless mode
+          res = spawnSync(
+            chromePath,
+            [
+              "--headless",
+              ...isolatedFlags,
+              `--print-to-pdf=${tmpPdf}`,
+              fileUrl,
+            ],
+            { timeout: 30000, windowsHide: true }
+          );
+        }
+        return fs.existsSync(tmpPdf) && fs.statSync(tmpPdf).size > 0;
+      };
+
+      const success = runChromiumPrint();
+
+      // If Table of Contents is enabled and headings exist, resolve accurate page numbers from PDF outlines (Pass 2)
+      if (success && resolved.toc && doc.tocEntries.length > 0) {
+        try {
+          const pass1Bytes = fs.readFileSync(tmpPdf);
+          const pass1Doc = await PDFDocument.load(pass1Bytes);
+          const outlineMap = extractPdfOutlinesMap(pass1Doc);
+          if (outlineMap.size > 0) {
+            doc._resolvedTocPageMap = outlineMap;
+            const updatedHtml = injectTocPageNumbers(pagedHtml, outlineMap, doc.tocEntries);
+            if (updatedHtml !== pagedHtml) {
+              fs.writeFileSync(tmpHtml, updatedHtml, "utf-8");
+              runChromiumPrint();
+            }
+          }
+        } catch {
+          // Fall back gracefully to pass 1 PDF if pass 2 fails
+        }
       }
 
       if (fs.existsSync(tmpPdf) && fs.statSync(tmpPdf).size > 0) {

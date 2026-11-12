@@ -6,9 +6,11 @@
 Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native typography, syntax highlighting, Mermaid diagrams, callout boxes, customizable `ThemeProps`, AES-256 PDF encryption, and an interactive Ink terminal UI.
 
 [![npm version](https://img.shields.io/npm/v/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
+[![npm downloads](https://img.shields.io/npm/dt/@masumdev/markforge.svg?style=flat-square&color=33CDCF)](https://www.npmjs.com/package/@masumdev/markforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-33CDCF.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Zero_Any-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
 [![Built with Bun](https://img.shields.io/badge/Built_with-Bun-fbf0df.svg?style=flat-square)](https://bun.sh)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/masumrpg/badge.svg)](https://hub.xerj.org/contributors/masumrpg)
 
 </div>
 
@@ -23,7 +25,8 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Theme.CORPORATE & ThemeProps** | Flagship cyan corporate design system plus full custom colors and fonts via `ThemeProps` |
 | **Cover Page Builder** | Four professional cover page presets (`modern`, `corporate-split`, `minimal`, `card`) with company logo |
 | **Back Cover / Closing Page** | Dedicated closing page with company details, contact info, social links, and copyright notice |
-| **Math & LaTeX Equations** | Native KaTeX math rendering for inline (`$E=mc^2$`) and display blocks (`$$\sum_{i=1}^n x_i$$`) |
+| **Math & LaTeX Equations** | Native KaTeX rendering for HTML/PDF and Native Word Equations (OMML `<m:oMath>`) for DOCX |
+| **Table of Contents (TOC)** | Automated TOC with dot leaders (`. . . . .`) and strict synchronized page numbers across PDF & DOCX |
 | **Multi-Column Directives** | Flexible multi-column layouts (`:::columns 2` and `:::col`) across HTML, PDF, and DOCX |
 | **Section Numbering** | Automated hierarchical decimal numbering (`1.`, `1.1.`, `1.1.1.`) with configurable depth |
 | **Footnotes & Endnotes** | Full academic footnotes (`[^1]` and `[^1]: description`) with backlinks and DOCX notes |
@@ -36,7 +39,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Image Inlining Engine** | Resolves local files, remote URLs, Base64 data URIs, and SVGs into self-contained embedded assets |
 | **Signatures & Approvals** | Multi-signatory approval blocks with customizable alignment, border styles, and signature images |
 | **Live-Reload Preview Server** | Real-time HTTP preview server (`--serve`) with Server-Sent Events (SSE) and scroll sync |
-| **Windows Corporate Compliance** | Native Microsoft Edge detection, clean isolated process arguments, and `windowsHide` support |
+| **Windows Corporate Compliance** | Native Microsoft Edge detection, custom `browserPath`, Windows Defender & EDR hardening, and `windowsHide` support |
 | **Type-Safe Config** | Unified `markforge.config.ts` with TypeScript Enums and clean Markdown frontmatter |
 | **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js and Bun |
 | **Ink Terminal UI** | Interactive TUI with live progress tracking, timers, and compilation metrics |
@@ -97,6 +100,7 @@ markforge document.md --serve --port 4000 --open
 | `--serve` | | Start local HTTP preview server | `false` |
 | `--port <number>` | `-p` | Local preview server port | `4000` |
 | `--open` | | Automatically open browser on preview | `false` |
+| `--browser-path <path>` | | Custom executable path to Chrome, Chromium, or Microsoft Edge | Auto-discovered |
 | `--version` | `-V` | Output version number | |
 | `--help` | `-h` | Display CLI help menu | |
 
@@ -124,6 +128,9 @@ export default defineConfig({
 
   // Destination folder
   outputDir: ".temp/output",
+
+  // Custom browser path (optional override for headless PDF and screenshots)
+  // browserPath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
 
   // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,
@@ -305,7 +312,7 @@ export default defineConfig({
 | `coverPage` | `boolean \| object` | `false` | Isolated front cover page builder with presets and company logo |
 | `backCover` | `boolean \| object` | `false` | Isolated closing back cover page builder with corporate contact info |
 | `signatures` | `object` | `undefined` | Formal multi-signatory approval and signing block |
-| `math` | `boolean` | `false` | KaTeX LaTeX math equation rendering (`$inline$` and `$$block$$`) |
+| `math` | `boolean` | `false` | KaTeX LaTeX math rendering (HTML/PDF) & Native Microsoft Word Equations (OMML `<m:oMath>`) |
 | `security` | `object` | `undefined` | ISO 32000-2 AES-256 PDF encryption, user/owner passwords, and permissions |
 | `watermark` | `string \| object` | `undefined` | 100% unselectable diagonal watermark configuration |
 | `syntaxTheme` | `SyntaxTheme` | `'github-dark'` | Code syntax highlighting color palette |

@@ -1,4 +1,5 @@
 import { describe, it, expect } from "bun:test";
+import JSZip from "jszip";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
@@ -73,6 +74,13 @@ Document contents after cover page.
 
     const html = await buildHtmlDocument(doc, {});
     expect(html).toContain("katex");
+
+    const docxBuf = await buildDocxDocument(doc, {});
+    expect(docxBuf.length).toBeGreaterThan(1000);
+    const zip = await JSZip.loadAsync(docxBuf);
+    const docXml = await zip.file("word/document.xml")?.async("string");
+    expect(docXml).toContain("<m:oMath>");
+    expect(docXml).toContain("<m:f>");
   });
 
   it("Feature 3: Multi-Column Container Directives (:::columns / :::col)", async () => {
