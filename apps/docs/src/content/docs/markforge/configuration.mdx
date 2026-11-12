@@ -49,6 +49,9 @@ export default defineConfig({
   // Output destination directory
   outputDir: ".temp/output",
 
+  // Custom browser path for headless rendering (optional, auto-detected by default)
+  // browserPath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+
   // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,
 
@@ -327,6 +330,7 @@ coverPage: {
   version: "1.0.0",                         // Fallback to {version}
   logo: "./assets/company-logo.png",        // Local path or URL
   logoWidth: 140,                           // Logo display width in px
+  logoHeight: 45,                           // Optional explicit height in px (auto-computed preserving aspect ratio if omitted)
   badge: "CONFIDENTIAL",                    // Top-right status badge text
   badgeColor: "#ECFDFD",                    // Badge background color
   badgeTextColor: "#0D998D",                // Badge text color

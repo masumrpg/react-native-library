@@ -10,9 +10,10 @@ import { findChromeExecutable } from "../pdf/pdfBuilder.js";
  */
 export async function renderMermaidToPng(
   mermaidCode: string,
-  _baseDir: string = process.cwd()
+  _baseDir: string = process.cwd(),
+  customBrowserPath?: string
 ): Promise<Buffer | null> {
-  const chromePath = findChromeExecutable();
+  const chromePath = findChromeExecutable(customBrowserPath);
   if (!chromePath) {
     return null;
   }
@@ -78,7 +79,6 @@ ${mermaidCode}
         "--disable-extensions",
         ...(isWin ? [] : ["--no-sandbox", "--disable-setuid-sandbox"]),
         "--allow-file-access-from-files",
-        "--disable-web-security",
         "--disable-software-rasterizer",
         "--window-size=1200,800",
         "--virtual-time-budget=5000",

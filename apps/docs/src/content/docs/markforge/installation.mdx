@@ -41,7 +41,7 @@ Verify your installation:
 
 ```bash
 markforge --version
-# Output: 0.6.0
+# Output: 0.7.0
 ```
 
 ---
@@ -99,14 +99,27 @@ PDF output is rendered via **headless Chromium**. MarkForge automatically detect
 **Enterprise & Windows Environments**: MarkForge runs headless Chromium with strict sandboxing flags (`--disable-sync`, `--no-first-run`, `--no-default-browser-check`, isolated temporary `--user-data-dir`, and zero external network font requests). On Windows, Microsoft Edge is automatically detected and prioritized.
 </Aside>
 
-### Custom Browser Path
+### Custom Browser Path & Configuration Fallback
 
-If your browser is installed in a non-standard location, set the `CHROME_PATH` environment variable:
+If your browser is installed in a non-standard location, you can configure it explicitly via `markforge.config.ts`, CLI flag, or environment variables:
 
-```bash
-# Linux / macOS
-export CHROME_PATH="/usr/local/bin/chromium"
+1. **In `markforge.config.ts`**:
+   ```typescript
+   export default defineConfig({
+     browserPath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+   });
+   ```
 
-# Windows (PowerShell)
-$env:CHROME_PATH = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-```
+2. **Via CLI Flag**:
+   ```bash
+   markforge doc.md --to pdf --browser-path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+   ```
+
+3. **Via Environment Variables**:
+   ```bash
+   # Linux / macOS
+   export CHROME_PATH="/usr/local/bin/chromium"
+
+   # Windows (PowerShell)
+   $env:MARKFORGE_BROWSER_PATH = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+   ```

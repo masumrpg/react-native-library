@@ -700,7 +700,8 @@ export async function buildDocxDocument(
 
     // Mermaid Diagram Nodes
     if (node.type === "mermaid") {
-      const pngBuffer = await renderMermaidToPng(node.text || "", baseDir);
+      const customBrowser = config.browserPath ?? config.chromiumPath ?? resolved.browserPath;
+      const pngBuffer = await renderMermaidToPng(node.text || "", baseDir, customBrowser);
       if (pngBuffer) {
         docElements.push(
           new Paragraph({
@@ -1151,7 +1152,8 @@ export async function buildDocxDocument(
 
   // Floating background watermark in Header (displayed across document pages behind text)
   if (resolved.watermark) {
-    const chromePath = findChromeExecutable();
+    const customBrowser = config.browserPath ?? config.chromiumPath ?? resolved.browserPath;
+    const chromePath = findChromeExecutable(customBrowser);
     let wmPng: Buffer | null = null;
     if (chromePath) {
       try {
@@ -1486,6 +1488,81 @@ export async function buildDocxDocument(
   return await Packer.toBuffer(document);
 }
 
+/**
+ * Calculates proportional image dimensions for cover and back cover logos,
+ * strictly preserving natural aspect ratio and preventing vertical stretching.
+ */
+function calculateProportionalLogoDimensions(
+  userWidth: number | string | undefined,
+  userHeight: number | string | undefined,
+  naturalWidth: number | undefined,
+  naturalHeight: number | undefined
+): { width: number; height: number } {
+  const parsedUserW = typeof userWidth === "number" ? userWidth : typeof userWidth === "string" ? parseInt(userWidth, 10) : undefined;
+  const parsedUserH = typeof userHeight === "number" ? userHeight : typeof userHeight === "string" ? parseInt(userHeight, 10) : undefined;
+
+  const validUserW = parsedUserW && !isNaN(parsedUserW) && parsedUserW > 0 ? parsedUserW : undefined;
+  const validUserH = parsedUserH && !isNaN(parsedUserH) && parsedUserH > 0 ? parsedUserH : undefined;
+
+  const naturalW = naturalWidth && naturalWidth > 0 ? naturalWidth : undefined;
+  const naturalH = naturalHeight && naturalHeight > 0 ? naturalHeight : undefined;
+
+  let finalW = 140;
+  let finalH = 50;
+
+  if (validUserW !== undefined && validUserH !== undefined) {
+    // User explicitly gave both dimensions
+    finalW = validUserW;
+    finalH = validUserH;
+  } else if (validUserW !== undefined) {
+    // User gave width: compute height preserving original image ratio
+    finalW = validUserW;
+    if (naturalW && naturalH) {
+      finalH = Math.round(validUserW * (naturalH / naturalW));
+    } else {
+      finalH = Math.round(validUserW * 0.4);
+    }
+  } else if (validUserH !== undefined) {
+    // User gave height: compute width preserving original image ratio
+    finalH = validUserH;
+    if (naturalW && naturalH) {
+      finalW = Math.round(validUserH * (naturalW / naturalH));
+    } else {
+      finalW = Math.round(validUserH * 2.5);
+    }
+  } else if (naturalW && naturalH) {
+    // Neither dimension specified: fit naturally within standard bounds (max 160 width, max 70 height)
+    // without any vertical stretching
+    const maxBoundW = 160;
+    const maxBoundH = 70;
+    const scale = Math.min(maxBoundW / naturalW, maxBoundH / naturalH, 1);
+    finalW = Math.round(naturalW * scale);
+    finalH = Math.round(naturalH * scale);
+  } else {
+    finalW = 140;
+    finalH = 50;
+  }
+
+  // Constrain upper limits to prevent breaking page layout while preserving aspect ratio
+  const maxDocxW = 450;
+  const maxDocxH = 180;
+  if (finalW > maxDocxW) {
+    const scale = maxDocxW / finalW;
+    finalW = maxDocxW;
+    finalH = Math.round(finalH * scale);
+  }
+  if (finalH > maxDocxH) {
+    const scale = maxDocxH / finalH;
+    finalH = maxDocxH;
+    finalW = Math.round(finalW * scale);
+  }
+
+  return {
+    width: Math.max(finalW, 10),
+    height: Math.max(finalH, 10),
+  };
+}
+
 async function buildDocxBackCoverElements(
   backCover: NormalizedBackCover,
   defaultFont: string,
@@ -1501,7 +1578,12 @@ async function buildDocxBackCoverElements(
   if (backCover.logo) {
     const resolvedLogo = await resolveImage(backCover.logo, baseDir);
     if (resolvedLogo) {
-      const logoW = typeof backCover.logoWidth === "number" ? backCover.logoWidth : 140;
+      const dims = calculateProportionalLogoDimensions(
+        backCover.logoWidth,
+        backCover.logoHeight,
+        resolvedLogo.width,
+        resolvedLogo.height
+      );
       const logoType = resolvedLogo.mimeType?.includes("png") ? "png" : "jpg";
       elements.push(
         new Paragraph({
@@ -1509,8 +1591,8 @@ async function buildDocxBackCoverElements(
             new ImageRun({
               data: resolvedLogo.buffer,
               transformation: {
-                width: logoW,
-                height: Math.round(logoW * 0.75),
+                width: dims.width,
+                height: dims.height,
               },
               type: logoType,
             }),
@@ -1637,7 +1719,12 @@ async function buildDocxCoverPageElements(
   if (cover.logo) {
     const resolvedLogo = await resolveImage(cover.logo, baseDir);
     if (resolvedLogo) {
-      const logoW = typeof cover.logoWidth === "number" ? cover.logoWidth : 140;
+      const dims = calculateProportionalLogoDimensions(
+        cover.logoWidth,
+        cover.logoHeight,
+        resolvedLogo.width,
+        resolvedLogo.height
+      );
       const logoType = resolvedLogo.mimeType?.includes("png") ? "png" : "jpg";
       elements.push(
         new Paragraph({
@@ -1645,8 +1732,8 @@ async function buildDocxCoverPageElements(
             new ImageRun({
               data: resolvedLogo.buffer,
               transformation: {
-                width: logoW,
-                height: Math.round(logoW * 0.75),
+                width: dims.width,
+                height: dims.height,
               },
               type: logoType,
             }),

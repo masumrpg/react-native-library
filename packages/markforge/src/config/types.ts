@@ -338,9 +338,15 @@ export interface CoverPageConfig {
   logo?: string;
 
   /**
-   * Width or height of the logo (e.g. 120, "120px", "3.5cm").
+   * Width of the logo (e.g. 140, "140px", "3.5cm").
    */
   logoWidth?: number | string;
+
+  /**
+   * Optional explicit height of the logo (e.g. 60, "60px", "2cm").
+   * When omitted, height is automatically calculated preserving the original aspect ratio without vertical stretching.
+   */
+  logoHeight?: number | string;
 
   /**
    * Custom background color or CSS gradient for the cover page.
@@ -471,6 +477,12 @@ export interface BackCoverConfig {
    * Logo width (e.g. 140, "140px", "3.5cm").
    */
   logoWidth?: number | string;
+
+  /**
+   * Optional explicit height of the logo (e.g. 60, "60px", "2cm").
+   * When omitted, height is automatically calculated preserving the original aspect ratio without vertical stretching.
+   */
+  logoHeight?: number | string;
 
   /**
    * Status / confidentiality badge.
@@ -863,6 +875,18 @@ export interface MarkforgeBuildOptions {
    * @default true
    */
   bundleHtml?: boolean;
+
+  /**
+   * Custom executable path to Chrome, Chromium, or Microsoft Edge browser.
+   * Overrides automatic browser detection for PDF and screenshot generation.
+   * @example "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+   */
+  browserPath?: string;
+
+  /**
+   * Alias for `browserPath`.
+   */
+  chromiumPath?: string;
 }
 
 /**

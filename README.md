@@ -12,6 +12,7 @@ Welcome to **Masum Dev** monorepo repository. This project contains high-perform
 │   ├── rn-ui/                 # Typed flat UI kit (63+ components, design tokens, light/dark mode)
 │   ├── rn-tajweed-verse/      # Tajweed Quranic verse parser & renderer with tooltips
 │   ├── rn-qr-code/            # Single-path SVG QR code generator with presets & async mode
+│   ├── markforge/             # Markdown & MDX multi-format publishing engine & CLI (DOCX, PDF, HTML)
 │   └── tscheck/               # TypeScript & AST auditing module
 ├── apps/
 │   ├── native/                # Interactive Expo playground app (iOS / Android / Web)

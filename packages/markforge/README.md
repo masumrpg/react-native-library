@@ -36,7 +36,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Image Inlining Engine** | Resolves local files, remote URLs, Base64 data URIs, and SVGs into self-contained embedded assets |
 | **Signatures & Approvals** | Multi-signatory approval blocks with customizable alignment, border styles, and signature images |
 | **Live-Reload Preview Server** | Real-time HTTP preview server (`--serve`) with Server-Sent Events (SSE) and scroll sync |
-| **Windows Corporate Compliance** | Native Microsoft Edge detection, clean isolated process arguments, and `windowsHide` support |
+| **Windows Corporate Compliance** | Native Microsoft Edge detection, custom `browserPath`, Windows Defender & EDR hardening, and `windowsHide` support |
 | **Type-Safe Config** | Unified `markforge.config.ts` with TypeScript Enums and clean Markdown frontmatter |
 | **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js and Bun |
 | **Ink Terminal UI** | Interactive TUI with live progress tracking, timers, and compilation metrics |
@@ -97,6 +97,7 @@ markforge document.md --serve --port 4000 --open
 | `--serve` | | Start local HTTP preview server | `false` |
 | `--port <number>` | `-p` | Local preview server port | `4000` |
 | `--open` | | Automatically open browser on preview | `false` |
+| `--browser-path <path>` | | Custom executable path to Chrome, Chromium, or Microsoft Edge | Auto-discovered |
 | `--version` | `-V` | Output version number | |
 | `--help` | `-h` | Display CLI help menu | |
 
@@ -124,6 +125,9 @@ export default defineConfig({
 
   // Destination folder
   outputDir: ".temp/output",
+
+  // Custom browser path (optional override for headless PDF and screenshots)
+  // browserPath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
 
   // Theme preset or custom ThemeProps
   theme: Theme.CORPORATE,

@@ -71,7 +71,9 @@ async function main() {
     .option("--no-toc", "Disable Table of Contents generation")
     .option("-w, --watch", "Watch input file for changes and recompile", false)
     .option("-s, --serve [port]", "Start interactive live-reload preview server")
-    .option("-O, --open", "Open preview or compiled document in default browser", false);
+    .option("-O, --open", "Open preview or compiled document in default browser", false)
+    .option("--browser-path <path>", "Custom executable path to Chrome, Chromium, or Microsoft Edge browser")
+    .option("--chromium-path <path>", "Alias for --browser-path");
 
   program.parse(process.argv);
 
@@ -105,6 +107,8 @@ async function main() {
   );
 
   // CLI options override config file
+  const cliBrowserPath = (options.browserPath as string | undefined) || (options.chromiumPath as string | undefined);
+
   const mergedConfig = {
     ...fileConfig,
     to: cliFormats && cliFormats.length > 0 ? cliFormats : (fileConfig.to ?? ["docx", "pdf"]),
@@ -113,6 +117,7 @@ async function main() {
     ...(options.theme ? { theme: options.theme as string } : {}),
     ...(options.css ? { css: options.css as string[] } : {}),
     ...(options.toc !== undefined ? { toc: Boolean(options.toc) } : {}),
+    ...(cliBrowserPath ? { browserPath: cliBrowserPath, chromiumPath: cliBrowserPath } : {}),
   };
 
   // If --serve is active, start live preview HTTP server

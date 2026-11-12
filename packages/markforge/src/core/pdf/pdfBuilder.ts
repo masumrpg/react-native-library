@@ -142,26 +142,98 @@ export function generateWatermarkPngBuffer(
 }
 
 /**
- * Finds available Chrome or Chromium binary for headless PDF rendering.
+ * Finds available Chrome, Chromium, or Microsoft Edge binary for headless PDF and screenshot rendering.
+ * Prioritizes Microsoft Edge on Windows (native system default).
+ * Supports manual path fallback in config, environment variables, and direct filesystem checks.
+ * Completely avoids reg.exe / powershell subprocess queries to ensure strict Windows Defender & EDR compliance.
  */
-export function findChromeExecutable(): string | null {
+export function findChromeExecutable(customPath?: string): string | null {
+  // 1. Explicit custom path passed from config or CLI
+  if (customPath && typeof customPath === "string" && customPath.trim()) {
+    const trimmed = customPath.trim();
+    if (fs.existsSync(trimmed)) {
+      return trimmed;
+    }
+    console.warn(
+      `[markforge] Configured browser executable path not found: "${trimmed}". Searching system for fallback browser...`
+    );
+  }
+
+  // 2. Explicit environment variables
+  if (process.env.MARKFORGE_BROWSER_PATH && fs.existsSync(process.env.MARKFORGE_BROWSER_PATH)) {
+    return process.env.MARKFORGE_BROWSER_PATH;
+  }
   if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
     return process.env.CHROME_PATH;
   }
   if (process.env.PUPPETEER_EXECUTABLE_PATH && fs.existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
   }
+  if (process.env.EDGE_PATH && fs.existsSync(process.env.EDGE_PATH)) {
+    return process.env.EDGE_PATH;
+  }
 
   const isWin = process.platform === "win32";
 
-  // Resolve Windows env-var paths at runtime
+  // Resolve Windows env-var paths at runtime without executing external processes
   const winLocalAppData = process.env.LOCALAPPDATA ?? "";
   const winProgramFiles = process.env.PROGRAMFILES ?? "C:\\Program Files";
   const winProgramFilesX86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
   const winProgramW6432 = process.env.ProgramW6432 ?? "C:\\Program Files";
   const winUserProfile = process.env.USERPROFILE ?? "";
+  const winSystemDrive = process.env.SystemDrive ?? "C:";
 
   const candidates: string[] = [
+    // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
+    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winProgramW6432}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winSystemDrive}\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winSystemDrive}\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge Dev\\Application\\msedge.exe`,
+    `${winLocalAppData}\\Microsoft\\Edge Beta\\Application\\msedge.exe`,
+
+    // Windows — Google Chrome & Chrome SxS (Canary)
+    `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winProgramW6432}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winSystemDrive}\\Program Files\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winSystemDrive}\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
+    `${winLocalAppData}\\Google\\Chrome SxS\\Application\\chrome.exe`,
+
+    // Windows — Brave Browser
+    `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winProgramW6432}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+    `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
+
+    // Windows — Chromium
+    `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
+
+    // Windows — Scoop Package Manager
+    `${winUserProfile}\\scoop\\apps\\msedge\\current\\msedge.exe`,
+    `${winUserProfile}\\scoop\\shims\\msedge.exe`,
+    `${winUserProfile}\\scoop\\apps\\googlechrome\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\chromium\\current\\chrome.exe`,
+    `${winUserProfile}\\scoop\\apps\\brave\\current\\brave.exe`,
+    `${winUserProfile}\\scoop\\shims\\chrome.exe`,
+
+    // Windows — Chocolatey
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\msedge.exe`,
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\chrome.exe`,
+    `${winSystemDrive}\\ProgramData\\chocolatey\\bin\\brave.exe`,
+    "C:\\ProgramData\\chocolatey\\bin\\msedge.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\chrome.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\brave.exe",
+
+    // macOS
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+
     // Linux
     "/usr/bin/google-chrome",
     "/usr/bin/google-chrome-stable",
@@ -171,47 +243,11 @@ export function findChromeExecutable(): string | null {
     "/usr/bin/microsoft-edge",
     "/usr/bin/microsoft-edge-stable",
     "/usr/bin/brave-browser",
-    // macOS
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-    "/Applications/Chromium.app/Contents/MacOS/Chromium",
-    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-    // Windows — Microsoft Edge (Native Windows 10/11 browser, enterprise whitelist friendly)
-    `${winProgramFiles}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winProgramFilesX86}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winProgramW6432}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge Dev\\Application\\msedge.exe`,
-    `${winLocalAppData}\\Microsoft\\Edge Beta\\Application\\msedge.exe`,
-    // Windows — Google Chrome & Chrome SxS (Canary)
-    `${winProgramFiles}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winProgramFilesX86}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winProgramW6432}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winLocalAppData}\\Google\\Chrome\\Application\\chrome.exe`,
-    `${winLocalAppData}\\Google\\Chrome SxS\\Application\\chrome.exe`,
-    // Windows — Brave Browser
-    `${winProgramFiles}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winProgramFilesX86}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winProgramW6432}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    `${winLocalAppData}\\BraveSoftware\\Brave-Browser\\Application\\brave.exe`,
-    // Windows — Chromium
-    `${winLocalAppData}\\Chromium\\Application\\chrome.exe`,
-    // Windows — Scoop Package Manager
-    `${winUserProfile}\\scoop\\apps\\googlechrome\\current\\chrome.exe`,
-    `${winUserProfile}\\scoop\\apps\\chromium\\current\\chrome.exe`,
-    `${winUserProfile}\\scoop\\apps\\brave\\current\\brave.exe`,
-    `${winUserProfile}\\scoop\\apps\\msedge\\current\\msedge.exe`,
-    `${winUserProfile}\\scoop\\shims\\chrome.exe`,
-    `${winUserProfile}\\scoop\\shims\\msedge.exe`,
-    // Windows — Chocolatey
-    "C:\\ProgramData\\chocolatey\\bin\\chrome.exe",
-    "C:\\ProgramData\\chocolatey\\bin\\msedge.exe",
-    "C:\\ProgramData\\chocolatey\\bin\\brave.exe",
   ].filter(Boolean);
 
   for (const candidate of candidates) {
     try {
-      if (fs.existsSync(candidate)) {
+      if (candidate && fs.existsSync(candidate)) {
         return candidate;
       }
     } catch {
@@ -219,12 +255,12 @@ export function findChromeExecutable(): string | null {
     }
   }
 
-  // Check PATH via which/where (including msedge and brave on Windows)
+  // Check PATH via which/where (prioritizing msedge and chrome on Windows)
   try {
     const cmd = isWin ? "where.exe" : "which";
     const names = isWin
-      ? ["chrome.exe", "msedge.exe", "brave.exe", "chrome", "msedge", "brave", "google-chrome", "chromium", "chromium-browser"]
-      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "brave-browser"];
+      ? ["msedge.exe", "chrome.exe", "brave.exe", "msedge", "chrome", "brave", "google-chrome", "chromium", "chromium-browser"]
+      : ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge", "microsoft-edge-stable", "brave-browser"];
 
     for (const name of names) {
       const res = spawnSync(cmd, [name], { encoding: "utf-8", windowsHide: true });
@@ -563,18 +599,20 @@ startxref
  */
 export async function buildPdfDocument(
   doc: ParsedMarkdownDocument,
-  config: MarkforgeConfig,
+  config: MarkforgeConfig = {},
   baseDir: string = process.cwd()
 ): Promise<Buffer> {
   const baseHtml = await buildHtmlDocument(doc, config, baseDir);
   const pagedHtml = injectPagedMediaStyles(baseHtml, config, doc.metadata as Record<string, unknown>);
 
-  const chromePath = findChromeExecutable();
+  const resolved = resolveDocumentConfig(doc.metadata as Record<string, unknown>, config);
+  const customBrowser = config.browserPath ?? config.chromiumPath ?? resolved.browserPath;
+  const chromePath = findChromeExecutable(customBrowser);
 
   if (!chromePath) {
     console.warn(
       "Headless Chrome / Chromium / Edge executable not found for PDF document export. " +
-        "Please install Google Chrome, Chromium, or Microsoft Edge, or set CHROME_PATH environment variable."
+        "Please install Google Chrome, Chromium, or Microsoft Edge, or specify 'browserPath' in your config / CHROME_PATH environment variable."
     );
   }
 
@@ -600,8 +638,6 @@ export async function buildPdfDocument(
       "--disable-breakpad",
       "--disable-component-extensions-with-background-pages",
       "--disable-features=Translate,OptimizationHints,MediaRouter,DialMediaRouteProvider,CalculatedNewTabPage,ChromeWhatsNewUI,PrivacySandboxSettings4",
-      "--password-store=basic",
-      "--use-mock-keychain",
       "--mute-audio",
       "--no-service-autorun",
       "--disable-gpu",

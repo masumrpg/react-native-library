@@ -147,6 +147,7 @@ export interface NormalizedCoverPage {
   badgeTextColor?: string;
   logo?: string;
   logoWidth?: number | string;
+  logoHeight?: number | string;
   bgGradient?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -183,6 +184,7 @@ export interface NormalizedBackCover {
   badgeTextColor?: string;
   logo?: string;
   logoWidth?: number | string;
+  logoHeight?: number | string;
   bgGradient?: string;
   backgroundColor?: string;
   textColor?: string;
@@ -269,6 +271,8 @@ export interface ResolvedDocumentConfig {
   syntaxTheme: string;
   to: MarkforgeFormat[];
   outputDir?: string;
+  browserPath?: string;
+  chromiumPath?: string;
 }
 
 /**
@@ -563,6 +567,7 @@ export function normalizeCoverPage(
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
+  const logoHeight = cfg.logoHeight as number | string | undefined;
   const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
@@ -604,6 +609,7 @@ export function normalizeCoverPage(
     badgeTextColor,
     logo,
     logoWidth,
+    logoHeight,
     bgGradient,
     backgroundColor,
     textColor,
@@ -669,6 +675,7 @@ export function normalizeBackCover(
   const badgeTextColor = typeof cfg.badgeTextColor === "string" ? cfg.badgeTextColor : undefined;
   const logo = typeof cfg.logo === "string" ? cfg.logo : undefined;
   const logoWidth = cfg.logoWidth as number | string | undefined;
+  const logoHeight = cfg.logoHeight as number | string | undefined;
   const bgGradient = typeof cfg.bgGradient === "string" ? cfg.bgGradient : typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const backgroundColor = typeof cfg.backgroundColor === "string" ? cfg.backgroundColor : undefined;
   const textColor = typeof cfg.textColor === "string" ? cfg.textColor : undefined;
@@ -697,6 +704,7 @@ export function normalizeBackCover(
     badgeTextColor,
     logo,
     logoWidth,
+    logoHeight,
     bgGradient,
     backgroundColor,
     textColor,
@@ -950,6 +958,15 @@ export function resolveDocumentConfig(
 
   const syntaxTheme = (frontmatter.syntaxTheme as string | undefined) || userConfig.syntaxTheme || DEFAULT_CONFIG.syntaxTheme || "github-dark";
 
+  const rawBrowser =
+    (frontmatter.browserPath as string | undefined) ??
+    (frontmatter.chromiumPath as string | undefined) ??
+    (frontmatter["browser-path"] as string | undefined) ??
+    (frontmatter["chromium-path"] as string | undefined) ??
+    userConfig.browserPath ??
+    userConfig.chromiumPath;
+  const browserPath = typeof rawBrowser === "string" && rawBrowser.trim() ? rawBrowser.trim() : undefined;
+
   return {
     title,
     subtitle,
@@ -980,5 +997,7 @@ export function resolveDocumentConfig(
     syntaxTheme,
     to: resolvedTo,
     outputDir: resolvedOutputDir,
+    browserPath,
+    chromiumPath: browserPath,
   };
 }

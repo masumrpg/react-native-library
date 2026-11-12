@@ -239,9 +239,12 @@ export async function renderCoverPageHtml(
   if (cover.logo) {
     const resolvedLogo = await resolveImage(cover.logo, baseDir);
     const src = resolvedLogo ? resolvedLogo.dataUri : cover.logo;
+    const heightLimit = cover.logoHeight
+      ? typeof cover.logoHeight === "number" ? `${cover.logoHeight}px` : cover.logoHeight
+      : "80px";
     const widthStyle = cover.logoWidth
-      ? `max-width: ${typeof cover.logoWidth === "number" ? cover.logoWidth + "px" : cover.logoWidth}; max-height: 80px; width: auto; height: auto;`
-      : "max-height: 60px; max-width: 180px; width: auto; height: auto;";
+      ? `max-width: ${typeof cover.logoWidth === "number" ? cover.logoWidth + "px" : cover.logoWidth}; max-height: ${heightLimit}; width: auto; height: auto;`
+      : `max-height: ${heightLimit}; max-width: 180px; width: auto; height: auto;`;
     logoHtml = `<div class="cover-logo"><img src="${src}" alt="Logo" style="${widthStyle} object-fit: contain;" /></div>`;
   }
 
@@ -398,9 +401,12 @@ export async function renderBackCoverHtml(
   if (backCover.logo) {
     const resolved = await resolveImage(backCover.logo, baseDir);
     const src = resolved ? resolved.dataUri : backCover.logo;
+    const heightLimit = backCover.logoHeight
+      ? typeof backCover.logoHeight === "number" ? `${backCover.logoHeight}px` : backCover.logoHeight
+      : "80px";
     const widthStyle = backCover.logoWidth
-      ? `style="width: ${typeof backCover.logoWidth === "number" ? `${backCover.logoWidth}px` : backCover.logoWidth}; max-width: 100%;"`
-      : `style="max-width: 160px; height: auto;"`;
+      ? `style="width: ${typeof backCover.logoWidth === "number" ? `${backCover.logoWidth}px` : backCover.logoWidth}; max-height: ${heightLimit}; max-width: 100%; height: auto;"`
+      : `style="max-width: 160px; max-height: ${heightLimit}; height: auto;"`;
     logoHtml = `<div class="back-logo"><img src="${src}" alt="Brand Logo" ${widthStyle} /></div>`;
   }
 

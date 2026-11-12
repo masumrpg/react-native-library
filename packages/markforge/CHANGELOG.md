@@ -5,6 +5,30 @@ All notable changes to **@masumdev/markforge** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-11-12
+
+### Added
+- **Microsoft Edge Priority & Windows Auto-Discovery**:
+  - Headless PDF and screenshot generation on Windows now prioritizes **Microsoft Edge** (`msedge.exe`) as the system-native Chromium browser across `Program Files`, `Program Files (x86)`, `SystemDrive`, and `LocalAppData`.
+  - Guarantees seamless out-of-the-box PDF compilation on Windows 10 & Windows 11 without requiring a separate Google Chrome installation.
+- **Manual Browser Path Configuration (`browserPath` / `chromiumPath`)**:
+  - Added `browserPath` (and alias `chromiumPath`) to `markforge.config.ts`, Markdown frontmatter, and API options.
+  - Added CLI flags `--browser-path <path>` and `--chromium-path <path>`.
+  - Added support for `MARKFORGE_BROWSER_PATH` and `EDGE_PATH` environment variables alongside existing `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH`.
+- **Proportional Cover Page & Back Cover Logo Aspect Ratio Preservation**:
+  - Implemented zero-dependency `getImageDimensions` in `imageResolver.ts` supporting PNG, JPEG, GIF, SVG, WebP, and BMP buffer header parsing.
+  - Added `calculateProportionalLogoDimensions` in `docxBuilder.ts` to strictly maintain natural image aspect ratios and prevent vertical logo stretching in Microsoft Word (DOCX).
+  - Added `logoHeight` configuration and frontmatter property for optional explicit height overrides.
+
+### Security & Hardening
+- **Windows Defender & Enterprise EDR Compliance**:
+  - Eliminated subprocess registry execution (`reg.exe`) in favor of direct, zero-process filesystem checks (`fs.existsSync`).
+  - Removed risky infostealer-associated flags (`--password-store=basic`, `--use-mock-keychain`) from headless browser launches.
+  - Removed `--disable-web-security` from Mermaid diagram rendering.
+  - Enforced strict browser sandboxing on Windows, ensuring `--no-sandbox` is never passed on Windows environments.
+
+---
+
 ## [0.6.0] - 2026-11-08
 
 ### Added

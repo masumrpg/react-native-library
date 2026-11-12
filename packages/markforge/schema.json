@@ -306,6 +306,7 @@
             "badgeTextColor": { "type": "string" },
             "logo": { "type": "string" },
             "logoWidth": { "type": ["number", "string"] },
+            "logoHeight": { "type": ["number", "string"] },
             "titleColor": { "type": "string" },
             "subtitleColor": { "type": "string" },
             "accentColor": { "type": "string" },
@@ -463,6 +464,14 @@
       "type": "boolean",
       "description": "Produce self-contained HTML with embedded styles and scripts",
       "default": true
+    },
+    "browserPath": {
+      "type": "string",
+      "description": "Custom executable path to Chrome, Chromium, or Microsoft Edge browser for headless rendering"
+    },
+    "chromiumPath": {
+      "type": "string",
+      "description": "Alias for browserPath"
     },
     "watch": {
       "type": "boolean",
