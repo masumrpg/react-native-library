@@ -6,6 +6,29 @@ sidebar:
 description: Release history and version notes for @masumdev/markforge.
 ---
 
+## [0.10.0] - 2026-11-14
+
+### React Headless Primitives, Document Hooks & Reactive Preview Engine
+
+- **Dedicated Subpath Export (`@masumdev/markforge/react`)**:
+  - Exported native React components, hooks, and TypeScript definitions via `@masumdev/markforge/react` with dedicated `dist/react.d.ts` type definitions and tree-shakeable CJS/ESM bundles.
+  - Also re-exported from root `@masumdev/markforge` for maximum developer convenience.
+- **`<MarkforgeDocument />` Declarative Document Canvas**:
+  - Renders Markdown/MDX into a reactive React component tree.
+  - Supports **`mode="continuous"`** (responsive web reading layout) and **`mode="paginated"`** (A4 sheet cards with drop shadows, page breaks, and print simulation).
+  - Built-in theme styling (`corporate`, `academic`, `github`, `minimal`, or custom `ThemeProps`), KaTeX equations, Mermaid diagram containers, and unselectable watermark overlays.
+- **100% Flexible Headless Component Slots (`components` Prop)**:
+  - Supports slot overrides for `heading`, `paragraph`, `codeBlock`, `blockquote`, `callout`, `table`, `mermaid`, `math`, `columns`, `coverPage`, and `backCover`.
+  - Enables developers to plug in their own UI components (e.g. custom syntax highlighters, interactive alert boxes, zoomable diagrams).
+- **Headless React Hooks**:
+  - **`useMarkforge()`**: Memoized AST parser, TOC extractor, statistics calculator (words, characters, reading minutes, estimated pages), and programmatic export helpers (`exportPdf()`, `exportDocx()`, `exportHtml()`).
+  - **`useMarkforgeToc()`**: Automatic Scroll Spy with `IntersectionObserver` to track the active heading in viewport and smooth scrolling navigation.
+- **Upgraded CLI Live Preview Server (`previewServer.ts`)**:
+  - Migrated `/document-content` preview frame from static HTML string builder to React server-side component markup (`renderToStaticMarkup`).
+  - Eliminates flickering and scroll jumps during live editing with Server-Sent Events (SSE).
+
+---
+
 ## [0.9.0] - 2026-11-13
 
 ### Native ESM Mermaid Engine, Universal Diagram Theming & Proportional Layout

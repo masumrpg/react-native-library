@@ -339,3 +339,76 @@ In your React frontend, preview the stream with a standard native `<iframe>`:
 ```tsx
 <iframe src={pdfBlobUrl} width="100%" height="800px" style={{ border: "none" }} />
 ```
+
+---
+
+### 13. React Headless Primitives & Hooks (`@masumdev/markforge/react`)
+
+MarkForge provides native, unstyled, and 100% customizable React components and headless hooks to build interactive document viewers, web readers, or live editing environments directly in React, Next.js, and Vite applications without requiring an iframe or backend compilation:
+
+```tsx
+import React from "react";
+import {
+  MarkforgeDocument,
+  useMarkforge,
+  useMarkforgeToc,
+  type MarkforgeComponentOverrides,
+} from "@masumdev/markforge/react";
+
+export function DocumentViewer({ markdown }: { markdown: string }) {
+  // 1. Headless data, statistics, and programmatic export helpers
+  const { toc, stats, metadata, exportPdf, exportDocx, exportHtml } = useMarkforge({ markdown });
+
+  // 2. Headless Scroll Spy & TOC navigation hook
+  const { activeId, scrollToHeading } = useMarkforgeToc({ offsetPx: 80 });
+
+  // 3. Optional 100% custom component slot overrides
+  const customComponents: MarkforgeComponentOverrides = {
+    heading: ({ level, id, children }) => (
+      <h2 id={id} className="text-2xl font-bold text-teal-600">
+        {children}
+      </h2>
+    ),
+    callout: ({ type, children }) => (
+      <div className={`p-4 rounded-lg my-4 alert alert-${type.toLowerCase()}`}>
+        {children}
+      </div>
+    ),
+  };
+
+  return (
+    <div className="flex gap-8">
+      {/* Interactive Table of Contents Sidebar */}
+      <aside className="w-64 sticky top-4">
+        <h3 className="font-bold text-lg mb-2">Table of Contents</h3>
+        <ul className="space-y-1">
+          {toc.map((item) => (
+            <li key={item.id} style={{ paddingLeft: `${(item.level - 1) * 12}px` }}>
+              <button
+                onClick={() => scrollToHeading(item.id)}
+                className={`text-sm text-left ${activeId === item.id ? "font-bold text-teal-600" : "text-gray-600"}`}
+              >
+                {item.text}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      {/* Render Document Canvas (A4 Paginated or Continuous Flow) */}
+      <main className="flex-1">
+        <MarkforgeDocument
+          markdown={markdown}
+          theme="corporate"
+          mode="paginated" // or "continuous"
+          zoom={1.0}
+          showCoverPage={true}
+          watermark="CONFIDENTIAL"
+          components={customComponents}
+        />
+      </main>
+    </div>
+  );
+}
+```
+
