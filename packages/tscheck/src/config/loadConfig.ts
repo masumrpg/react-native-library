@@ -12,28 +12,17 @@ export { DEFAULT_CONFIG, DEFAULT_CONFIG_FILENAMES } from "./defaults.js";
  * and walking up to the filesystem root, and checks process.cwd().
  */
 function discoverConfigFile(startDir: string): string | null {
-  const dirsToCheck: string[] = [];
-
   let curr = path.resolve(startDir);
   while (curr) {
-    dirsToCheck.push(curr);
-    const parent = path.dirname(curr);
-    if (parent === curr) break;
-    curr = parent;
-  }
-
-  const cwd = path.resolve(process.cwd());
-  if (!dirsToCheck.includes(cwd)) {
-    dirsToCheck.push(cwd);
-  }
-
-  for (const dir of dirsToCheck) {
     for (const filename of DEFAULT_CONFIG_FILENAMES) {
-      const candidate = path.join(dir, filename);
+      const candidate = path.join(curr, filename);
       if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
         return candidate;
       }
     }
+    const parent = path.dirname(curr);
+    if (parent === curr) break;
+    curr = parent;
   }
 
   return null;

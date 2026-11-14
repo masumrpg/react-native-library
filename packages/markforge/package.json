@@ -1,6 +1,6 @@
 {
   "name": "@masumdev/markforge",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Modern, high-performance Markdown & MDX multi-format document publishing engine and CLI (DOCX, PDF, HTML, and Images) with embedded HTML/CSS, image inliner, and Ink terminal UI.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,6 +14,12 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js",
+      "default": "./dist/react.js"
     },
     "./schema.json": "./schema.json"
   },
@@ -67,11 +73,13 @@
     "pdf-lib": "^1.17.1",
     "picocolors": "^1.1.1",
     "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
     "@types/katex": "^0.16.8",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "bun-types": "^1.4.0",
     "ink-testing-library": "^4.0.0",
     "tsup": "^8.3.6",

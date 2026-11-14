@@ -41,6 +41,7 @@ Convert Markdown into pixel-perfect **DOCX**, **PDF**, and **HTML** with native 
 | **Live-Reload Preview Server** | Real-time HTTP preview server (`--serve`) with Server-Sent Events (SSE) and scroll sync |
 | **Windows Corporate Compliance** | Native Microsoft Edge detection, custom `browserPath`, Windows Defender & EDR hardening, and `windowsHide` support |
 | **Type-Safe Config** | Unified `markforge.config.ts` with TypeScript Enums and clean Markdown frontmatter |
+| **React Headless Primitives** | Dedicated `@masumdev/markforge/react` subpath with `<MarkforgeDocument />`, `useMarkforge`, and `useMarkforgeToc` |
 | **Programmatic API** | High-level `compileMarkdown()` and low-level AST document builders for Node.js and Bun |
 | **Ink Terminal UI** | Interactive TUI with live progress tracking, timers, and compilation metrics |
 
@@ -355,6 +356,78 @@ const doc = parseMarkdown(rawMarkdown);
 const docxBuffer = await buildDocxDocument(doc, { theme: Theme.CORPORATE });
 const pdfBuffer = await buildPdfDocument(doc, { theme: Theme.CORPORATE });
 const htmlString = await buildHtmlDocument(doc, { theme: Theme.CORPORATE });
+```
+
+---
+
+## React Headless Primitives & Hooks (`@masumdev/markforge/react`)
+
+MarkForge provides native, unstyled, and 100% customizable React components and headless hooks to build interactive document viewers, web readers, or live preview workspaces in React, Next.js, and Vite:
+
+```tsx
+import React from "react";
+import {
+  MarkforgeDocument,
+  useMarkforge,
+  useMarkforgeToc,
+  type MarkforgeComponentOverrides,
+} from "@masumdev/markforge/react";
+
+export function DocumentViewer({ markdown }: { markdown: string }) {
+  // 1. Headless data, statistics, and export helpers hook
+  const { toc, stats, metadata, exportPdf, exportDocx, exportHtml } = useMarkforge({ markdown });
+
+  // 2. Headless Scroll Spy & TOC navigation hook
+  const { activeId, scrollToHeading } = useMarkforgeToc();
+
+  // 3. Optional 100% custom component slot overrides
+  const customComponents: MarkforgeComponentOverrides = {
+    heading: ({ level, id, children }) => (
+      <h2 id={id} className="text-2xl font-bold text-teal-600">
+        {children}
+      </h2>
+    ),
+    callout: ({ type, children }) => (
+      <div className={`p-4 rounded-lg my-4 alert alert-${type.toLowerCase()}`}>
+        {children}
+      </div>
+    ),
+  };
+
+  return (
+    <div className="flex gap-8">
+      {/* Interactive Table of Contents Sidebar */}
+      <aside className="w-64 sticky top-4">
+        <h3>Contents</h3>
+        <ul>
+          {toc.map((item) => (
+            <li key={item.id}>
+              <button
+                onClick={() => scrollToHeading(item.id)}
+                className={activeId === item.id ? "font-bold text-teal-600" : ""}
+              >
+                {item.text}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      {/* Render Document Canvas (A4 Paginated or Continuous Flow) */}
+      <main className="flex-1">
+        <MarkforgeDocument
+          markdown={markdown}
+          theme="corporate"
+          mode="paginated" // or "continuous"
+          zoom={1.0}
+          showCoverPage={true}
+          watermark="CONFIDENTIAL"
+          components={customComponents}
+        />
+      </main>
+    </div>
+  );
+}
 ```
 
 ---

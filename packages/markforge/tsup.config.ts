@@ -36,4 +36,15 @@ export default defineConfig([
     outDir: "dist",
     tsconfig: "tsconfig.build.json",
   },
+  {
+    entry: { react: "src/react/index.ts" },
+    format: ["cjs", "esm"],
+    dts: true,
+    outDir: "dist",
+    tsconfig: "tsconfig.build.json",
+    banner: {
+      js: LOCALSTORAGE_POLYFILL,
+    },
+    external: ["react", "react-dom"],
+  },
 ]);
