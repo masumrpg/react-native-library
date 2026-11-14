@@ -180,34 +180,62 @@ export async function startPreviewServer(
       }
     }
 
-    // 5. Rendered Document HTML Frame Endpoint
+    // 5. Rendered Document HTML Frame Endpoint (React-Powered Document Canvas)
     if (url.pathname === "/document-content") {
       try {
         const mdContent = fs.readFileSync(absoluteFilePath, "utf-8");
-        const doc = parseMarkdown(mdContent);
         const { config: resolvedConfig } = await loadConfig(undefined, baseDir);
-        const html = await buildHtmlDocument(doc, { ...baseConfig, ...resolvedConfig }, baseDir);
+        const mergedConfig = { ...baseConfig, ...resolvedConfig };
 
-        // Inject scroll-preservation and auto-reload script inside document frame
-        const injectedScript = `
-        <script>
-        (function() {
-          var evtSource = new EventSource('/events');
-          evtSource.addEventListener('reload', function() {
-            var scrollPos = window.scrollY;
-            sessionStorage.setItem('markforge_scroll', scrollPos);
-            window.location.reload();
-          });
-          window.addEventListener('load', function() {
-            var saved = sessionStorage.getItem('markforge_scroll');
-            if (saved) {
-              window.scrollTo(0, parseInt(saved, 10));
-            }
-          });
-        })();
-        </script>
-        `;
-        const finalHtml = html.replace("</body>", `${injectedScript}</body>`);
+        // Render document canvas via React Server-Side Component Markup
+        const { renderToStaticMarkup } = await import("react-dom/server");
+        const { MarkforgeDocument } = await import("../react/components/MarkforgeDocument.js");
+        const React = (await import("react")).default;
+
+        const reactMarkup = renderToStaticMarkup(
+          React.createElement(MarkforgeDocument, {
+            markdown: mdContent,
+            theme: mergedConfig.theme,
+            mode: "continuous",
+            showCoverPage: true,
+            showBackCover: true,
+            showTableOfContents: true,
+          })
+        );
+
+        const finalHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkForge Preview</title>
+</head>
+<body>
+  ${reactMarkup}
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    window.mermaid = mermaid;
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    mermaid.run();
+  </script>
+  <script>
+  (function() {
+    var evtSource = new EventSource('/events');
+    evtSource.addEventListener('reload', function() {
+      var scrollPos = window.scrollY;
+      sessionStorage.setItem('markforge_scroll', scrollPos);
+      window.location.reload();
+    });
+    window.addEventListener('load', function() {
+      var saved = sessionStorage.getItem('markforge_scroll');
+      if (saved) {
+        window.scrollTo(0, parseInt(saved, 10));
+      }
+    });
+  })();
+  </script>
+</body>
+</html>`;
 
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         res.end(finalHtml);
